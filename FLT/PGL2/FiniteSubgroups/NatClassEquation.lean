@@ -108,6 +108,7 @@ lemma card_conjugates_eq_normalizer_index {G' : Type*} [Group G'] [Fintype G']
           (key2.symm ▸ hy), by group⟩
     exact ⟨g, Subtype.ext (by rw [hg, h_conj])⟩
 
+@[nolint unusedArguments]
 lemma conjClass_unique_index {G' : Type*} [Group G'] [Fintype G']
     (r : ℕ) (H : Fin r → Subgroup G')
     (hdisjoint : ∀ K L : Subgroup G',
@@ -151,12 +152,14 @@ lemma conjClass_unique_index {G' : Type*} [Group G'] [Fintype G']
 
 
 
+/-- The finset of non-identity elements of `G'` lying in some conjugate of the subgroup `H`. -/
 def conjClassElements {G' : Type*} [Group G'] [Fintype G']
     (H : Subgroup G') : Finset G' :=
   Finset.univ.filter (fun x ↦ x ≠ 1 ∧ ∃ g : G', x ∈ H.map (MulAut.conj g).toMonoidHom)
 
 
 
+/-- The finset of non-identity elements of the conjugate subgroup `H.map (MulAut.conj g)`. -/
 def conjNonidentity {G' : Type*} [Group G'] [Fintype G']
     (H : Subgroup G') (g : G') : Finset G' :=
   Finset.univ.filter (fun x ↦ x ≠ 1 ∧ x ∈ H.map (MulAut.conj g).toMonoidHom)

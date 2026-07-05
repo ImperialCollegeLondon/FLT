@@ -56,6 +56,9 @@ noncomputable section DiagRatio
 variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]
 
 
+/-- The group homomorphism from a finite subgroup `H` of `PGL p` fixing `infinity` to `(K p)ˣ`,
+sending each element to its dilation parameter. -/
+@[nolint unusedArguments]
 noncomputable def dilationHomOfFix (H : Subgroup (PGL p)) [Finite H]
     (hH_fix : ∀ g : H, (g : PGL p) • infinity p = infinity p) :
     H →* (K p)ˣ where
@@ -115,6 +118,7 @@ noncomputable section
 variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]
 
 
+/-- A single summand `1 / sᵢ * (1 - 1 / zᵢ)` appearing in the class-equation sum. -/
 abbrev partitionTerm (si zi : ℕ) : ℚ := 1 / (si : ℚ) * (1 - 1 / (zi : ℚ))
 
 
@@ -161,9 +165,9 @@ theorem sylow_comm_exp_p (G : Subgroup (PGL p)) [Finite G]
 
 theorem group_fixes_sylow_point (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) (hP_normal : (P : Subgroup G).Normal)
-    (g : G) : (g : PGL p) • sylow_fixedPoint p G hG_p P = sylow_fixedPoint p G hG_p P := by
+    (g : G) : (g : PGL p) • sylowFixedPoint p G hG_p P = sylowFixedPoint p G hG_p P := by
   let H := (P : Subgroup G).map (Subgroup.subtype G)
-  let x := sylow_fixedPoint p G hG_p P
+  let x := sylowFixedPoint p G hG_p P
   have hx_spec := (sylow_unique_fixedPoint p G hG_p P).choose_spec
   have h_conj_fixedPoint : ∀ h ∈ H, h • ((g : PGL p) • x) = (g : PGL p) • x := by
     intro h hh
@@ -217,7 +221,7 @@ theorem complement_isCyclic (G : Subgroup (PGL p)) [Finite G]
   let K' := K.map G.subtype
   let e : K ≃* K' := Subgroup.equivMapOfInjective K G.subtype Subtype.coe_injective
   haveI : Finite K' := Finite.of_equiv K e.toEquiv
-  let x := sylow_fixedPoint p G hG_p P
+  let x := sylowFixedPoint p G hG_p P
   have hK'_fix : ∀ g : K', (g : PGL p) • x = x := fun ⟨_, hg⟩ ↦ by
     obtain ⟨k, _, rfl⟩ := Subgroup.mem_map.mp hg
     exact group_fixes_sylow_point p G hG_p P hP_normal k

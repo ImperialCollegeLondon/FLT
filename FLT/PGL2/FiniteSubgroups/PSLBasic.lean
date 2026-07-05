@@ -64,12 +64,14 @@ section SL2Gen
 variable (F : Type*) [Field F]
 
 
+/-- The elementary matrix `e₁₂ a = !![1, a; 0, 1]` as an element of `SL₂(F)`. -/
 def SL2.E12 (a : F) : Matrix.SpecialLinearGroup (Fin 2) F :=
   ⟨!![1, a; 0, 1], by
     rw [Matrix.det_fin_two]
     change (1 : F) * 1 - a * 0 = 1
     rw [mul_zero, sub_zero, mul_one]⟩
 
+/-- The elementary matrix `e₂₁ b = !![1, 0; b, 1]` as an element of `SL₂(F)`. -/
 def SL2.E21 (b : F) : Matrix.SpecialLinearGroup (Fin 2) F :=
   ⟨!![1, 0; b, 1], by
     rw [Matrix.det_fin_two]
@@ -142,10 +144,13 @@ section PGLOrder
 variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]
 
 
+/-- The natural homomorphism `SL₂(F) → PGL₂(F)` sending a matrix to the class of its
+image in `GL₂(F)`. -/
 def SL2ToPGL (F : Type*) [Field F] : Matrix.SpecialLinearGroup (Fin 2) F →* PGLOf F :=
   (QuotientGroup.mk' _).comp Matrix.SpecialLinearGroup.toGL
 
 
+/-- The image of `PSL₂(F)` inside `PGL₂(F)`, namely the range of `SL2ToPGL F`. -/
 def PSLImageInPGL (F : Type*) [Field F] : Subgroup (PGLOf F) :=
   (SL2ToPGL F).range
 
@@ -207,6 +212,7 @@ theorem PGL.orderOf_E12_image (F : Type*) [Field F] [CharP F p] (a : F) (ha : a 
          _ = 0                             := by ring
 
 
+@[nolint unusedArguments]
 theorem PSLImageInPGL_le_of_index_two (F : Type*) [Field F] [CharP F p] [Fintype F]
     (H : Subgroup (PGLOf F)) (hH : H.index = 2) :
     PSLImageInPGL F ≤ H := by
@@ -530,9 +536,12 @@ lemma PSL2_ZMod3_equiv_GF31 :
     rw [map_mul, map_mul, slMap.apply_symm_apply]
     exact hh (slMap x)
 
+/-- The special linear group `SL₂(𝔽₃)`. -/
 abbrev SL2F3 := SpecialLinearGroup (Fin 2) (ZMod 3)
+/-- The projective special linear group `PSL₂(𝔽₃)`. -/
 abbrev PSL2F3 := ProjectiveSpecialLinearGroup (Fin 2) (ZMod 3)
 
+/-- A choice of representative vector in `𝔽₃²` for each of the four points of `ℙ¹(𝔽₃)`. -/
 def p1Rep : Fin 4 → Fin 2 → ZMod 3
   | 0 => ![1, 0] | 1 => ![0, 1] | 2 => ![1, 1] | 3 => ![1, 2]
 
@@ -544,6 +553,8 @@ def p1Proj (v : Fin 2 → ZMod 3) : Fin 4 :=
   else let r := v 0 * v 1
     if r = 0 then 1 else if r = 1 then 2 else 3
 
+/-- The action of a matrix `M` on the four points of `ℙ¹(𝔽₃)`, obtained by applying `M`
+to a representative vector and projecting back. -/
 def p1Act (M : Matrix (Fin 2) (Fin 2) (ZMod 3)) : Fin 4 → Fin 4 :=
   fun p ↦ p1Proj (M.mulVec (p1Rep p))
 
@@ -597,9 +608,12 @@ instance sl2F3MulAction : MulAction SL2F3 (Fin 4) where
     simp only [p1Act, ← mulVec_mulVec]
     exact (p1Proj_mulVec_rep_proj M.1 _ (sl2_mulVec_ne_zero N (p1Rep x) (p1Rep_ne_zero x))).symm
 
+/-- The permutation representation `SL₂(𝔽₃) → S₄` induced by the action on `ℙ¹(𝔽₃)`. -/
 def sl2F3ToPermHom : SL2F3 →* Equiv.Perm (Fin 4) := MulAction.toPermHom _ _
 
+/-- The upper elementary generator `!![1, 1; 0, 1]` of `SL₂(𝔽₃)`. -/
 def U₁ : SL2F3 := ⟨!![1, 1; 0, 1], by rw [det_fin_two]; rfl⟩
+/-- The lower elementary generator `!![1, 0; 1, 1]` of `SL₂(𝔽₃)`. -/
 def L₁ : SL2F3 := ⟨!![1, 0; 1, 1], by rw [det_fin_two]; rfl⟩
 
 lemma central_is_scalar (M : SL2F3) (hU : U₁ * M = M * U₁) (hL : L₁ * M = M * L₁) :

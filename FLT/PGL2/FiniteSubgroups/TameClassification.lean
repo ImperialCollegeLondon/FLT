@@ -69,6 +69,8 @@ theorem tame_ncard_fixedPoints_eq_two (G : Subgroup (PGL p)) [Fintype G]
     exact isOfFinOrder_iff_pow_eq_one.mpr ⟨n, hpos, Subtype.ext_iff.mp hn⟩
   exact (fixedPoints_dichotomy p g hg_ne h_fin).2.mpr h_coprime
 
+/-- The subgroup of `G` consisting of the elements that fix both `x` and `y` on the
+projective line. -/
 def pairStabilizer (G : Subgroup (PGL p)) (x y : ProjectiveLine p) : Subgroup G where
   carrier := {g : G | (g : PGL p) • x = x ∧ (g : PGL p) • y = y}
   mul_mem' {a b} ha hb :=
@@ -103,6 +105,7 @@ lemma fixedPoints_determined (G : Subgroup (PGL p)) [Fintype G]
     · exfalso; exact hxy rfl
 
 omit h_odd in
+@[nolint unusedArguments]
 lemma commute_of_fixedPair (G_sub : Subgroup (PGL p)) [Fintype G_sub]
     (g h : PGL p) (hg : g ∈ G_sub) (hh : h ∈ G_sub)
     (x y : ProjectiveLine p) (hxy : x ≠ y)
@@ -527,6 +530,7 @@ lemma mem_pairStabilizer_of_ne_one (G : Subgroup (PGL p)) [Fintype G]
     show y ∈ fixedPoints p ↑g by rw [hfp]; exact Set.mem_insert_of_mem x (Set.mem_singleton y)⟩
 omit h_odd in
 
+@[nolint unusedArguments]
 lemma pairStabilizer_conj (G : Subgroup (PGL p)) [Fintype G]
     (x y : ProjectiveLine p) (h : G) :
     (pairStabilizer p G x y).map (MulAut.conj h).toMonoidHom =
@@ -625,6 +629,7 @@ lemma classEquation_nat_to_rat (n r : ℕ) (d f : Fin r → ℕ)
       div_mul_eq_mul_div, div_div, mul_comm (f i * d i : ℚ) n, mul_div_mul_left _ _ hn0, ← div_div]
   exact ne_of_gt (by positivity)
 
+@[nolint unusedArguments]
 lemma normalizer_card_eq_index_mul {G : Type*} [Group G] [Fintype G]
     (H : Subgroup G) :
     Nat.card (Subgroup.normalizer (SetLike.coe H)) = (H.subgroupOf (Subgroup.normalizer (SetLike.coe H))).index * Nat.card H := by

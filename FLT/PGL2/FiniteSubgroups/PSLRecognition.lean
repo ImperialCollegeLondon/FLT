@@ -49,8 +49,8 @@ variable (p : ℕ) [Fact (Nat.Prime p)] [Fact (p > 2)]
 
 
 theorem sum_of_two_squares_Fq (m : ℕ) (hm : m ≥ 1) (hpm : p ^ m ≥ 5)
-    (a : K p) (ha : a ∈ F_q_in_K p m) :
-    ∃ (b c : K p), b ∈ F_q_in_K p m ∧ c ∈ F_q_in_K p m ∧
+    (a : K p) (ha : a ∈ FqInK p m) :
+    ∃ (b c : K p), b ∈ FqInK p m ∧ c ∈ FqInK p m ∧
       b ^ 2 + c ^ 2 = a := by
   have h_card : Fintype.card (GaloisField p m) = p ^ m := by
     rw [Fintype.card_eq_nat_card, GaloisField.card p m (by omega)]
@@ -91,7 +91,7 @@ theorem sum_of_two_squares_Fq (m : ℕ) (hm : m ≥ 1) (hpm : p ^ m ≥ 5)
   · rw [← map_pow, ← map_pow, ← map_add, hbc', ha']
 
 
-theorem sq_is_half_root_or_zero (m : ℕ) (b : K p) (hb : b ∈ F_q_in_K p m) :
+theorem sq_is_half_root_or_zero (m : ℕ) (b : K p) (hb : b ∈ FqInK p m) :
     b ^ 2 = 0 ∨ (b ^ 2 ≠ 0 ∧ (b ^ 2) ^ ((p ^ m - 1) / 2) = 1) := by
   change b ^ p ^ m = b at hb
   rcases eq_or_ne b 0 with rfl | hb0
@@ -115,12 +115,12 @@ theorem additive_subgroup_eq_F_q_from_squares (m : ℕ) (hm : m ≥ 1) (hpm : p 
     (hV_zero : (0 : K p) ∈ V)
     (hV_one : (1 : K p) ∈ V)
     (hV_sq_stable : ∀ c : K p, c ^ ((p ^ m - 1) / 2) = 1 → c ≠ 0 → ∀ x, x ∈ V → c * x ∈ V) :
-    V = F_q_in_K p m := by
-  have hV_contains_sq : ∀ b ∈ F_q_in_K p m, b ^ 2 ∈ V := fun b hb ↦
+    V = FqInK p m := by
+  have hV_contains_sq : ∀ b ∈ FqInK p m, b ^ 2 ∈ V := fun b hb ↦
     match sq_is_half_root_or_zero p m b hb with
     | Or.inl h => h ▸ hV_zero
     | Or.inr ⟨h_ne, h_root⟩ => mul_one (b ^ 2) ▸ hV_sq_stable (b ^ 2) h_root h_ne 1 hV_one
-  have hFq_sub_V : F_q_in_K p m ⊆ V := fun a ha ↦ by
+  have hFq_sub_V : FqInK p m ⊆ V := fun a ha ↦ by
     obtain ⟨b, c, hb, hc, hbc⟩ := sum_of_two_squares_Fq p m hm hpm a ha
     exact hbc ▸ hV_add _ _ (hV_contains_sq b hb) (hV_contains_sq c hc)
   symm
@@ -349,7 +349,7 @@ theorem translationSet_scaled_eq_Fq_psl (m : ℕ) (hm : m ≥ 1) (hpm : p ^ m �
     (hV_zero : (0 : K p) ∈ V)
     (hV_stable : ∀ c : K p, c ^ ((p ^ m - 1) / 2) = 1 → c ≠ 0 → ∀ x, x ∈ V → c * x ∈ V)
     (v : K p) (hv : v ∈ V) (hv_ne : v ≠ 0) :
-    (fun x ↦ v⁻¹ * x) '' V = F_q_in_K p m := by
+    (fun x ↦ v⁻¹ * x) '' V = FqInK p m := by
   have h_inj : Function.Injective (fun x ↦ v⁻¹ * x) := mul_right_injective₀ (inv_ne_zero hv_ne)
   refine additive_subgroup_eq_F_q_from_squares p m hm hpm ((fun x ↦ v⁻¹ * x) '' V) ?_ ?_ ?_ ?_ ?_
   · exact (Set.ncard_image_of_injective V h_inj).trans hV_card
@@ -413,7 +413,7 @@ theorem orbit_infty_eq_P1Fq_psl_core
       g • infinity p = infinity p) :
     ∃ g : PGL p,
       g • infinity p = infinity p ∧
-      orbitInfty p (G.map (MulEquiv.toMonoidHom (MulAut.conj g))) = P1_Fq p m := by
+      orbitInfty p (G.map (MulEquiv.toMonoidHom (MulAut.conj g))) = P1Fq p m := by
   have h_card : Set.ncard (orbitInfty p G) = Fintype.card (Sylow p G) := orbitInfty_ncard p G hG_p P hP_fix
   obtain ⟨α₀, hα₀⟩ : ∃ α₀ : K p, P1point p α₀ ∈ orbitInfty p G := by
     obtain ⟨x, hx, hx_ne⟩ := Set.exists_ne_of_one_lt_ncard (h_card.symm ▸ n_p_gt_one_of_psl_order p G m hm hpm hn) (infinity p)
@@ -437,7 +437,7 @@ theorem orbit_infty_eq_P1Fq_psl_core
   refine ⟨g₀, by rw [mul_smul, translation_smul_infinity, dilation_smul_infinity], ?_⟩
 
   have hV_stable := translationSet_stable_under_half_roots p G m hm hpm hn hG_p P hP_fix V hV_def
-  have h_Fq : (fun x ↦ v₀⁻¹ * x) '' V = F_q_in_K p m :=
+  have h_Fq : (fun x ↦ v₀⁻¹ * x) '' V = FqInK p m :=
     translationSet_scaled_eq_Fq_psl p m hm hpm V hV_card
       (translationSet_add p H) (translationSet_zero p H)
       hV_stable v₀ hv₀_mem hv₀_ne
@@ -453,7 +453,7 @@ theorem orbit_infty_eq_P1Fq_psl_core
       (G.map (MulEquiv.toMonoidHom (MulAut.conj g_trans))).map (MulEquiv.toMonoidHom (MulAut.conj g_dil)) := by
     rw [Subgroup.map_map]; congr 1; ext x; simp only [g₀, MonoidHom.comp_apply, MulEquiv.coe_toMonoidHom, MulAut.conj_apply]; group
 
-  rw [P1_Fq, h_map_eq, ← h_Fq]
+  rw [P1Fq, h_map_eq, ← h_Fq]
   exact orbit_dilation_conj p _ v₀⁻¹ (inv_ne_zero hv₀_ne) V h_trans_orbit
 
 
@@ -463,7 +463,7 @@ theorem orbit_infty_eq_P1Fq_psl
     (m : ℕ) (hm : m ≥ 1) (hpm : p ^ m ≥ 5)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1) / 2) :
     ∃ g : PGL p,
-      orbitInfty p (G.map (MulEquiv.toMonoidHom (MulAut.conj g))) = P1_Fq p m := by
+      orbitInfty p (G.map (MulEquiv.toMonoidHom (MulAut.conj g))) = P1Fq p m := by
   have h_even : 2 ∣ p ^ (2 * m) - 1 := by
     rw [← even_iff_two_dvd, Nat.even_sub (Nat.one_le_pow _ _ (Nat.le_trans (by norm_num : 1 ≤ 2) (Fact.out : p > 2).le))]
     have h_odd : ¬ Even p := fun h ↦ ne_of_gt (Fact.out : p > 2) ((Nat.Prime.even_iff Fact.out).mp h)
@@ -501,7 +501,7 @@ theorem G_preserves_P1Fq_psl
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1) / 2) :
     ∃ g : PGL p,
       ∀ h ∈ G.map (MulEquiv.toMonoidHom (MulAut.conj g)),
-        ∀ x ∈ P1_Fq p m, h • x ∈ P1_Fq p m := by
+        ∀ x ∈ P1Fq p m, h • x ∈ P1Fq p m := by
   obtain ⟨g, hg⟩ := orbit_infty_eq_P1Fq_psl p G m hm hpm hn
   exact ⟨g, fun h hh x hx ↦ hg ▸ preserves_orbitInfty p _ h hh x (hg ▸ hx)⟩
 

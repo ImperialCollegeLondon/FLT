@@ -52,6 +52,7 @@ variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]
 
 
 
+/-- The set of points on the projective line fixed by some non-identity element of `G`. -/
 def Phi (G : Subgroup (PGL p)) : Set (ProjectiveLine p) :=
   ⋃ (g : G) (_ : g ≠ 1), {x : ProjectiveLine p | (g : PGL p) • x = x}
 
@@ -83,6 +84,7 @@ lemma Phi_smul_mem (G : Subgroup (PGL p)) (h : G) {x : ProjectiveLine p}
 
 
 
+/-- The subtype of points on the projective line fixed by some non-identity element of `G`. -/
 abbrev PhiType (G : Subgroup (PGL p)) := ↥(Phi p G)
 
 noncomputable instance phiFintype (G : Subgroup (PGL p)) [Finite G] :
@@ -97,7 +99,7 @@ instance phiMulAction (G : Subgroup (PGL p)) : MulAction G (PhiType p G) where
 
 lemma sylow_fixedPt_mem_Phi (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
-    sylow_fixedPoint p G hG_p P ∈ Phi p G := by
+    sylowFixedPoint p G hG_p P ∈ Phi p G := by
   obtain ⟨g, hg_mem, hg_ne⟩ : ∃ g : G, g ∈ (P : Subgroup G) ∧ g ≠ 1 := by
     by_contra! h
     exact absurd (sylow_card_ge_3 p G hG_p P) (by
@@ -142,14 +144,14 @@ lemma Phi_card_le (G : Subgroup (PGL p)) [Finite G] :
 
 theorem sylow_distinct_fixedPoints (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) (P Q : Sylow p G) (hPQ : P ≠ Q) :
-    sylow_fixedPoint p G hG_p P ≠ sylow_fixedPoint p G hG_p Q := by
+    sylowFixedPoint p G hG_p P ≠ sylowFixedPoint p G hG_p Q := by
   intro h_eq
   have h_comm : ∀ a ∈ (P : Subgroup G), ∀ b ∈ (Q : Subgroup G), a * b = b * a := by
     intros a ha b hb
     by_cases ha1 : a = 1; · rw [ha1, one_mul, mul_one]
     by_cases hb1 : b = 1; · rw [hb1, mul_one, one_mul]
     exact Subtype.ext <| commute_of_orderOf_prime_common_fixedPoint p _ _
-      (sylow_fixedPoint p G hG_p Q) (sylow_element_order_p p G P a ha ha1)
+      (sylowFixedPoint p G hG_p Q) (sylow_element_order_p p G P a ha ha1)
       (sylow_element_order_p p G Q b hb hb1)
       (h_eq ▸ sylow_element_fixes p G hG_p P a ha) (sylow_element_fixes p G hG_p Q b hb)
 
@@ -194,7 +196,7 @@ theorem sylow_distinct_fixedPoints (G : Subgroup (PGL p)) [Finite G]
 
 theorem fixes_sylowPoint_normalizes (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G)
-    (g : G) (hg : (g : PGL p) • sylow_fixedPoint p G hG_p P = sylow_fixedPoint p G hG_p P) :
+    (g : G) (hg : (g : PGL p) • sylowFixedPoint p G hG_p P = sylowFixedPoint p G hG_p P) :
     g ∈ Subgroup.normalizer ((P : Subgroup G) : Set G) := by
   rw [Subgroup.mem_normalizer_iff]
   have h_map : Subgroup.map (MulAut.conj g) (P : Subgroup G) = (P : Subgroup G) :=
@@ -223,7 +225,7 @@ theorem fixes_sylowPoint_normalizes (G : Subgroup (PGL p)) [Finite G]
 
 theorem stabilizer_sylowFixedPoint_eq_normalizer (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
-    {g : G | (g : PGL p) • sylow_fixedPoint p G hG_p P = sylow_fixedPoint p G hG_p P} =
+    {g : G | (g : PGL p) • sylowFixedPoint p G hG_p P = sylowFixedPoint p G hG_p P} =
     (Subgroup.normalizer ((P : Subgroup G) : Set G) : Set G) := by
   have h_norm := normalizer_stabilizes_fixedPoint p G P _
     (sylow_element_fixes p G hG_p P)
@@ -234,7 +236,7 @@ theorem stabilizer_sylowFixedPoint_eq_normalizer (G : Subgroup (PGL p)) [Finite 
 lemma sylow_fixedPt_injective (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) :
     Function.Injective (fun P : Sylow p G ↦
-      (⟨sylow_fixedPoint p G hG_p P, sylow_fixedPt_mem_Phi p G hG_p P⟩ : PhiType p G)) := by
+      (⟨sylowFixedPoint p G hG_p P, sylow_fixedPt_mem_Phi p G hG_p P⟩ : PhiType p G)) := by
   exact fun P Q h ↦ not_imp_not.mp (sylow_distinct_fixedPoints p G hG_p P Q) (Subtype.ext_iff.mp h)
 
 
@@ -385,10 +387,10 @@ lemma stab_sum_eq_phi_plus_element (G : Subgroup (PGL p)) [Finite G]
 lemma sylow_orbit_size (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
     Fintype.card (MulAction.orbit G
-      (⟨sylow_fixedPoint p G hG_p P,
+      (⟨sylowFixedPoint p G hG_p P,
         sylow_fixedPt_mem_Phi p G hG_p P⟩ : PhiType p G)) =
     Fintype.card (Sylow p G) := by
-  let x : PhiType p G := ⟨sylow_fixedPoint p G hG_p P, sylow_fixedPt_mem_Phi p G hG_p P⟩
+  let x : PhiType p G := ⟨sylowFixedPoint p G hG_p P, sylow_fixedPt_mem_Phi p G hG_p P⟩
   have h_stab : MulAction.stabilizer G x = (Subgroup.normalizer ((P : Subgroup G) : Set G)) :=
     SetLike.ext fun g ↦ Subtype.ext_iff.trans (Set.ext_iff.mp (stabilizer_sylowFixedPoint_eq_normalizer p G hG_p P) g)
   rw [← Nat.card_eq_fintype_card, ← Nat.card_eq_fintype_card,
@@ -397,7 +399,7 @@ lemma sylow_orbit_size (G : Subgroup (PGL p)) [Finite G]
 
 lemma sylow_fixedPt_phiStab (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) (Q : Sylow p G) :
-    let x : PhiType p G := ⟨sylow_fixedPoint p G hG_p Q, sylow_fixedPt_mem_Phi p G hG_p Q⟩
+    let x : PhiType p G := ⟨sylowFixedPoint p G hG_p Q, sylow_fixedPt_mem_Phi p G hG_p Q⟩
     Nat.card (MulAction.stabilizer G x) = Nat.card G / Fintype.card (Sylow p G) := by
   intro x
   exact Eq.symm <| Nat.div_eq_of_eq_mul_left (Fintype.card_pos_iff.mpr ⟨Q⟩) <| by
@@ -410,7 +412,7 @@ lemma stab_sum_lower_bound (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
     ∑ x : PhiType p G, Nat.card (MulAction.stabilizer G x) ≥
     Nat.card G + 2 * (Fintype.card (PhiType p G) - Fintype.card (Sylow p G)) := by
-  let f : Sylow p G → PhiType p G := fun Q ↦ ⟨sylow_fixedPoint p G hG_p Q, sylow_fixedPt_mem_Phi p G hG_p Q⟩
+  let f : Sylow p G → PhiType p G := fun Q ↦ ⟨sylowFixedPoint p G hG_p Q, sylow_fixedPt_mem_Phi p G hG_p Q⟩
   let S : Finset (PhiType p G) := Finset.image f Finset.univ
   have h_inj : Function.Injective f := sylow_fixedPt_injective p G hG_p
 
@@ -583,17 +585,17 @@ theorem nonsplit_torus_divides_geo (G : Subgroup (PGL p)) [Finite G]
     (hn_p_gt1 : Fintype.card (Sylow p G) > 1) :
     ((Nat.card P - 2) * Fintype.card (Sylow p G) + 2) ∣ Nat.card G := by
   have h_orbits := num_orbits_eq_two p G hG_p P hn_p_gt1
-  obtain ⟨x, hx⟩ : ∃ x : PhiType p G, x ∉ MulAction.orbit G (⟨sylow_fixedPoint p G hG_p P, sylow_fixedPt_mem_Phi p G hG_p P⟩ : PhiType p G) := by
+  obtain ⟨x, hx⟩ : ∃ x : PhiType p G, x ∉ MulAction.orbit G (⟨sylowFixedPoint p G hG_p P, sylow_fixedPt_mem_Phi p G hG_p P⟩ : PhiType p G) := by
     by_contra h_all
     revert h_orbits
-    rw [Fintype.card_eq_one_iff.mpr ⟨⟦⟨sylow_fixedPoint p G hG_p P, sylow_fixedPt_mem_Phi p G hG_p P⟩⟧, fun y ↦ by
+    rw [Fintype.card_eq_one_iff.mpr ⟨⟦⟨sylowFixedPoint p G hG_p P, sylow_fixedPt_mem_Phi p G hG_p P⟩⟧, fun y ↦ by
       obtain ⟨z, rfl⟩ := Quotient.exists_rep y
       apply Quotient.sound
       by_contra hz
       exact h_all ⟨z, hz⟩⟩]
     omega
   have h_orbit_size : Fintype.card (MulAction.orbit G x) = Fintype.card (PhiType p G) - Fintype.card (Sylow p G) := by
-    let x₀ : PhiType p G := ⟨sylow_fixedPoint p G hG_p P, sylow_fixedPt_mem_Phi p G hG_p P⟩
+    let x₀ : PhiType p G := ⟨sylowFixedPoint p G hG_p P, sylow_fixedPt_mem_Phi p G hG_p P⟩
     have h_union : Fintype.card (MulAction.orbit G x) + Fintype.card (MulAction.orbit G x₀) = Fintype.card (PhiType p G) := by
       rw [Fintype.card_ofFinset, Fintype.card_ofFinset, ← Finset.card_union_of_disjoint]
       · convert Finset.card_univ

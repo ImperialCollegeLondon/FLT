@@ -60,8 +60,12 @@ scoped instance : Fact (Nat.Prime 5) := ⟨Nat.prime_five⟩
 
 noncomputable section lemmata
 
-scoped instance {p : ℕ} {G : Type*} [Group G] [Finite G] : Fintype (Sylow p G) := Fintype.ofFinite _
-scoped instance {p m : ℕ} [Fact p.Prime] : Fintype (GaloisField p m) := Fintype.ofFinite _
+/-- The `Sylow p`-subgroups of a finite group form a `Fintype`. -/
+scoped instance instFintypeSylow {p : ℕ} {G : Type*} [Group G] [Finite G] :
+    Fintype (Sylow p G) := Fintype.ofFinite _
+/-- A finite Galois field `GF(pᵐ)` is a `Fintype`. -/
+scoped instance instFintypeGaloisField {p m : ℕ} [Fact p.Prime] :
+    Fintype (GaloisField p m) := Fintype.ofFinite _
 
 lemma Nat.factorization_eq_one {n m p : ℕ}
     (h_eq : n = m * p)
@@ -90,10 +94,13 @@ lemma Nat.factorization_eq_two {n m p : ℕ}
 
 variable (p : ℕ) [Fact (Nat.Prime p)]
 
+/-- The algebraic closure `K p` of the finite field `𝔽_p = ZMod p`. -/
 noncomputable abbrev K : Type := AlgebraicClosure (ZMod p)
 
+/-- The projective general linear group `PGL₂(K p)`, i.e. `GL₂(K p)` modulo its centre. -/
 abbrev PGL : Type := GL (Fin 2) (K p) ⧸ Subgroup.center (GL (Fin 2) (K p))
 
+/-- The projective special linear group `PSL₂(K p)`. -/
 abbrev PSL : Type := Matrix.ProjectiveSpecialLinearGroup (Fin 2) (K p)
 
 theorem pgl_mulEquiv_psl : Nonempty (PGL p ≃* PSL p) := by
@@ -164,8 +171,10 @@ theorem pgl_mulEquiv_psl : Nonempty (PGL p ≃* PSL p) := by
       rw [mul_zero, zero_add, zero_mul, zero_add, mul_comm]
   exact ⟨(MulEquiv.ofBijective f ⟨h_inj, h_surj⟩).symm⟩
 
+/-- The projective line `ℙ¹(K p)` over `K p`. -/
 abbrev ProjectiveLine : Type := Projectivization (K p) (Fin 2 → K p)
 
+/-- The natural `GL₂(K p)`-action on the projective line `ℙ¹(K p)`. -/
 @[reducible] def glActionProjectiveLine : MulAction (GL (Fin 2) (K p)) (ProjectiveLine p) :=
   Projectivization.instMulAction
 
@@ -194,9 +203,12 @@ instance : MulAction (PGL p) (ProjectiveLine p) where
     induction g₂ using QuotientGroup.induction_on
     exact (glActionProjectiveLine p).mul_smul _ _ x
 
+/-- The projective general linear group `PGL₂(F)` over a field `F`, i.e. `GL₂(F)` modulo its
+centre. -/
 abbrev PGLOf (F : Type*) [Field F] := GL (Fin 2) F ⧸ Subgroup.center (GL (Fin 2) F)
 
 
+/-- The group homomorphism `PGL₂(F) → PGL₂(L)` induced by a ring homomorphism `f : F →+* L`. -/
 def pglMap {F L : Type*} [Field F] [Field L] (f : F →+* L) : PGLOf F →* PGLOf L :=
   QuotientGroup.map (Subgroup.center (GL (Fin 2) F)) (Subgroup.center (GL (Fin 2) L))
     (Matrix.GeneralLinearGroup.map f) (by
@@ -295,6 +307,7 @@ theorem exists_finite_subfield_conjugate (G : Subgroup (PGL p)) [Finite G] :
   obtain ⟨y', hy'⟩ := h_range
   exact ⟨QuotientGroup.mk y', (congr_arg QuotientGroup.mk hy').trans (hf x)⟩
 
+/-- The set of fixed points of the action of `g : PGL p` on the projective line `ℙ¹(K p)`. -/
 def fixedPoints (g : PGL p) : Set (ProjectiveLine p) := Function.fixedPoints (fun x ↦ g • x)
 
 theorem fixedPoints_lift (g : GL (Fin 2) (K p)) (x : ProjectiveLine p) :
@@ -1153,6 +1166,7 @@ theorem orderOf_eq_prime_of_prime_pow (g : PGL p) (k : ℕ) (hk : k ≥ 1)
     have h_gcd_eq_p : Nat.gcd p (p ^ k) = p := Nat.gcd_eq_left (dvd_pow_self p (by exact ne_of_gt hk))
     exact absurd (h_gcd_eq_p.symm.trans <| hg ▸ h_coprime) (Fact.out : Nat.Prime p).ne_one
 
+@[nolint unusedArguments]
 theorem isPGroup_orderOf_eq_prime (P : Subgroup (PGL p)) [Finite P] (hP_p : IsPGroup p P) (g : P)
     (hg : g ≠ 1) : orderOf (g : PGL p) = p := by
   obtain ⟨_, hk_orig⟩ := hP_p g
@@ -1184,6 +1198,7 @@ theorem isPGroup_exponent_dvd_prime (P : Subgroup (PGL p)) [Finite P] (hP_p : Is
 
 
 
+/-- The point `∞ = [1 : 0]` of the projective line `ℙ¹(K p)`. -/
 def infinity : ProjectiveLine p := Projectivization.mk (K p) ![1,
     0] (fun h ↦ one_ne_zero (congr_fun h 0))
 

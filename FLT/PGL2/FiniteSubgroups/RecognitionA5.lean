@@ -44,7 +44,11 @@ namespace Dickson
 
 noncomputable section
 
-noncomputable instance {G : Type*} [Group G] [Finite G] : Fintype G := Fintype.ofFinite _
+/-- A finite group is a `Fintype`. The `[Group G]` hypothesis restricts this instance to
+firing on groups, rather than acting as a general `Finite → Fintype` instance. -/
+@[nolint unusedArguments]
+noncomputable instance instFintypeOfGroupOfFinite {G : Type*} [Group G] [Finite G] :
+    Fintype G := Fintype.ofFinite _
 
 private lemma factorization_60_2 : (60 : ℕ).factorization 2 = 2 := by
   exact Nat.factorization_eq_two (m := 15) rfl Nat.prime_two (by norm_num)
@@ -193,6 +197,7 @@ theorem element_partition_count (G : Subgroup (PGL p)) [Finite G] :
   rw [h_sum, h_set, Nat.card_congr (Equiv.Set.union h_disj), Nat.card_sum,Nat.add_sub_cancel_left]
 
 
+@[nolint unusedArguments]
 lemma order_3_centralizes_order_5 {G : Type*} [Group G] [Finite G]
     (Q : Subgroup G) (g : G)
     (hQ_card : Nat.card Q = 5) (hg_order : orderOf g = 3)
@@ -490,6 +495,7 @@ lemma order_30_n3_ne_10_of_n5_eq_6 {G : Type*} [Group G] [Finite G]
   rw [h_card, hF1_card] at h_le
   omega
 
+@[nolint unusedArguments]
 lemma card_sup_of_coprime_normal {G : Type*} [Group G]
     (H K : Subgroup G) [Finite H] [Finite K]
     (hH : H.Normal) (hcop : Nat.Coprime (Nat.card H) (Nat.card K)) :
@@ -643,6 +649,7 @@ lemma order_30_unique_sylow_3 {G : Type*} [Group G] [Finite G]
 
   exact Fintype.card_eq_one_iff.mpr ⟨P₃'', fun P ↦ let ⟨g, hg⟩ := MulAction.exists_smul_eq G P₃'' P; hg.symm.trans Sylow.smul_eq_of_normal⟩
 
+@[nolint unusedArguments]
 lemma no_normal_30_with_all_sylow3 {G : Type*} [Group G] [Finite G]
     (hn : Nat.card G = 60)
     (N : Subgroup G) [N.Normal]
@@ -666,6 +673,7 @@ lemma no_normal_30_with_all_sylow3 {G : Type*} [Group G] [Finite G]
     Fintype.card_le_one_iff.mpr fun P Q ↦ SetLike.ext' (congrArg ((↑) : Subgroup G → Set G) ((h_unique P).trans (h_unique Q).symm))
   omega
 
+@[nolint unusedArguments]
 lemma no_normal_30_with_all_sylow5 {G : Type*} [Group G] [Finite G]
     (hn : Nat.card G = 60)
     (N : Subgroup G) [N.Normal]
@@ -839,6 +847,7 @@ lemma sylow5_in_normal_forces_large {G : Type*} [Group G] [Finite G]
     omega
   interval_cases k <;> omega
 
+@[nolint unusedArguments]
 lemma is_simple_60_aux {G : Type*} [Group G] [Finite G] [Nontrivial G]
     (hn : Nat.card G = 60)
     (hn3 : Fintype.card (Sylow 3 G) = 10)

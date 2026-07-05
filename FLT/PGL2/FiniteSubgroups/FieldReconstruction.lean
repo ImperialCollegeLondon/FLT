@@ -16,13 +16,13 @@ cyclic of order dividing `p`. This file reconstructs a finite subfield `𝔽_q �
 (`q = p^m`) from the translations contained in `G`.
 
 We define:
-* `Dickson.F_q_in_K p m`: the subfield `{x | x ^ p ^ m = x}` of `K p = 𝔽̄_p`,
+* `Dickson.FqInK p m`: the subfield `{x | x ^ p ^ m = x}` of `K p = 𝔽̄_p`,
   i.e. the image of the Galois field `𝔽_{p^m}`;
 * `Dickson.translationPGL` and `Dickson.dilationPGL`: the upper-triangular translation
   `x ↦ x + b` and dilation `x ↦ cx` as elements of `PGL p`;
 * `Dickson.translationSet H`: the set of `b` with `x ↦ x + b` in `H`;
 * `Dickson.galoisFieldRingHom`: an embedding `GaloisField p m →+* K p` with image
-  `F_q_in_K p m`.
+  `FqInK p m`.
 
 The main results identify the translation set of (a conjugate of) the subgroup fixing
 `∞` with the additive group of `𝔽_{p^m}`, the first step in recognising `G` as
@@ -53,31 +53,32 @@ noncomputable section
 variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]
 
 
-noncomputable def F_q_in_K (m : ℕ) : Set (K p) :=
+/-- The subfield `𝔽_{p^m}` sitting inside `K p = 𝔽̄_p`, i.e. the set of `x` with `x ^ (p ^ m) = x`. -/
+noncomputable def FqInK (m : ℕ) : Set (K p) :=
   {x : K p | x ^ (p ^ m) = x}
 
 omit h_odd in
-theorem F_q_add_closed (m : ℕ) (x y : K p) (hx : x ∈ F_q_in_K p m) (hy : y ∈ F_q_in_K p m) :
-    x + y ∈ F_q_in_K p m := by
+theorem F_q_add_closed (m : ℕ) (x y : K p) (hx : x ∈ FqInK p m) (hy : y ∈ FqInK p m) :
+    x + y ∈ FqInK p m := by
   show (x + y) ^ (p ^ m) = x + y
   rw [add_pow_char_pow, (hx : x ^ (p ^ m) = x), (hy : y ^ (p ^ m) = y)]
 
 omit h_odd in
-theorem F_q_mul_closed (m : ℕ) (x y : K p) (hx : x ∈ F_q_in_K p m) (hy : y ∈ F_q_in_K p m) :
-    x * y ∈ F_q_in_K p m := by
+theorem F_q_mul_closed (m : ℕ) (x y : K p) (hx : x ∈ FqInK p m) (hy : y ∈ FqInK p m) :
+    x * y ∈ FqInK p m := by
   show (x * y) ^ (p ^ m) = x * y
   rw [mul_pow, (hx : x ^ (p ^ m) = x), (hy : y ^ (p ^ m) = y)]
 
 omit h_odd in
-theorem F_q_zero (m : ℕ) : (0 : K p) ∈ F_q_in_K p m :=
+theorem F_q_zero (m : ℕ) : (0 : K p) ∈ FqInK p m :=
   (zero_pow (pow_ne_zero m (Nat.Prime.ne_zero Fact.out)))
 
 omit h_odd in
-theorem F_q_one (m : ℕ) : (1 : K p) ∈ F_q_in_K p m :=
+theorem F_q_one (m : ℕ) : (1 : K p) ∈ FqInK p m :=
   one_pow (p ^ m)
 
 omit h_odd in
-theorem F_q_card (m : ℕ) (hm : m ≥ 1) : Set.ncard (F_q_in_K p m) = p ^ m := by
+theorem F_q_card (m : ℕ) (hm : m ≥ 1) : Set.ncard (FqInK p m) = p ^ m := by
   let P : Polynomial (K p) := Polynomial.X ^ (p ^ m) - Polynomial.X
   have hP_deg : P.natDegree = p ^ m := by
     refine (Polynomial.natDegree_sub_eq_left_of_natDegree_lt ?_).trans (Polynomial.natDegree_X_pow (p ^ m))
@@ -92,7 +93,7 @@ theorem F_q_card (m : ℕ) (hm : m ≥ 1) : Set.ncard (F_q_in_K p m) = p ^ m := 
     rw [Polynomial.separable_def, Polynomial.derivative_sub, Polynomial.derivative_X_pow, Polynomial.derivative_X]
     rw [Nat.cast_pow, CharP.cast_eq_zero (K p) p, zero_pow (by omega), Polynomial.C_0, zero_mul, zero_sub]
     exact ⟨0, -1, by ring⟩
-  rw [show F_q_in_K p m = (P.roots.toFinset : Set (K p)) by
+  rw [show FqInK p m = (P.roots.toFinset : Set (K p)) by
     ext x
     change x ^ (p ^ m) = x ↔ x ∈ P.roots.toFinset
     rw [Multiset.mem_toFinset, Polynomial.mem_roots hP_ne_zero]
@@ -108,8 +109,8 @@ theorem additive_subgroup_eq_F_q (m : ℕ) (hm : m ≥ 1)
     (hV_zero : (0 : K p) ∈ V)
     (hV_one : (1 : K p) ∈ V)
     (hV_stable : ∀ c : K p, c ^ (p ^ m - 1) = 1 → c ≠ 0 → ∀ x, x ∈ V → c * x ∈ V) :
-    V = F_q_in_K p m := by
-  have hV_subset : F_q_in_K p m ⊆ V := fun x hx ↦ by
+    V = FqInK p m := by
+  have hV_subset : FqInK p m ⊆ V := fun x hx ↦ by
     rcases eq_or_ne x 0 with rfl | hx0
     · exact hV_zero
     · exact mul_one x ▸ hV_stable x
@@ -120,18 +121,22 @@ theorem additive_subgroup_eq_F_q (m : ℕ) (hm : m ≥ 1)
     (Set.finite_of_ncard_pos (hV_card.symm ▸ pow_pos (Nat.Prime.pos Fact.out) m))).symm
 
 
+/-- The translation `x ↦ x + b` as the element `!![1, b; 0, 1]` of `GL₂(K p)`. -/
 noncomputable def translationGL (b : K p) : GL (Fin 2) (K p) :=
   Matrix.GeneralLinearGroup.mkOfDetNeZero !![1, b; 0, 1] (by erw [Matrix.det_fin_two, mul_zero, sub_zero, mul_one]; exact one_ne_zero)
 
 
+/-- The dilation `x ↦ c x` (for `c ≠ 0`) as the element `!![c, 0; 0, 1]` of `GL₂(K p)`. -/
 noncomputable def dilationGL (c : K p) (hc : c ≠ 0) : GL (Fin 2) (K p) :=
   Matrix.GeneralLinearGroup.mkOfDetNeZero !![c, 0; 0, 1] (by erw [Matrix.det_fin_two, mul_zero, sub_zero, mul_one]; exact hc)
 
 
+/-- The translation `x ↦ x + b` as an element of `PGL p = PGL₂(𝔽̄_p)`. -/
 noncomputable def translationPGL (b : K p) : PGL p :=
   QuotientGroup.mk (translationGL p b)
 
 
+/-- The dilation `x ↦ c x` (for `c ≠ 0`) as an element of `PGL p = PGL₂(𝔽̄_p)`. -/
 noncomputable def dilationPGL (c : K p) (hc : c ≠ 0) : PGL p :=
   QuotientGroup.mk (dilationGL p c hc)
 
@@ -213,6 +218,7 @@ theorem z1_eq_pm_minus_one (G : Subgroup (PGL p)) [Finite G]
   exact Nat.mul_div_cancel_left _ (pow_pos (Nat.Prime.pos Fact.out) m)
 
 
+/-- The set of `b : K p` for which the translation `x ↦ x + b` lies in the subgroup `H`. -/
 noncomputable def translationSet (H : Subgroup (PGL p)) : Set (K p) :=
   {b : K p | translationPGL p b ∈ H}
 
@@ -284,6 +290,7 @@ theorem pglMap_injective {F L : Type*} [Field F] [Field L]
 
 
 
+/-- A ring embedding `GaloisField p m →+* K p` of `𝔽_{p^m}` into `𝔽̄_p`, with image `FqInK p m`. -/
 noncomputable def galoisFieldRingHom (m : ℕ) : GaloisField p m →+* K p :=
   (IsAlgClosed.lift (R := ZMod p) (S := GaloisField p m) (M := K p)).toRingHom
 
@@ -292,7 +299,7 @@ noncomputable def galoisFieldRingHom (m : ℕ) : GaloisField p m →+* K p :=
 
 omit h_odd in
 theorem galoisFieldRingHom_range_eq_F_q (m : ℕ) (hm : m ≥ 1) :
-    Set.range (galoisFieldRingHom (p := p) m) = F_q_in_K p m := by
+    Set.range (galoisFieldRingHom (p := p) m) = FqInK p m := by
   apply Set.eq_of_subset_of_ncard_le
   · rintro _ ⟨y, rfl⟩
     have h_y_pow : y ^ (p ^ m) = y := by
@@ -307,7 +314,7 @@ theorem galoisFieldRingHom_range_eq_F_q (m : ℕ) (hm : m ≥ 1) :
 
 omit h_odd in
 theorem translationPGL_in_range (m : ℕ) (hm : m ≥ 1) (b : K p)
-    (hb : b ∈ F_q_in_K p m) :
+    (hb : b ∈ FqInK p m) :
     translationPGL p b ∈ (pglMap (galoisFieldRingHom (p := p) m)).range := by
   obtain ⟨b', hb'⟩ := Set.mem_range.mp ((galoisFieldRingHom_range_eq_F_q p m hm).symm ▸ hb)
   refine ⟨QuotientGroup.mk (Matrix.GeneralLinearGroup.mkOfDetNeZero !![(1 : GaloisField p m), b'; 0, 1] (by
@@ -327,7 +334,7 @@ theorem translationPGL_in_range (m : ℕ) (hm : m ≥ 1) (b : K p)
 
 omit h_odd in
 theorem dilationPGL_in_range (m : ℕ) (hm : m ≥ 1) (c : K p) (hc : c ≠ 0)
-    (hc_mem : c ∈ F_q_in_K p m) :
+    (hc_mem : c ∈ FqInK p m) :
     dilationPGL p c hc ∈ (pglMap (galoisFieldRingHom (p := p) m)).range := by
   obtain ⟨c', hc'⟩ := Set.mem_range.mp ((galoisFieldRingHom_range_eq_F_q p m hm).symm ▸ hc_mem)
   refine ⟨QuotientGroup.mk (Matrix.GeneralLinearGroup.mkOfDetNeZero !![c', 0; 0, 1] (by
@@ -347,7 +354,7 @@ theorem dilationPGL_in_range (m : ℕ) (hm : m ≥ 1) (c : K p) (hc : c ≠ 0)
 
 omit h_odd in
 theorem upper_triangular_in_pgl_range (m : ℕ) (hm : m ≥ 1) (a b : K p) (ha : a ≠ 0)
-    (ha_mem : a ∈ F_q_in_K p m) (hb_mem : b ∈ F_q_in_K p m) :
+    (ha_mem : a ∈ FqInK p m) (hb_mem : b ∈ FqInK p m) :
     QuotientGroup.mk (Matrix.GeneralLinearGroup.mkOfDetNeZero
         !![a, b; 0, (1 : K p)] (by
           rw [Matrix.det_fin_two]
@@ -368,13 +375,14 @@ theorem upper_triangular_in_pgl_range (m : ℕ) (hm : m ≥ 1) (a b : K p) (ha :
     | 0, 1 => change b = a * (b / a) + 0 * 1; rw [zero_mul, add_zero, mul_div_cancel₀ b ha]
     | 1, 0 => change (0 : K p) = 0 * 1 + 1 * 0; rw [mul_one, mul_zero, add_zero]
     | 1, 1 => change (1 : K p) = 0 * (b / a) + 1 * 1; rw [zero_mul, mul_one, zero_add]
-  have hb_div_a : b / a ∈ F_q_in_K p m :=
+  have hb_div_a : b / a ∈ FqInK p m :=
     show (b / a) ^ (p ^ m) = b / a from calc
       (b / a) ^ (p ^ m) = b ^ (p ^ m) / a ^ (p ^ m) := by rw [div_pow]
       _                 = b / a ^ (p ^ m)           := by rw [hb_mem]
       _                 = b / a                     := by rw [ha_mem]
   exact hA.symm ▸ Subgroup.mul_mem _ (dilationPGL_in_range p m hm a ha ha_mem) (translationPGL_in_range p m hm (b / a) hb_div_a)
 
+/-- The point `[c : 1]` of the projective line `ℙ¹(𝔽̄_p)` associated to `c : K p`. -/
 noncomputable def P1point (c : K p) : ProjectiveLine p :=
   Projectivization.mk (K p) ![c, 1] fun h ↦ one_ne_zero (congr_fun h 1)
 
@@ -464,8 +472,8 @@ theorem upper_triangular_normalizes_translations
 omit h_odd in
 theorem general_matrix_in_pgl_range (m : ℕ) (hm : m ≥ 1) (a b c d : K p)
     (h_det : a * d - b * c ≠ 0)
-    (ha : a ∈ F_q_in_K p m) (hb : b ∈ F_q_in_K p m)
-    (hc : c ∈ F_q_in_K p m) (hd : d ∈ F_q_in_K p m) :
+    (ha : a ∈ FqInK p m) (hb : b ∈ FqInK p m)
+    (hc : c ∈ FqInK p m) (hd : d ∈ FqInK p m) :
     (QuotientGroup.mk (Matrix.GeneralLinearGroup.mkOfDetNeZero
         !![a, b; c, d] (by rw [Matrix.det_fin_two]; exact h_det)) : PGL p) ∈
       (pglMap (galoisFieldRingHom (p := p) m)).range := by
@@ -488,28 +496,29 @@ theorem general_matrix_in_pgl_range (m : ℕ) (hm : m ≥ 1) (a b c d : K p)
   | 1, 1 => exact hd'
 
 
-noncomputable def P1_Fq (m : ℕ) : Set (ProjectiveLine p) :=
-  {infinity p} ∪ (P1point p '' F_q_in_K p m)
+/-- The copy of `ℙ¹(𝔽_q)` (`q = p^m`) inside the projective line: `∞` together with the points `[c : 1]` for `c ∈ 𝔽_{p^m}`. -/
+noncomputable def P1Fq (m : ℕ) : Set (ProjectiveLine p) :=
+  {infinity p} ∪ (P1point p '' FqInK p m)
 
 omit h_odd in
-theorem infinity_mem_P1_Fq (m : ℕ) : infinity p ∈ P1_Fq p m :=
+theorem infinity_mem_P1_Fq (m : ℕ) : infinity p ∈ P1Fq p m :=
   Set.mem_union_left _ rfl
 
 omit h_odd in
-theorem P1point_mem_P1_Fq (m : ℕ) (c : K p) (hc : c ∈ F_q_in_K p m) :
-    P1point p c ∈ P1_Fq p m :=
+theorem P1point_mem_P1_Fq (m : ℕ) (c : K p) (hc : c ∈ FqInK p m) :
+    P1point p c ∈ P1Fq p m :=
   Set.mem_union_right _ ⟨c, hc, rfl⟩
 
-theorem F_q_neg (m : ℕ) (x : K p) (hx : x ∈ F_q_in_K p m) : -x ∈ F_q_in_K p m := by
-  simp only [F_q_in_K, Set.mem_setOf_eq] at hx ⊢
+theorem F_q_neg (m : ℕ) (x : K p) (hx : x ∈ FqInK p m) : -x ∈ FqInK p m := by
+  simp only [FqInK, Set.mem_setOf_eq] at hx ⊢
   rw [neg_pow, hx, Odd.neg_one_pow (Odd.pow (Nat.Prime.odd_of_ne_two Fact.out (by exact ne_of_gt Fact.out))), neg_one_mul]
 
-theorem F_q_sub_closed (m : ℕ) (x y : K p) (hx : x ∈ F_q_in_K p m) (hy : y ∈ F_q_in_K p m) :
-    x - y ∈ F_q_in_K p m :=
+theorem F_q_sub_closed (m : ℕ) (x y : K p) (hx : x ∈ FqInK p m) (hy : y ∈ FqInK p m) :
+    x - y ∈ FqInK p m :=
   (sub_eq_add_neg x y).symm ▸ F_q_add_closed p m x (-y) hx (F_q_neg p m y hy)
 
 theorem three_transitive_case1 (m : ℕ) (hm : m ≥ 1)
-    (β γ : K p) (hβ : β ∈ F_q_in_K p m) (hγ : γ ∈ F_q_in_K p m) (hne : β ≠ γ) :
+    (β γ : K p) (hβ : β ∈ FqInK p m) (hγ : γ ∈ FqInK p m) (hne : β ≠ γ) :
     ∃ h : PGL p, h ∈ (pglMap (galoisFieldRingHom (p := p) m)).range ∧
       h • infinity p = infinity p ∧
       h • P1point p 0 = P1point p β ∧
@@ -540,7 +549,7 @@ theorem three_transitive_case1 (m : ℕ) (hm : m ≥ 1)
 
 
 theorem three_transitive_case2 (m : ℕ) (hm : m ≥ 1)
-    (α γ : K p) (hα : α ∈ F_q_in_K p m) (hγ : γ ∈ F_q_in_K p m) (hne : α ≠ γ) :
+    (α γ : K p) (hα : α ∈ FqInK p m) (hγ : γ ∈ FqInK p m) (hne : α ≠ γ) :
     ∃ h : PGL p, h ∈ (pglMap (galoisFieldRingHom (p := p) m)).range ∧
       h • infinity p = P1point p α ∧
       h • P1point p 0 = infinity p ∧
@@ -577,7 +586,7 @@ theorem three_transitive_case2 (m : ℕ) (hm : m ≥ 1)
       simp only [Matrix.of_apply, Matrix.mulVec, dotProduct, Fin.sum_univ_two, Matrix.cons_val_zero, Matrix.cons_val_one, mul_one, add_zero]
 
 theorem three_transitive_case3 (m : ℕ) (hm : m ≥ 1)
-    (α β : K p) (hα : α ∈ F_q_in_K p m) (hβ : β ∈ F_q_in_K p m) (hne : α ≠ β) :
+    (α β : K p) (hα : α ∈ FqInK p m) (hβ : β ∈ FqInK p m) (hne : α ≠ β) :
     ∃ h : PGL p, h ∈ (pglMap (galoisFieldRingHom (p := p) m)).range ∧
       h • infinity p = P1point p α ∧
       h • P1point p 0 = P1point p β ∧
@@ -614,7 +623,7 @@ theorem three_transitive_case3 (m : ℕ) (hm : m ≥ 1)
       simp only [Matrix.of_apply, Matrix.mulVec, dotProduct, Fin.sum_univ_two, Matrix.cons_val_zero, Matrix.cons_val_one, mul_zero, mul_one]; ring
 
 theorem three_transitive_case4 (m : ℕ) (hm : m ≥ 1)
-    (α β γ : K p) (hα : α ∈ F_q_in_K p m) (hβ : β ∈ F_q_in_K p m) (hγ : γ ∈ F_q_in_K p m)
+    (α β γ : K p) (hα : α ∈ FqInK p m) (hβ : β ∈ FqInK p m) (hγ : γ ∈ FqInK p m)
     (hαβ : α ≠ β) (hαγ : α ≠ γ) (hβγ : β ≠ γ) :
     ∃ h : PGL p, h ∈ (pglMap (galoisFieldRingHom (p := p) m)).range ∧
       h • infinity p = P1point p α ∧
@@ -660,11 +669,11 @@ theorem three_transitive_case4 (m : ℕ) (hm : m ≥ 1)
 
 theorem pgl_Fq_three_transitive (m : ℕ) (hm : m ≥ 1)
     (a b c : ProjectiveLine p)
-    (ha : a ∈ P1_Fq p m) (hb : b ∈ P1_Fq p m) (hc : c ∈ P1_Fq p m)
+    (ha : a ∈ P1Fq p m) (hb : b ∈ P1Fq p m) (hc : c ∈ P1Fq p m)
     (hab : a ≠ b) (hac : a ≠ c) (hbc : b ≠ c) :
     ∃ h : PGL p, h ∈ (pglMap (galoisFieldRingHom (p := p) m)).range ∧
       h • infinity p = a ∧ h • P1point p 0 = b ∧ h • P1point p 1 = c := by
-  simp only [P1_Fq, Set.mem_union, Set.mem_singleton_iff, Set.mem_image] at ha hb hc
+  simp only [P1Fq, Set.mem_union, Set.mem_singleton_iff, Set.mem_image] at ha hb hc
   rcases ha with rfl | ⟨α, hα, rfl⟩
   · rcases hb with rfl | ⟨β, hβ, rfl⟩
     · exact absurd rfl hab
@@ -681,7 +690,7 @@ theorem pgl_Fq_three_transitive (m : ℕ) (hm : m ≥ 1)
           (fun h ↦ hab (congrArg _ h)) (fun h ↦ hac (congrArg _ h)) (fun h ↦ hbc (congrArg _ h))
 
 theorem preserves_P1Fq_in_range (m : ℕ) (hm : m ≥ 1)
-    (g : PGL p) (hg : ∀ x ∈ P1_Fq p m, g • x ∈ P1_Fq p m) :
+    (g : PGL p) (hg : ∀ x ∈ P1Fq p m, g • x ∈ P1Fq p m) :
     g ∈ (pglMap (galoisFieldRingHom (p := p) m)).range := by
   have h_inf_ne_zero : infinity p ≠ P1point p 0 := fun heq ↦ by
     rw [infinity, P1point] at heq
@@ -749,13 +758,13 @@ theorem dilation_smul_infinity (c : K p) (hc : c ≠ 0) :
   (fixesInfinity_iff_upperTriangular p _).mpr ⟨c, 0, 1, by rw [mul_one]; exact hc, rfl⟩
 
 omit h_odd in
-theorem F_q_inv (m : ℕ) (x : K p) (hx : x ∈ F_q_in_K p m) (_hx_ne : x ≠ 0) :
-    x⁻¹ ∈ F_q_in_K p m :=
+theorem F_q_inv (m : ℕ) (x : K p) (hx : x ∈ FqInK p m) (_hx_ne : x ≠ 0) :
+    x⁻¹ ∈ FqInK p m :=
   (inv_pow x (p ^ m)).trans (congrArg (·⁻¹) hx)
 
 omit h_odd in
-theorem F_q_div (m : ℕ) (x y : K p) (hx : x ∈ F_q_in_K p m) (hy : y ∈ F_q_in_K p m)
-    (hy_ne : y ≠ 0) : x / y ∈ F_q_in_K p m := by
+theorem F_q_div (m : ℕ) (x y : K p) (hx : x ∈ FqInK p m) (hy : y ∈ FqInK p m)
+    (hy_ne : y ≠ 0) : x / y ∈ FqInK p m := by
   rw [div_eq_mul_inv]
   exact F_q_mul_closed p m x y⁻¹ hx (F_q_inv p m y hy hy_ne)
 
@@ -763,10 +772,10 @@ theorem F_q_div (m : ℕ) (x y : K p) (hx : x ∈ F_q_in_K p m) (hy : y ∈ F_q_
 omit h_odd in
 theorem range_preserves_P1Fq (m : ℕ) (hm : m ≥ 1)
     (g : PGL p) (hg : g ∈ (pglMap (galoisFieldRingHom (p := p) m)).range) :
-    ∀ x ∈ P1_Fq p m, g • x ∈ P1_Fq p m := by
+    ∀ x ∈ P1Fq p m, g • x ∈ P1Fq p m := by
   rcases hg with ⟨⟨g⟩, rfl⟩
   intro x hx
-  simp only [P1_Fq, Set.mem_union, Set.mem_singleton_iff, Set.mem_image] at hx ⊢
+  simp only [P1Fq, Set.mem_union, Set.mem_singleton_iff, Set.mem_image] at hx ⊢
   rcases hx with rfl | ⟨a, ha, rfl⟩
   · let num := galoisFieldRingHom p m (g.1 0 0)
     let den := galoisFieldRingHom p m (g.1 1 0)
@@ -850,7 +859,7 @@ theorem range_preserves_P1Fq (m : ℕ) (hm : m ≥ 1)
         rw [h_den, h, mul_zero]
     · right
       refine ⟨num / den, ?_, ?_⟩
-      · have hlin : ∀ i, galoisFieldRingHom p m (g.1 i 0) * a + galoisFieldRingHom p m (g.1 i 1) ∈ F_q_in_K p m := fun i ↦
+      · have hlin : ∀ i, galoisFieldRingHom p m (g.1 i 0) * a + galoisFieldRingHom p m (g.1 i 1) ∈ FqInK p m := fun i ↦
           F_q_add_closed p m _ _ (F_q_mul_closed p m _ _ ((galoisFieldRingHom_range_eq_F_q p m hm) ▸ Set.mem_range_self _) ha) ((galoisFieldRingHom_range_eq_F_q p m hm) ▸ Set.mem_range_self _)
         exact F_q_div p m _ _ (hlin 0) (hlin 1) h
       · erw [Projectivization.smul_mk, Projectivization.mk_eq_mk_iff]
@@ -904,6 +913,7 @@ theorem fixes_infinity_normalizes_sylow
     rw [mul_smul, mul_smul, inv_smul_eq_iff.mpr hg_fix.symm, hP_fix (k : PGL p) (Subgroup.mem_map.mpr ⟨k, hk_mem, rfl⟩), hg_fix]
   · exact hP_fix
 
+/-- The orbit of `∞` under the subgroup `G'`, i.e. the set of points `g • ∞` for `g ∈ G'`. -/
 def orbitInfty (G' : Subgroup (PGL p)) : Set (ProjectiveLine p) :=
   {x | ∃ g ∈ G', g • infinity p = x}
 
@@ -937,7 +947,7 @@ theorem translationSet_scaled_eq_Fq (m : ℕ) (hm : m ≥ 1)
     (hV_zero : (0 : K p) ∈ V) (_hV_neg : ∀ x, x ∈ V → -x ∈ V)
     (hV_stable : ∀ c : K p, c ^ (p ^ m - 1) = 1 → c ≠ 0 → ∀ x, x ∈ V → c * x ∈ V)
     (v : K p) (hv : v ∈ V) (hv_ne : v ≠ 0) :
-    (fun x ↦ v⁻¹ * x) '' V = F_q_in_K p m := by
+    (fun x ↦ v⁻¹ * x) '' V = FqInK p m := by
   apply additive_subgroup_eq_F_q
   · exact hm
   · rw [Set.ncard_image_of_injective]
@@ -1141,6 +1151,7 @@ theorem same_dilation_param_diff_translation (g₁ g₂ : PGL p) (c : K p)
             exact h_mul
       exact h_translation.imp fun β hβ ↦ by rw [← mul_one g₁, ← inv_mul_cancel g₂, ← mul_assoc, hβ]
 
+/-- For `g` fixing `∞`, the nonzero scalar `c` such that conjugation by `g` sends the translation by `x` to the translation by `c x`. -/
 noncomputable def dilationParam (g : PGL p) (hg : g • infinity p = infinity p) : K p :=
   (dilation_conjugation_formula p g hg).choose
 
@@ -1191,10 +1202,10 @@ theorem normalizer_element_fixes_infinity
       g • infinity p = infinity p)
     (g : G) (hg : g ∈ (Subgroup.normalizer ((P : Subgroup G) : Set G))) :
     (g : PGL p) • infinity p = infinity p := by
-  have h_inf_eq : infinity p = sylow_fixedPoint p G hG_p P :=
+  have h_inf_eq : infinity p = sylowFixedPoint p G hG_p P :=
     eq_sylow_fixedPoint p G hG_p P _ (fun g hg ↦ hP_fix _ (Subgroup.mem_map_of_mem _ hg))
   rw [h_inf_eq]
-  exact normalizer_stabilizes_fixedPoint p G P (sylow_fixedPoint p G hG_p P)
+  exact normalizer_stabilizes_fixedPoint p G P (sylowFixedPoint p G hG_p P)
     (sylow_element_fixes p G hG_p P)
     (eq_sylow_fixedPoint p G hG_p P)
     g hg
@@ -1219,6 +1230,7 @@ theorem dilationParam_scales_translationSet
   rw [h_action] at h_conj
   exact h_conj
 
+/-- The dilation parameter of an element `g` of the normalizer of the Sylow `p`-subgroup `P`, as a scalar in `K p`. -/
 noncomputable def normDilationParam
     (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G)
@@ -1582,7 +1594,7 @@ theorem orbit_infty_eq_P1Fq_core
       g • infinity p = infinity p) :
     ∃ g : PGL p,
       g • infinity p = infinity p ∧
-      orbitInfty p (G.map (MulEquiv.toMonoidHom (MulAut.conj g))) = P1_Fq p m := by
+      orbitInfty p (G.map (MulEquiv.toMonoidHom (MulAut.conj g))) = P1Fq p m := by
   set H := Subgroup.map (Subgroup.subtype G) (P : Subgroup G)
   obtain ⟨α₀, hα₀⟩ : ∃ α₀ : K p, P1point p α₀ ∈ orbitInfty p G := by
     by_contra h
@@ -1635,11 +1647,14 @@ theorem orbit_infty_eq_P1Fq_core
     rw [h_map_eq, h_orbit_dilation, h_orbit_dilation_eq]
     rfl
 
+/-- The multiplicative isomorphism between `G` and its image `k₀ G k₀⁻¹` under conjugation by `k₀`. -/
 def conjEquiv (G : Subgroup (PGL p)) (k₀ : PGL p) :
     G ≃* (G.map (MulEquiv.toMonoidHom (MulAut.conj k₀))) :=
   G.equivMapOfInjective _ (MulEquiv.injective _)
 
 
+/-- The image of the Sylow `p`-subgroup `P` under conjugation by `k₀`, as a Sylow `p`-subgroup of the conjugate group `k₀ G k₀⁻¹`. -/
+@[nolint unusedArguments]
 def sylowMap (G : Subgroup (PGL p)) [Finite G] (P : Sylow p G) (k₀ : PGL p) :
     Sylow p (G.map (MulEquiv.toMonoidHom (MulAut.conj k₀))) :=
   let e := conjEquiv p G k₀
@@ -1679,7 +1694,7 @@ theorem orbit_infty_eq_P1Fq
     (m : ℕ) (hm : m ≥ 1)
     (hG : Nat.card G = p ^ m * (p ^ (2 * m) - 1)) :
     ∃ g : PGL p,
-      orbitInfty p (G.map (MulEquiv.toMonoidHom (MulAut.conj g))) = P1_Fq p m := by
+      orbitInfty p (G.map (MulEquiv.toMonoidHom (MulAut.conj g))) = P1Fq p m := by
   have hG_p : p ∣ Nat.card G :=
     hG.symm ▸ dvd_mul_of_dvd_left (dvd_pow_self p (ne_of_gt hm)) _
 

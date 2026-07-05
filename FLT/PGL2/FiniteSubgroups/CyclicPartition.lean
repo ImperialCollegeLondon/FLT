@@ -55,10 +55,17 @@ namespace Dickson
 
 noncomputable section
 
+/-- Combinatorial data for one class in a cyclic partition: `f` conjugate cyclic subgroups,
+each of order `d`. -/
 structure CyclicPartitionConfig where
+  /-- The common order `d` of the cyclic subgroups in this class. -/
   d : ℕ
+  /-- The number `f` of conjugate cyclic subgroups in this class. -/
   f : ℕ
 
+/-- `HasCyclicPartition G configs` states that the finite group `G` is covered by cyclic
+subgroups (intersecting pairwise trivially) whose orders and conjugate counts match `configs`. -/
+@[nolint unusedArguments]
 def HasCyclicPartition (G : Type*) [Group G] [Fintype G]
     (configs : List CyclicPartitionConfig) : Prop :=
   ∃ (H : List (Subgroup G)),
@@ -703,6 +710,7 @@ lemma center_eq_bot_of_hasCyclicPartition (G : Type*) [Group G] [Fintype G] (N :
   rw [← hHi'_norm_card, ← Option.some_inj.mp (hHi_eq.symm.trans hHi'_eq), h_card_norm] at h_lt
   omega
 
+@[nolint unusedArguments]
 lemma normal_order2_le_center (G : Type*) [Group G] [Fintype G]
     (K : Subgroup G) [K.Normal] (hK : Nat.card K = 2) :
     K ≤ Subgroup.center G := by
@@ -1024,7 +1032,7 @@ lemma card_elements_orderOf_prime (G : Type*) [Group G] [Fintype G]
       Fintype.card {x : G // x ∈ (P : Subgroup G) ∧ x ≠ 1} = p - 1 := fun P ↦ by
     rw [← Nat.card_eq_fintype_card]
     change Nat.card ↥(((P : Subgroup G) : Set G) \ {1}) = p - 1
-    rw [Nat.card_coe_set_eq, Set.ncard_diff_singleton_of_mem P.one_mem, ← Nat.card_coe_set_eq]
+    rw [Nat.card_coe_set_eq, Set.ncard_sdiff_singleton_of_mem P.one_mem, ← Nat.card_coe_set_eq]
     exact congrArg (fun x ↦ x - 1) (h_card P)
   simp only [h_card_P, Finset.sum_const, Finset.card_univ, nsmul_eq_mul, Nat.cast_id]
   rw [← Nat.card_eq_fintype_card]
