@@ -39,11 +39,11 @@ variable {R S : Type*} [CommSemiring R] [CommSemiring S] (φ : R →+* S)
 
 instance instFunLike : FunLike (A →ₛₐ[φ] B) A B where
   coe f := f.toFun
-  coe_injective' f g h := by
+  coe_injective f g h := by
     cases f
     cases g
     congr
-    exact DFunLike.coe_injective' h
+    exact DFunLike.coe_injective h
 
 variable {φ} {A} {B} in
 lemma SemialgHom.map_smul (ψ : A →ₛₐ[φ] B) (m : R) (x : A) : ψ (m • x) = φ m • ψ x :=

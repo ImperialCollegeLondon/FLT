@@ -48,7 +48,7 @@ instance NumberField.instCompactSpaceAdicCompletionIntegers :
   Valued.WithZeroMulInt.integer_compactSpace (v.adicCompletion K) inferInstance
     (v.valuedAdicCompletion_surjective K)
 
-lemma NumberField.isCompactAdicCompletionIntegers :
+lemma NumberField.isCompact_adicCompletionIntegers :
     IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K)) := by
   rw [isCompact_iff_compactSpace]
   exact instCompactSpaceAdicCompletionIntegers K v

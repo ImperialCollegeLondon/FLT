@@ -1,0 +1,15 @@
+name: Intentions
+on:
+  issue_comment:
+    types: [created]
+jobs:
+  intentions:
+    permissions:
+      issues: write
+      pull-requests: write
+    uses: leanprover-community/intentions/.github/workflows/intentions.yml@v1
+    with:
+      project-title: "FLT Project"
+      default-ttl: "none"
+    secrets:
+      project-token: ${{ secrets.PAT_TOKEN }}

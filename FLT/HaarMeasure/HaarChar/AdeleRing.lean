@@ -40,11 +40,9 @@ that the global units `Bˣ` are in the kernel of this character.
 
 open NumberField
 
-open scoped TensorProduct
+open scoped TensorProduct Adele -- for 𝔸 K notation
 
 variable (K L : Type*) [Field K] [Field L] [Algebra K L] [NumberField K] [NumberField L]
-
-open scoped NumberField.AdeleRing -- for 𝔸 K notation
 
 variable (V : Type*) [AddCommGroup V] [Module L V] [Module K V] [IsScalarTower K L V]
   [FiniteDimensional L V] [FiniteDimensional K V] -- the latter can be proved but
@@ -59,6 +57,13 @@ open NumberField MeasureTheory
 -- shortcut to make next lemma work
 variable (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) in
 instance : IsTopologicalRing (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p) :=
+  inferInstance
+
+-- another shortcut to make the next lemma work with
+-- `backward.isDefEq.respectTransparency false` after mathlib#40144
+variable (p : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) in
+noncomputable instance :
+    NonUnitalNonAssocRing (IsDedekindDomain.HeightOneSpectrum.adicCompletion ℚ p) :=
   inferInstance
 
 set_option backward.isDefEq.respectTransparency false in

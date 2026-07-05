@@ -36,28 +36,31 @@ variable {A : Type*} [CommRing A] [IsDedekindDomain A] (K : Type*) [Field K] [Al
 
 namespace HeightOneSpectrum
 
-/-- A uniformiser associated to `v` in the integers of the completion `Kᵥ`. -/
-noncomputable def adicCompletionIntegersUniformizer (v : HeightOneSpectrum A) :
-    v.adicCompletionIntegers K :=
-  algebraMap A (v.adicCompletionIntegers K) v.intValuation_exists_uniformizer.choose
-
 /-- A uniformiser associated to `v` in the completion `Kᵥ`. -/
 noncomputable def adicCompletionUniformizer (v : HeightOneSpectrum A) :
     v.adicCompletion K :=
   algebraMap K (v.adicCompletion K) (v.valuation_exists_uniformizer K).choose
 
-lemma adicCompletionUniformizer_spec (v : HeightOneSpectrum A) :
+@[simp]
+lemma v_adicCompletionUniformizer (v : HeightOneSpectrum A) :
     Valued.v (v.adicCompletionUniformizer K) = (Multiplicative.ofAdd (-1 : ℤ)) := by
   let u := (v.valuation_exists_uniformizer K).choose
   have h : (valuation K v) u = (Multiplicative.ofAdd (-1 : ℤ)) :=
     (v.valuation_exists_uniformizer K).choose_spec
   rwa [← valuedAdicCompletion_eq_valuation' v u] at h
 
+/-- A uniformiser associated to `v` in the integers of the completion `Kᵥ`. -/
+@[simps]
+noncomputable def adicCompletionIntegersUniformizer (v : HeightOneSpectrum A) :
+    v.adicCompletionIntegers K :=
+  ⟨v.adicCompletionUniformizer K, by
+    simp [mem_adicCompletionIntegers, inv_le_comm₀, ← Multiplicative.toAdd_le]⟩
+
 lemma adicCompletionUniformizer_ne_zero (v : HeightOneSpectrum A) :
     v.adicCompletionUniformizer K ≠ 0 := by
   intro h
   apply_fun Valued.v at h
-  rw [adicCompletionUniformizer_spec] at h
+  rw [v_adicCompletionUniformizer] at h
   simp at h
 
 /-- A uniformiser associated to `v` in the units of the completion `Kᵥ`. -/

@@ -5,10 +5,11 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import FLT.AutomorphicForm.QuaternionAlgebra.Defs
+public import FLT.AutomorphicForm.QuaternionAlgebra.Basic
 public import Mathlib.Algebra.Central.Defs
-import FLT.DivisionAlgebra.Finiteness
+public import FLT.DivisionAlgebra.Finiteness
 import Mathlib.RingTheory.PicardGroup
+import FLT.Mathlib.GroupTheory.DoubleCoset
 
 /-!
 # Finite-dimensionality of spaces of weight-2 automorphic forms
@@ -24,11 +25,10 @@ is a finitely generated `R`-module.
 -/
 
 @[expose] public section
-
 namespace TotallyDefiniteQuaternionAlgebra
 
-open IsDedekindDomain NumberField
-open scoped TensorProduct TensorProduct.RightActions
+open IsDedekindDomain NumberField IsQuaternionAlgebra.NumberField
+open scoped TensorProduct TensorProduct.RightActions Adele
 
 -- let F be a number field
 variable {F : Type*} [Field F] [NumberField F]
@@ -36,67 +36,36 @@ variable {F : Type*} [Field F] [NumberField F]
     {D : Type*} [DivisionRing D] [Algebra F D] [Module.Finite F D]
     [Algebra.IsCentral F D]
 -- Let K be a coefficient field
-variable (K : Type*) [Field K]
+variable (R : Type*) [CommRing R]
+    [WithRigidification F D]
     -- and let U, the level, be a subgroup of `(D ⊗ 𝔸_F^∞)ˣ`
     -- (which will be open in the theorem)
-    {U : Subgroup (Dfx F D)}
+    {U : Subgroup (GL (Fin 2) (FiniteAdeleRing (𝓞 F) F))}
 
 open TotallyDefiniteQuaternionAlgebra
 
--- A linter complains that the below theorem (which at the time of writing is not sorry-free)
--- Note that we do not ever assume `[IsTotallyReal F]`, `[IsQuaternionAlgebra F D]`
--- or `[IsTotallyDefinite F D]`.
--- The crucial fact is apparently that D is a division ring.
--- Perhaps what's going on is that if D is something like the discriminant 6 quat alg
--- over ℚ (so unramified at infinity) then maybe the space is trivially only the constant
--- functions, or something. Perhaps some of these hypotheses might need to be re-added
--- later on.
+open scoped FLT
 
--- If it's any help, the below argument will also show that the space of forms is
--- finitely-generated if `K` is an arbitrary Noetherian ring.
-/--
-Let `D/F` be a totally definite quaterion algebra over a totally real
-field. Then the space of `K`-valued weight 2 level `U` quaternionic automorphic forms
-for `Dˣ` is finite-dimensional over `K`.
--/
-theorem WeightTwoAutomorphicForm.finiteDimensional
-    (hU : IsOpen (U : Set (Dfx F D))) :
-    FiniteDimensional K (WeightTwoAutomorphicFormOfLevel U K) := by
-  let H' : Subgroup (Dfx F D) := (incl₁ F D).range
-  -- We will define a free K-module with a basis indexed by
-  -- the elements of a double coset space which (in the totally
-  -- definite case) is finite)
-  let X := DoubleCoset.Quotient (Set.range (incl₁ F D)) U
-  borelize (D ⊗[F] AdeleRing (𝓞 F) F)
-  -- (the finiteness claim below is the nontrivial input to this proof)
-  have h : Finite X := NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset F D hU
-  -- We then define a linear map φ from V to the free K_module spanned by this finite set.
-  -- V is a space of functions, and the map consists of evaluating
-  -- a function on representatives given by the rep function above.
-  let φ : (WeightTwoAutomorphicFormOfLevel U K) →ₗ[K] (X → K) := {
-    toFun v x := v (Quot.out x),
-    map_add' v₁ v₂ := rfl
-    map_smul' c v := rfl
-  }
-  -- Since we have a linear map φ from V to a finite-dimensional space,
-  -- it's enough to check that φ is injective. So say φ v₁ = φ v₂.
-  apply FiniteDimensional.of_injective φ
-  intro v₁ v₂ h
-  ext d
-  -- Show v₁ = v₂ because they agree on reps and the
-  -- space is determined by those values
-  let d' := Quot.out (Quot.mk _ d : X)
-  -- Because d' is a representative for the double coset containing d
-  obtain ⟨γ, u, hu, hd⟩ : ∃ γ : Dˣ, ∃ u ∈ U, d = (incl₁ F D γ) * d' * u := by
-    have h_rel : (DoubleCoset.setoid H' U) d' d := Quotient.exact (Quotient.out_eq ⟦d⟧)
-      -- Apply DoubleCoset.rel_iff to extract the witnesses
-    rw [DoubleCoset.rel_iff] at h_rel
-    obtain ⟨h, ⟨γ, rfl⟩, k, hk, h_eq⟩ := h_rel
-    use γ, k, hk
-  -- now it's all easy
-  rw [hd, mul_assoc, v₁.left_invt γ (d' * u), v₂.left_invt γ (d' * u),
-    WeightTwoAutomorphicFormOfLevel.right_invt v₁ d' ⟨u, hu⟩,
-    WeightTwoAutomorphicFormOfLevel.right_invt v₂ d' ⟨u, hu⟩]
-  exact congr_fun h (Quot.mk _ d)
+variable (D) in
+/-- For any open `U ⊆ GL₂(𝔸_F)`, `Dˣ\GL₂(𝔸_F)/U` is finite.
+(where `Dˣ` is viewed as a subgroup of `GL₂(𝔸_F)` under the identification `M₂(𝔸_F) ≃ D ⊗ 𝔸_F`) -/
+lemma finite_doubleCoset
+    (hU : IsOpen (U : Set (GL (Fin 2) (FiniteAdeleRing (𝓞 F) F)))) :
+    Finite (Dˣ＼GL₂(𝔸 F)／U) :=
+  (NumberField.FiniteAdeleRing.DivisionAlgebra.finiteDoubleCoset F D
+    (U := U.comap (Units.map (WithRigidification.algEquiv ..).toMonoidHom))
+    (hU.preimage (Units.continuous_map (by
+      exact IsModuleTopology.continuous_of_linearMap
+        (WithRigidification.algEquiv F D).toLinearMap)))).of_equiv _
+  (DoubleCoset.quotientEquiv _ _ _ _
+    (Units.mapEquiv (WithRigidification.algEquiv ..).toMulEquiv) (by
+      rw [← MulEquiv.coe_toEquiv, Equiv.preimage_eq_iff_eq_image, ← Set.range_comp]
+      dsimp
+      congr 1
+      ext x : 2
+      simp [WithRigidification.algEquiv]) rfl)
+
+instance (ℒ : WeightTwoAutomorphicForm.LevelStruct F R) : ℒ.IsFinite D :=
+  finite_doubleCoset _ (Subgroup.isOpen_mono le_sup_left ℒ.isOpen_U)
 
 end TotallyDefiniteQuaternionAlgebra

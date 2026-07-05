@@ -7,6 +7,7 @@ module
 
 public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Algebra
 public import Mathlib.Algebra.Lie.OfAssociative
 public import Mathlib.Topology.Algebra.Algebra
 
@@ -20,12 +21,28 @@ Material destined for Mathlib.
 
 namespace IsDedekindDomain.FiniteAdeleRing
 
+@[inherit_doc]
+scoped[Adele] notation:max "𝔸ᶠ[" A ", " K "]" => IsDedekindDomain.FiniteAdeleRing A K
+
+open scoped Adele
+
 variable (R K : Type*) [CommRing R] [Field K] [IsDedekindDomain R] [Algebra R K]
   [IsFractionRing R K]
 
+lemma prop (x : FiniteAdeleRing R K) :
+    ∀ᶠ v in .cofinite, x v ∈ v.adicCompletionIntegers K := x.2
+
+/-- The structure map `Π 𝒪ᵥ → 𝔸ᶠ` as a ring hom. -/
+noncomputable abbrev structureMap :
+    (Π v : HeightOneSpectrum R, v.adicCompletionIntegers K) →+* 𝔸ᶠ[R, K] :=
+  RestrictedProduct.structureMapRingHom _ _ _
+
+variable {R K} in
+@[simp] lemma structureMap_apply_apply (x i) : structureMap R K x i = x i := rfl
+
 /-- The integral adele subring inside the finite adele ring. -/
 noncomputable abbrev integralAdeles : Subring (FiniteAdeleRing R K) :=
-  RestrictedProduct.structureSubring _ _ _
+  (structureMap R K).range
 
 variable {R K}
 
@@ -33,6 +50,15 @@ variable {R K}
 
 @[simp] lemma mul_apply (a b : FiniteAdeleRing R K) (v : HeightOneSpectrum R) :
     (a * b) v = a v * b v := rfl
+
+@[simp] lemma add_apply (a b : FiniteAdeleRing R K) (v : HeightOneSpectrum R) :
+    (a + b) v = a v + b v := rfl
+
+@[simp] lemma sub_apply (a b : FiniteAdeleRing R K) (v : HeightOneSpectrum R) :
+    (a - b) v = a v - b v := rfl
+
+@[simp] lemma neg_apply (a : FiniteAdeleRing R K) (v : HeightOneSpectrum R) :
+    (-a) v = - a v := rfl
 
 /-- Constructor for `FiniteAdeleRing R K`. An `abbrev`. -/
 abbrev mk (f : ∀ v, HeightOneSpectrum.adicCompletion K v)
@@ -169,5 +195,27 @@ lemma singleContinuousAlgebraMap_comp_evalContinuousLinearMap (j : HeightOneSpec
   obtain rfl | h := eq_or_ne j q
   · simp [Pi.single_eq_same]
   · simp [Pi.single_eq_of_ne' h]
+
+variable {R K} in
+set_option backward.isDefEq.respectTransparency false in
+lemma exists_mul_mem_integralAdeles (x : 𝔸ᶠ[R, K]) :
+    ∃ a : 𝔸ᶠ[R, K]ˣ, a.1 ∈ FiniteAdeleRing.integralAdeles R K ∧
+      a * x ∈ FiniteAdeleRing.integralAdeles R K ∧ Set.Finite {x | a.1 x ≠ 1} := by
+  classical
+  choose a b hb hab using fun (v : HeightOneSpectrum R) ↦
+    IsFractionRing.div_surjective (v.adicCompletionIntegers K) (x v)
+  simp only [ValuationSubring.algebraMap_apply] at hab
+  simp only [mem_nonZeroDivisors_iff_ne_zero, ne_eq] at hb
+  refine ⟨(IsUnit.unit ?_), ⟨fun v ↦ if x v ∈ v.adicCompletionIntegers K then 1 else b v, rfl⟩,
+    ⟨fun v ↦ if h : x v ∈ v.adicCompletionIntegers K then ⟨x v, h⟩ else a v, ?_⟩, ?_⟩
+  · refine isUnit_iff.mpr ⟨?_, ?_⟩
+    · intro i
+      rw [structureMap_apply_apply]
+      split_ifs <;> simp [hb]
+    · refine x.prop.mono (by simp +contextual)
+  · ext v
+    dsimp
+    split_ifs <;> simp [← hab, hb, mul_div_cancel_left₀, ← mul_div_assoc]
+  · refine x.prop.mono (by simp +contextual)
 
 end IsDedekindDomain.FiniteAdeleRing

@@ -21,6 +21,7 @@ import FLT.HaarMeasure.HaarChar.AddEquiv
 import FLT.Mathlib.Algebra.Central.TensorProduct
 import FLT.Mathlib.LinearAlgebra.Determinant
 import FLT.NumberField.HeightOneSpectrum
+public import FLT.AutomorphicForm.GroupTheoryStuff
 
 /-!
 
@@ -124,7 +125,7 @@ local instance (v : HeightOneSpectrum (𝓞 K)) :
   rw [← isCompact_iff_compactSpace]
   refine isCompact_univ_pi (fun i ↦ ?_)
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  exact isCompactAdicCompletionIntegers K v
+  exact isCompact_adicCompletionIntegers K v
 
 variable {ι : Type*} [Finite ι] in
 local instance : LocallyCompactSpace
@@ -136,7 +137,7 @@ local instance : LocallyCompactSpace
   intro v
   refine isCompact_univ_pi (fun i ↦ ?_)
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  exact isCompactAdicCompletionIntegers K v
+  exact isCompact_adicCompletionIntegers K v
 
 local instance : LocallyCompactSpace
     Πʳ (v : HeightOneSpectrum (𝓞 K)), [adicCompletion K v,
@@ -145,7 +146,7 @@ local instance : LocallyCompactSpace
   filter_upwards
   intro v
   change IsCompact (v.adicCompletionIntegers K : Set (v.adicCompletion K))
-  exact isCompactAdicCompletionIntegers K v
+  exact isCompact_adicCompletionIntegers K v
 
 local instance : SecondCountableTopology Πʳ (v : HeightOneSpectrum (𝓞 K)),
     [v.adicCompletion K, v.adicCompletionIntegers K] := inferInstanceAs <|
@@ -549,9 +550,10 @@ lemma FiniteAdeleRing.Aux.f_g_local_global
   letI b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
   letI bLocal := Module.Basis.baseChange (v.adicCompletion K) b₀
   let m := LinearMap.toMatrix b b φ.toLinearMap
-  simp only [ContinuousAddEquiv.restrictedProductCongrRight, e, ← basis_eq K B v,
-    ContinuousAddEquiv.coe_trans, ContinuousAddEquiv.coe_mk, AddEquiv.coe_mk, Equiv.coe_fn_mk,
-    map_apply, Function.comp_apply, map_sum, Finset.sum_apply]
+  dsimp [e]
+  rw [ContinuousAddEquiv.restrictedProductCongrRight_apply]
+  dsimp
+  simp only [← basis_eq K B v, map_sum, Finset.sum_apply]
   conv_rhs =>
     change ∑ c,
       (ContinuousLinearEquiv.chooseBasisPiScalarRight' K (adicCompletion K v) B)
@@ -597,9 +599,9 @@ lemma localcomponent_mulLeft (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
     ext
     simp [FiniteAdeleRing.evalContinuousAlgebraMap_singleContinuousLinearMap]
   have : u' =
-      (FiniteAdeleRing.evalContinuousAlgebraMap (𝓞 K) K v).toContinuousLinearMap.rTensor B
+      (FiniteAdeleRing.evalContinuousAlgebraMap (𝓞 K) K v).toContinuousLinearMap.rTensor' B
       ((TensorProduct.map (FiniteAdeleRing.singleContinuousLinearMap (𝓞 K) K v) .id) u') := by
-    rw [ContinuousLinearMap.rTensor, ContinuousLinearMap.coe_mk', LinearMap.rTensor_map, this,
+    rw [ContinuousLinearMap.rTensor', ContinuousLinearMap.coe_mk', LinearMap.rTensor_map, this,
       TensorProduct.map_id, LinearMap.id_apply]
   convert! keyFin.symm
   change _ = Algebra.TensorProduct.rTensor B _ _
@@ -622,9 +624,9 @@ lemma localcomponent_mulRight (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
     ext
     simp [FiniteAdeleRing.evalContinuousAlgebraMap_singleContinuousLinearMap]
   have : u' =
-      (FiniteAdeleRing.evalContinuousAlgebraMap (𝓞 K) K v).toContinuousLinearMap.rTensor B
+      (FiniteAdeleRing.evalContinuousAlgebraMap (𝓞 K) K v).toContinuousLinearMap.rTensor' B
       ((TensorProduct.map (FiniteAdeleRing.singleContinuousLinearMap (𝓞 K) K v) .id) u') := by
-    rw [ContinuousLinearMap.rTensor, ContinuousLinearMap.coe_mk', LinearMap.rTensor_map, this,
+    rw [ContinuousLinearMap.rTensor', ContinuousLinearMap.coe_mk', LinearMap.rTensor_map, this,
       TensorProduct.map_id, LinearMap.id_apply]
   convert! keyFin.symm
   change _ = Algebra.TensorProduct.rTensor B _ _

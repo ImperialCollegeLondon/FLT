@@ -421,9 +421,8 @@ lemma tensorAdicCompletionIntegersTo_range_subset_closure [FiniteDimensional K L
           rw [Algebra.smul_def]
           exact mul_comm _ _
         have hcf : ContinuousAt f a' := by
-          apply Continuous.continuousAt
           rw [hfval]
-          apply Continuous.smul continuous_subtype_val continuous_const
+          fun_prop
         -- So, because `A` is dense in `𝒪_v`, `b • (1 ⊗ₜ a') ∈ f '' closure A ⊆ closure f '' A`
         have hy : a' ∈ closure (Set.range (algebraMap A _)) := by
           apply denseRange_of_integerAlgebraMap

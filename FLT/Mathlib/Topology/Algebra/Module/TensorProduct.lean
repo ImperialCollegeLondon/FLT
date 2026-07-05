@@ -57,7 +57,7 @@ namespace ContinuousLinearMap
 /-- The continuous `R`-linear map `M ⊗[R] V → N ⊗[R] V` induced
 by a continuous `R`-linear map `M → N`.
 -/
-def rTensor {R : Type*} {M N : Type*} (V : Type*)
+def rTensor' {R : Type*} {M N : Type*} (V : Type*)
     [CommRing M] [CommRing N] [CommRing R] [Algebra R M] [Algebra R N]
     [TopologicalSpace M] [TopologicalSpace N] [IsTopologicalRing M] [IsTopologicalRing N]
     (φ : M →L[R] N)
@@ -99,26 +99,26 @@ def rTensor {R : Type*} {M N : Type*} (V : Type*)
     exact (map_smul φ _ m).symm
   }
 
-lemma rTensor_id_apply {R : Type*} {M : Type*} (V : Type*)
+lemma rTensor'_id_apply {R : Type*} {M : Type*} (V : Type*)
     [CommRing M] [CommRing R] [Algebra R M]
     [TopologicalSpace M] [IsTopologicalRing M]
     [AddCommGroup V] [Module R V] [Module.Finite R V] [Module.Free R V]
     [TopologicalSpace (M ⊗[R] V)] [IsTopologicalAddGroup (M ⊗[R] V)]
     [IsModuleTopology M (M ⊗[R] V)] (x : M ⊗[R] V) :
-    rTensor V (.id R M) x = x := by
-  simp [rTensor]
+    rTensor' V (.id R M) x = x := by
+  simp [rTensor']
 
-lemma rTensor_id {R : Type*} {M : Type*} (V : Type*)
+lemma rTensor'_id {R : Type*} {M : Type*} (V : Type*)
     [CommRing M] [CommRing R] [Algebra R M]
     [TopologicalSpace M] [IsTopologicalRing M]
     [AddCommGroup V] [Module R V] [Module.Finite R V] [Module.Free R V]
     [TopologicalSpace (M ⊗[R] V)] [IsTopologicalAddGroup (M ⊗[R] V)]
     [IsModuleTopology M (M ⊗[R] V)] :
-    rTensor V (.id R M) = .id R (M ⊗[R] V) := by
+    rTensor' V (.id R M) = .id R (M ⊗[R] V) := by
   ext x
-  apply rTensor_id_apply
+  apply rTensor'_id_apply
 
-lemma rTensor_comp_apply {R : Type*} {M N P : Type*} (V : Type*)
+lemma rTensor'_comp_apply {R : Type*} {M N P : Type*} (V : Type*)
     [CommRing M] [CommRing N] [CommRing P] [CommRing R] [Algebra R M] [Algebra R N] [Algebra R P]
     [TopologicalSpace M] [IsTopologicalRing M]
     [TopologicalSpace N] [IsTopologicalRing N]
@@ -129,10 +129,10 @@ lemma rTensor_comp_apply {R : Type*} {M N P : Type*} (V : Type*)
     [TopologicalSpace (N ⊗[R] V)] [IsTopologicalAddGroup (N ⊗[R] V)] [IsModuleTopology N (N ⊗[R] V)]
     [TopologicalSpace (P ⊗[R] V)] [IsTopologicalAddGroup (P ⊗[R] V)] [IsModuleTopology P (P ⊗[R] V)]
     (x : M ⊗[R] V) :
-    rTensor V (ψ.comp φ) x = rTensor V ψ (rTensor V φ x) := by
-  simp [rTensor, LinearMap.rTensor, TensorProduct.map_map]
+    rTensor' V (ψ.comp φ) x = rTensor' V ψ (rTensor' V φ x) := by
+  simp [rTensor', LinearMap.rTensor, TensorProduct.map_map]
 
-lemma rTensor_comp {R : Type*} {M N P : Type*} (V : Type*)
+lemma rTensor'_comp {R : Type*} {M N P : Type*} (V : Type*)
     [CommRing M] [CommRing N] [CommRing P] [CommRing R] [Algebra R M] [Algebra R N] [Algebra R P]
     [TopologicalSpace M] [IsTopologicalRing M]
     [TopologicalSpace N] [IsTopologicalRing N]
@@ -143,8 +143,8 @@ lemma rTensor_comp {R : Type*} {M N P : Type*} (V : Type*)
     [TopologicalSpace (N ⊗[R] V)] [IsTopologicalAddGroup (N ⊗[R] V)] [IsModuleTopology N (N ⊗[R] V)]
     [TopologicalSpace (P ⊗[R] V)] [IsTopologicalAddGroup (P ⊗[R] V)]
     [IsModuleTopology P (P ⊗[R] V)] :
-    rTensor V (ψ.comp φ) = (rTensor V ψ).comp (rTensor V φ) := by
+    rTensor' V (ψ.comp φ) = (rTensor' V ψ).comp (rTensor' V φ) := by
   ext
-  apply rTensor_comp_apply
+  apply rTensor'_comp_apply
 
 end ContinuousLinearMap

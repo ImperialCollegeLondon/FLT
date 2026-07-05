@@ -56,7 +56,7 @@ noncomputable def TensorProduct.localcomponent (p : HeightOneSpectrum R)
       FiniteAdeleRing R K ⊗[K] V) :
     p.adicCompletion K ⊗[K] V →L[K] p.adicCompletion K ⊗[K] V :=
   -- f1 : `𝔸_K^f ⊗[K] V →L[K] Kₚ ⊗[K] V` is evalₚ ⊗ id_V
-  letI f1 := (ContinuousLinearMap.rTensor V
+  letI f1 := (ContinuousLinearMap.rTensor' V
     (evalContinuousAlgebraMap R K p).toContinuousLinearMap)
   -- f2 : `𝔸_K^f ⊗[K] V →L[K] 𝔸_K^f ⊗[K] V` is φ
   letI f2 : FiniteAdeleRing R K ⊗[K] V →L[K] FiniteAdeleRing R K ⊗[K] V := {
@@ -64,7 +64,7 @@ noncomputable def TensorProduct.localcomponent (p : HeightOneSpectrum R)
     cont := φ.cont
   }
   -- f3 : `Kₚ ⊗[K] V →L[K] 𝔸_K^f ⊗[K] V` is singleₚ ⊗ id_V
-  letI f3 := (ContinuousLinearMap.rTensor V (singleContinuousLinearMap R K p))
+  letI f3 := (ContinuousLinearMap.rTensor' V (singleContinuousLinearMap R K p))
   -- f1 ∘ f2 ∘ f3
   f1.comp (f2.comp f3)
 
@@ -77,7 +77,7 @@ lemma TensorProduct.localcomponent_id_apply (p : HeightOneSpectrum R)
       = LinearMap.id := by
     ext;
     apply evalContinuousAlgebraMap_singleContinuousLinearMap
-  simp [localcomponent, ContinuousLinearMap.rTensor, ← LinearMap.rTensor_comp_apply, this]
+  simp [localcomponent, ContinuousLinearMap.rTensor', ← LinearMap.rTensor_comp_apply, this]
 
 lemma TensorProduct.localcomponent_comp_apply (p : HeightOneSpectrum R)
     (φ ψ : FiniteAdeleRing R K ⊗[K] V →L[FiniteAdeleRing R K]
@@ -101,7 +101,7 @@ lemma TensorProduct.localcomponent_comp_apply (p : HeightOneSpectrum R)
     TensorProduct.induction_on x (by simp)
       (fun _ _ ↦ by simp_all [TensorProduct.smul_tmul', eval_localIdempotent])
       (fun _ _ ↦ by simp +contextual)
-  simp [localcomponent, ContinuousLinearMap.rTensor,
+  simp [localcomponent, ContinuousLinearMap.rTensor',
     ← LinearMap.rTensor_comp_apply, rTensor_single_comp_eval,
     rTensor_eval_localIdempotent
       (φ (ψ ((LinearMap.rTensor V (singleContinuousLinearMap R K p)) x)))]
@@ -116,12 +116,12 @@ then for all `x : 𝔸_K^f ⊗ V` we have
 lemma TensorProduct.localcomponent_apply
     (φ : FiniteAdeleRing R K ⊗[K] V →L[FiniteAdeleRing R K] FiniteAdeleRing R K ⊗[K] V)
     (x : FiniteAdeleRing R K ⊗[K] V) (p : HeightOneSpectrum R) :
-    (ContinuousLinearMap.rTensor V
+    (ContinuousLinearMap.rTensor' V
       (evalContinuousAlgebraMap R K p).toContinuousLinearMap) (φ x) =
-    TensorProduct.localcomponent R K V p φ ((ContinuousLinearMap.rTensor V
+    TensorProduct.localcomponent R K V p φ ((ContinuousLinearMap.rTensor' V
       (evalContinuousAlgebraMap R K p).toContinuousLinearMap) x) := by
   dsimp [localcomponent]
-  rw [← ContinuousLinearMap.rTensor_comp_apply]
+  rw [← ContinuousLinearMap.rTensor'_comp_apply]
   change (LinearMap.rTensor V _) (φ x) = (LinearMap.rTensor V _) (φ ((LinearMap.rTensor V _) x))
   rw [singleContinuousAlgebraMap_comp_evalContinuousLinearMap]
   let f := (LinearMap.lsmul

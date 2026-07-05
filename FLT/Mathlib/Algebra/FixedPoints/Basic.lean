@@ -84,15 +84,17 @@ instance addMonoid [AddMonoid A] [DistribSMul M A] : AddMonoid (FixedPoints M A)
   add_assoc a b c := by
     ext
     exact add_assoc (a : A) b c
-  nsmul n a := ⟨AddMonoid.nsmul n a, by
+  nsmul n a := ⟨NSMul.nsmul n a, by
     intro m
     induction n with
     | zero => simp
-    | succ n IH => rw [AddMonoid.nsmul_succ, smul_add, IH, a.prop]
+    | succ n IH => simp_all [nsmul_eq_smul, AddMonoid.nsmul_succ, smul_add, a.prop]
   ⟩
   nsmul_zero a := by
+    simp_rw [HSMul.hSMul, SMul.smul]
     simp [zero_def]
   nsmul_succ n a := by
+    simp_rw [HSMul.hSMul, SMul.smul]
     ext
     simp [succ_nsmul, coe_add]
 
@@ -110,18 +112,21 @@ instance addGroup [AddGroup A] [DistribSMul M A] : AddGroup (FixedPoints M A) wh
   __ := addMonoid
   neg a := ⟨-(a : A), fun m ↦ by
     rw [smul_neg, a.prop]⟩
-  zsmul n a := ⟨SubNegMonoid.zsmul n a.1, fun m ↦ by
+  zsmul n a := ⟨ZSMul.zsmul n a.1, fun m ↦ by
   induction n with
   | zero => simp
   | succ n _ => simp_all [add_zsmul, a.prop]
   | pred i IH => simp_all [sub_zsmul, a.prop]⟩
   zsmul_zero' a := by
+    simp_rw [HSMul.hSMul, SMul.smul]
     ext
     simp [zero_def]
   zsmul_succ' n a := by
+    simp_rw [HSMul.hSMul, SMul.smul]
     ext
     simp [coe_add, add_zsmul]
   zsmul_neg' n a := by
+    simp_rw [HSMul.hSMul, SMul.smul]
     ext
     simp [add_nsmul, add_zsmul]
   neg_add_cancel a := by

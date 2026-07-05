@@ -13,7 +13,7 @@ public import FLT.Mathlib.LinearAlgebra.Pi
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 public import Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 public import Mathlib.RingTheory.Flat.TorsionFree
-import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 import Mathlib.Algebra.Order.Algebra
 import Mathlib.RingTheory.Flat.TorsionFree
 import Mathlib.RingTheory.SimpleRing.Principal
@@ -50,7 +50,7 @@ namespace IsDedekindDomain
 
 open IsDedekindDomain HeightOneSpectrum adicCompletion Extension
 
-open scoped TensorProduct -- ⊗ notation for tensor product
+open scoped TensorProduct Adele -- ⊗ notation for tensor product
 
 lemma tendsTo_comap_cofinite [FaithfulSMul A B] :
     Filter.Tendsto (under A (B:=B)) Filter.cofinite Filter.cofinite :=
@@ -69,9 +69,6 @@ lemma cofinite_mapsTo_adicCompletionSemialgHom :
   exact Set.image_subset_iff.1 <| adicCompletionSemialgHom_image_adicCompletionIntegers K L ⟨w, rfl⟩
 
 namespace FiniteAdeleRing
-
-@[inherit_doc]
-scoped notation:max "𝔸ᶠ[" A ", " K "]" => FiniteAdeleRing A K
 
 /-- The ring homomorphism `𝔸_K^∞ → 𝔸_L^∞` for `L/K` an extension of number fields. -/
 noncomputable def mapRingHom : 𝔸ᶠ[A, K] →+* 𝔸ᶠ[B, L] :=

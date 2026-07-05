@@ -1,6 +1,7 @@
 import Verso
 import VersoManual
 import VersoBlueprint
+import FLT.Proof
 
 open Verso.Genre
 open Verso.Genre.Manual
@@ -8,8 +9,10 @@ open Informal
 
 #doc (Manual) "Stating Fermat's Last Theorem" =>
 
+Welcome to the first level of the Fermat's Last Theorem game.
+
 Let's start at the beginning, by defining the natural numbers
-$`\mathbb{N}`. Our convention will be that they start at zero.
+$`\mathbb{N}=\{0,1,2,3,\ldots\}`. Our convention will be that they start at zero.
 Indeed, this will be the first of the rules which we use
 to define the natural numbers.
 
@@ -27,12 +30,15 @@ The *natural numbers* are defined by these rules:
  * That's it.
 :::
 
-The successor of a number means the one that comes after it. Using successors,
-we can give names to some more numbers.
 
-:::definition "small_numbers" (parent := "definitions")
-We name the following {uses "natural_numbers"}[numbers].
-We define $`1` to be $`S(0)`, we let $`2` be $`S(1)` and
+The _successor_ of a number means the one that comes after it — for example,
+the successor of 37 is 38. But we're getting ahead of ourselves, we didn't
+name any numbers yet other than zero. Using successors,
+let's name some more numbers.
+
+:::definition "small_numbers" (parent := "definitions") (lean := "One.one")
+We name the following {uses "natural_numbers"}[natural numbers].
+We define $`1` to be $`S(0)` (the successor of zero), we let $`2` be $`S(1)` and
 we define $`3` to be $`S(2)`.
 :::
 
@@ -50,52 +56,51 @@ For example, let's define addition using this strategy.
 Given a number $`x`, how are we going to add it to another number $`y`?
 Let's apply the "that's it" rule to $`y`.
 
-:::definition "addition" (parent := "definitions") (lean := "Nat.add")
+:::definition "addition" (parent := "definitions") (lean := "Nat.add") (uses := "natural_numbers")
 We define *addition* $`x + y` by the following rules:
 * $`x + 0` is defined to be $`x`;
-* If we have already defined $`x + n`, then let's define $`x + S(n)` to be $`S(x + n)`.
+* If we have already defined $`x + n`, then we define $`x + S(n)` to be $`S(x + n)`.
 :::
 
 The explanation of the second part of the definition is: if we already
-know how to add $`n` to a number, then we can add the number after $`n` to it
+know how to add $`n` to a number, then we can add the number after $`n` to it as well,
 by first adding $`n`, and then taking the number after the result. Combined
 with the fact that adding $`0` to a number is easy, we have just defined addition.
 
 Multiplication $`x \times y` and exponentiation $`x^y` can be dealt with
 in the same way:
 
-:::definition "multiplication" (parent := "definitions") (lean := "Nat.mul")
-*Multiplication* $`x \times y` is defined using {uses "addition"}[addition],
+:::definition "multiplication" (parent := "definitions") (lean := "Nat.mul") (uses := "natural_numbers, addition")
+*Multiplication* $`x \times y` is defined
 by the following rules:
 * $`x \times 0` is defined to be $`0`;
 * If we know $`x \times n`, we define $`x \times S(n)` to be $`(x \times n) + n`.
 :::
 
-:::definition "exponentiation" (parent := "definitions") (lean := "Nat.pow")
-*Exponentiation* $`x^y` is defined using {uses "multiplication"}[multiplication]
-and {uses "small_numbers"}[one] by these rules:
+:::definition "exponentiation" (parent := "definitions") (lean := "Nat.pow") (uses := "small_numbers, multiplication")
+*Exponentiation* $`x^y` is defined by these rules:
 * $`a ^ 0` is defined to be  $`1`;
 * $`a ^ {S(n)}` is defined to be $`a ^ n \times a`.
 :::
 
 The last thing we need in this section is the concept of an inequality
-between two numbers, which is a way of saying who was born first.
+between two natural numbers, which is a way of saying who was born first.
 
 :::definition "leq" (parent := "definitions") (lean := "Nat.le")
-We define $`x \leq y` (using {uses "addition"}[addition])
-to mean that there exists a natural number $`a` such that $`y=x+a`.
+We define $`x \leq y`
+to mean that there exists a natural number $`a` such that {uses "addition"}[$`y = x + a`].
 A natural number $`n` is called *positive* when
 $`1 \leq n`.
 :::
 
-We are now ready to state Fermat's Last Theorem!
+We are now ready to achieve the goal of this level, which is to state
+Fermat's Last Theorem!
 
-:::theorem "flt" (parent := "definitions") (owner := "flt_author")
-Fermat's Last Theorem is a simple relationship between {uses "addition"}[addition]
-and {uses "exponentiation"}[exponentiation]. Let $`a`, $`b` and $`c` be
+:::definition "Statement_B1_FLT" (parent := "definitions") (owner := "flt_author") (lean := "FLT.Bosses.B1")
+Let $`a`, $`b` and $`c` be
 {uses "leq"}[positive] natural numbers
 and let $`n` be a natural number with {uses "small_numbers"}[$`3 \leq n`]. Then
-$`a ^ n + b ^ n \neq c ^ n`.
+{uses "addition"}[$`a ^ n + b ^ n`]$`\;\neq\;`{uses "exponentiation"}[$`c ^ n`].
 :::
 
 The moral of the story so far is that a rigorous statement of Fermat's Last
@@ -103,5 +108,5 @@ Theorem fits comfortably on one side of a sheet of paper, assuming nothing
 more than the axioms of mathematics and the rules of logic. It is an
 extraordinary fact that every proof of this statement known to humanity runs to
 thousands of pages and involves developing many new definitions and results.
-In the next section, we begin the proof of the theorem by making some
+In the next level, we begin the proof of the theorem by making some
 preliminary reductions.

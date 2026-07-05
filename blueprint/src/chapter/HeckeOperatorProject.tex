@@ -41,7 +41,7 @@ double coset $UgV$ can be written as a \emph{finite} union of single
 cosets $g_iV$.
 
 \begin{definition}
-  \lean{AbstractHeckeOperator.HeckeOperatorToFun}
+  \lean{AbstractHeckeOperator.heckeOperator.toFun}
   \label{AbstractHeckeOperator.HeckeOperatorToFun}
   \leanok
   Assuming $UgV$ is a finite union of cosets $g_iV$,
@@ -50,9 +50,9 @@ cosets $g_iV$.
 \end{definition}
 
 \begin{lemma}
-  \lean{AbstractHeckeOperator.HeckeOperator}
+  \lean{AbstractHeckeOperator.heckeOperator}
   \label{AbstractHeckeOperator.HeckeOperator}
-  \uses{AbstractHeckeOperator.HeckeOperatorToFun}
+  \uses{AbstractHeckeOperator.heckeOperator.toFun}
   \leanok
   This function is well-defined (that is, independent of the
   choice of $g_i$), has image in $A^U$ and is $R$-linear.
@@ -76,7 +76,7 @@ them to commute.
 \begin{lemma}
   \lean{AbstractHeckeOperator.comm}
   \label{AbstractHeckeOperator.comm}
-  \uses{AbstractHeckeOperator.HeckeOperator}
+  \uses{AbstractHeckeOperator.heckeOperator}
   \leanok
   Say $g,h\in G$ and we have $UgU=\coprod_i g_iU$
   and $UhU=\coprod_j h_j$ and we have $g_ih_j=h_jg_i$ for all $i,j$.
@@ -371,17 +371,8 @@ and we don't have a definition of nonarchimedean local field yet.
   Openness is already in mathlib.
 \end{proof}
 
-\begin{lemma}
-  \lean{NumberField.instCompactSpaceAdicCompletionIntegers}
-  \label{NumberField.instCompactSpaceAdicCompletionIntegers}
-  \leanok
-  $\calO_v$ is a compact subring of $K_v$.
-\end{lemma}
-\begin{proof}
-  \leanok
-  Compactness lies a little deeper because it
-  assumes that the residue field of $K_v$ is finite.
-\end{proof}
+$\calO_v$ is also a compact subring of $K_v$; we proved this in the adele
+miniproject.
 
 \begin{lemma} $M_2(\calO_v)$ is an open subring of $M_2(K_v)$.
   \lean{IsDedekindDomain.M2.localFullLevel.isOpen}
@@ -443,7 +434,7 @@ Choose $0\not=\alpha\in\calO_v$ and define $g=\begin{pmatrix}\alpha&0\\0&1\end{p
 Let's do an explicit double coset decomposition in preparation for a calculation with Hecke operators.
 
 \begin{lemma}
-  \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.HeckeOperator.Local.bijOn_unipotent_mul_diagU1_U1diagU1}
+  \lean{TotallyDefiniteQuaternionAlgebra.WeightTwoAutomorphicForm.HeckeOperator.Local.bijOn_unipotentMulDiagU1}
   \label{bijOn_unipotent_mul_diagU1_U1diagU1}
   \leanok
   The double coset space $UgU$ is the disjoint union of $g_tU$ as $t$ ranges

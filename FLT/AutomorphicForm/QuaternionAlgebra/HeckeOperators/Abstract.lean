@@ -10,6 +10,7 @@ public import Mathlib.Algebra.Ring.Action.Submonoid
 public import Mathlib.Algebra.BigOperators.Finprod
 public import Mathlib.Algebra.Group.Subgroup.Actions
 public import Mathlib.GroupTheory.Coset.Defs
+public import Mathlib.NumberTheory.Cyclotomic.Basic
 import Mathlib.Algebra.BigOperators.GroupWithZero.Action
 import Mathlib.GroupTheory.GroupAction.Quotient
 
@@ -61,6 +62,12 @@ has finite index, and so by the second isomorphism theorem `g⁻¹UgV` is
 a finite union of left cosets of `V`, and thus so is `UgV`.
 
 -/
+
+/-- `FixedPoints` as a submodule. -/
+def FixedPoints.submodule (G R M : Type*) [Monoid G] [Semiring R] [AddCommMonoid M]
+    [Module R M] [DistribMulAction G M] [SMulCommClass G R M] : Submodule R M where
+  __ := FixedPoints.addSubmonoid G M
+  smul_mem' := by simp_all [smul_comm]
 
 namespace FixedPoints
 
@@ -164,7 +171,7 @@ lemma eq_finsum_quotient_out_of_bijOn' (a : fixedPoints V A)
   exact finsum_mem_eq_of_bijOn e he₀ he₁
 
 /-- The Hecke operator T_g = [UgV] : A^V → A^U associated to the double coset UgV. -/
-noncomputable def HeckeOperatorToFun (a : fixedPoints V A) : fixedPoints U A :=
+noncomputable def heckeOperator.toFun (a : fixedPoints V A) : fixedPoints U A :=
   ⟨∑ᶠ gᵢ ∈ Quotient.out '' (QuotientGroup.mk '' (U * {g}) : Set (G ⧸ V)), gᵢ • a.1, by
   rintro ⟨u, huU⟩
   rw [smul_finsum_mem (h.image Quotient.out), ← eq_finsum_quotient_out_of_bijOn' a]
@@ -185,14 +192,14 @@ noncomputable def HeckeOperatorToFun (a : fixedPoints V A) : fixedPoints U A :=
     ⟩
 
 /-- The Hecke operator `T_g = [UgV] : A^V → A^U` packaged as an additive monoid homomorphism. -/
-noncomputable def HeckeOperatorAddMonoidHom : fixedPoints V A →+ fixedPoints U A where
-  toFun := HeckeOperatorToFun h
+noncomputable def heckeOperator.addMonoidHom : fixedPoints V A →+ fixedPoints U A where
+  toFun := toFun h
   map_zero' := by
     ext
-    simp [HeckeOperatorToFun]
+    simp [toFun]
   map_add' a b := by
     ext
-    simp only [HeckeOperatorToFun, FixedPoints.coe_add, smul_add,
+    simp only [toFun, FixedPoints.coe_add, smul_add,
       finsum_mem_add_distrib (h.image Quotient.out)]
 
 
@@ -201,40 +208,71 @@ variable {R : Type*} [Ring R] [Module R A] [SMulCommClass G R A]
 variable (g U V) in
 /-- The Hecke operator `T_g = [UgV] : A^V → A^U` as an `R`-linear map, where `R` is any ring
 acting on `A` and commuting with the `G`-action. -/
-noncomputable def HeckeOperator : fixedPoints V A →ₗ[R] fixedPoints U A where
-  toFun := HeckeOperatorToFun h
-  map_add' a b := by
-    ext
-    simp only [HeckeOperatorToFun, FixedPoints.coe_add, smul_add,
-      finsum_mem_add_distrib (h.image Quotient.out)]
+noncomputable def heckeOperator :
+    FixedPoints.submodule V R A →ₗ[R] FixedPoints.submodule U R A where
+  __ := heckeOperator.addMonoidHom h
   map_smul' r a := by
     ext
-    simp only [HeckeOperatorToFun, FixedPoints.coe_smul, smul_comm,
-      smul_finsum_mem (h.image Quotient.out), RingHom.id_apply]
+    simp only [heckeOperator.addMonoidHom, heckeOperator.toFun, Submodule.coe_smul, smul_comm]
+    exact (smul_finsum_mem (h.image Quotient.out)).symm
 
-lemma HeckeOperator_apply (a : fixedPoints V A) :
-    (HeckeOperator (R := R) g U V h a : A) =
+lemma heckeOperator_apply (a : fixedPoints V A) :
+    (heckeOperator (R := R) g U V h a : A) =
     ∑ᶠ (gᵢ ∈ Quotient.out '' (QuotientGroup.mk '' (U * {g}) : Set (G ⧸ V))), gᵢ • (a : A) :=
   rfl
 
+lemma heckeOperator_apply' (a : fixedPoints V A) :
+    (heckeOperator (R := R) g U V h a : A) =
+    ∑ gᵢ ∈ h.toFinset, gᵢ.out • (a : A) := by
+  rw [heckeOperator_apply, ← finsum_mem_coe_finset, finsum_mem_image]
+  · congr!; simp
+  · exact Quotient.out_injective.injOn
+
+lemma heckeOperator_eq_finsetSum (a : fixedPoints V A) (s : Finset G)
+    (hs : Set.BijOn QuotientGroup.mk (s : Set G) (QuotientGroup.mk '' (↑U * {g}) : Set (G ⧸ V))) :
+    (heckeOperator (R := R) g U V h a : A) = ∑ i ∈ s, i • (a : A) :=
+  (eq_finsum_quotient_out_of_bijOn' _ hs).symm.trans (finsum_mem_coe_finset ..)
+
+lemma heckeOperator_eq_of_mem_normalizer
+    (h : (QuotientGroup.mk '' (U * {g}) : Set (G ⧸ U)).Finite)
+    (a : fixedPoints U A) (H : g ∈ Subgroup.normalizer U) :
+    (heckeOperator (R := R) g U U h a : A) = g • a := by
+  rw [heckeOperator_apply, eq_finsum_quotient_out_of_bijOn' (X := {QuotientGroup.mk g}),
+    finsum_mem_image Quotient.out_injective.injOn]
+  · simp only [Set.mem_singleton_iff, finsum_cond_eq_left]
+    obtain ⟨g', hg'⟩ := QuotientGroup.mk_out_eq_mul U g
+    rw [hg', mul_smul, ← Subgroup.smul_def, a.2]
+  · have H₁ : (U * {g} : Set G) = {g} * U := by
+      ext; simp [Subgroup.mem_normalizer_iff'.mp (inv_mem H)]
+    have H₂ : (QuotientGroup.mk '' ({g} * U) : Set (G ⧸ U)) = {↑g} := by
+      ext
+      simp only [Set.mem_image, Set.mem_singleton_iff,
+        Set.mem_mul, SetLike.mem_coe, ← exists_prop (a := _ ∈ _), exists_eq_left]
+      simp +contextual [QuotientGroup.mk_mul_of_mem, -exists_prop, eq_comm]
+      aesop
+    rw [H₁, H₂, Set.image_singleton, Set.bijOn_singleton]
+    simp
+
+set_option backward.isDefEq.respectTransparency false in
 theorem comm {g₁ g₂ : G} (h₁ : (QuotientGroup.mk '' (U * {g₁}) : Set (G ⧸ U)).Finite)
     (h₂ : (QuotientGroup.mk '' (U * {g₂}) : Set (G ⧸ U)).Finite)
     (hcomm : ∃ s₁ s₂ : Set G,
       Set.BijOn QuotientGroup.mk s₁ (QuotientGroup.mk '' (U * {g₁}) : Set (G ⧸ U)) ∧
       Set.BijOn QuotientGroup.mk s₂ (QuotientGroup.mk '' (U * {g₂}) : Set (G ⧸ U)) ∧
       ∀ a ∈ s₁, ∀ b ∈ s₂, a * b = b * a) :
-    (HeckeOperator g₁ U U h₁ ∘ₗ HeckeOperator g₂ U U h₂ : fixedPoints U A →ₗ[R] fixedPoints U A) =
-    HeckeOperator g₂ U U h₂ ∘ₗ HeckeOperator g₁ U U h₁ := by
+    (heckeOperator g₁ U U h₁ ∘ₗ heckeOperator g₂ U U h₂ :
+        FixedPoints.submodule U R A →ₗ[R] FixedPoints.submodule U R A) =
+    heckeOperator g₂ U U h₂ ∘ₗ heckeOperator g₁ U U h₁ := by
   ext a
   rcases hcomm with ⟨s₁, s₂, hs₁, hs₂, hcomm⟩
   simp only [LinearMap.coe_comp, Function.comp_apply]
-  nth_rw 1 [HeckeOperator_apply]
+  nth_rw 1 [heckeOperator_apply]
   rw [← eq_finsum_quotient_out_of_bijOn' _ hs₁]
-  nth_rw 1 [HeckeOperator_apply]
+  nth_rw 1 [heckeOperator_apply]
   rw [← eq_finsum_quotient_out_of_bijOn' _ hs₂]
-  nth_rw 1 [HeckeOperator_apply]
+  nth_rw 1 [heckeOperator_apply]
   rw [← eq_finsum_quotient_out_of_bijOn' _ hs₂]
-  nth_rw 1 [HeckeOperator_apply]
+  nth_rw 1 [heckeOperator_apply]
   rw [← eq_finsum_quotient_out_of_bijOn' _ hs₁]
   have hfs₁ : s₁.Finite := by rwa [hs₁.finite_iff_finite]
   have hfs₂ : s₂.Finite := by rwa [hs₂.finite_iff_finite]

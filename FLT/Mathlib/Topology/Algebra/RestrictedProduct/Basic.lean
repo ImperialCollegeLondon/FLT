@@ -290,6 +290,11 @@ def structureMapRingHom {ι : Type*} (M : ι → Type*) [(i : ι) → Ring (M i)
   map_mul' := by intros; rfl
   map_add' := by intros; rfl
 
+@[simp]
+lemma structureMapRingHom_apply_apply {ι : Type*} (M : ι → Type*) [(i : ι) → Ring (M i)]
+    {S : ι → Type*} [∀ i, SetLike (S i) (M i)] [∀ i, SubringClass (S i) (M i)] (A : Π i, S i)
+    (𝓕 : Filter ι) (x v) : structureMapRingHom M A 𝓕 x v = x v := rfl
+
 /-- The subring `∏ i, A i` inside `Πʳ i, [R i, A i]_[𝓕]`. -/
 def structureSubring {ι : Type*} (R : ι → Type*) {S : ι → Type*}
     (A : (i : ι) → (S i)) (𝓕 : Filter ι) [(i : ι) → SetLike (S i) (R i)] [(i : ι) → Ring (R i)]
