@@ -36,11 +36,7 @@ one.
 
 The statement follows from Théorème 1.3 of [L. Moret-Bailly, *Groupes de
 Picard et problèmes de Skolem. II*, Ann. Sci. École Norm. Sup. (4) 22
-(1989), no. 2, 181-194] by classical arguments; this precise form is the
-variant used by Taylor in his potential modularity arguments. See
-`moret-bailly-statement.tex` at the root of this repository for a detailed
-account of the statement, an outline of the proof, and the prerequisites a
-formalization of the proof would need.
+(1989), no. 2, 181-194] by classical arguments.
 
 ## Implementation notes
 
@@ -137,11 +133,5 @@ def MoretBaillyTheorem : Prop :=
     (∀ v ∈ Sf, (Cf v).Satisfies L P) ∧ (∀ v ∈ Sinf, (Cinf v).Satisfies L P)
 
 set_option linter.unusedSectionVars false in
-/-- Moret-Bailly's theorem follows from Théorème 1.3 of [L. Moret-Bailly,
-*Groupes de Picard et problèmes de Skolem. II*, Ann. Sci. École Norm. Sup.
-(4) 22 (1989), no. 2, 181-194] by classical pre-1990 arguments (Krasner's
-lemma, the Chebotarev density theorem, the Riemann hypothesis for curves
-over finite fields, and a Galois closure argument). The deduction is written
-out in `moret-bailly-statement.tex` at the root of this repository. -/
 theorem moretBailly : MoretBaillyTheorem k K K_avoid T Sf Sinf Cf Cinf :=
   knownin1980s
