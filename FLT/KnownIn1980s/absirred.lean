@@ -286,7 +286,49 @@ lemma adjoinRange_baseChange_eq_top [FiniteDimensional k V]
     (l : Type*) [Field l] [Algebra k l]
     (h : adjoinRange ρ = ⊤) :
     adjoinRange (baseChange l ρ) = ⊤ := by
-  sorry
+  classical
+  -- `E : End_k V →ₐ[k] End_l (l ⊗ V)`, `T ↦ T.baseChange l` (base change of endomorphisms).
+  set E : Module.End k V →ₐ[k] Module.End l (l ⊗[k] V) :=
+    Module.End.baseChangeHom k l V with hE
+  have hEapp : ∀ T : Module.End k V, E T = LinearMap.baseChange l T := fun T => rfl
+  -- The generators base change correctly: `(baseChange l ρ) g = E (ρ g)`.
+  have hgen : ∀ g : G, baseChange l ρ g = E (ρ g) := fun g => by rw [hEapp]; rfl
+  -- Step 1 : since `A = End_k V = ⊤`, every `E T` lies in `B := adjoinRange (baseChange l ρ)`.
+  have hrange : ∀ T : Module.End k V, E T ∈ adjoinRange (baseChange l ρ) := by
+    have hmap : (adjoinRange ρ).map E ≤
+        Subalgebra.restrictScalars k (adjoinRange (baseChange l ρ)) := by
+      rw [adjoinRange, ← Algebra.adjoin_image]
+      apply Algebra.adjoin_le
+      rintro _ ⟨_, ⟨g, rfl⟩, rfl⟩
+      simp only [SetLike.mem_coe, Subalgebra.mem_restrictScalars]
+      rw [← hgen g]
+      exact Algebra.subset_adjoin (Set.mem_range_self g)
+    intro T
+    have hTmem : E T ∈ (adjoinRange ρ).map E :=
+      Subalgebra.mem_map.mpr ⟨T, by rw [h]; exact Algebra.mem_top, rfl⟩
+    have := hmap hTmem
+    rwa [Subalgebra.mem_restrictScalars] at this
+  -- Step 2 : the images `E (b.end ij)` of the matrix-unit basis of `End_k V` are a basis of
+  -- `End_l (l ⊗ V)`, so `E` has `l`-dense image; combined with Step 1 this forces `B = ⊤`.
+  set ι := Module.Free.ChooseBasisIndex k V with hι
+  set b : Basis ι k V := Module.Free.chooseBasis k V with hb
+  set bl : Basis ι l (l ⊗[k] V) := Algebra.TensorProduct.basis l b with hbl
+  have hsub : Set.range ⇑bl.end ⊆ Set.range ⇑E := by
+    rintro _ ⟨ij, rfl⟩
+    exact ⟨b.end ij, by rw [hEapp]; exact b.baseChange_end (A := l) ij⟩
+  have hspan : Submodule.span l (Set.range ⇑E) = ⊤ := by
+    rw [eq_top_iff, ← bl.end.span_eq]
+    exact Submodule.span_mono hsub
+  -- Conclude.
+  rw [eq_top_iff]
+  intro x _
+  have hxspan : x ∈ Submodule.span l (Set.range ⇑E) := by rw [hspan]; exact Submodule.mem_top
+  have hle : Submodule.span l (Set.range ⇑E) ≤
+      Subalgebra.toSubmodule (adjoinRange (baseChange l ρ)) := by
+    rw [Submodule.span_le]
+    rintro _ ⟨T, rfl⟩
+    exact hrange T
+  exact hle hxspan
 
 /-! ## Step (iv) : fullness of `A` implies irreducibility -/
 
