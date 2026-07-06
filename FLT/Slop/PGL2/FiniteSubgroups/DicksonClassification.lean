@@ -5,8 +5,8 @@ Authors: Duxing Yang
 -/
 module
 
-public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.TameClassification
-public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.WildClassification
+public import FLT.Slop.PGL2.FiniteSubgroups.TameClassification
+public import FLT.Slop.PGL2.FiniteSubgroups.WildClassification
 
 /-!
 # Dickson's classification of the finite subgroups of `PGL₂(𝔽̄_p)`
@@ -21,8 +21,9 @@ subgroup of `PGL₂(𝔽̄_p)` is one of:
   prime to `p`;
 * isomorphic to `PSL₂(𝔽_{p^m})` or `PGL₂(𝔽_{p^m})` for some `m ≥ 1`.
 
-This is the combination of the tame case (`Dickson.classification_tame`, order coprime
-to `p`) and the wild case (`Dickson.classification_wild`, order divisible by `p`).
+This is the combination of the tame case (`Dickson.classification_tame_slop`, order
+coprime to `p`) and the wild case (`Dickson.classification_wild_slop`, order divisible
+by `p`).
 
 This classification (due to Dickson, 1901) is used in the proof of Fermat's Last
 Theorem to analyse the image of the mod-`p` Galois representations attached to the
@@ -66,13 +67,13 @@ theorem dickson_classification (G : Subgroup (PGL p)) [Finite G] :
         Subgroup.center (GL (Fin 2) (GaloisField p m))))) := by
   by_cases hG_nontrivial : Nontrivial G
   · by_cases h_div : p ∣ Nat.card G
-    · rcases classification_wild p G h_div with h1 | h2 | h3 | ⟨_, h4⟩
+    · rcases classification_wild_slop p G h_div with h1 | h2 | h3 | ⟨_, h4⟩
       · exact Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inl h1
       · exact Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inl h2
       · exact Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inr h3
       · exact Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inl h4
     · haveI : Fintype G := Fintype.ofFinite G
-      rcases classification_tame p G h_div hG_nontrivial with h1 | h2 | h3 | h4 | h5
+      rcases classification_tame_slop p G h_div hG_nontrivial with h1 | h2 | h3 | h4 | h5
       · exact Or.inl h1
       · exact Or.inr <| Or.inl h2
       · exact Or.inr <| Or.inr <| Or.inl h3

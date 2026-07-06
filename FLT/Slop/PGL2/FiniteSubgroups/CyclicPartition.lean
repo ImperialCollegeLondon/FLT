@@ -11,7 +11,7 @@ public import Mathlib.GroupTheory.Transfer
 public import Mathlib.Tactic.Cases
 public import Mathlib.Tactic.NormNum.NatFactorial
 public import Mathlib.Tactic.NormNum.Prime
-public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.PGLBasic
+public import FLT.Slop.PGL2.FiniteSubgroups.PGLBasic
 
 /-!
 # Recognition theorems for groups with a partition into cyclic subgroups

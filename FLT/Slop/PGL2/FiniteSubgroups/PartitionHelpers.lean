@@ -6,7 +6,7 @@ Authors: Duxing Yang
 module
 
 public import Mathlib.Tactic.Cases
-public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.PGLBasic
+public import FLT.Slop.PGL2.FiniteSubgroups.PGLBasic
 
 /-!
 # Sylow `p`-subgroup lemmas for finite subgroups of `PGL₂(𝔽̄_p)`

@@ -5,7 +5,7 @@ Authors: Duxing Yang
 -/
 module
 
-public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.FieldReconstruction
+public import FLT.Slop.PGL2.FiniteSubgroups.FieldReconstruction
 
 /-!
 # Recognising `PSL₂(𝔽_q)` inside `PGL₂(𝔽̄_p)`

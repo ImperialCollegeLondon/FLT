@@ -7,15 +7,15 @@ module
 
 public import Mathlib.Algebra.BigOperators.Field
 public import Mathlib.Algebra.Module.ZMod
-public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.CyclicPartition
-public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.NatClassEquation
-public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.PGLBasic
+public import FLT.Slop.PGL2.FiniteSubgroups.CyclicPartition
+public import FLT.Slop.PGL2.FiniteSubgroups.NatClassEquation
+public import FLT.Slop.PGL2.FiniteSubgroups.PGLBasic
 
 /-!
 # Dickson's classification: the tame case
 
 This file classifies the finite subgroups `G` of `PGL p = PGL₂(𝔽̄_p)` of order coprime
-to `p` (the *tame* case): the main theorem `Dickson.classification_tame` shows any
+to `p` (the *tame* case): the main theorem `Dickson.classification_tame_slop` shows any
 such `G` is cyclic, dihedral, or isomorphic to `A₄`, `S₄` or `A₅`.
 
 The proof is via the class equation. Every nontrivial element of `G` fixes exactly two
@@ -25,7 +25,7 @@ most 2. Counting elements (`Dickson.orbitPartitionData`) yields the classical
 constraint `∑ i, (1 - 1/dᵢ) ≤ 2 (1 - 1/n)` on at most three "partition types", whose
 solutions (`r1Solution`, `r2Solutions`, `r3SolutionsUnsorted`) correspond exactly to
 the cyclic, dihedral, `A₄`, `S₄` and `A₅` cases, recognised via the cyclic-partition
-machinery of `FLT.KnownIn1980s.PGL2.FiniteSubgroups.CyclicPartition`.
+machinery of `FLT.Slop.PGL2.FiniteSubgroups.CyclicPartition`.
 -/
 
 /- The code in this file was ported from Duxing Yang's `DicksonClassification` project
@@ -379,9 +379,11 @@ lemma pairStabilizer_isCyclic (G : Subgroup (PGL p)) [Fintype G]
     · rw [Units.val_one, Matrix.one_mulVec]
 
   have h_c_one : c 1 = 1 := by
+    have hx_one : x.rep = c 1 • x.rep := by
+      simpa [hf_one] using hc_x (1 : pairStabilizer p G x y)
     have h : (1 - c 1) • x.rep = 0 := by
-      rw [sub_smul, one_smul, ← Matrix.one_mulVec x.rep, ← Units.val_one, ← hf_one, hc_x,
-          ← mul_smul, ← hc_mul, mul_one, sub_self]
+      rw [sub_smul, one_smul]
+      exact sub_eq_zero.mpr hx_one
     exact Eq.symm (sub_eq_zero.mp (Or.resolve_right (smul_eq_zero.mp h) x.rep_nonzero))
   let hom : pairStabilizer p G x y →* K p := { toFun := c, map_one' := h_c_one, map_mul' := hc_mul }
 
@@ -1632,7 +1634,7 @@ lemma tame_hasCyclicPartition (G : Subgroup (PGL p)) [Fintype G]
           (by rw [hnorm, hf2, hσ₀]) (by rw [hnorm, hf2, hσ₁]) (by rw [hnorm, hf2, hσ₂])
           (h_r3_disj σ) (h_r3_cover σ)
 
-theorem classification_tame (G : Subgroup (PGL p)) [Fintype G]
+theorem classification_tame_slop (G : Subgroup (PGL p)) [Fintype G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
     (hG_nontrivial : Nontrivial G) :
     (IsCyclic G) ∨

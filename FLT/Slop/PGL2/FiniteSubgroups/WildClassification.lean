@@ -9,15 +9,15 @@ public import Mathlib.Algebra.Module.ZMod
 public import Mathlib.GroupTheory.SchurZassenhaus
 public import Mathlib.GroupTheory.SemidirectProduct
 public import Mathlib.Tactic.NormNum.Prime
-public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.PSLBasic
-public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.PSLRecognition
-public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.PartitionProof
+public import FLT.Slop.PGL2.FiniteSubgroups.PSLBasic
+public import FLT.Slop.PGL2.FiniteSubgroups.PSLRecognition
+public import FLT.Slop.PGL2.FiniteSubgroups.PartitionProof
 
 /-!
 # Dickson's classification: the wild case
 
 This file classifies the finite subgroups `G` of `PGL p = PGL₂(𝔽̄_p)` of order
-divisible by `p` (the *wild* case): the main theorem `Dickson.classification_wild`
+divisible by `p` (the *wild* case): the main theorem `Dickson.classification_wild_slop`
 shows any such `G` is
 
 * a semidirect product of an elementary abelian `p`-group by a cyclic group of order
@@ -26,10 +26,10 @@ shows any such `G` is
 * isomorphic to `PSL₂(𝔽_q)` or `PGL₂(𝔽_q)` for some power `q = p^m`.
 
 The proof combines the partition equation from
-`FLT.KnownIn1980s.PGL2.FiniteSubgroups.PartitionProof` with the recognition theorems for `A₅`
-(`FLT.KnownIn1980s.PGL2.FiniteSubgroups.RecognitionA5`) and for `PSL₂(𝔽_q)`/`PGL₂(𝔽_q)`
-(`FLT.KnownIn1980s.PGL2.FiniteSubgroups.PSLRecognition` and the field reconstruction in
-`FLT.KnownIn1980s.PGL2.FiniteSubgroups.FieldReconstruction`).
+`FLT.Slop.PGL2.FiniteSubgroups.PartitionProof` with the recognition theorems for `A₅`
+(`FLT.Slop.PGL2.FiniteSubgroups.RecognitionA5`) and for `PSL₂(𝔽_q)`/`PGL₂(𝔽_q)`
+(`FLT.Slop.PGL2.FiniteSubgroups.PSLRecognition` and the field reconstruction in
+`FLT.Slop.PGL2.FiniteSubgroups.FieldReconstruction`).
 -/
 
 /- The code in this file was ported from Duxing Yang's `DicksonClassification` project
@@ -93,9 +93,22 @@ theorem fixes_infinity_coprime_isCyclic (H : Subgroup (PGL p)) [Finite H]
     IsCyclic H := by
   let f := dilationHomOfFix p H hH_fix
   have h_kernel_trivial : f.ker = ⊥ :=
-    eq_bot_iff.mpr fun g hg ↦ Subgroup.mem_bot.mpr <| orderOf_eq_one_iff.mp <|
-      Nat.dvd_one.mp <| (hH_coprime.coprime_dvd_left (orderOf_dvd_natCard g)).gcd_eq_one ▸
-        Nat.dvd_gcd (dvd_refl _) (dilationHom_ker_order p H hH_fix g hg)
+    eq_bot_iff.mpr fun g hg ↦ Subgroup.mem_bot.mpr <|
+      let n : ℕ := @orderOf H H.toGroup.toMonoid g
+      have h_order_card : n ∣ Nat.card H := by
+        dsimp [n]
+        exact @orderOf_dvd_natCard H H.toGroup g
+      have h_order_p : n ∣ p := by
+        dsimp [n]
+        simpa using dilationHom_ker_order p H hH_fix g hg
+      have h_gcd : Nat.gcd n p = 1 := (hH_coprime.coprime_dvd_left h_order_card).gcd_eq_one
+      have h_dvd_one : n ∣ 1 := by
+        rw [← h_gcd]
+        exact Nat.dvd_gcd (dvd_refl n) h_order_p
+      have h_order_one : @orderOf H H.toGroup.toMonoid g = 1 := by
+        dsimp [n] at h_dvd_one
+        exact Nat.dvd_one.mp h_dvd_one
+      orderOf_eq_one_iff.mp h_order_one
   have h_inj : Function.Injective f := fun x y hxy ↦
     mul_inv_eq_one.mp <| Subgroup.mem_bot.mp <| h_kernel_trivial ▸
       MonoidHom.mem_ker.mpr (by rw [map_mul, map_inv, hxy, mul_inv_cancel])
@@ -677,7 +690,7 @@ theorem dickson_branch2_z1_ge_2 (G : Subgroup (PGL p)) [Finite G]
       h.1 ▸ (h_pow ▸ dvd_pow_self p fun hm ↦ by rw [hm, pow_zero] at h_pow; linarith only [h.1, h_pow])
     exact Or.inr <| Or.inr <| Or.inr ⟨hp_eq_3, recognition_A5_proof p G hp_eq_3 (by rw [card_eq_pm_z1_np' p G P, h.1, h.2.1, h.2.2]) h.2.2⟩
 
-theorem classification_wild (G : Subgroup (PGL p)) [Finite G]
+theorem classification_wild_slop (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) :
     (∃ (m t : ℕ) (_ : m ≥ 1) (_ : Nat.Coprime t p) (_ : t ∣ p ^ m - 1)
       (φ : Multiplicative (ZMod t) →* MulAut (Multiplicative (Fin m → ZMod p))),

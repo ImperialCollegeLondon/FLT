@@ -7,7 +7,7 @@ module
 
 public import Mathlib.GroupTheory.Transfer
 public import Mathlib.Tactic.NormNum.NatFactorial
-public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.PGLBasic
+public import FLT.Slop.PGL2.FiniteSubgroups.PGLBasic
 
 /-!
 # Recognition of `A₅` inside `PGL₂(𝔽̄_p)`

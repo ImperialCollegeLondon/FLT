@@ -5,6 +5,7 @@ Authors: Duxing Yang
 -/
 module
 
+public import FLT.KnownIn1980s.PGL2.Defs
 public import Mathlib.LinearAlgebra.Matrix.Action
 public import Mathlib.FieldTheory.Finite.GaloisField
 public import Mathlib.GroupTheory.SpecificGroups.Alternating
@@ -93,15 +94,6 @@ lemma Nat.factorization_eq_two {n m p : ℕ}
 
 
 variable (p : ℕ) [Fact (Nat.Prime p)]
-
-/-- The algebraic closure `K p` of the finite field `𝔽_p = ZMod p`. -/
-noncomputable abbrev K : Type := AlgebraicClosure (ZMod p)
-
-/-- The projective general linear group `PGL₂(K p)`, i.e. `GL₂(K p)` modulo its centre. -/
-abbrev PGL : Type := GL (Fin 2) (K p) ⧸ Subgroup.center (GL (Fin 2) (K p))
-
-/-- The projective special linear group `PSL₂(K p)`. -/
-abbrev PSL : Type := Matrix.ProjectiveSpecialLinearGroup (Fin 2) (K p)
 
 theorem pgl_mulEquiv_psl : Nonempty (PGL p ≃* PSL p) := by
   have h_sqrt : ∀ x : K p, ∃ c : K p, c ^ 2 = x := fun x ↦
