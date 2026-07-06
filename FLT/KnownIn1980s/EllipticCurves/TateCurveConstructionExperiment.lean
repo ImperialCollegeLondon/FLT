@@ -1,4 +1,11 @@
-import FLT.KnownIn1980s.EllipticCurves.TateCurveConstruction
+/-
+Copyright (c) 2026 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
+module
+
+public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstruction
 
 /-!
 # Low-order checks for the Tate curve identity
@@ -7,6 +14,8 @@ This file checks the identity in `TateCurve.weierstrass_equation` modulo `X ^ 3`
 where `X` is the power series variable, by comparing the coefficients of `1`, `X`
 and `X ^ 2`.
 -/
+
+@[expose] public section
 
 open scoped PowerSeries
 

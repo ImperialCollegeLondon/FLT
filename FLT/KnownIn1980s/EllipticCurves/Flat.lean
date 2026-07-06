@@ -1,4 +1,17 @@
-import Mathlib
+/-
+Copyright (c) 2026 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
+module
+
+public import Mathlib.AlgebraicGeometry.EllipticCurve.DivisionPolynomial.Basic
+public import Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
+public import Mathlib.RingTheory.Bialgebra.Convolution
+public import Mathlib.RingTheory.Etale.Basic
+public import Mathlib.RingTheory.Flat.Basic
+public import Mathlib.RingTheory.HopfAlgebra.Basic
+public import Mathlib.RingTheory.Polynomial.Resultant.Basic
 
 /-!
 
@@ -95,6 +108,8 @@ above honest; compare the corresponding condition in `GaloisRep.HasFlatProlongat
   isolate the arithmetic input to the theorem as a purely polynomial statement.
 
 -/
+
+@[expose] public section
 
 open scoped WeierstrassCurve.Affine -- `(E⁄K).Point` notation for the group of points
 open scoped TensorProduct -- `⊗[R]` notation

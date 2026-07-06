@@ -1,4 +1,13 @@
-import Mathlib
+/-
+Copyright (c) 2026 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
+module
+
+public import Mathlib.FieldTheory.RatFunc.AsPolynomial
+public import Mathlib.NumberTheory.ArithmeticFunction.Misc
+public import Mathlib.RingTheory.PowerSeries.Basic
 
 /-!
 
@@ -27,6 +36,8 @@ variable `u` is `RatFunc.X`, and neither has anything to do with the coordinate 
 on the curve, which is the power series `TateCurve.X` defined below.
 
 -/
+
+@[expose] public section
 
 open scoped PowerSeries -- `R⟦X⟧` notation for `PowerSeries R`
 

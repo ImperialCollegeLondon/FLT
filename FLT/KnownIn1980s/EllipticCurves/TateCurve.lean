@@ -1,5 +1,13 @@
-import Mathlib
-import FLT.KnownIn1980s.EllipticCurves.WeilPairing
+/-
+Copyright (c) 2026 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
+module
+
+public import Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
+public import Mathlib.NumberTheory.LocalField.Basic
+public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
 
 /-!
 
@@ -51,6 +59,8 @@ of elliptic curves*, V.3 and V.5, for textbook accounts.
   `kˣ` is; it will be some constant times `du/u` (for the Tate curve `E_q` itself, with
   Silverman's series, it is exactly `du/u`).
 -/
+
+@[expose] public section
 
 open scoped WeierstrassCurve.Affine -- `(E⁄k).Point` notation for the group of `k`-points
 open ValuativeRel -- `𝒪[k]` notation for the ring of integers of `k`, and `valuation`

@@ -1,4 +1,14 @@
-import Mathlib
+/-
+Copyright (c) 2026 Kevin Buzzard. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Kevin Buzzard
+-/
+module
+
+public import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
+public import Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
+public import Mathlib.RingTheory.Flat.TorsionFree
+public import Mathlib.RingTheory.Norm.Transitivity
 
 /-!
 
@@ -124,6 +134,8 @@ of `E`, and the reduction-theoretic statements — are `sorry`ed targets.
   §5.3 (for the interaction of twists with reduction types)
 
 -/
+
+@[expose] public section
 
 open scoped WeierstrassCurve.Affine -- `(E⁄K).Point` notation for the group of `K`-points
 
