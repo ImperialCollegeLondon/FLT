@@ -1,11 +1,7 @@
 /-
-<<<<<<< HEAD
-Irreducible ↔ absolutely irreducible, given a 1-dimensional fixed space
-=======
-Copyright (c) 2026 YOUR NAME HERE. All rights reserved.
+Copyright (c) 2026 Zachary Feng, Y. Samanda Zhang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: YOUR NAME HERE
->>>>>>> 1f2c3dbb599cf63c40fb56ffd5bfa3d037a4914b
+Authors: Zachary Feng, Y. Samanda Zhang
 -/
 module
 
