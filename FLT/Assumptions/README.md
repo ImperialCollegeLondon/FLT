@@ -28,13 +28,6 @@ We give a brief summary of each file in this directory.
 * `Mazur.lean` : Mazur's bounds for the torsion of an elliptic curve over the rationals.
   Issue [#477](https://github.com/ImperialCollegeLondon/FLT/issues/477).
 
-Moret-Bailly's theorem (existence of points on curves over number fields with
-prescribed local behaviour) is stated in `FLT/KnownIn1980s/MoretBailly/` and proved
-there using the `knownin1980s` mechanism rather than as an `axiom` in this directory.
-A detailed account of the statement, together with an outline of the proof and of the
-prerequisites a formalization of the proof would need, is in
-`moret-bailly-statement.tex` at the root of this repository.
-
 ## Formalizable assumptions
 
 The statements of the bassumptions below are probably formalizable with the definitions
@@ -42,6 +35,9 @@ that we have, but nobody did them yet.
 
 * Existence of a solvable extension of a number field with prescribed behaviour
 at a finite set of places (the proof uses class field theory).
+
+* Moret-Bailly's theorem (existence of global points on curves with prescribed
+local properties).
 
 ## Forthcoming assumptions
 
