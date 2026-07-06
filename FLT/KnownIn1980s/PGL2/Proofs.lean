@@ -28,8 +28,6 @@ the public statements from `FLT.KnownIn1980s.PGL2.Defs`.
 
 @[expose] public section
 
-set_option linter.unusedFintypeInType false
-
 namespace Dickson
 
 variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]

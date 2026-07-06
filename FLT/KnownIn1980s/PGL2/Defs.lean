@@ -23,13 +23,11 @@ development in `FLT.Slop.PGL2`.
 
 @[expose] public section
 
---set_option linter.unusedFintypeInType false
-
 namespace Dickson
 
 variable (p : ℕ) [Fact (Nat.Prime p)]
 
-/-- The algebraic closure `K p` of the finite field `𝔽_p = ZMod p`. -/
+/-- An algebraic closure `K p` of the finite field `𝔽_p = ZMod p`. -/
 noncomputable abbrev K : Type := AlgebraicClosure (ZMod p)
 
 /-- The projective general linear group `PGL₂(K p)`, i.e. `GL₂(K p)` modulo its centre. -/
