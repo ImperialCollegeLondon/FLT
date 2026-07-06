@@ -2126,6 +2126,7 @@ private theorem hasSum_evalAt_mul {u q : ℂ} (hu : Transcendental ℚ u)
           ((PowerSeries.coeff k) φ) * ((PowerSeries.coeff (n - k)) ψ)) * q ^ n := by
           simp [map_sum, Finset.sum_mul]
 
+set_option backward.defeqAttrib.useBackward true in
 private theorem transcendental_punctured_unit_disk_infinite :
     ({u : ℂ | Transcendental ℚ u ∧ 0 < ‖u‖ ∧ ‖u‖ < 1} : Set ℂ).Infinite := by
   classical
