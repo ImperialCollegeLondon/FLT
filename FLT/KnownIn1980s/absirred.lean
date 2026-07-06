@@ -15,10 +15,13 @@ supporting lemmas from the blueprint:
 
 Conventions:
 * Representations are `Representation k G V := G →* (V →ₗ[k] V)` as in Mathlib.
-* All new definitions live in the `OddRep` namespace to avoid clashing with
-  declarations such as `Representation.IsIrreducible` that exist in current
-  Mathlib / FLT.  If the library notions agree with the ones below, the
-  statements can later be re-phrased in terms of the library definitions.
+* Irreducibility is Mathlib's `Representation.IsIrreducible`, defined as
+  `IsSimpleOrder (Subrepresentation ρ)`.  The notion of a "`G`-invariant
+  subspace" is Mathlib's `Subrepresentation` structure: a `Submodule` together
+  with the invariance field `apply_mem_toSubmodule : ρ g v ∈ toSubmodule` for
+  `v ∈ toSubmodule`.  The lemma `OddRep.isIrreducible_iff_forall` unpacks
+  `Representation.IsIrreducible` into the elementary statement "`V ≠ 0` and every
+  invariant subspace is `⊥` or `⊤`", which is what most proofs below use.
 * "Absolutely irreducible" is defined here as: the base change to
   `AlgebraicClosure k` is irreducible.  (The blueprint's proof in fact shows
   irreducibility after base change to *any* field extension `l/k`; this is
@@ -39,15 +42,6 @@ variable {G : Type*} [Monoid G]
 variable {V : Type*} [AddCommGroup V] [Module k V]
 
 /-! ## Definitions -/
-
-/-- A `k`-subspace `W ⊆ V` is invariant under the representation `ρ`. -/
-def IsInvariant (ρ : Representation k G V) (W : Submodule k V) : Prop :=
-  ∀ g : G, ∀ v ∈ W, ρ g v ∈ W
-
-/-- A representation is irreducible if `V ≠ 0` and the only invariant subspaces
-are `⊥` and `⊤`. -/
-def IsIrreducible (ρ : Representation k G V) : Prop :=
-  Nontrivial V ∧ ∀ W : Submodule k V, IsInvariant ρ W → W = ⊥ ∨ W = ⊤
 
 /-- The fixed subspace `V^g = {v : ρ(g) v = v}` of a single group element. -/
 def fixedSpace (ρ : Representation k G V) (g : G) : Submodule k V :=
@@ -76,9 +70,49 @@ def adjoinRange (ρ : Representation k G V) : Subalgebra k (Module.End k V) :=
 /-- A representation is absolutely irreducible if it remains irreducible after
 base change to an algebraic closure of `k`. -/
 def IsAbsolutelyIrreducible (ρ : Representation k G V) : Prop :=
-  IsIrreducible (baseChange (AlgebraicClosure k) ρ)
+  (baseChange (AlgebraicClosure k) ρ).IsIrreducible
 
 variable (ρ : Representation k G V)
+
+/-! ## Unpacking Mathlib's `Representation.IsIrreducible`
+
+`Representation.IsIrreducible ρ` is by definition `IsSimpleOrder (Subrepresentation ρ)`.
+The following lemma re-expresses it as the elementary statement that `V ≠ 0` and
+every `G`-invariant subspace of `V` is either `⊥` or `⊤`, where invariance is
+`∀ g, ∀ v ∈ W, ρ g v ∈ W` (the defining condition of a `Subrepresentation`). -/
+lemma isIrreducible_iff_forall :
+    ρ.IsIrreducible ↔
+      Nontrivial V ∧
+        ∀ W : Submodule k V, (∀ g : G, ∀ v ∈ W, ρ g v ∈ W) → W = ⊥ ∨ W = ⊤ := by
+  constructor
+  · intro hirr
+    haveI := hirr
+    refine ⟨?_, ?_⟩
+    · -- `V` is nontrivial because `⊥ ≠ ⊤` in the (simple) lattice of subrepresentations.
+      exact (Submodule.nontrivial_iff k).mp
+        (nontrivial_of_ne (⊥ : Submodule k V) ⊤
+          (fun e => IsSimpleOrder.bot_ne_top (α := Subrepresentation ρ)
+            (Subrepresentation.toSubmodule_injective
+              (show (⊥ : Subrepresentation ρ).toSubmodule = (⊤ : Subrepresentation ρ).toSubmodule
+                from e))))
+    · -- An invariant subspace `W` is a subrepresentation, hence `⊥` or `⊤`.
+      intro W hW
+      rcases eq_bot_or_eq_top (⟨W, fun g v hv => hW g v hv⟩ : Subrepresentation ρ) with hb | ht
+      · exact Or.inl (congrArg Subrepresentation.toSubmodule hb)
+      · exact Or.inr (congrArg Subrepresentation.toSubmodule ht)
+  · rintro ⟨hnt, hforall⟩
+    haveI : Nontrivial V := hnt
+    haveI : Nontrivial (Submodule k V) := (Submodule.nontrivial_iff k).mpr hnt
+    refine
+      { toNontrivial := ⟨⊥, ⊤, ?_⟩
+        eq_bot_or_eq_top := ?_ }
+    · -- `⊥ ≠ ⊤` as subrepresentations, since the underlying submodules differ.
+      exact fun e => bot_ne_top (α := Submodule k V) (congrArg Subrepresentation.toSubmodule e)
+    · -- Every subrepresentation `s` has invariant underlying submodule, so it is `⊥` or `⊤`.
+      intro s
+      rcases hforall s.toSubmodule (fun g v hv => s.apply_mem_toSubmodule g hv) with hb | ht
+      · exact Or.inl (Subrepresentation.toSubmodule_injective hb)
+      · exact Or.inr (Subrepresentation.toSubmodule_injective ht)
 
 /-! ## Fact 1.1 : `l·e ∩ V = k·e` inside `V_l` -/
 
@@ -116,11 +150,11 @@ lemma smul_tmul_mem_range_iff (l : Type*) [Field l] [Algebra k l]
 /-- **Lemma 1.4.** If `ρ` is irreducible and some `g : G` has a one-dimensional
 fixed subspace, then every `G`-equivariant endomorphism of `V` is scalar. -/
 lemma exists_smul_eq_of_commute
-    (hirr : IsIrreducible ρ)
+    (hirr : ρ.IsIrreducible)
     {g : G} (hg : finrank k (fixedSpace ρ g) = 1)
     (T : Module.End k V) (hT : ∀ h : G, Commute (ρ h) T) :
     ∃ μ : k, T = μ • (1 : Module.End k V) := by
-  obtain ⟨-, hsub⟩ := hirr
+  obtain ⟨-, hsub⟩ := (isIrreducible_iff_forall ρ).mp hirr
   -- Membership in the fixed space, in applied form.
   have hfix : ∀ v : V, v ∈ fixedSpace ρ g ↔ ρ g v = v := fun v => by
     simp [fixedSpace, LinearMap.mem_ker, LinearMap.sub_apply, LinearMap.id_apply,
@@ -144,7 +178,8 @@ lemma exists_smul_eq_of_commute
     simpa using h1
   refine ⟨μ, ?_⟩
   -- The kernel of `T - μ` is `G`-invariant ...
-  have hKinv : IsInvariant ρ (LinearMap.ker (T - μ • (1 : Module.End k V))) := by
+  have hKinv : ∀ h : G, ∀ w ∈ LinearMap.ker (T - μ • (1 : Module.End k V)),
+      ρ h w ∈ LinearMap.ker (T - μ • (1 : Module.End k V)) := by
     intro h w hw
     rw [LinearMap.mem_ker] at hw ⊢
     have hc := LinearMap.congr_fun (hT h) w
@@ -177,11 +212,11 @@ lemma exists_smul_eq_of_commute
 If `V` is finite-dimensional, `ρ` is irreducible, and every `G`-equivariant
 endomorphism of `V` is scalar, then `A = End_k(V)`. -/
 lemma adjoinRange_eq_top [FiniteDimensional k V]
-    (hirr : IsIrreducible ρ)
+    (hirr : ρ.IsIrreducible)
     (hEnd : ∀ T : Module.End k V, (∀ h : G, Commute (ρ h) T) →
       ∃ μ : k, T = μ • (1 : Module.End k V)) :
     adjoinRange ρ = ⊤ := by
-  obtain ⟨hnt, hsub⟩ := hirr
+  obtain ⟨hnt, hsub⟩ := (isIrreducible_iff_forall ρ).mp hirr
   haveI : Nontrivial V := hnt
   set A := adjoinRange ρ
   have hρmem : ∀ g : G, ρ g ∈ A := fun g => Algebra.subset_adjoin ⟨g, rfl⟩
@@ -192,7 +227,7 @@ lemma adjoinRange_eq_top [FiniteDimensional k V]
     haveI := (Submodule.nontrivial_iff A).mpr ‹Nontrivial V›
     rw [isSimpleModule_iff]
     refine ⟨fun W => ?_⟩
-    have hW : IsInvariant ρ (W.restrictScalars k) :=
+    have hW : ∀ g : G, ∀ v ∈ W.restrictScalars k, ρ g v ∈ W.restrictScalars k :=
       fun g v hv => W.smul_mem ⟨ρ g, hρmem g⟩ hv
     simpa only [Submodule.restrictScalars_eq_bot_iff, Submodule.restrictScalars_eq_top_iff]
       using hsub _ hW
@@ -287,8 +322,8 @@ lemma adjoinRange_baseChange_eq_top [FiniteDimensional k V]
 and any `v`, an element `T w = v` with `T ∈ A`, hence `W = ⊤`. -/
 lemma isIrreducible_of_adjoinRange_eq_top [Nontrivial V]
     (h : adjoinRange ρ = ⊤) :
-    IsIrreducible ρ := by
-  refine ⟨inferInstance, fun W hW => ?_⟩
+    ρ.IsIrreducible := by
+  refine (isIrreducible_iff_forall ρ).mpr ⟨inferInstance, fun W hW => ?_⟩
   -- `W` is stable under the whole algebra generated by `ρ(G)` ...
   have hWA : ∀ T : Module.End k V, T ∈ adjoinRange ρ → ∀ w ∈ W, T w ∈ W := by
     intro T hT
@@ -342,10 +377,11 @@ lemma isIrreducible_of_adjoinRange_eq_top [Nontrivial V]
 then `ρ` itself is irreducible (an invariant subspace `W ⊊ V` gives rise to the
 invariant subspace `l ⊗[k] W ⊊ l ⊗[k] V`). -/
 lemma isIrreducible_of_baseChange (l : Type*) [Field l] [Algebra k l]
-    (h : IsIrreducible (baseChange l ρ)) :
-    IsIrreducible ρ := by
-  refine ⟨?_, ?_⟩
-  · -- `Nontrivial V` : otherwise `l ⊗[k] V` would be trivial, contradicting `h.1`.
+    (h : (baseChange l ρ).IsIrreducible) :
+    ρ.IsIrreducible := by
+  obtain ⟨hntl, hsubl⟩ := (isIrreducible_iff_forall (baseChange l ρ)).mp h
+  refine (isIrreducible_iff_forall ρ).mpr ⟨?_, ?_⟩
+  · -- `Nontrivial V` : otherwise `l ⊗[k] V` would be trivial, contradicting `hntl`.
     by_contra hV
     rw [not_nontrivial_iff_subsingleton] at hV
     haveI : Subsingleton V := hV
@@ -357,10 +393,10 @@ lemma isIrreducible_of_baseChange (l : Type*) [Field l] [Algebra k l]
         | tmul a v => rw [Subsingleton.elim v (0 : V), TensorProduct.tmul_zero]
         | add a b ha hb => rw [ha, hb, add_zero]
       rw [hz a, hz b]
-    exact not_nontrivial_iff_subsingleton.mpr inferInstance h.1
-  · -- Any invariant `W` gives an invariant `l ⊗[k] W`, which is `⊥`/`⊤` by `h`; descend.
+    exact not_nontrivial_iff_subsingleton.mpr inferInstance hntl
+  · -- Any invariant `W` gives an invariant `l ⊗[k] W`, which is `⊥`/`⊤` by `hsubl`; descend.
     intro W hW
-    have hinv : IsInvariant (baseChange l ρ) (W.baseChange l) := by
+    have hinv : ∀ g : G, ∀ x ∈ W.baseChange l, (baseChange l ρ) g x ∈ W.baseChange l := by
       intro g x hx
       change LinearMap.baseChange l (ρ g) x ∈ W.baseChange l
       rw [Submodule.baseChange_eq_span] at hx
@@ -372,7 +408,7 @@ lemma isIrreducible_of_baseChange (l : Type*) [Field l] [Algebra k l]
       | zero => rw [map_zero]; exact Submodule.zero_mem _
       | add a b _ _ ha hb => rw [map_add]; exact Submodule.add_mem _ ha hb
       | smul c a _ ha => rw [map_smul]; exact Submodule.smul_mem _ c ha
-    rcases h.2 (W.baseChange l) hinv with hb | ht
+    rcases hsubl (W.baseChange l) hinv with hb | ht
     · exact Or.inl <| Submodule.baseChange_injective (A := l)
         (hb.trans (Submodule.baseChange_bot (R := k) (M := V) (A := l)).symm)
     · exact Or.inr <| Submodule.baseChange_injective (A := l)
@@ -386,9 +422,9 @@ irreducible. -/
 theorem isIrreducible_baseChange_of_finrank_fixedSpace_eq_one
     [FiniteDimensional k V]
     (l : Type*) [Field l] [Algebra k l]
-    (hirr : IsIrreducible ρ)
+    (hirr : ρ.IsIrreducible)
     {g : G} (hg : finrank k (fixedSpace ρ g) = 1) :
-    IsIrreducible (baseChange l ρ) := by
+    (baseChange l ρ).IsIrreducible := by
   -- Lemma 1.4 : every `G`-equivariant endomorphism of `V` is a scalar.
   have hEnd : ∀ T : Module.End k V, (∀ h : G, Commute (ρ h) T) →
       ∃ μ : k, T = μ • (1 : Module.End k V) :=
@@ -398,7 +434,7 @@ theorem isIrreducible_baseChange_of_finrank_fixedSpace_eq_one
   -- Lemma 1.6 : this stays true after base change to `l`.
   have hAbc : adjoinRange (baseChange l ρ) = ⊤ := adjoinRange_baseChange_eq_top ρ l hA
   -- `l ⊗[k] V` is nontrivial : a nonzero `v ∈ V` gives a nonzero `1 ⊗ v`.
-  haveI : Nontrivial V := hirr.1
+  haveI : Nontrivial V := ((isIrreducible_iff_forall ρ).mp hirr).1
   obtain ⟨v, hv0⟩ := exists_ne (0 : V)
   obtain ⟨φ, hφ⟩ := Module.Projective.exists_dual_eq_one k hv0
   have hne : (1 : l) ⊗ₜ[k] v ≠ 0 := by
@@ -419,7 +455,7 @@ is absolutely irreducible. -/
 theorem isIrreducible_iff_isAbsolutelyIrreducible
     [FiniteDimensional k V]
     {g : G} (hg : finrank k (fixedSpace ρ g) = 1) :
-    IsIrreducible ρ ↔ IsAbsolutelyIrreducible ρ := by
+    ρ.IsIrreducible ↔ IsAbsolutelyIrreducible ρ := by
   unfold IsAbsolutelyIrreducible
   constructor
   · -- hard direction: irreducible ⇒ irreducible after base change to `k̄`
