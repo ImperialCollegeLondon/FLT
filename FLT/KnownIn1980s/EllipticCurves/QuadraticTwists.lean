@@ -439,7 +439,9 @@ end QuadraticTwistBy
 `θ ∈ L ∖ K`. The twist is independent of this choice up to isomorphism over `K`
 (`exists_smul_quadraticTwist_eq_quadraticTwistBy`), that is, up to the action of
 `WeierstrassCurve.VariableChange K`; see `WeierstrassCurve.quadraticTwistOf` for the explicit
-Weierstrass model. -/
+Weierstrass model. (The separability hypothesis is not used to write down the model, but the
+twist is only meaningful for separable extensions — see the module docstring.) -/
+@[nolint unusedArguments]
 noncomputable def quadraticTwist (E : WeierstrassCurve K) (L : Type*) [Field L] [Algebra K L]
     [Algebra.IsQuadraticExtension K L] [Algebra.IsSeparable K L] : WeierstrassCurve K :=
   E.quadraticTwistBy (Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap K L).choose

@@ -33,6 +33,8 @@ variable (E : WeierstrassCurve k) [E.IsElliptic]
 -- Let n be a natural which is nonzero in k
 variable (n : ℕ) [NeZero (n : k)]
 
+/-- The Weil pairing on the `n`-torsion of an elliptic curve `E` over a separably closed
+field `k`, a bilinear pairing with values in the `n`-th roots of unity of `k`. -/
 def WeierstrassCurve.weilPairing :
     AddSubgroup.torsionBy (E⁄k).Point (n : ℤ) →+
     AddSubgroup.torsionBy (E⁄k).Point (n : ℤ) →+

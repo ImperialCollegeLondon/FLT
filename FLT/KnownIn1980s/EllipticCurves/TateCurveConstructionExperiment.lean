@@ -25,6 +25,7 @@ noncomputable section
 
 namespace TateCurve
 
+/-- The coefficient field `ℚ(u)`, the field of rational functions in one variable over `ℚ`. -/
 abbrev K := RatFunc ℚ
 
 local notation "u" => (RatFunc.X : K)
