@@ -115,7 +115,7 @@ lemma adjoinRange_eq_top [FiniteDimensional k V]
   have halg : ∀ (μ : k) (v : V),
       (⟨algebraMap k (Module.End k V) μ, A.algebraMap_mem μ⟩ : A) • v = μ • v := by
     intro μ v
-    show (algebraMap k (Module.End k V) μ) v = μ • v
+    change (algebraMap k (Module.End k V) μ) v = μ • v
     simp [Module.algebraMap_end_apply]
   -- Scaling by `μ : k` is an `A`-linear endomorphism of `V`
   -- (elements of `A` are `k`-linear, so they commute with `k`-scalars).
@@ -163,13 +163,13 @@ lemma adjoinRange_eq_top [FiniteDimensional k V]
           have h1 := f.map_smul
             (⟨algebraMap k (Module.End k V) μ, A.algebraMap_mem μ⟩ : A) v
           rw [halg, halg] at h1
-          simpa using h1 }
+          simp [h1] }
     -- ... and commutes with every `ρ h`, since `ρ h ∈ A`.
     have hcomm : ∀ h : G, Commute (ρ h) fk := by
       intro h
-      show ρ h * fk = fk * ρ h
+      change ρ h * fk = fk * ρ h
       refine LinearMap.ext fun v => ?_
-      show ρ h (f v) = f (ρ h v)
+      change ρ h (f v) = f (ρ h v)
       exact (f.map_smul (⟨ρ h, hρmem h⟩ : A) v).symm
     have hfk : ∀ w : V, fk w = f w := fun _ => rfl
     obtain ⟨μ, hμ⟩ := hEnd fk hcomm
@@ -203,7 +203,7 @@ lemma adjoinRange_eq_top [FiniteDimensional k V]
       map_add' := fun a b => T.map_add a b
       map_smul' := fun g v => by
         obtain ⟨μ, hμ⟩ := hEnd' g
-        show T (g v) = g (T v)
+        change T (g v) = g (T v)
         rw [hμ, hμ, T.map_smul] }
   obtain ⟨a, ha⟩ := hsurj T'
   -- The element `a : A` produced by surjectivity is equal to `T` in `End_k(V)`.
