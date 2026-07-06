@@ -72,6 +72,8 @@ public import FLT.Hacks.RightActionInstances
 public import FLT.HenselianLocalRing.EtaleDecomposition
 public import FLT.HenselianLocalRing.Finite
 public import FLT.HenselianLocalRing.Stuff
+public import FLT.KnownIn1980s.MoretBailly.RationalPoints
+public import FLT.KnownIn1980s.MoretBailly.Statement
 public import FLT.Mathlib.Algebra.Algebra.Bilinear
 public import FLT.Mathlib.Algebra.Algebra.Hom
 public import FLT.Mathlib.Algebra.Algebra.Pi
