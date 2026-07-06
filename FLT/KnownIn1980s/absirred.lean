@@ -81,7 +81,27 @@ lemma smul_tmul_mem_range_iff (l : Type*) [Field l] [Algebra k l]
     {e : V} (he : e ≠ 0) (c : l) :
     c ⊗ₜ[k] e ∈ LinearMap.range (TensorProduct.mk k l V 1) ↔
       ∃ a : k, algebraMap k l a = c := by
-  sorry
+  constructor
+  · -- Forward: if `c ⊗ₜ e = 1 ⊗ₜ w`, apply `id ⊗ φ` for a functional `φ` with `φ e = 1`.
+    rintro ⟨w, hw⟩
+    -- `hw : 1 ⊗ₜ w = c ⊗ₜ e`
+    obtain ⟨φ, hφ⟩ := Module.Projective.exists_dual_eq_one k he
+    -- `ψ : l ⊗[k] V → l`, `x ⊗ₜ v ↦ φ v • x`.
+    set ψ : l ⊗[k] V →ₗ[k] l :=
+      (TensorProduct.rid k l).toLinearMap ∘ₗ LinearMap.lTensor l φ with hψ
+    refine ⟨φ w, ?_⟩
+    have key := congrArg ψ hw
+    simp only [hψ, LinearMap.coe_comp, Function.comp_apply, TensorProduct.mk_apply,
+      LinearMap.lTensor_tmul, LinearEquiv.coe_coe, TensorProduct.rid_tmul] at key
+    -- `key : φ w • (1 : l) = φ e • c`
+    rw [hφ, one_smul] at key
+    rw [Algebra.algebraMap_eq_smul_one]
+    exact key
+  · -- Reverse: `algebraMap k l a ⊗ₜ e = 1 ⊗ₜ (a • e)`.
+    rintro ⟨a, rfl⟩
+    refine ⟨a • e, ?_⟩
+    rw [TensorProduct.mk_apply, TensorProduct.tmul_smul, TensorProduct.smul_tmul',
+      Algebra.algebraMap_eq_smul_one]
 
 /-! ## Lemma 1.4 : `End_G(V) = k` -/
 
