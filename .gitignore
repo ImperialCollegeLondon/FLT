@@ -32,3 +32,6 @@ blueprint-verso/_out
 **/.claude
 
 __pycache__
+
+## Per-session workflow scratch cache (disposed at session end)
+/.cache/
