@@ -306,8 +306,8 @@ noncomputable def ResidueFieldEquivCompletionResidueField :
 -- dirty hack because of v4.29
 attribute [local instance 9999] Algebra.toModule in
 theorem inertiaDeg_asIdeal_completionIdeal :
-    Ideal.inertiaDeg v.asIdeal (v.completionIdeal K) = 1 := by
-  rw [Ideal.inertiaDeg_algebraMap]
+    Ideal.inertiaDeg' v.asIdeal (v.completionIdeal K) = 1 := by
+  rw [Ideal.inertiaDeg'_algebraMap]
   have f : (A ⧸ v.asIdeal) ≃ₗ[A ⧸ v.asIdeal]
       ((adicCompletionIntegers K v) ⧸ completionIdeal K v) := {
     __ := ResidueFieldEquivCompletionResidueField K v
