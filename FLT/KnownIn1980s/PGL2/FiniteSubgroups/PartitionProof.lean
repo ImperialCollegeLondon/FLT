@@ -6,9 +6,9 @@ Authors: Duxing Yang
 module
 
 public import Mathlib.Combinatorics.Enumerative.DoubleCounting
-public import FLT.PGL2.FiniteSubgroups.PGLBasic
-public import FLT.PGL2.FiniteSubgroups.PartitionHelpers
-public import FLT.PGL2.FiniteSubgroups.RecognitionA5
+public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.PGLBasic
+public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.PartitionHelpers
+public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.RecognitionA5
 
 /-!
 # The partition equation for wild finite subgroups of `PGL₂(𝔽̄_p)`

@@ -7,9 +7,9 @@ module
 
 public import Mathlib.Algebra.BigOperators.Field
 public import Mathlib.Algebra.Module.ZMod
-public import FLT.PGL2.FiniteSubgroups.CyclicPartition
-public import FLT.PGL2.FiniteSubgroups.NatClassEquation
-public import FLT.PGL2.FiniteSubgroups.PGLBasic
+public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.CyclicPartition
+public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.NatClassEquation
+public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.PGLBasic
 
 /-!
 # Dickson's classification: the tame case
@@ -25,7 +25,7 @@ most 2. Counting elements (`Dickson.orbitPartitionData`) yields the classical
 constraint `∑ i, (1 - 1/dᵢ) ≤ 2 (1 - 1/n)` on at most three "partition types", whose
 solutions (`r1Solution`, `r2Solutions`, `r3SolutionsUnsorted`) correspond exactly to
 the cyclic, dihedral, `A₄`, `S₄` and `A₅` cases, recognised via the cyclic-partition
-machinery of `FLT.PGL2.FiniteSubgroups.CyclicPartition`.
+machinery of `FLT.KnownIn1980s.PGL2.FiniteSubgroups.CyclicPartition`.
 -/
 
 /- The code in this file was ported from Duxing Yang's `DicksonClassification` project

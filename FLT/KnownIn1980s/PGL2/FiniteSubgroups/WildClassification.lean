@@ -9,9 +9,9 @@ public import Mathlib.Algebra.Module.ZMod
 public import Mathlib.GroupTheory.SchurZassenhaus
 public import Mathlib.GroupTheory.SemidirectProduct
 public import Mathlib.Tactic.NormNum.Prime
-public import FLT.PGL2.FiniteSubgroups.PSLBasic
-public import FLT.PGL2.FiniteSubgroups.PSLRecognition
-public import FLT.PGL2.FiniteSubgroups.PartitionProof
+public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.PSLBasic
+public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.PSLRecognition
+public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.PartitionProof
 
 /-!
 # Dickson's classification: the wild case
@@ -26,10 +26,10 @@ shows any such `G` is
 * isomorphic to `PSL₂(𝔽_q)` or `PGL₂(𝔽_q)` for some power `q = p^m`.
 
 The proof combines the partition equation from
-`FLT.PGL2.FiniteSubgroups.PartitionProof` with the recognition theorems for `A₅`
-(`FLT.PGL2.FiniteSubgroups.RecognitionA5`) and for `PSL₂(𝔽_q)`/`PGL₂(𝔽_q)`
-(`FLT.PGL2.FiniteSubgroups.PSLRecognition` and the field reconstruction in
-`FLT.PGL2.FiniteSubgroups.FieldReconstruction`).
+`FLT.KnownIn1980s.PGL2.FiniteSubgroups.PartitionProof` with the recognition theorems for `A₅`
+(`FLT.KnownIn1980s.PGL2.FiniteSubgroups.RecognitionA5`) and for `PSL₂(𝔽_q)`/`PGL₂(𝔽_q)`
+(`FLT.KnownIn1980s.PGL2.FiniteSubgroups.PSLRecognition` and the field reconstruction in
+`FLT.KnownIn1980s.PGL2.FiniteSubgroups.FieldReconstruction`).
 -/
 
 /- The code in this file was ported from Duxing Yang's `DicksonClassification` project

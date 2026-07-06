@@ -5,8 +5,8 @@ Authors: Duxing Yang
 -/
 module
 
-public import FLT.PGL2.FiniteSubgroups.TameClassification
-public import FLT.PGL2.FiniteSubgroups.WildClassification
+public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.TameClassification
+public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.WildClassification
 
 /-!
 # Dickson's classification of the finite subgroups of `PGL₂(𝔽̄_p)`

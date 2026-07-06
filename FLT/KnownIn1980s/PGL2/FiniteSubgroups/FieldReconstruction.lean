@@ -5,8 +5,8 @@ Authors: Duxing Yang
 -/
 module
 
-public import FLT.PGL2.FiniteSubgroups.PGLBasic
-public import FLT.PGL2.FiniteSubgroups.PartitionHelpers
+public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.PGLBasic
+public import FLT.KnownIn1980s.PGL2.FiniteSubgroups.PartitionHelpers
 
 /-!
 # Reconstructing a finite field from a wild subgroup of `PGL₂(𝔽̄_p)`
