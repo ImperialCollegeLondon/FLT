@@ -83,16 +83,61 @@ lemma smul_tmul_mem_range_iff (l : Type*) [Field l] [Algebra k l]
       ∃ a : k, algebraMap k l a = c := by
   sorry
 
-/-! ## Lemma 1.4 : `End_G(V) = k` -/
-
-/-- **Lemma 1.4.** If `ρ` is irreducible and some `g : G` has a one-dimensional
-fixed subspace, then every `G`-equivariant endomorphism of `V` is scalar. -/
 lemma exists_smul_eq_of_commute
     (hirr : IsIrreducible ρ)
     {g : G} (hg : finrank k (fixedSpace ρ g) = 1)
     (T : Module.End k V) (hT : ∀ h : G, Commute (ρ h) T) :
     ∃ μ : k, T = μ • (1 : Module.End k V) := by
-  sorry
+  obtain ⟨-, hsub⟩ := hirr
+  -- Membership in the fixed space, in applied form.
+  have hfix : ∀ v : V, v ∈ fixedSpace ρ g ↔ ρ g v = v := fun v => by
+    simp [fixedSpace, LinearMap.mem_ker, LinearMap.sub_apply, LinearMap.id_apply,
+      sub_eq_zero]
+  -- `T` preserves the fixed space, because it commutes with `ρ g`.
+  have hTfix : ∀ v ∈ fixedSpace ρ g, T v ∈ fixedSpace ρ g := by
+    intro v hv
+    rw [hfix] at hv ⊢
+    have hc := LinearMap.congr_fun (hT g) v
+    simp only [Module.End.mul_apply] at hc
+    -- hc : ρ g (T v) = T (ρ g v)
+    rw [hc, hv]
+  -- Pick a nonzero vector spanning the one-dimensional fixed space.
+  rw [finrank_eq_one_iff'] at hg
+  obtain ⟨v, hv0, hspan⟩ := hg
+  have hv0' : (v : V) ≠ 0 := fun h => hv0 (Subtype.ext h)
+  -- `T v` lies in the fixed space, hence is a multiple `μ • v` of `v`.
+  obtain ⟨μ, hμ⟩ := hspan ⟨T (v : V), hTfix (v : V) v.2⟩
+  have hμ' : μ • (v : V) = T (v : V) := by
+    have h1 := congrArg Subtype.val hμ
+    simpa using h1
+  refine ⟨μ, ?_⟩
+  -- The kernel of `T - μ` is `G`-invariant ...
+  have hKinv : IsInvariant ρ (LinearMap.ker (T - μ • (1 : Module.End k V))) := by
+    intro h w hw
+    rw [LinearMap.mem_ker] at hw ⊢
+    have hc := LinearMap.congr_fun (hT h) w
+    simp only [Module.End.mul_apply] at hc
+    -- hc : ρ h (T w) = T (ρ h w)
+    simp only [LinearMap.sub_apply, LinearMap.smul_apply, Module.End.one_apply] at hw ⊢
+    -- hw : T w - μ • w = 0 ; goal : T (ρ h w) - μ • ρ h w = 0
+    rw [← hc, ← map_smul, ← map_sub, hw, map_zero]
+  -- ... and contains the nonzero vector `v`, hence equals `⊤` by irreducibility.
+  have hvK : (v : V) ∈ LinearMap.ker (T - μ • (1 : Module.End k V)) := by
+    rw [LinearMap.mem_ker]
+    simp only [LinearMap.sub_apply, LinearMap.smul_apply, Module.End.one_apply]
+    rw [← hμ']
+    exact sub_self _
+  rcases hsub _ hKinv with hbot | htop
+  · exfalso
+    rw [hbot] at hvK
+    exact hv0' (by simpa using hvK)
+  · -- the kernel is everything, so `T = μ • 1`
+    refine LinearMap.ext fun w => ?_
+    have hw : w ∈ LinearMap.ker (T - μ • (1 : Module.End k V)) := by
+      rw [htop]; exact Submodule.mem_top
+    rw [LinearMap.mem_ker] at hw
+    simp only [LinearMap.sub_apply, LinearMap.smul_apply, Module.End.one_apply] at hw
+    simpa [sub_eq_zero] using hw
 
 /-! ## Lemma 1.5 : Jacobson density, `A = End_k(V)` -/
 
