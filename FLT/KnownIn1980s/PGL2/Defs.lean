@@ -5,7 +5,13 @@ Authors: Duxing Yang
 -/
 module
 
-public import Mathlib
+public import Mathlib.FieldTheory.Finite.GaloisField
+public import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
+public import Mathlib.GroupTheory.SemidirectProduct
+public import Mathlib.GroupTheory.SpecificGroups.Alternating
+public import Mathlib.GroupTheory.SpecificGroups.Dihedral
+public import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
+public import Mathlib.LinearAlgebra.Matrix.ProjectiveSpecialLinearGroup
 
 /-!
 # Public statements for Dickson's classification in `PGL₂`
