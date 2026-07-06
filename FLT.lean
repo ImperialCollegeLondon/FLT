@@ -72,6 +72,14 @@ public import FLT.Hacks.RightActionInstances
 public import FLT.HenselianLocalRing.EtaleDecomposition
 public import FLT.HenselianLocalRing.Finite
 public import FLT.HenselianLocalRing.Stuff
+public import FLT.KnownIn1980s.EllipticCurves.Flat
+public import FLT.KnownIn1980s.EllipticCurves.GoodReduction
+public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists
+public import FLT.KnownIn1980s.EllipticCurves.TateCurve
+public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstruction
+public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstructionExperiment
+public import FLT.KnownIn1980s.EllipticCurves.Torsion
+public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
 public import FLT.Mathlib.Algebra.Algebra.Bilinear
 public import FLT.Mathlib.Algebra.Algebra.Hom
 public import FLT.Mathlib.Algebra.Algebra.Pi
