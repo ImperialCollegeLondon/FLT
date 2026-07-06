@@ -13,6 +13,13 @@
       "args": [
           "tools/flt_import_closure_mcp.py"
       ]
+    },
+    "record-log": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+          "tools/record_log.py"
+      ]
     }
   }
 }
