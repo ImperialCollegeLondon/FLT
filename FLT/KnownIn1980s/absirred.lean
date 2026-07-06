@@ -104,7 +104,113 @@ lemma adjoinRange_eq_top [FiniteDimensional k V]
     (hEnd : ∀ T : Module.End k V, (∀ h : G, Commute (ρ h) T) →
       ∃ μ : k, T = μ • (1 : Module.End k V)) :
     adjoinRange ρ = ⊤ := by
-  sorry
+  obtain ⟨hnt, hsub⟩ := hirr
+  haveI : Nontrivial V := hnt
+  set A := adjoinRange ρ with hA
+  -- `ρ g` lies in `A` for every `g`.
+  have hρmem : ∀ g : G, ρ g ∈ A := fun g => Algebra.subset_adjoin ⟨g, rfl⟩
+  -- The action of an element of `A` on `V` is application of the endomorphism.
+  have hsmul : ∀ (a : A) (v : V), a • v = (a : Module.End k V) v := fun _ _ => rfl
+  -- The scalar `μ : k`, viewed inside `A`, acts as `μ • ·`.
+  have halg : ∀ (μ : k) (v : V),
+      (⟨algebraMap k (Module.End k V) μ, A.algebraMap_mem μ⟩ : A) • v = μ • v := by
+    intro μ v
+    show (algebraMap k (Module.End k V) μ) v = μ • v
+    simp [Module.algebraMap_end_apply]
+  -- Scaling by `μ : k` is an `A`-linear endomorphism of `V`
+  -- (elements of `A` are `k`-linear, so they commute with `k`-scalars).
+  let scal : k → Module.End A V := fun μ =>
+    { toFun := fun v => μ • v
+      map_add' := fun a b => smul_add μ a b
+      map_smul' := fun a v => ((a : Module.End k V).map_smul μ v).symm }
+  -- Step 1: `V` is a simple `A`-module: a nonzero proper `A`-submodule would be
+  -- a nonzero proper `G`-invariant `k`-subspace, contradicting irreducibility.
+  haveI hAsimple : IsSimpleModule A V := by
+    haveI : Nontrivial (Submodule A V) := by
+      obtain ⟨v, hv⟩ := exists_ne (0 : V)
+      refine ⟨⊥, ⊤, fun hbt => hv ?_⟩
+      have hmem : v ∈ (⊥ : Submodule A V) := by rw [hbt]; exact Submodule.mem_top
+      simpa using hmem
+    rw [isSimpleModule_iff]
+    refine ⟨fun W => ?_⟩
+    -- view `W` as a `k`-subspace of `V`
+    let Wk : Submodule k V :=
+      { carrier := (W : Set V)
+        add_mem' := fun ha hb => W.add_mem ha hb
+        zero_mem' := W.zero_mem
+        smul_mem' := fun μ {v} hv => by
+          have h1 := W.smul_mem
+            (⟨algebraMap k (Module.End k V) μ, A.algebraMap_mem μ⟩ : A) hv
+          rwa [halg] at h1 }
+    have hWk : IsInvariant ρ Wk := by
+      intro g v hv
+      exact W.smul_mem (⟨ρ g, hρmem g⟩ : A) hv
+    rcases hsub Wk hWk with hbot | htop
+    · left
+      rw [Submodule.eq_bot_iff] at hbot ⊢
+      exact fun v hv => hbot v hv
+    · right
+      rw [Submodule.eq_top_iff'] at htop ⊢
+      exact fun v => htop v
+  -- Step 2: every `A`-linear endomorphism of `V` is a `k`-scalar (uses `hEnd`).
+  have hEnd' : ∀ f : Module.End A V, ∃ μ : k, ∀ v : V, f v = μ • v := by
+    intro f
+    -- `f` is in particular `k`-linear ...
+    let fk : Module.End k V :=
+      { toFun := f
+        map_add' := fun a b => f.map_add a b
+        map_smul' := fun μ v => by
+          have h1 := f.map_smul
+            (⟨algebraMap k (Module.End k V) μ, A.algebraMap_mem μ⟩ : A) v
+          rw [halg, halg] at h1
+          simpa using h1 }
+    -- ... and commutes with every `ρ h`, since `ρ h ∈ A`.
+    have hcomm : ∀ h : G, Commute (ρ h) fk := by
+      intro h
+      show ρ h * fk = fk * ρ h
+      refine LinearMap.ext fun v => ?_
+      show ρ h (f v) = f (ρ h v)
+      exact (f.map_smul (⟨ρ h, hρmem h⟩ : A) v).symm
+    have hfk : ∀ w : V, fk w = f w := fun _ => rfl
+    obtain ⟨μ, hμ⟩ := hEnd fk hcomm
+    refine ⟨μ, fun v => ?_⟩
+    have h1 := LinearMap.congr_fun hμ v
+    rw [hfk] at h1
+    simpa using h1
+  -- Step 3: `V` is module-finite over `End_A(V)`: a finite `k`-spanning set
+  -- still spans, because `k`-scalars act through `End_A(V)` via `scal`.
+  haveI : Module.Finite (Module.End A V) V := by
+    obtain ⟨s, hs⟩ := Module.Finite.fg_top (R := k) (M := V)
+    refine ⟨⟨s, ?_⟩⟩
+    rw [eq_top_iff]
+    rintro v -
+    have hv : v ∈ Submodule.span k (s : Set V) := by rw [hs]; exact Submodule.mem_top
+    induction hv using Submodule.span_induction with
+    | mem x hx => exact Submodule.subset_span hx
+    | zero => exact Submodule.zero_mem _
+    | add x y _ _ h₁ h₂ => exact Submodule.add_mem _ h₁ h₂
+    | smul μ x _ h₁ => exact Submodule.smul_mem _ (scal μ) h₁
+  -- Step 4: the double centralizer theorem (a packaging of `jacobson_density`):
+  -- every `End_{End_A(V)}(V)`-endomorphism of `V` is given by an element of `A`.
+  have hsurj : Function.Surjective (Module.toModuleEnd (Module.End A V) (S := A) V) :=
+    Module.Finite.toModuleEnd_moduleEnd_surjective
+  rw [eq_top_iff]
+  intro T _
+  -- Any `T ∈ End_k(V)` is `End_A(V)`-linear, since `End_A(V)` consists of
+  -- `k`-scalars by Step 2.
+  let T' : Module.End (Module.End A V) V :=
+    { toFun := T
+      map_add' := fun a b => T.map_add a b
+      map_smul' := fun g v => by
+        obtain ⟨μ, hμ⟩ := hEnd' g
+        show T (g v) = g (T v)
+        rw [hμ, hμ, T.map_smul] }
+  obtain ⟨a, ha⟩ := hsurj T'
+  -- The element `a : A` produced by surjectivity is equal to `T` in `End_k(V)`.
+  have haT : (a : Module.End k V) = T :=
+    LinearMap.ext fun v => LinearMap.congr_fun ha v
+  rw [← haT]
+  exact a.2
 
 /-! ## Lemma 1.6 : base change of `A = End_k(V)` -/
 
