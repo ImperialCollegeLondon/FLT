@@ -398,7 +398,39 @@ invariant subspace `l ⊗[k] W ⊊ l ⊗[k] V`). -/
 lemma isIrreducible_of_baseChange (l : Type*) [Field l] [Algebra k l]
     (h : IsIrreducible (baseChange l ρ)) :
     IsIrreducible ρ := by
-  sorry
+  refine ⟨?_, ?_⟩
+  · -- `Nontrivial V` : otherwise `l ⊗[k] V` would be trivial, contradicting `h.1`.
+    by_contra hV
+    rw [not_nontrivial_iff_subsingleton] at hV
+    haveI : Subsingleton V := hV
+    haveI : Subsingleton (l ⊗[k] V) := by
+      refine ⟨fun a b => ?_⟩
+      have hz : ∀ x : l ⊗[k] V, x = 0 := fun x => by
+        induction x using TensorProduct.induction_on with
+        | zero => rfl
+        | tmul a v => rw [Subsingleton.elim v (0 : V), TensorProduct.tmul_zero]
+        | add a b ha hb => rw [ha, hb, add_zero]
+      rw [hz a, hz b]
+    exact not_nontrivial_iff_subsingleton.mpr inferInstance h.1
+  · -- Any invariant `W` gives an invariant `l ⊗[k] W`, which is `⊥`/`⊤` by `h`; descend.
+    intro W hW
+    have hinv : IsInvariant (baseChange l ρ) (W.baseChange l) := by
+      intro g x hx
+      change LinearMap.baseChange l (ρ g) x ∈ W.baseChange l
+      rw [Submodule.baseChange_eq_span] at hx
+      induction hx using Submodule.span_induction with
+      | mem y hy =>
+        obtain ⟨w, hw, rfl⟩ := hy
+        simp only [TensorProduct.mk_apply, LinearMap.baseChange_tmul]
+        exact Submodule.tmul_mem_baseChange_of_mem 1 (hW g w hw)
+      | zero => rw [map_zero]; exact Submodule.zero_mem _
+      | add a b _ _ ha hb => rw [map_add]; exact Submodule.add_mem _ ha hb
+      | smul c a _ ha => rw [map_smul]; exact Submodule.smul_mem _ c ha
+    rcases h.2 (W.baseChange l) hinv with hb | ht
+    · exact Or.inl <| Submodule.baseChange_injective (A := l)
+        (hb.trans (Submodule.baseChange_bot (R := k) (M := V) (A := l)).symm)
+    · exact Or.inr <| Submodule.baseChange_injective (A := l)
+        (ht.trans (Submodule.baseChange_top (R := k) (M := V) (A := l)).symm)
 
 /-! ## Main results -/
 
