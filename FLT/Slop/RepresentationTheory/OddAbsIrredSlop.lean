@@ -37,6 +37,8 @@ open scoped TensorProduct
 
 open Module
 
+@[expose] public section
+
 namespace OddRep
 
 variable {k : Type*} [Field k]

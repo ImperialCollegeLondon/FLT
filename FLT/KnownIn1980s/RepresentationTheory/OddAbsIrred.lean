@@ -1,6 +1,5 @@
 /-
-# Irreducible ↔ absolutely irreducible, given a 1-dimensional fixed space
-
+Irreducible ↔ absolutely irreducible, given a 1-dimensional fixed space
 -/
 
 module
