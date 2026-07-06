@@ -103,6 +103,10 @@ lemma smul_tmul_mem_range_iff (l : Type*) [Field l] [Algebra k l]
     rw [TensorProduct.mk_apply, TensorProduct.tmul_smul, TensorProduct.smul_tmul',
       Algebra.algebraMap_eq_smul_one]
 
+/-! ## Lemma 1.4 : `End_G(V) = k` -/
+
+/-- **Lemma 1.4.** If `ρ` is irreducible and some `g : G` has a one-dimensional
+fixed subspace, then every `G`-equivariant endomorphism of `V` is scalar. -/
 lemma exists_smul_eq_of_commute
     (hirr : IsIrreducible ρ)
     {g : G} (hg : finrank k (fixedSpace ρ g) = 1)
