@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "lean-lsp": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+          "lean-lsp-mcp"
+      ]
+    },
+    "flt-import-closure": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+          "tools/flt_import_closure_mcp.py"
+      ]
+    }
+  }
+}

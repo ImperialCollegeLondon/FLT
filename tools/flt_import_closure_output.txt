@@ -1,0 +1,68 @@
+Root: FLT.NumberField.AdeleRing
+Total FLT files required: 64 (28 leaves, 36 intermediate)
+
+All required FLT files (alphabetical):
+  FLT.DedekindDomain.AdicValuation
+  FLT.DedekindDomain.Completion.BaseChange
+  FLT.DedekindDomain.FiniteAdeleRing.BaseChange
+  FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimitRestricted
+  FLT.DedekindDomain.FiniteAdeleRing.TensorPi  (leaf)
+  FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct
+  FLT.DedekindDomain.IntegralClosure
+  FLT.Deformations.ContinuousRepresentation.IsTopologicalModule  (leaf)
+  FLT.Hacks.RightActionInstances
+  FLT.Mathlib.Algebra.Algebra.Bilinear
+  FLT.Mathlib.Algebra.Algebra.Hom  (leaf)
+  FLT.Mathlib.Algebra.Algebra.Pi
+  FLT.Mathlib.Algebra.Algebra.Tower  (leaf)
+  FLT.Mathlib.Algebra.IsDirectLimit  (leaf)
+  FLT.Mathlib.Algebra.Module.Submodule.Basic  (leaf)
+  FLT.Mathlib.Data.Real.Archimedean  (leaf)
+  FLT.Mathlib.LinearAlgebra.Countable  (leaf)
+  FLT.Mathlib.LinearAlgebra.Dimension.Constructions
+  FLT.Mathlib.LinearAlgebra.Pi  (leaf)
+  FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing
+  FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing  (leaf)
+  FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.InfinitePlace
+  FLT.Mathlib.NumberTheory.NumberField.AdeleRing
+  FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
+  FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing
+  FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic  (leaf)
+  FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion  (leaf)
+  FLT.Mathlib.Order.Filter.Cofinite  (leaf)
+  FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation  (leaf)
+  FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+  FLT.Mathlib.RingTheory.Ideal.Quotient.Basic  (leaf)
+  FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic  (leaf)
+  FLT.Mathlib.RingTheory.Localization.BaseChange  (leaf)
+  FLT.Mathlib.RingTheory.TensorProduct.Basis
+  FLT.Mathlib.RingTheory.TensorProduct.Pi  (leaf)
+  FLT.Mathlib.RingTheory.Valuation.ValuationSubring  (leaf)
+  FLT.Mathlib.Topology.Algebra.Algebra.Hom
+  FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
+  FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
+  FLT.Mathlib.Topology.Algebra.Group.Quotient  (leaf)
+  FLT.Mathlib.Topology.Algebra.Group.Units  (leaf)
+  FLT.Mathlib.Topology.Algebra.Module.Equiv
+  FLT.Mathlib.Topology.Algebra.Module.FiniteDimension  (leaf)
+  FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
+  FLT.Mathlib.Topology.Algebra.Module.Quotient  (leaf)
+  FLT.Mathlib.Topology.Algebra.MulAction  (leaf)
+  FLT.Mathlib.Topology.Algebra.RestrictedProduct.Algebra
+  FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic  (leaf)
+  FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
+  FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
+  FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
+  FLT.Mathlib.Topology.Algebra.UniformRing
+  FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
+  FLT.Mathlib.Topology.Bases  (leaf)
+  FLT.Mathlib.Topology.Constructions
+  FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace  (leaf)
+  FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
+  FLT.NumberField.AdeleRing
+  FLT.NumberField.Completion.Finite
+  FLT.NumberField.Completion.Infinite
+  FLT.NumberField.HeightOneSpectrum
+  FLT.NumberField.InfiniteAdeleRing
+  FLT.NumberField.InfinitePlace.Extension  (leaf)
+  FLT.NumberField.Padics.RestrictedProduct

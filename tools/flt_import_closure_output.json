@@ -1,0 +1,302 @@
+{
+  "root": "FLT.NumberField.AdeleRing",
+  "count": 64,
+  "leaf_count": 28,
+  "modules": [
+    "FLT.DedekindDomain.AdicValuation",
+    "FLT.DedekindDomain.Completion.BaseChange",
+    "FLT.DedekindDomain.FiniteAdeleRing.BaseChange",
+    "FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimitRestricted",
+    "FLT.DedekindDomain.FiniteAdeleRing.TensorPi",
+    "FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct",
+    "FLT.DedekindDomain.IntegralClosure",
+    "FLT.Deformations.ContinuousRepresentation.IsTopologicalModule",
+    "FLT.Hacks.RightActionInstances",
+    "FLT.Mathlib.Algebra.Algebra.Bilinear",
+    "FLT.Mathlib.Algebra.Algebra.Hom",
+    "FLT.Mathlib.Algebra.Algebra.Pi",
+    "FLT.Mathlib.Algebra.Algebra.Tower",
+    "FLT.Mathlib.Algebra.IsDirectLimit",
+    "FLT.Mathlib.Algebra.Module.Submodule.Basic",
+    "FLT.Mathlib.Data.Real.Archimedean",
+    "FLT.Mathlib.LinearAlgebra.Countable",
+    "FLT.Mathlib.LinearAlgebra.Dimension.Constructions",
+    "FLT.Mathlib.LinearAlgebra.Pi",
+    "FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing",
+    "FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing",
+    "FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.InfinitePlace",
+    "FLT.Mathlib.NumberTheory.NumberField.AdeleRing",
+    "FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing",
+    "FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing",
+    "FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic",
+    "FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion",
+    "FLT.Mathlib.Order.Filter.Cofinite",
+    "FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation",
+    "FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing",
+    "FLT.Mathlib.RingTheory.Ideal.Quotient.Basic",
+    "FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic",
+    "FLT.Mathlib.RingTheory.Localization.BaseChange",
+    "FLT.Mathlib.RingTheory.TensorProduct.Basis",
+    "FLT.Mathlib.RingTheory.TensorProduct.Pi",
+    "FLT.Mathlib.RingTheory.Valuation.ValuationSubring",
+    "FLT.Mathlib.Topology.Algebra.Algebra.Hom",
+    "FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv",
+    "FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom",
+    "FLT.Mathlib.Topology.Algebra.Group.Quotient",
+    "FLT.Mathlib.Topology.Algebra.Group.Units",
+    "FLT.Mathlib.Topology.Algebra.Module.Equiv",
+    "FLT.Mathlib.Topology.Algebra.Module.FiniteDimension",
+    "FLT.Mathlib.Topology.Algebra.Module.ModuleTopology",
+    "FLT.Mathlib.Topology.Algebra.Module.Quotient",
+    "FLT.Mathlib.Topology.Algebra.MulAction",
+    "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Algebra",
+    "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic",
+    "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv",
+    "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module",
+    "FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace",
+    "FLT.Mathlib.Topology.Algebra.UniformRing",
+    "FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt",
+    "FLT.Mathlib.Topology.Bases",
+    "FLT.Mathlib.Topology.Constructions",
+    "FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace",
+    "FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix",
+    "FLT.NumberField.AdeleRing",
+    "FLT.NumberField.Completion.Finite",
+    "FLT.NumberField.Completion.Infinite",
+    "FLT.NumberField.HeightOneSpectrum",
+    "FLT.NumberField.InfiniteAdeleRing",
+    "FLT.NumberField.InfinitePlace.Extension",
+    "FLT.NumberField.Padics.RestrictedProduct"
+  ],
+  "leaves": [
+    "FLT.DedekindDomain.FiniteAdeleRing.TensorPi",
+    "FLT.Deformations.ContinuousRepresentation.IsTopologicalModule",
+    "FLT.Mathlib.Algebra.Algebra.Hom",
+    "FLT.Mathlib.Algebra.Algebra.Tower",
+    "FLT.Mathlib.Algebra.IsDirectLimit",
+    "FLT.Mathlib.Algebra.Module.Submodule.Basic",
+    "FLT.Mathlib.Data.Real.Archimedean",
+    "FLT.Mathlib.LinearAlgebra.Countable",
+    "FLT.Mathlib.LinearAlgebra.Pi",
+    "FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing",
+    "FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic",
+    "FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion",
+    "FLT.Mathlib.Order.Filter.Cofinite",
+    "FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation",
+    "FLT.Mathlib.RingTheory.Ideal.Quotient.Basic",
+    "FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic",
+    "FLT.Mathlib.RingTheory.Localization.BaseChange",
+    "FLT.Mathlib.RingTheory.TensorProduct.Pi",
+    "FLT.Mathlib.RingTheory.Valuation.ValuationSubring",
+    "FLT.Mathlib.Topology.Algebra.Group.Quotient",
+    "FLT.Mathlib.Topology.Algebra.Group.Units",
+    "FLT.Mathlib.Topology.Algebra.Module.FiniteDimension",
+    "FLT.Mathlib.Topology.Algebra.Module.Quotient",
+    "FLT.Mathlib.Topology.Algebra.MulAction",
+    "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic",
+    "FLT.Mathlib.Topology.Bases",
+    "FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace",
+    "FLT.NumberField.InfinitePlace.Extension"
+  ],
+  "imports": {
+    "FLT.DedekindDomain.AdicValuation": [
+      "FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation",
+      "FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic",
+      "FLT.Mathlib.RingTheory.Valuation.ValuationSubring"
+    ],
+    "FLT.DedekindDomain.Completion.BaseChange": [
+      "FLT.DedekindDomain.AdicValuation",
+      "FLT.DedekindDomain.IntegralClosure",
+      "FLT.Mathlib.Algebra.Algebra.Bilinear",
+      "FLT.Mathlib.Algebra.Algebra.Pi",
+      "FLT.Mathlib.Algebra.Module.Submodule.Basic",
+      "FLT.Mathlib.RingTheory.TensorProduct.Basis",
+      "FLT.Mathlib.Topology.Algebra.Module.ModuleTopology",
+      "FLT.Mathlib.Topology.Algebra.UniformRing"
+    ],
+    "FLT.DedekindDomain.FiniteAdeleRing.BaseChange": [
+      "FLT.DedekindDomain.Completion.BaseChange",
+      "FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct",
+      "FLT.Mathlib.LinearAlgebra.Pi",
+      "FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing",
+      "FLT.Mathlib.Topology.Algebra.Algebra.Hom",
+      "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module",
+      "FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace"
+    ],
+    "FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimitRestricted": [
+      "FLT.Mathlib.Algebra.IsDirectLimit",
+      "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic"
+    ],
+    "FLT.DedekindDomain.FiniteAdeleRing.TensorPi": [],
+    "FLT.DedekindDomain.FiniteAdeleRing.TensorRestrictedProduct": [
+      "FLT.DedekindDomain.FiniteAdeleRing.IsDirectLimitRestricted",
+      "FLT.DedekindDomain.FiniteAdeleRing.TensorPi",
+      "FLT.Mathlib.Algebra.IsDirectLimit",
+      "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic"
+    ],
+    "FLT.DedekindDomain.IntegralClosure": [
+      "FLT.Mathlib.RingTheory.Localization.BaseChange"
+    ],
+    "FLT.Deformations.ContinuousRepresentation.IsTopologicalModule": [],
+    "FLT.Hacks.RightActionInstances": [
+      "FLT.Mathlib.Topology.Algebra.Module.ModuleTopology"
+    ],
+    "FLT.Mathlib.Algebra.Algebra.Bilinear": [
+      "FLT.Hacks.RightActionInstances",
+      "FLT.Mathlib.Algebra.Algebra.Hom",
+      "FLT.Mathlib.Algebra.Algebra.Tower"
+    ],
+    "FLT.Mathlib.Algebra.Algebra.Hom": [],
+    "FLT.Mathlib.Algebra.Algebra.Pi": [
+      "FLT.Mathlib.Algebra.Algebra.Hom"
+    ],
+    "FLT.Mathlib.Algebra.Algebra.Tower": [],
+    "FLT.Mathlib.Algebra.IsDirectLimit": [],
+    "FLT.Mathlib.Algebra.Module.Submodule.Basic": [],
+    "FLT.Mathlib.Data.Real.Archimedean": [],
+    "FLT.Mathlib.LinearAlgebra.Countable": [],
+    "FLT.Mathlib.LinearAlgebra.Dimension.Constructions": [
+      "FLT.Mathlib.RingTheory.TensorProduct.Pi"
+    ],
+    "FLT.Mathlib.LinearAlgebra.Pi": [],
+    "FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing": [
+      "FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing",
+      "FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.InfinitePlace",
+      "FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing"
+    ],
+    "FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing": [],
+    "FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.InfinitePlace": [
+      "FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace"
+    ],
+    "FLT.Mathlib.NumberTheory.NumberField.AdeleRing": [
+      "FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing",
+      "FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing"
+    ],
+    "FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing": [
+      "FLT.Mathlib.LinearAlgebra.Countable",
+      "FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation",
+      "FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing",
+      "FLT.NumberField.Completion.Finite",
+      "FLT.NumberField.HeightOneSpectrum"
+    ],
+    "FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing": [
+      "FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion"
+    ],
+    "FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic": [],
+    "FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion": [],
+    "FLT.Mathlib.Order.Filter.Cofinite": [],
+    "FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation": [],
+    "FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing": [
+      "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Algebra",
+      "FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace"
+    ],
+    "FLT.Mathlib.RingTheory.Ideal.Quotient.Basic": [],
+    "FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic": [],
+    "FLT.Mathlib.RingTheory.Localization.BaseChange": [],
+    "FLT.Mathlib.RingTheory.TensorProduct.Basis": [
+      "FLT.Hacks.RightActionInstances"
+    ],
+    "FLT.Mathlib.RingTheory.TensorProduct.Pi": [],
+    "FLT.Mathlib.RingTheory.Valuation.ValuationSubring": [],
+    "FLT.Mathlib.Topology.Algebra.Algebra.Hom": [
+      "FLT.Mathlib.Algebra.Algebra.Hom"
+    ],
+    "FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv": [
+      "FLT.Mathlib.Algebra.Algebra.Tower"
+    ],
+    "FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom": [
+      "FLT.Mathlib.Topology.Algebra.Module.Quotient"
+    ],
+    "FLT.Mathlib.Topology.Algebra.Group.Quotient": [],
+    "FLT.Mathlib.Topology.Algebra.Group.Units": [],
+    "FLT.Mathlib.Topology.Algebra.Module.Equiv": [
+      "FLT.Mathlib.LinearAlgebra.Pi"
+    ],
+    "FLT.Mathlib.Topology.Algebra.Module.FiniteDimension": [],
+    "FLT.Mathlib.Topology.Algebra.Module.ModuleTopology": [
+      "FLT.Deformations.ContinuousRepresentation.IsTopologicalModule",
+      "FLT.Mathlib.Algebra.Algebra.Tower"
+    ],
+    "FLT.Mathlib.Topology.Algebra.Module.Quotient": [],
+    "FLT.Mathlib.Topology.Algebra.MulAction": [],
+    "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Algebra": [
+      "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic",
+      "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module"
+    ],
+    "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic": [],
+    "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv": [
+      "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic"
+    ],
+    "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module": [
+      "FLT.Mathlib.Algebra.Module.Submodule.Basic",
+      "FLT.Mathlib.Topology.Algebra.Module.ModuleTopology",
+      "FLT.Mathlib.Topology.Algebra.MulAction",
+      "FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace"
+    ],
+    "FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace": [
+      "FLT.Mathlib.Order.Filter.Cofinite",
+      "FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom",
+      "FLT.Mathlib.Topology.Algebra.Group.Units",
+      "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv",
+      "FLT.Mathlib.Topology.Bases"
+    ],
+    "FLT.Mathlib.Topology.Algebra.UniformRing": [
+      "FLT.Mathlib.Algebra.Algebra.Hom"
+    ],
+    "FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt": [
+      "FLT.Mathlib.RingTheory.Ideal.Quotient.Basic"
+    ],
+    "FLT.Mathlib.Topology.Bases": [],
+    "FLT.Mathlib.Topology.Constructions": [
+      "FLT.Mathlib.Algebra.Algebra.Pi"
+    ],
+    "FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace": [],
+    "FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix": [
+      "FLT.Mathlib.Topology.Constructions"
+    ],
+    "FLT.NumberField.AdeleRing": [
+      "FLT.DedekindDomain.FiniteAdeleRing.BaseChange",
+      "FLT.Mathlib.Data.Real.Archimedean",
+      "FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.AdeleRing",
+      "FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.FiniteAdeleRing",
+      "FLT.Mathlib.MeasureTheory.Constructions.BorelSpace.InfinitePlace",
+      "FLT.Mathlib.NumberTheory.NumberField.AdeleRing",
+      "FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing",
+      "FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic",
+      "FLT.Mathlib.Topology.Algebra.Group.Quotient",
+      "FLT.NumberField.Completion.Finite",
+      "FLT.NumberField.InfiniteAdeleRing",
+      "FLT.NumberField.Padics.RestrictedProduct"
+    ],
+    "FLT.NumberField.Completion.Finite": [
+      "FLT.DedekindDomain.AdicValuation",
+      "FLT.Mathlib.LinearAlgebra.Countable",
+      "FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt"
+    ],
+    "FLT.NumberField.Completion.Infinite": [
+      "FLT.Mathlib.Algebra.Algebra.Bilinear",
+      "FLT.Mathlib.Algebra.Algebra.Pi",
+      "FLT.Mathlib.LinearAlgebra.Dimension.Constructions",
+      "FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv",
+      "FLT.Mathlib.Topology.Algebra.Module.FiniteDimension",
+      "FLT.Mathlib.Topology.Algebra.Module.ModuleTopology",
+      "FLT.Mathlib.Topology.Algebra.UniformRing",
+      "FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix",
+      "FLT.NumberField.InfinitePlace.Extension"
+    ],
+    "FLT.NumberField.HeightOneSpectrum": [
+      "FLT.DedekindDomain.IntegralClosure"
+    ],
+    "FLT.NumberField.InfiniteAdeleRing": [
+      "FLT.Mathlib.NumberTheory.NumberField.InfiniteAdeleRing",
+      "FLT.Mathlib.Topology.Algebra.Algebra.Hom",
+      "FLT.Mathlib.Topology.Algebra.Module.Equiv",
+      "FLT.Mathlib.Topology.Constructions",
+      "FLT.NumberField.Completion.Infinite"
+    ],
+    "FLT.NumberField.InfinitePlace.Extension": [],
+    "FLT.NumberField.Padics.RestrictedProduct": [
+      "FLT.Mathlib.Topology.Algebra.RestrictedProduct.Basic"
+    ]
+  }
+}
