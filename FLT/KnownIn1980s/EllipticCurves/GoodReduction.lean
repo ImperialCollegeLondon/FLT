@@ -7,13 +7,15 @@ module
 
 public import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
 public import Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
+public import Mathlib.RingTheory.LocalRing.ResidueField.Basic
 public import Mathlib.RingTheory.Valuation.RamificationGroup
 
 /-!
 
 Let E be an elliptic curve over the field of fractions k
-of a DVR, with good reduction. Let n be a positive
-integer which is nonzero in k.
+of a DVR R, with good reduction. Let n be a positive
+integer which is invertible in the residue field of R
+(equivalently, prime to the residue characteristic).
 Then the Galois representation on the n-torsion points
 over k^sep is unramified.
 
@@ -21,6 +23,15 @@ This is the easy direction of the criterion of Néron–Ogg–Shafarevich;
 see for example [Silverman, *The Arithmetic of Elliptic Curves*, VII.7.1]
 or [Serre–Tate, *Good reduction of abelian varieties*, Theorem 1
 for the general abelian variety case].
+
+The correct hypothesis here is that `n` is invertible in the *residue field*,
+not merely that `n` is nonzero in `k`. In mixed characteristic (`k` a finite
+extension of `ℚ_p`, residue characteristic `p`) every positive `n` is nonzero
+in `k`, yet the `p`-torsion of a curve with good reduction, while flat, is in
+general ramified at `p`; see the module docstring of
+`FLT.KnownIn1980s.EllipticCurves.Flat`. The two hypotheses agree in equal
+characteristic. The deduction of this statement from the finite flatness of the
+torsion is `FLT.KnownIn1980s.EllipticCurves.FlatImpliesUnramified`.
 
 -/
 
@@ -39,8 +50,9 @@ variable (k : Type*) [Field k] [Algebra R k] [IsFractionRing R k]
 -- equation (`WeierstrassCurve.exists_isMinimal`).
 variable (E : WeierstrassCurve k) [E.IsElliptic] [E.HasGoodReduction R]
 
--- Let n be a natural which is nonzero in k
-variable (n : ℕ) [NeZero (n : k)]
+-- Let n be a positive natural. Its invertibility in the residue field of R is the
+-- hypothesis `hn` in the theorem below.
+variable (n : ℕ)
 
 -- Let ksep be a separable closure of k (`DecidableEq` is needed for the group law on points)
 variable (ksep : Type*) [Field ksep] [Algebra k ksep] [IsSepClosure k ksep] [DecidableEq ksep]
@@ -50,11 +62,13 @@ variable (ksep : Type*) [Field ksep] [Algebra k ksep] [IsSepClosure k ksep] [Dec
 variable (𝒪 : ValuationSubring ksep)
 
 /-- If `E` is an elliptic curve over `k` (given by a minimal Weierstrass equation)
-with good reduction over `R`, and if `𝒪` is a valuation subring of `kˢᵉᵖ` lying above `R`,
-then the inertia subgroup of `Gal(kˢᵉᵖ/k)` at `𝒪` acts trivially on the `n`-torsion
-of `E(kˢᵉᵖ)`. In other words, the Galois representation on the `n`-torsion points
-is unramified. -/
+with good reduction over `R`, if `n` is invertible in the residue field of `R`, and if
+`𝒪` is a valuation subring of `kˢᵉᵖ` lying above `R`, then the inertia subgroup of
+`Gal(kˢᵉᵖ/k)` at `𝒪` acts trivially on the `n`-torsion of `E(kˢᵉᵖ)`. In other words, the
+Galois representation on the `n`-torsion points is unramified. -/
 theorem WeierstrassCurve.torsion_unramified_of_good_reduction
+    -- Assume n is invertible in the residue field of R
+    (hn : IsUnit (n : IsLocalRing.ResidueField R))
     -- Assume 𝒪 lies above R, i.e. 𝒪 ∩ k = R
     (h𝒪 : (𝒪.comap (algebraMap k ksep)).toSubring = (algebraMap R k).range) :
     -- Then every element of the inertia subgroup at 𝒪 fixes every n-torsion point of E(ksep)
