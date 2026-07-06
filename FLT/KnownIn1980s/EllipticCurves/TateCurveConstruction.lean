@@ -11,9 +11,9 @@ public import Mathlib.RingTheory.PowerSeries.Basic
 public import Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass
 public import Mathlib.NumberTheory.LSeries.RiemannZeta
 
+import Mathlib.Algebra.AlgebraicCard
 import Mathlib.Analysis.Complex.UpperHalfPlane.Exp
 import Mathlib.Analysis.SpecificLimits.Normed
-import Mathlib.Data.Finsupp.Encodable
 import Mathlib.NumberTheory.ModularForms.EisensteinSeries.QExpansion
 import Mathlib.NumberTheory.TsumDivisorsAntidiagonal
 import Mathlib.NumberTheory.ZetaValues
@@ -2126,7 +2126,6 @@ private theorem hasSum_evalAt_mul {u q : ℂ} (hu : Transcendental ℚ u)
           ((PowerSeries.coeff k) φ) * ((PowerSeries.coeff (n - k)) ψ)) * q ^ n := by
           simp [map_sum, Finset.sum_mul]
 
-set_option backward.defeqAttrib.useBackward true in
 private theorem transcendental_punctured_unit_disk_infinite :
     ({u : ℂ | Transcendental ℚ u ∧ 0 < ‖u‖ ∧ ‖u‖ < 1} : Set ℂ).Infinite := by
   classical
@@ -2147,16 +2146,6 @@ private theorem transcendental_punctured_unit_disk_infinite :
       exact Complex.ofReal_injective hxy
     exact hI_not_countable
       (Set.countable_of_injective_of_countable_image hinj (by simpa [J] using hJ))
-  have hAlg_countable : ({u : ℂ | IsAlgebraic ℚ u} : Set ℂ).Countable := by
-    haveI : Countable (AddMonoidAlgebra ℚ ℕ) := inferInstanceAs (Countable (ℕ →₀ ℚ))
-    haveI : Countable (Polynomial ℚ) := Polynomial.toFinsupp_injective.countable
-    have hsub : {u : ℂ | IsAlgebraic ℚ u}
-        ⊆ ⋃ p : {p : Polynomial ℚ // p ≠ 0}, (p : Polynomial ℚ).rootSet ℂ := by
-      intro x hx
-      obtain ⟨p, hp0, hpx⟩ := hx
-      exact Set.mem_iUnion.mpr ⟨⟨p, hp0⟩, (Polynomial.mem_rootSet).mpr ⟨hp0, hpx⟩⟩
-    exact Set.Countable.mono hsub
-      (Set.countable_iUnion fun p ↦ ((p : Polynomial ℚ).rootSet_finite ℂ).countable)
   by_contra hSfin
   have hS_countable : S.Countable := (Set.not_infinite.mp hSfin).countable
   have hJ_subset : J ⊆ S ∪ {u : ℂ | IsAlgebraic ℚ u} := by
@@ -2178,7 +2167,7 @@ private theorem transcendental_punctured_unit_disk_infinite :
     · right
       simpa [Transcendental] using htr
   have hJ_countable : J.Countable :=
-    Set.Countable.mono hJ_subset (hS_countable.union hAlg_countable)
+    Set.Countable.mono hJ_subset (hS_countable.union (Algebraic.countable ℚ ℂ))
   exact hJ_not_countable hJ_countable
 
 /-!
