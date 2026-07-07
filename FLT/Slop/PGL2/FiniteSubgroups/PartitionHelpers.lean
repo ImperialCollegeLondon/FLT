@@ -12,10 +12,10 @@ public import FLT.Slop.PGL2.FiniteSubgroups.PGLBasic
 # Sylow `p`-subgroup lemmas for finite subgroups of `PGL₂(𝔽̄_p)`
 
 This file proves the basic facts about Sylow `p`-subgroups of a finite subgroup `G` of
-`PGL p = PGL₂(𝔽̄_p)` whose order is divisible by `p` (the *wild* case of Dickson's
+`PGLOf (K p) = PGL₂(𝔽̄_p)` whose order is divisible by `p` (the *wild* case of Dickson's
 classification).
 
-The key geometric input is that an element of order `p` in `PGL p` fixes exactly one
+The key geometric input is that an element of order `p` in `PGLOf (K p)` fixes exactly one
 point of the projective line. From this we deduce:
 * each Sylow `p`-subgroup `P` of `G` fixes a unique point `sylowFixedPoint`
   of `ℙ¹(𝔽̄_p)`, and distinct Sylow `p`-subgroups have distinct fixed points
@@ -53,14 +53,14 @@ noncomputable section PartitionHelpers
 variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]
 
 omit h_odd in
-theorem sylow_card_prime_pow (G : Subgroup (PGL p)) [Finite G]
+theorem sylow_card_prime_pow (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
     ∃ k : ℕ, k ≥ 1 ∧ Nat.card P = p ^ k :=
   ⟨(Nat.card G).factorization p,
     Nat.pos_of_ne_zero (Finsupp.mem_support_iff.mp <| Nat.mem_primeFactors.mpr ⟨Fact.out, hG_p, Nat.card_pos.ne'⟩),
     P.card_eq_multiplicity⟩
 
-theorem sylow_card_ge_3 (G : Subgroup (PGL p)) [Finite G]
+theorem sylow_card_ge_3 (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
     Nat.card P ≥ 3 := by
   obtain ⟨k, hk, hk_eq⟩ := sylow_card_prime_pow p G hG_p P
@@ -68,11 +68,11 @@ theorem sylow_card_ge_3 (G : Subgroup (PGL p)) [Finite G]
   exact (Nat.succ_le_of_lt (Fact.out : p > 2)).trans (Nat.le_self_pow (by omega) p)
 
 
-theorem sylow_unique_fixedPoint (G : Subgroup (PGL p)) [Finite G]
+theorem sylow_unique_fixedPoint (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
     ∃! x : ProjectiveLine p,
-      ∀ g : PGL p, g ∈ (P : Subgroup G).map (Subgroup.subtype G) → g • x = x := by
-  let P' : Subgroup (PGL p) := Subgroup.map (Subgroup.subtype G) (P : Subgroup G)
+      ∀ g : PGLOf (K p), g ∈ (P : Subgroup G).map (Subgroup.subtype G) → g • x = x := by
+  let P' : Subgroup (PGLOf (K p)) := Subgroup.map (Subgroup.subtype G) (P : Subgroup G)
   let e : (P : Subgroup G) ≃ P' := (Subgroup.equivMapOfInjective _ _ Subtype.coe_injective).toEquiv
   haveI : Finite P' := Finite.of_equiv _ e
 
@@ -85,64 +85,64 @@ theorem sylow_unique_fixedPoint (G : Subgroup (PGL p)) [Finite G]
 
 omit h_odd in
 @[nolint unusedArguments]
-theorem normalizer_stabilizes_fixedPoint (G : Subgroup (PGL p)) [Finite G]
+theorem normalizer_stabilizes_fixedPoint (G : Subgroup (PGLOf (K p))) [Finite G]
     (P : Sylow p G) (x : ProjectiveLine p)
-    (hx : ∀ g ∈ (P : Subgroup G), (g : PGL p) • x = x)
-    (hx_unique : ∀ y, (∀ g ∈ (P : Subgroup G), (g : PGL p) • y = y) → y = x) :
-    ∀ g ∈ Subgroup.normalizer ((P : Subgroup G) : Set G), (g : PGL p) • x = x := fun g hg ↦
-  have h_inv : (g⁻¹ : PGL p) • x = x := hx_unique _ fun h hh ↦ by
-    rw [← mul_smul, (show (h : PGL p) * (g⁻¹ : PGL p) = (g⁻¹ : PGL p) * (g * h * g⁻¹ : G) by
+    (hx : ∀ g ∈ (P : Subgroup G), (g : PGLOf (K p)) • x = x)
+    (hx_unique : ∀ y, (∀ g ∈ (P : Subgroup G), (g : PGLOf (K p)) • y = y) → y = x) :
+    ∀ g ∈ Subgroup.normalizer ((P : Subgroup G) : Set G), (g : PGLOf (K p)) • x = x := fun g hg ↦
+  have h_inv : (g⁻¹ : PGLOf (K p)) • x = x := hx_unique _ fun h hh ↦ by
+    rw [← mul_smul, (show (h : PGLOf (K p)) * (g⁻¹ : PGLOf (K p)) = (g⁻¹ : PGLOf (K p)) * (g * h * g⁻¹ : G) by
         simp only [Subgroup.coe_mul, Subgroup.coe_inv, ← mul_assoc, inv_mul_cancel, one_mul]),
       mul_smul, hx (g * h * g⁻¹) ((hg h).mp hh)]
-  (congr_arg (fun y ↦ (g : PGL p) • y) h_inv.symm).trans (smul_inv_smul (g : PGL p) x)
+  (congr_arg (fun y ↦ (g : PGLOf (K p)) • y) h_inv.symm).trans (smul_inv_smul (g : PGLOf (K p)) x)
 
-theorem sylow_element_order_p (G : Subgroup (PGL p)) [Finite G]
+theorem sylow_element_order_p (G : Subgroup (PGLOf (K p))) [Finite G]
     (P : Sylow p G)
     (g : G) (hg : g ∈ (P : Subgroup G)) (hg_ne : g ≠ 1) :
-    orderOf (g : PGL p) = p := by
-  let P' : Subgroup (PGL p) := (P : Subgroup G).map (Subgroup.subtype G)
+    orderOf (g : PGLOf (K p)) = p := by
+  let P' : Subgroup (PGLOf (K p)) := (P : Subgroup G).map (Subgroup.subtype G)
   haveI : Finite P' := Finite.of_equiv P (Subgroup.equivMapOfInjective _ _ Subtype.coe_injective).toEquiv
   exact isPGroup_orderOf_eq_prime p P' (P.2.map (Subgroup.subtype G))
-    ⟨(g : PGL p), Subgroup.mem_map_of_mem (Subgroup.subtype G) hg⟩
+    ⟨(g : PGLOf (K p)), Subgroup.mem_map_of_mem (Subgroup.subtype G) hg⟩
     (fun h ↦ hg_ne <| Subtype.ext <| congr_arg (fun x : P' ↦ x.1) h)
 
-theorem order_p_one_fixedPoint (g : PGL p) (hg : orderOf g = p) :
+theorem order_p_one_fixedPoint (g : PGLOf (K p)) (hg : orderOf g = p) :
     Set.ncard (fixedPoints p g) = 1 :=
   (fixedPoints_dichotomy p g
     (fun h ↦ Nat.Prime.ne_one Fact.out (hg.symm.trans ((congr_arg orderOf h).trans orderOf_one)))
     (orderOf_pos_iff.mp (hg.symm ▸ Nat.Prime.pos Fact.out))).1.mpr hg
 
 /-- The unique fixed point on the projective line `ℙ¹(𝔽̄_p)` of a Sylow `p`-subgroup `P`. -/
-noncomputable def sylowFixedPoint (G : Subgroup (PGL p)) [Finite G]
+noncomputable def sylowFixedPoint (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) : ProjectiveLine p :=
   (sylow_unique_fixedPoint p G hG_p P).choose
 
-theorem sylow_element_fixes (G : Subgroup (PGL p)) [Finite G]
+theorem sylow_element_fixes (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G)
     (g : G) (hg : g ∈ (P : Subgroup G)) :
-    (g : PGL p) • sylowFixedPoint p G hG_p P = sylowFixedPoint p G hG_p P :=
+    (g : PGLOf (K p)) • sylowFixedPoint p G hG_p P = sylowFixedPoint p G hG_p P :=
   (sylow_unique_fixedPoint p G hG_p P).choose_spec.1 g (Subgroup.mem_map_of_mem _ hg)
 
-theorem eq_sylow_fixedPoint (G : Subgroup (PGL p)) [Finite G]
+theorem eq_sylow_fixedPoint (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) (y : ProjectiveLine p)
-    (hy : ∀ g : G, g ∈ (P : Subgroup G) → (g : PGL p) • y = y) :
+    (hy : ∀ g : G, g ∈ (P : Subgroup G) → (g : PGLOf (K p)) • y = y) :
     y = sylowFixedPoint p G hG_p P :=
   (sylow_unique_fixedPoint p G hG_p P).choose_spec.2 y fun _ hg ↦ by
     obtain ⟨g', hg', rfl⟩ := Subgroup.mem_map.mp hg
     exact hy g' hg'
 
-theorem shared_element_shared_fixedPoint (G : Subgroup (PGL p)) [Finite G]
+theorem shared_element_shared_fixedPoint (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P Q : Sylow p G)
     (g : G) (hgP : g ∈ (P : Subgroup G)) (hgQ : g ∈ (Q : Subgroup G)) (hg_ne : g ≠ 1) :
     sylowFixedPoint p G hG_p P = sylowFixedPoint p G hG_p Q := by
   obtain ⟨a, ha⟩ := Set.ncard_eq_one.mp <|
-    order_p_one_fixedPoint p (g : PGL p) (sylow_element_order_p p G P g hgP hg_ne)
+    order_p_one_fixedPoint p (g : PGLOf (K p)) (sylow_element_order_p p G P g hgP hg_ne)
   exact ((Set.ext_iff.mp ha _).mp (sylow_element_fixes p G hG_p P g hgP)).trans
     ((Set.ext_iff.mp ha _).mp (sylow_element_fixes p G hG_p Q g hgQ)).symm
 
 
 
-theorem sylow_pairwise_trivial_intersection (G : Subgroup (PGL p)) [Finite G]
+theorem sylow_pairwise_trivial_intersection (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P Q : Sylow p G) (hPQ : P ≠ Q) :
     (P : Subgroup G) ⊓ (Q : Subgroup G) = ⊥ := by
   by_contra h_int
@@ -155,7 +155,7 @@ theorem sylow_pairwise_trivial_intersection (G : Subgroup (PGL p)) [Finite G]
   have h_comm_G : ∀ a ∈ P, ∀ b ∈ Q, a * b = b * a := fun a ha b hb ↦ by
     by_cases ha1 : a = 1; · rw [ha1, one_mul, mul_one]
     by_cases hb1 : b = 1; · rw [hb1, mul_one, one_mul]
-    exact Subtype.ext <| commute_of_orderOf_prime_common_fixedPoint p (a : PGL p) (b : PGL p)
+    exact Subtype.ext <| commute_of_orderOf_prime_common_fixedPoint p (a : PGLOf (K p)) (b : PGLOf (K p))
       (sylowFixedPoint p G hG_p P)
       (sylow_element_order_p p G P a ha ha1)
       (sylow_element_order_p p G Q b hb hb1)
@@ -195,7 +195,7 @@ theorem sylow_pairwise_trivial_intersection (G : Subgroup (PGL p)) [Finite G]
     (P.is_maximal' h_p_group le_sup_left) ▸ le_sup_right
 
 
-theorem count_order_p_elements (G : Subgroup (PGL p)) [Finite G]
+theorem count_order_p_elements (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
     Nat.card {g : G | orderOf g = p} =
       Fintype.card (Sylow p G) * (Nat.card P - 1) := by
@@ -259,7 +259,7 @@ noncomputable section Borel
 variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]
 
 theorem fixes_infinity_commutes_order_p
-    (g h : PGL p)
+    (g h : PGLOf (K p))
     (hg_fix : g • infinity p = infinity p)
     (hh_fix : h • infinity p = infinity p)
     (hh_order : orderOf h = p)
@@ -350,7 +350,7 @@ theorem fixes_infinity_commutes_order_p
 
 
 theorem common_fixedPoint_commutes_order_p
-    (g h : PGL p) (x : ProjectiveLine p)
+    (g h : PGLOf (K p)) (x : ProjectiveLine p)
     (hg_fix : g • x = x) (hh_fix : h • x = x)
     (hh_order : orderOf h = p) (h_comm : g * h = h * g) :
     orderOf g = 1 ∨ orderOf g = p := by
@@ -362,7 +362,7 @@ theorem common_fixedPoint_commutes_order_p
   have h_comm' : (k * g * k⁻¹) * (k * h * k⁻¹) = (k * h * k⁻¹) * (k * g * k⁻¹) := by
     change (MulAut.conj k) g * (MulAut.conj k) h = (MulAut.conj k) h * (MulAut.conj k) g
     rw [← map_mul, ← map_mul, h_comm]
-  have ord_eq (z : PGL p) : orderOf (k * z * k⁻¹) = orderOf z :=
+  have ord_eq (z : PGLOf (K p)) : orderOf (k * z * k⁻¹) = orderOf z :=
     orderOf_injective (MulAut.conj k).toMonoidHom (MulAut.conj k).injective z
   rw [← ord_eq g]
   exact fixes_infinity_commutes_order_p p (k * g * k⁻¹) (k * h * k⁻¹)
@@ -370,10 +370,10 @@ theorem common_fixedPoint_commutes_order_p
 
 
 omit h_odd in
-theorem order_one_or_p_in_sylow (G : Subgroup (PGL p)) [Finite G]
+theorem order_one_or_p_in_sylow (G : Subgroup (PGLOf (K p))) [Finite G]
     (_hG_p : p ∣ Nat.card G) (P : Sylow p G)
     (g : G) (hg_norm : g ∈ Subgroup.normalizer ((P : Subgroup G) : Set G))
-    (h_order : orderOf (g : PGL p) = 1 ∨ orderOf (g : PGL p) = p) :
+    (h_order : orderOf (g : PGLOf (K p)) = 1 ∨ orderOf (g : PGLOf (K p)) = p) :
     g ∈ (P : Subgroup G) := by
   have h_cyclic : IsPGroup p (Subgroup.zpowers g) := by
     rw [IsPGroup.iff_card, Nat.card_zpowers, ← Subgroup.orderOf_coe g]
@@ -383,7 +383,7 @@ theorem order_one_or_p_in_sylow (G : Subgroup (PGL p)) [Finite G]
     le_sup_right) ▸ Subgroup.mem_sup_left (Subgroup.mem_zpowers g)
 
 
-theorem normalizer_fixes_element_in_sylow (G : Subgroup (PGL p)) [Finite G]
+theorem normalizer_fixes_element_in_sylow (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G)
     (g : G) (hg_norm : g ∈ Subgroup.normalizer ((P : Subgroup G) : Set G))
     (h : G) (hh_in_P : h ∈ (P : Subgroup G)) (hh_ne : h ≠ 1)
@@ -391,12 +391,12 @@ theorem normalizer_fixes_element_in_sylow (G : Subgroup (PGL p)) [Finite G]
     g ∈ (P : Subgroup G) := by
   have h_comm_G : g * h = h * g := by
     rw [← mul_one (g * h), ← inv_mul_cancel g, ← mul_assoc, h_conj_eq]
-  have h_fixed : (g : PGL p) • sylowFixedPoint p G hG_p P = sylowFixedPoint p G hG_p P :=
+  have h_fixed : (g : PGLOf (K p)) • sylowFixedPoint p G hG_p P = sylowFixedPoint p G hG_p P :=
     normalizer_stabilizes_fixedPoint p G P (sylowFixedPoint p G hG_p P)
       (sylow_element_fixes p G hG_p P)
       (eq_sylow_fixedPoint p G hG_p P)
       g hg_norm
-  have h_order := common_fixedPoint_commutes_order_p p (g : PGL p) (h : PGL p)
+  have h_order := common_fixedPoint_commutes_order_p p (g : PGLOf (K p)) (h : PGLOf (K p))
     (sylowFixedPoint p G hG_p P) h_fixed
     (sylow_element_fixes p G hG_p P h hh_in_P)
     (sylow_element_order_p p G P h hh_in_P hh_ne)
@@ -404,7 +404,7 @@ theorem normalizer_fixes_element_in_sylow (G : Subgroup (PGL p)) [Finite G]
   exact order_one_or_p_in_sylow p G hG_p P g hg_norm h_order
 
 
-noncomputable instance conjOnP (G : Subgroup (PGL p)) (P : Sylow p G) :
+noncomputable instance conjOnP (G : Subgroup (PGLOf (K p))) (P : Sylow p G) :
     MulAction (↑(Subgroup.normalizer ((P : Subgroup G) : Set G))) (↑(P : Subgroup G)) where
   smul g h := ⟨g.val * h.val * g.val⁻¹, (g.prop h.val).1 h.prop⟩
   one_smul h := by
@@ -417,7 +417,7 @@ noncomputable instance conjOnP (G : Subgroup (PGL p)) (P : Sylow p G) :
     rw [mul_inv_rev, mul_assoc g₁.val, mul_assoc g₁.val, ← mul_assoc (g₂.val * h.val), ← mul_assoc g₁.val]
 
 
-theorem stabilizer_conj_eq_P (G : Subgroup (PGL p)) [Finite G]
+theorem stabilizer_conj_eq_P (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G)
     (h : ↑(P : Subgroup G)) (hh_ne : h ≠ 1) :
     MulAction.stabilizer (↑(Subgroup.normalizer ((P : Subgroup G) : Set G))) h =
@@ -438,7 +438,7 @@ theorem stabilizer_conj_eq_P (G : Subgroup (PGL p)) [Finite G]
   · exact Subtype.ext <| h_abelian g hg'
 
 
-theorem normalizer_complement_divides_main (G : Subgroup (PGL p)) [Finite G]
+theorem normalizer_complement_divides_main (G : Subgroup (PGLOf (K p))) [Finite G]
     (P : Sylow p G) (hG_p : p ∣ Nat.card G) :
     Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) / Nat.card P ∣
       Nat.card P - 1 := by
@@ -490,14 +490,14 @@ theorem normalizer_complement_divides_main (G : Subgroup (PGL p)) [Finite G]
 
 /-- The index `|N_G(P)| / |P|` of a Sylow `p`-subgroup `P` in its normalizer in `G`. -/
 @[nolint unusedArguments]
-def normalizerQuotient (G : Subgroup (PGL p)) [Finite G]
+def normalizerQuotient (G : Subgroup (PGLOf (K p))) [Finite G]
     (P : Sylow p G) : ℕ :=
   Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) / Nat.card P
 
 
 
 omit h_odd in
-theorem group_order_gt_normalizer (G : Subgroup (PGL p)) [Finite G]
+theorem group_order_gt_normalizer (G : Subgroup (PGLOf (K p))) [Finite G]
     (P : Sylow p G) (hn_p_gt1 : Fintype.card (Sylow p G) > 1) :
     Nat.card G > Nat.card P * normalizerQuotient p G P := by
   have e : Nat.card (G ⧸ Subgroup.normalizer ((P : Subgroup G) : Set G)) =
@@ -545,14 +545,14 @@ theorem factorization_pgl_order (m : ℕ) (hm : m ≥ 1) :
 
 
 omit h_odd in
-theorem sylow_order_of_pgl_order (G : Subgroup (PGL p)) [Finite G]
+theorem sylow_order_of_pgl_order (G : Subgroup (PGLOf (K p))) [Finite G]
     (m : ℕ) (hm : m ≥ 1)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1))
     (P : Sylow p G) :
     Nat.card P = p ^ m := by
   rw [P.card_eq_multiplicity, hn, factorization_pgl_order p m hm]
 
-theorem sylow_fixedPoint_injective (G : Subgroup (PGL p)) [Finite G]
+theorem sylow_fixedPoint_injective (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) :
     Function.Injective (sylowFixedPoint p G hG_p) := by
   intro P Q hPQ
@@ -560,9 +560,9 @@ theorem sylow_fixedPoint_injective (G : Subgroup (PGL p)) [Finite G]
   have h_comm_G : ∀ (g : G) (_ : g ∈ (P : Subgroup G)) (h : G) (_ : h ∈ (Q : Subgroup G)), g * h = h * g := by
     intro g hg h hh
     refine Subtype.ext ?_
-    by_cases hg1 : g = 1; · rw [hg1]; exact Commute.one_left (h : PGL p)
-    by_cases hh1 : h = 1; · rw [hh1]; exact Commute.one_right (g : PGL p)
-    exact commute_of_orderOf_prime_common_fixedPoint p (g : PGL p) (h : PGL p) (sylowFixedPoint p G hG_p P)
+    by_cases hg1 : g = 1; · rw [hg1]; exact Commute.one_left (h : PGLOf (K p))
+    by_cases hh1 : h = 1; · rw [hh1]; exact Commute.one_right (g : PGLOf (K p))
+    exact commute_of_orderOf_prime_common_fixedPoint p (g : PGLOf (K p)) (h : PGLOf (K p)) (sylowFixedPoint p G hG_p P)
       (sylow_element_order_p p G P g hg hg1) (sylow_element_order_p p G Q h hh hh1)
       (sylow_element_fixes p G hG_p P g hg) (hPQ.symm ▸ sylow_element_fixes p G hG_p Q h hh)
 
@@ -591,8 +591,8 @@ theorem sylow_fixedPoint_injective (G : Subgroup (PGL p)) [Finite G]
       obtain ⟨n, hn⟩ := IsPGroup.iff_card.mp Q.2
       intro g
       obtain ⟨a, ha, b, hb, hg_eq⟩ := h_pq g g.2
-      have h_ord_div {H : Subgroup G} (x : G) (hx : x ∈ H) : orderOf (x : PGL p) ∣ Nat.card H :=
-        (show orderOf (x : PGL p) ∣ Nat.card (Subgroup.zpowers x) by simp only [orderOf_submonoid, Nat.card_zpowers, dvd_refl]).trans
+      have h_ord_div {H : Subgroup G} (x : G) (hx : x ∈ H) : orderOf (x : PGLOf (K p)) ∣ Nat.card H :=
+        (show orderOf (x : PGLOf (K p)) ∣ Nat.card (Subgroup.zpowers x) by simp only [orderOf_submonoid, Nat.card_zpowers, dvd_refl]).trans
           (Subgroup.card_dvd_of_le (Subgroup.zpowers_le.mpr hx))
       use m + n
       ext
@@ -607,12 +607,12 @@ theorem sylow_fixedPoint_injective (G : Subgroup (PGL p)) [Finite G]
   have h_card : Nat.card (Q : Subgroup G) = Nat.card (P : Subgroup G) := by rw [P.card_eq_multiplicity, Q.card_eq_multiplicity]
   exact h_contra <| Sylow.ext <| SetLike.ext' <| (Set.eq_of_subset_of_ncard_le h_eq h_card.ge).symm
 
-theorem sylow_free_action (G : Subgroup (PGL p)) [Finite G]
+theorem sylow_free_action (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P Q : Sylow p G) (hPQ : P ≠ Q)
     (g : G) (hg : g ∈ (P : Subgroup G)) (hg_ne : g ≠ 1) :
-    (g : PGL p) • sylowFixedPoint p G hG_p Q ≠ sylowFixedPoint p G hG_p Q := by
+    (g : PGLOf (K p)) • sylowFixedPoint p G hG_p Q ≠ sylowFixedPoint p G hG_p Q := by
   intro h_fix
-  obtain ⟨x, hx⟩ := Set.ncard_eq_one.mp <| order_p_one_fixedPoint p (g : PGL p) (sylow_element_order_p p G P g hg hg_ne)
+  obtain ⟨x, hx⟩ := Set.ncard_eq_one.mp <| order_p_one_fixedPoint p (g : PGLOf (K p)) (sylow_element_order_p p G P g hg hg_ne)
   have hP_mem : sylowFixedPoint p G hG_p P ∈ fixedPoints p ↑g := sylow_element_fixes p G hG_p P g hg
   have hQ_mem : sylowFixedPoint p G hG_p Q ∈ fixedPoints p ↑g := h_fix
   rw [hx, Set.mem_singleton_iff] at hP_mem hQ_mem
@@ -620,7 +620,7 @@ theorem sylow_free_action (G : Subgroup (PGL p)) [Finite G]
 
 
 
-theorem card_sylow_mod_card (G : Subgroup (PGL p)) [Finite G]
+theorem card_sylow_mod_card (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
     Nat.card P ∣ (Fintype.card (Sylow p G) - 1) := by
   set S : Finset (Sylow p G) := Finset.univ \ {P} with hS_def
@@ -667,7 +667,7 @@ theorem card_sylow_mod_card (G : Subgroup (PGL p)) [Finite G]
     obtain ⟨Q, hQ, rfl⟩ := Finset.mem_image.mp ho
     exact h_orbit_size Q hQ ▸ dvd_rfl
 
-theorem n_p_eq_pgl (G : Subgroup (PGL p)) [Finite G]
+theorem n_p_eq_pgl (G : Subgroup (PGLOf (K p))) [Finite G]
     (m : ℕ) (hm : m ≥ 1)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1))
     (hn_p_gt1 : Fintype.card (Sylow p G) > 1) :

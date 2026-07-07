@@ -22,17 +22,19 @@ public import Mathlib.LinearAlgebra.Projectivization.Action
 This file sets up the basic objects used in the proof of Dickson's classification
 of the finite subgroups of `PGL₂(𝔽̄_p)` for `p` an odd prime.
 
-We define `K p` to be an algebraic closure of `𝔽_p`, the group `PGL p := PGL₂(K p)`
-(as the quotient of `GL₂(K p)` by its centre), the group `PSL p := PSL₂(K p)`, and the
-projective line `ProjectiveLine p := ℙ¹(K p)` together with its natural `PGL p`-action.
+We define the group `PGLOf F := PGL₂(F)` for a field `F` (as the quotient of `GL₂(F)` by its
+centre) and the projective line `ProjectiveLine p := ℙ¹(K p)` together with its natural
+`PGLOf (K p)`-action, where `K p` is the algebraic closure of `𝔽_p` from
+`FLT.KnownIn1980s.PGL2.Defs`. The whole `FLT.Slop.PGL2` development is stated in terms of
+`PGLOf (K p)`, which is definitionally (but not reducibly) equal to the public `Dickson.PGL p`.
 
 The main results are:
 * `Dickson.pgl_mulEquiv_psl`: over the algebraically closed field `K p`, the natural
   map `PSL₂(K p) → PGL₂(K p)` is an isomorphism.
-* `Dickson.exists_finite_subfield_conjugate`: every finite subgroup of `PGL p` can be
+* `Dickson.exists_finite_subfield_conjugate`: every finite subgroup of `PGLOf (K p)` can be
   conjugated into the image of `PGL₂(F)` for some finite subfield `F` of `K p`.
 * `Dickson.card_eigenvalues` and `Dickson.fixedPoints_card`: a nontrivial element of
-  `PGL p` fixes either one or two points of the projective line, according to whether
+  `PGLOf (K p)` fixes either one or two points of the projective line, according to whether
   its lift to `GL₂` has one or two eigenvalues.
 -/
 
@@ -95,12 +97,19 @@ lemma Nat.factorization_eq_two {n m p : ℕ}
 
 variable (p : ℕ) [Fact (Nat.Prime p)]
 
-theorem pgl_mulEquiv_psl : Nonempty (PGL p ≃* PSL p) := by
+/-- The projective general linear group `PGL₂(F)` over a field `F`, i.e. `GL₂(F)` modulo its
+centre. The development in `FLT.Slop.PGL2` works with this explicit quotient model throughout;
+it is definitionally equal to `Matrix.ProjGenLinGroup (Fin 2) F` (and hence, over `F = K p`, to
+the public `Dickson.PGL p`), but not reducibly so, which is why the proofs below are stated in
+terms of `PGLOf` rather than `Dickson.PGL`. -/
+abbrev PGLOf (F : Type*) [Field F] := GL (Fin 2) F ⧸ Subgroup.center (GL (Fin 2) F)
+
+theorem pgl_mulEquiv_psl : Nonempty (PGLOf (K p) ≃* PSL p) := by
   have h_sqrt : ∀ x : K p, ∃ c : K p, c ^ 2 = x := fun x ↦
     let ⟨y, hy⟩ := IsAlgClosed.exists_root (Polynomial.X ^ 2 - Polynomial.C x) (fun h ↦ by rw [Polynomial.degree_X_pow_sub_C (by norm_num)] at h; norm_num at h)
     ⟨y, by rw [Polynomial.IsRoot.def, Polynomial.eval_sub, Polynomial.eval_pow, Polynomial.eval_X, Polynomial.eval_C, sub_eq_zero] at hy; exact hy⟩
 
-  let f : PSL p →* PGL p := QuotientGroup.lift (Subgroup.center _)
+  let f : PSL p →* PGLOf (K p) := QuotientGroup.lift (Subgroup.center _)
     (MonoidHom.comp (QuotientGroup.mk' _) Matrix.SpecialLinearGroup.toGL) (by
       intro x hx
       change QuotientGroup.mk (Matrix.SpecialLinearGroup.toGL x) = 1
@@ -170,7 +179,7 @@ abbrev ProjectiveLine : Type := Projectivization (K p) (Fin 2 → K p)
 @[reducible] def glActionProjectiveLine : MulAction (GL (Fin 2) (K p)) (ProjectiveLine p) :=
   Projectivization.instMulAction
 
-instance : SMul (PGL p) (ProjectiveLine p) where
+instance : SMul (PGLOf (K p)) (ProjectiveLine p) where
   smul := Quotient.lift (fun g x ↦ g • x) (by
     intro g₁ g₂ h
     funext x
@@ -188,17 +197,12 @@ instance : SMul (PGL p) (ProjectiveLine p) where
       rw [show (g₁⁻¹ * g₂).val = algebraMap (K p) (Matrix (Fin 2) (Fin 2) (K p)) (↑u : K p) from congr_arg Units.val hu.symm]
       rw [Algebra.algebraMap_eq_smul_one, Matrix.smul_mulVec, Matrix.one_mulVec])
 
-instance : MulAction (PGL p) (ProjectiveLine p) where
+instance : MulAction (PGLOf (K p)) (ProjectiveLine p) where
   one_smul x := (glActionProjectiveLine p).one_smul x
   mul_smul g₁ g₂ x := by
     induction g₁ using QuotientGroup.induction_on
     induction g₂ using QuotientGroup.induction_on
     exact (glActionProjectiveLine p).mul_smul _ _ x
-
-/-- The projective general linear group `PGL₂(F)` over a field `F`, i.e. `GL₂(F)` modulo its
-centre. -/
-abbrev PGLOf (F : Type*) [Field F] := GL (Fin 2) F ⧸ Subgroup.center (GL (Fin 2) F)
-
 
 /-- The group homomorphism `PGL₂(F) → PGL₂(L)` induced by a ring homomorphism `f : F →+* L`. -/
 def pglMap {F L : Type*} [Field F] [Field L] (f : F →+* L) : PGLOf F →* PGLOf L :=
@@ -264,10 +268,10 @@ theorem finite_of_closure_finite (S : Set (K p)) (hS : S.Finite) : Finite (Subfi
     change (f x).val = (f y).val
     rw [h]))
 
-theorem exists_finite_subfield_conjugate (G : Subgroup (PGL p)) [Finite G] :
-    ∃ (L : Subfield (K p)) (g : PGL p),
+theorem exists_finite_subfield_conjugate (G : Subgroup (PGLOf (K p))) [Finite G] :
+    ∃ (L : Subfield (K p)) (g : PGLOf (K p)),
       Subgroup.map (MulAut.conj g) G ≤ (pglMap (Subfield.subtype L)).range := by
-  choose f hf using fun g : PGL p ↦ QuotientGroup.mk_surjective g
+  choose f hf using fun g : PGLOf (K p) ↦ QuotientGroup.mk_surjective g
   haveI : Fintype G := Fintype.ofFinite G
   let S : Finset (GL (Fin 2) (K p)) := Finset.univ.image (fun x : G ↦ f x.val)
 
@@ -280,9 +284,9 @@ theorem exists_finite_subfield_conjugate (G : Subgroup (PGL p)) [Finite G] :
   have hL_mem : ∀ g ∈ S, ∀ i j, g.val i j ∈ L := fun g hg i j ↦
     Subfield.subset_closure (Set.mem_iUnion₂.mpr ⟨g, hg, Set.mem_range_self (i, j)⟩)
 
-  refine ⟨L, (1 : PGL p), ?_⟩
+  refine ⟨L, (1 : PGLOf (K p)), ?_⟩
   rintro _ ⟨x, hx, rfl⟩
-  erw [show (MulAut.conj (1 : PGL p)) x = x by rw [MulAut.conj_apply, inv_one, mul_one, one_mul]]
+  erw [show (MulAut.conj (1 : PGLOf (K p))) x = x by rw [MulAut.conj_apply, inv_one, mul_one, one_mul]]
 
   have h_range : f x ∈ (Matrix.GeneralLinearGroup.map (Subfield.subtype L)).range := by
     have hf_in : f x ∈ S := Finset.mem_image.mpr ⟨⟨x, hx⟩, Finset.mem_univ _, rfl⟩
@@ -299,8 +303,8 @@ theorem exists_finite_subfield_conjugate (G : Subgroup (PGL p)) [Finite G] :
   obtain ⟨y', hy'⟩ := h_range
   exact ⟨QuotientGroup.mk y', (congr_arg QuotientGroup.mk hy').trans (hf x)⟩
 
-/-- The set of fixed points of the action of `g : PGL p` on the projective line `ℙ¹(K p)`. -/
-def fixedPoints (g : PGL p) : Set (ProjectiveLine p) := Function.fixedPoints (fun x ↦ g • x)
+/-- The set of fixed points of the action of `g : PGLOf (K p)` on the projective line `ℙ¹(K p)`. -/
+def fixedPoints (g : PGLOf (K p)) : Set (ProjectiveLine p) := Function.fixedPoints (fun x ↦ g • x)
 
 theorem fixedPoints_lift (g : GL (Fin 2) (K p)) (x : ProjectiveLine p) :
     x ∈ fixedPoints p (QuotientGroup.mk g) ↔ ∃ c : K p, g.val.mulVec x.rep = c • x.rep := by
@@ -628,8 +632,8 @@ theorem ncard_fixedPoints_eq_one_of_discrim_zero (g : GL (Fin 2) (K p)) (hg : ¬
 
 theorem orderOf_coprime_of_discrim_ne_zero (g : GL (Fin 2) (K p))
     (h_discr : (g.val.trace)^2 ≠ 4 * g.val.det)
-        (h_fin : IsOfFinOrder (QuotientGroup.mk g : PGL p)) :
-    p.Coprime (orderOf (QuotientGroup.mk g : PGL p)) := by
+        (h_fin : IsOfFinOrder (QuotientGroup.mk g : PGLOf (K p))) :
+    p.Coprime (orderOf (QuotientGroup.mk g : PGLOf (K p))) := by
   let f : Polynomial (K p) := Polynomial.X^2 - Polynomial.C g.val.trace * Polynomial.X + Polynomial.C g.val.det
   have h_deg : f.degree ≠ 0 := fun h ↦ by
     have h1 : f.coeff 2 = 1 := by
@@ -786,9 +790,9 @@ theorem orderOf_coprime_of_discrim_ne_zero (g : GL (Fin 2) (K p))
       _ = (P.val * Y.val) * (P⁻¹).val := by rw [h_diag]
       _ = (P * Y * P⁻¹).val := rfl
 
-  have h_order_eq : orderOf (QuotientGroup.mk g : PGL p) = orderOf (QuotientGroup.mk Y : PGL p) := by
-    have h_semi : SemiconjBy (QuotientGroup.mk P : PGL p) (QuotientGroup.mk Y : PGL p) (QuotientGroup.mk g : PGL p) := by
-      change (QuotientGroup.mk (P * Y) : PGL p) = QuotientGroup.mk (g * P)
+  have h_order_eq : orderOf (QuotientGroup.mk g : PGLOf (K p)) = orderOf (QuotientGroup.mk Y : PGLOf (K p)) := by
+    have h_semi : SemiconjBy (QuotientGroup.mk P : PGLOf (K p)) (QuotientGroup.mk Y : PGLOf (K p)) (QuotientGroup.mk g : PGLOf (K p)) := by
+      change (QuotientGroup.mk (P * Y) : PGLOf (K p)) = QuotientGroup.mk (g * P)
       have h_eq : P * Y = g * P := by
         calc P * Y = P * Y * 1 := by rw [mul_one]
           _ = P * Y * (P⁻¹ * P) := by rw [inv_mul_cancel]
@@ -797,10 +801,10 @@ theorem orderOf_coprime_of_discrim_ne_zero (g : GL (Fin 2) (K p))
       rw [h_eq]
     exact h_semi.orderOf_eq.symm
 
-  have h_order_eq2 : orderOf (QuotientGroup.mk Y : PGL p) = orderOf (lambda1 / lambda2 : K p) := by
+  have h_order_eq2 : orderOf (QuotientGroup.mk Y : PGLOf (K p)) = orderOf (lambda1 / lambda2 : K p) := by
     rw [orderOf_eq_orderOf_iff]
     intro n
-    rw [show (QuotientGroup.mk Y : PGL p) ^ n = QuotientGroup.mk (Y ^ n) from rfl, QuotientGroup.eq_one_iff, Subgroup.mem_center_iff]
+    rw [show (QuotientGroup.mk Y : PGLOf (K p)) ^ n = QuotientGroup.mk (Y ^ n) from rfl, QuotientGroup.eq_one_iff, Subgroup.mem_center_iff]
     have hl2_ne : lambda2 ≠ 0 := by
       intro hc
       exact g.isUnit.map Matrix.detMonoidHom |>.ne_zero (show g.val.det = 0 by rw [← hlambda2.2, hc, mul_zero])
@@ -885,7 +889,7 @@ theorem orderOf_coprime_of_discrim_ne_zero (g : GL (Fin 2) (K p))
 variable [h_odd : Fact (p > 2)]
 
 theorem orderOf_eq_prime_of_discrim_zero (g : GL (Fin 2) (K p)) (hg : ¬ ∃ c : K p, g.val = c • 1)
-    (h_discr : (g.val.trace)^2 = 4 * g.val.det) : orderOf (QuotientGroup.mk g : PGL p) = p := by
+    (h_discr : (g.val.trace)^2 = 4 * g.val.det) : orderOf (QuotientGroup.mk g : PGLOf (K p)) = p := by
   let eig := g.val.trace / 2
   let N := g.val - eig • 1
 
@@ -981,7 +985,7 @@ theorem orderOf_eq_prime_of_discrim_zero (g : GL (Fin 2) (K p)) (hg : ¬ ∃ c :
     · rw [smul_pow, one_pow, pow_eq_zero_of_le (Fact.out : p.Prime).two_le hN2, add_zero]
     · rw [← Algebra.algebraMap_eq_smul_one]
       exact Algebra.commute_algebraMap_left eig N
-  have h_ne_one : (QuotientGroup.mk g : PGL p) ≠ 1 := by
+  have h_ne_one : (QuotientGroup.mk g : PGLOf (K p)) ≠ 1 := by
     rw [Ne, QuotientGroup.eq_one_iff, Subgroup.mem_center_iff]
     contrapose! hg; refine ⟨g.val 0 0, Matrix.ext fun i j ↦ ?_⟩
     let E1 := Matrix.GeneralLinearGroup.mkOfDetNeZero (!![1, 1; 0,
@@ -1038,7 +1042,7 @@ theorem orderOf_eq_prime_of_discrim_zero (g : GL (Fin 2) (K p)) (hg : ¬ ∃ c :
       calc g.val 1 1 = g.val 0 0 := h00_11
         _ = g.val 0 0 * 1 := by ring
         _ = g.val 0 0 * (1 : Matrix (Fin 2) (Fin 2) (K p)) 1 1 := rfl
-  have h_pow_one : (QuotientGroup.mk g : PGL p) ^ p = 1 := by
+  have h_pow_one : (QuotientGroup.mk g : PGLOf (K p)) ^ p = 1 := by
     rw [← QuotientGroup.mk_pow, QuotientGroup.eq_one_iff, Subgroup.mem_center_iff]
     intro x
     apply Units.ext
@@ -1047,7 +1051,7 @@ theorem orderOf_eq_prime_of_discrim_zero (g : GL (Fin 2) (K p)) (hg : ¬ ∃ c :
 
   exact orderOf_eq_prime h_pow_one h_ne_one
 
-theorem fixedPoints_dichotomy (s : PGL p) (hs_ne_one : s ≠ 1) (hs_fin : IsOfFinOrder s) :
+theorem fixedPoints_dichotomy (s : PGLOf (K p)) (hs_ne_one : s ≠ 1) (hs_fin : IsOfFinOrder s) :
     (Set.ncard (fixedPoints p s) = 1 ↔ orderOf s = p) ∧
     (Set.ncard (fixedPoints p s) = 2 ↔ p.Coprime (orderOf s)) := by
   obtain ⟨g, rfl⟩ := QuotientGroup.mk_surjective s
@@ -1084,16 +1088,16 @@ theorem fixedPoints_dichotomy (s : PGL p) (hs_ne_one : s ≠ 1) (hs_fin : IsOfFi
       exact h_not_coprime ho
 
 omit h_odd in
-theorem fixedPoint_of_center_unique (P : Subgroup (PGL p)) (z : P) (x : ProjectiveLine p)
+theorem fixedPoint_of_center_unique (P : Subgroup (PGLOf (K p))) (z : P) (x : ProjectiveLine p)
     (hz_center : z ∈ Subgroup.center P) (hz_fix : z • x = x)
     (hz_unique : ∀ y : ProjectiveLine p, z • y = y → y = x) :
     ∀ g : P, g • x = x := fun g ↦
   hz_unique _ <| by rw [← mul_smul, ← Subgroup.mem_center_iff.mp hz_center g, mul_smul, hz_fix]
 
-theorem isPGroup_exists_common_fixedPoint (P : Subgroup (PGL p)) (hP_fin : Finite P)
+theorem isPGroup_exists_common_fixedPoint (P : Subgroup (PGLOf (K p))) (hP_fin : Finite P)
     (hP_p : IsPGroup p P) :
     ∃ x : ProjectiveLine p, ∀ g ∈ P, g • x = x := by
-  by_cases h_trivial : ∀ g ∈ P, g = (1 : PGL p)
+  by_cases h_trivial : ∀ g ∈ P, g = (1 : PGLOf (K p))
   · exact ⟨Classical.arbitrary _, fun g hg ↦ by rw [h_trivial g hg, one_smul]⟩
   · push Not at h_trivial
     obtain ⟨g_ne, hg_mem, hg_ne_one⟩ := h_trivial
@@ -1114,36 +1118,36 @@ theorem isPGroup_exists_common_fixedPoint (P : Subgroup (PGL p)) (hP_fin : Finit
       rw [orderOf_pow, hk, Nat.gcd_eq_right (pow_dvd_pow p (Nat.le_succ m)), pow_add, pow_one]
       exact Nat.mul_div_cancel_left _ (pow_pos (Nat.Prime.pos Fact.out) m)
 
-    have hz_val_order : orderOf (z_p : PGL p) = p :=
+    have hz_val_order : orderOf (z_p : PGLOf (K p)) = p :=
       (Subgroup.orderOf_coe z_p).trans hz_p_order
 
-    have hz_ne_one_val : (z_p : PGL p) ≠ 1 := fun h ↦
+    have hz_ne_one_val : (z_p : PGLOf (K p)) ≠ 1 := fun h ↦
       (Fact.out : Nat.Prime p).ne_one <| by
         rw [h, orderOf_one] at hz_val_order
         exact hz_val_order.symm
 
-    have hz_fin_order : IsOfFinOrder (z_p : PGL p) :=
+    have hz_fin_order : IsOfFinOrder (z_p : PGLOf (K p)) :=
       orderOf_pos_iff.mp <| by
         rw [hz_val_order]
         exact (Fact.out : Nat.Prime p).pos
 
     obtain ⟨x, hx_eq⟩ := Set.ncard_eq_one.mp <|
-      (fixedPoints_dichotomy p (z_p : PGL p) hz_ne_one_val hz_fin_order).1.mpr hz_val_order
+      (fixedPoints_dichotomy p (z_p : PGLOf (K p)) hz_ne_one_val hz_fin_order).1.mpr hz_val_order
 
     exact ⟨x, fun g hg ↦
       fixedPoint_of_center_unique p P z_p x
         (Subgroup.pow_mem _ hz_center _)
-        (hx_eq.symm ▸ Set.mem_singleton x : x ∈ fixedPoints p (z_p : PGL p))
-        (fun y hy ↦ Set.mem_singleton_iff.mp (hx_eq ▸ (hy : y ∈ fixedPoints p (z_p : PGL p))))
+        (hx_eq.symm ▸ Set.mem_singleton x : x ∈ fixedPoints p (z_p : PGLOf (K p)))
+        (fun y hy ↦ Set.mem_singleton_iff.mp (hx_eq ▸ (hy : y ∈ fixedPoints p (z_p : PGLOf (K p)))))
         ⟨g, hg⟩⟩
 
-theorem orderOf_eq_prime_of_prime_pow (g : PGL p) (k : ℕ) (hk : k ≥ 1)
+theorem orderOf_eq_prime_of_prime_pow (g : PGLOf (K p)) (k : ℕ) (hk : k ≥ 1)
     (hg : orderOf g = p ^ k) : orderOf g = p := by
   obtain ⟨g', rfl⟩ := QuotientGroup.mk_surjective g
 
   have h_non_scalar : ¬∃ c : K p, g'.val = c • 1 := by
     rintro ⟨c, hc⟩
-    have h_one : (QuotientGroup.mk g' : PGL p) = 1 := (QuotientGroup.eq_one_iff g').mpr
+    have h_one : (QuotientGroup.mk g' : PGLOf (K p)) = 1 := (QuotientGroup.eq_one_iff g').mpr
       (Subgroup.mem_center_iff.mpr fun x ↦ Units.ext <| by
         change x.val * g'.val = g'.val * x.val
         rw [hc, mul_smul_comm, smul_mul_assoc, mul_one, one_mul])
@@ -1159,8 +1163,8 @@ theorem orderOf_eq_prime_of_prime_pow (g : PGL p) (k : ℕ) (hk : k ≥ 1)
     exact absurd (h_gcd_eq_p.symm.trans <| hg ▸ h_coprime) (Fact.out : Nat.Prime p).ne_one
 
 @[nolint unusedArguments]
-theorem isPGroup_orderOf_eq_prime (P : Subgroup (PGL p)) [Finite P] (hP_p : IsPGroup p P) (g : P)
-    (hg : g ≠ 1) : orderOf (g : PGL p) = p := by
+theorem isPGroup_orderOf_eq_prime (P : Subgroup (PGLOf (K p))) [Finite P] (hP_p : IsPGroup p P) (g : P)
+    (hg : g ≠ 1) : orderOf (g : PGLOf (K p)) = p := by
   obtain ⟨_, hk_orig⟩ := hP_p g
   obtain ⟨k, -, hk⟩ := (Nat.dvd_prime_pow Fact.out).mp (orderOf_dvd_iff_pow_eq_one.mpr hk_orig)
 
@@ -1170,13 +1174,13 @@ theorem isPGroup_orderOf_eq_prime (P : Subgroup (PGL p)) [Finite P] (hP_p : IsPG
     rw [h_zero, pow_zero] at hk
     exact hg (orderOf_eq_one_iff.mp hk)
 
-  have hg_val_order : orderOf (g : PGL p) = p ^ k := by
+  have hg_val_order : orderOf (g : PGLOf (K p)) = p ^ k := by
     rw [Subgroup.orderOf_coe]
     exact hk
 
-  exact orderOf_eq_prime_of_prime_pow p (g : PGL p) k hk_pos hg_val_order
+  exact orderOf_eq_prime_of_prime_pow p (g : PGLOf (K p)) k hk_pos hg_val_order
 
-theorem isPGroup_exponent_dvd_prime (P : Subgroup (PGL p)) [Finite P] (hP_p : IsPGroup p P) :
+theorem isPGroup_exponent_dvd_prime (P : Subgroup (PGLOf (K p))) [Finite P] (hP_p : IsPGroup p P) :
     Monoid.exponent P ∣ p := by
   refine Monoid.exponent_dvd_of_forall_pow_eq_one fun g ↦ ?_
   by_cases hg : g = 1
@@ -1195,7 +1199,7 @@ def infinity : ProjectiveLine p := Projectivization.mk (K p) ![1,
     0] (fun h ↦ one_ne_zero (congr_fun h 0))
 
 omit h_odd in
-theorem fixesInfinity_iff_upperTriangular (g : PGL p) :
+theorem fixesInfinity_iff_upperTriangular (g : PGLOf (K p)) :
     g • (infinity p) = (infinity p) ↔ ∃ (a b d : K p) (h : a * d ≠ 0),
         g = QuotientGroup.mk (Matrix.GeneralLinearGroup.mkOfDetNeZero !![a, b; 0,
             d] (by rw [Matrix.det_fin_two]; change a * d - b * 0 ≠ 0; rw [mul_zero, sub_zero]; exact h)) := by
@@ -1250,7 +1254,7 @@ omit h_odd in
 theorem upper_triangular_ratio_unique
     (a₁ b₁ d₁ a₂ b₂ d₂ : K p) (h₁ : a₁ * d₁ ≠ 0) (h₂ : a₂ * d₂ ≠ 0)
     (heq : (QuotientGroup.mk (Matrix.GeneralLinearGroup.mkOfDetNeZero !![a₁, b₁; 0, d₁]
-      (by rw [Matrix.det_fin_two]; change a₁ * d₁ - b₁ * 0 ≠ 0; rw [mul_zero, sub_zero]; exact h₁)) : PGL p) =
+      (by rw [Matrix.det_fin_two]; change a₁ * d₁ - b₁ * 0 ≠ 0; rw [mul_zero, sub_zero]; exact h₁)) : PGLOf (K p)) =
      QuotientGroup.mk (Matrix.GeneralLinearGroup.mkOfDetNeZero !![a₂, b₂; 0, d₂]
       (by rw [Matrix.det_fin_two]; change a₂ * d₂ - b₂ * 0 ≠ 0; rw [mul_zero, sub_zero]; exact h₂))) :
     a₁ * d₁⁻¹ = a₂ * d₂⁻¹ := by
@@ -1286,12 +1290,12 @@ omit h_odd in
 theorem upper_triangular_mul_ratio
     (a₁ b₁ d₁ a₂ b₂ d₂ : K p) (h₁ : a₁ * d₁ ≠ 0) (h₂ : a₂ * d₂ ≠ 0) :
     (QuotientGroup.mk (Matrix.GeneralLinearGroup.mkOfDetNeZero !![a₁, b₁; 0, d₁]
-      (by rw [Matrix.det_fin_two]; change a₁ * d₁ - b₁ * 0 ≠ 0; rw [mul_zero, sub_zero]; exact h₁)) : PGL p) *
+      (by rw [Matrix.det_fin_two]; change a₁ * d₁ - b₁ * 0 ≠ 0; rw [mul_zero, sub_zero]; exact h₁)) : PGLOf (K p)) *
      QuotientGroup.mk (Matrix.GeneralLinearGroup.mkOfDetNeZero !![a₂, b₂; 0, d₂]
       (by rw [Matrix.det_fin_two]; change a₂ * d₂ - b₂ * 0 ≠ 0; rw [mul_zero, sub_zero]; exact h₂)) =
      QuotientGroup.mk (Matrix.GeneralLinearGroup.mkOfDetNeZero !![a₁ * a₂, a₁ * b₂ + b₁ * d₂; 0, d₁ * d₂]
       (by rw [Matrix.det_fin_two]; change (a₁ * a₂) * (d₁ * d₂) - (a₁ * b₂ + b₁ * d₂) * 0 ≠ 0; rw [mul_zero, sub_zero]; rw [show (a₁ * a₂) * (d₁ * d₂) = (a₁ * d₁) * (a₂ * d₂) by ring]; exact mul_ne_zero h₁ h₂)) := by
-  refine congr_arg (fun x ↦ (QuotientGroup.mk x : PGL p)) ?_
+  refine congr_arg (fun x ↦ (QuotientGroup.mk x : PGLOf (K p))) ?_
   ext i j
   change ( !![a₁, b₁; 0, d₁] * !![a₂, b₂; 0, d₂] ) i j = _
   rw [Matrix.mul_apply, Fin.sum_univ_two]
@@ -1305,14 +1309,14 @@ theorem upper_triangular_mul_ratio
 theorem ratio_one_imp_unipotent
     (a b d : K p) (h : a * d ≠ 0) (hr : a * d⁻¹ = 1) :
     orderOf (QuotientGroup.mk (Matrix.GeneralLinearGroup.mkOfDetNeZero !![a, b; 0, d]
-      (by rw [Matrix.det_fin_two]; change a * d - b * 0 ≠ 0; rw [mul_zero, sub_zero]; exact h)) : PGL p) = 1 ∨
+      (by rw [Matrix.det_fin_two]; change a * d - b * 0 ≠ 0; rw [mul_zero, sub_zero]; exact h)) : PGLOf (K p)) = 1 ∨
     orderOf (QuotientGroup.mk (Matrix.GeneralLinearGroup.mkOfDetNeZero !![a, b; 0, d]
-      (by rw [Matrix.det_fin_two]; change a * d - b * 0 ≠ 0; rw [mul_zero, sub_zero]; exact h)) : PGL p) = p := by
+      (by rw [Matrix.det_fin_two]; change a * d - b * 0 ≠ 0; rw [mul_zero, sub_zero]; exact h)) : PGLOf (K p)) = p := by
   have ha : a ≠ 0 := fun ha_eq ↦ h (by rw [ha_eq, zero_mul])
   have h_eq : a = d := eq_of_div_eq_one hr
   let Y := Matrix.GeneralLinearGroup.mkOfDetNeZero !![a, b; 0, d] (by rw [Matrix.det_fin_two]; change a * d - b * 0 ≠ 0; rw [mul_zero, sub_zero]; exact h)
   let X := Matrix.GeneralLinearGroup.mkOfDetNeZero !![1, b * a⁻¹; 0, 1] (by rw [Matrix.det_fin_two]; change 1 * 1 - (b * a⁻¹) * 0 ≠ 0; rw [mul_zero, sub_zero, mul_one]; exact one_ne_zero)
-  have h_simplified : (QuotientGroup.mk Y : PGL p) = QuotientGroup.mk X := by
+  have h_simplified : (QuotientGroup.mk Y : PGLOf (K p)) = QuotientGroup.mk X := by
     rw [QuotientGroup.eq, Matrix.GeneralLinearGroup.mem_center_iff_val_mem_range_scalar]
     use a⁻¹
     have h_mat : X.val = Y.val * Matrix.scalar (Fin 2) a⁻¹ := by
@@ -1346,7 +1350,7 @@ theorem ratio_one_imp_unipotent
       change (1 + 1 : K p)^2 = 4 * (1 * 1 - (b * a⁻¹) * 0)
       ring
 
-theorem isUnipotent_of_fixesInfinity_orderOf (g : PGL p) (h_fix : g • (infinity p) = (infinity p))
+theorem isUnipotent_of_fixesInfinity_orderOf (g : PGLOf (K p)) (h_fix : g • (infinity p) = (infinity p))
     (h_order : orderOf g = p) :
   ∃ x : K p, g = QuotientGroup.mk (Matrix.GeneralLinearGroup.mkOfDetNeZero !![1, x; 0,
       1] (by rw [Matrix.det_fin_two]; change (1 : K p) * 1 - x * 0 ≠ 0; rw [mul_one, mul_zero,
@@ -1427,7 +1431,7 @@ theorem isUnipotent_of_fixesInfinity_orderOf (g : PGL p) (h_fix : g • (infinit
 
 omit h_odd in
 theorem exists_smul_eq_infinity (x : ProjectiveLine p) :
-    ∃ k : PGL p, k • x = infinity p := by
+    ∃ k : PGLOf (K p), k • x = infinity p := by
   set v := x.rep
   obtain ⟨A, hAdet, hAv⟩ : ∃ A : Matrix (Fin 2) (Fin 2) (K p), A.det ≠ 0 ∧ A.mulVec v = ![1, 0] := by
     by_cases hv0 : v 0 = 0
@@ -1466,7 +1470,7 @@ theorem exists_smul_eq_infinity (x : ProjectiveLine p) :
   rw [← Projectivization.mk_rep x]
   exact (Projectivization.mk_eq_mk_iff (K p) _ _ _ _).mpr ⟨1, by rw [one_smul]; exact hAv.symm⟩
 
-theorem commute_of_orderOf_prime_fixesInfinity (g h : PGL p) (hg_order : orderOf g = p)
+theorem commute_of_orderOf_prime_fixesInfinity (g h : PGLOf (K p)) (hg_order : orderOf g = p)
     (hh_order : orderOf h = p) (hg_fix : g • (infinity p) = (infinity p))
         (hh_fix : h • (infinity p) = (infinity p)) :
     g * h = h * g := by
@@ -1486,12 +1490,12 @@ theorem commute_of_orderOf_prime_fixesInfinity (g h : PGL p) (hg_order : orderOf
   | 1, 0 => change (0 * 1 + 1 * 0 : K p) = 0 * 1 + 1 * 0; ring
   | 1, 1 => change (0 * y + 1 * 1 : K p) = 0 * x + 1 * 1; ring
 
-theorem commute_of_orderOf_prime_common_fixedPoint (g h : PGL p) (x : ProjectiveLine p)
+theorem commute_of_orderOf_prime_common_fixedPoint (g h : PGLOf (K p)) (x : ProjectiveLine p)
     (hg_order : orderOf g = p) (hh_order : orderOf h = p) (hg_fix : g • x = x)
         (hh_fix : h • x = x) :
     g * h = h * g := by
   obtain ⟨k, hk⟩ := exists_smul_eq_infinity p x
-  have order_conj_eq : ∀ y : PGL p, orderOf (k * y * k⁻¹) = orderOf y := fun y ↦
+  have order_conj_eq : ∀ y : PGLOf (K p), orderOf (k * y * k⁻¹) = orderOf y := fun y ↦
     SemiconjBy.orderOf_eq k⁻¹
         (show SemiconjBy k⁻¹ (k * y * k⁻¹) y by change k⁻¹ * (k * y * k⁻¹) = y * k⁻¹; group)
   have h_comm := commute_of_orderOf_prime_fixesInfinity p (k * g * k⁻¹) (k * h * k⁻¹)
@@ -1503,7 +1507,7 @@ theorem commute_of_orderOf_prime_common_fixedPoint (g h : PGL p) (x : Projective
     _ = k⁻¹ * ((k * h * k⁻¹) * (k * g * k⁻¹)) * k := by rw [h_comm]
     _ = h * g := by group
 
-theorem isPGroup_comm_exponent_fixedPoint (P : Subgroup (PGL p)) [Finite P] (hP_p : IsPGroup p P)
+theorem isPGroup_comm_exponent_fixedPoint (P : Subgroup (PGLOf (K p))) [Finite P] (hP_p : IsPGroup p P)
     (hP_nontriv : Nontrivial P) :
     (∀ g h : P, g * h = h * g) ∧
     (Monoid.exponent P ∣ p) ∧

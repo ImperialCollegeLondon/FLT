@@ -13,7 +13,7 @@ public import FLT.Slop.PGL2.FiniteSubgroups.RecognitionA5
 /-!
 # The partition equation for wild finite subgroups of `PGL₂(𝔽̄_p)`
 
-Let `G` be a finite subgroup of `PGL p = PGL₂(𝔽̄_p)` with `p` dividing `|G|`. This file
+Let `G` be a finite subgroup of `PGLOf (K p) = PGL₂(𝔽̄_p)` with `p` dividing `|G|`. This file
 studies the set `Dickson.Phi G ⊆ ℙ¹(𝔽̄_p)` of fixed points of nontrivial elements
 of `G`, via a double-counting (Burnside/orbit-counting) argument on the action of `G`
 on `Phi G`.
@@ -53,18 +53,18 @@ variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]
 
 
 /-- The set of points on the projective line fixed by some non-identity element of `G`. -/
-def Phi (G : Subgroup (PGL p)) : Set (ProjectiveLine p) :=
-  ⋃ (g : G) (_ : g ≠ 1), {x : ProjectiveLine p | (g : PGL p) • x = x}
+def Phi (G : Subgroup (PGLOf (K p))) : Set (ProjectiveLine p) :=
+  ⋃ (g : G) (_ : g ≠ 1), {x : ProjectiveLine p | (g : PGLOf (K p)) • x = x}
 
 
-lemma Phi_finite (G : Subgroup (PGL p)) [Finite G] : (Phi p G).Finite := by
+lemma Phi_finite (G : Subgroup (PGLOf (K p))) [Finite G] : (Phi p G).Finite := by
   refine' Set.Finite.biUnion (Set.toFinite _) fun g hg ↦ _
-  have h_order : IsOfFinOrder (g : PGL p) := by
+  have h_order : IsOfFinOrder (g : PGLOf (K p)) := by
     obtain ⟨n, hn_pos, hn_eq⟩ := isOfFinOrder_iff_pow_eq_one.mp (isOfFinOrder_of_finite g)
     exact isOfFinOrder_iff_pow_eq_one.mpr ⟨n, hn_pos, Subtype.ext_iff.mp hn_eq⟩
-  have h_dichotomy := fixedPoints_dichotomy p (g : PGL p) (fun h ↦ hg (Subtype.ext h)) h_order
-  have h_ncard_pos : 0 < Set.ncard {x : ProjectiveLine p | (g : PGL p) • x = x} := by
-    change 0 < Set.ncard (fixedPoints p (g : PGL p))
+  have h_dichotomy := fixedPoints_dichotomy p (g : PGLOf (K p)) (fun h ↦ hg (Subtype.ext h)) h_order
+  have h_ncard_pos : 0 < Set.ncard {x : ProjectiveLine p | (g : PGLOf (K p)) • x = x} := by
+    change 0 < Set.ncard (fixedPoints p (g : PGLOf (K p)))
     rcases element_dichotomy p G g with hp | hcoprime
     · rw [h_dichotomy.1.mpr hp]
       norm_num
@@ -73,8 +73,8 @@ lemma Phi_finite (G : Subgroup (PGL p)) [Finite G] : (Phi p G).Finite := by
   exact Set.finite_of_ncard_pos h_ncard_pos
 
 omit h_odd in
-lemma Phi_smul_mem (G : Subgroup (PGL p)) (h : G) {x : ProjectiveLine p}
-    (hx : x ∈ Phi p G) : (h : PGL p) • x ∈ Phi p G := by
+lemma Phi_smul_mem (G : Subgroup (PGLOf (K p))) (h : G) {x : ProjectiveLine p}
+    (hx : x ∈ Phi p G) : (h : PGLOf (K p)) • x ∈ Phi p G := by
   simp only [Phi, Set.mem_iUnion, Set.mem_setOf_eq] at hx ⊢
   obtain ⟨g, hg_ne, hgx⟩ := hx
   exact ⟨h * g * h⁻¹,
@@ -85,19 +85,19 @@ lemma Phi_smul_mem (G : Subgroup (PGL p)) (h : G) {x : ProjectiveLine p}
 
 
 /-- The subtype of points on the projective line fixed by some non-identity element of `G`. -/
-abbrev PhiType (G : Subgroup (PGL p)) := ↥(Phi p G)
+abbrev PhiType (G : Subgroup (PGLOf (K p))) := ↥(Phi p G)
 
-noncomputable instance phiFintype (G : Subgroup (PGL p)) [Finite G] :
+noncomputable instance phiFintype (G : Subgroup (PGLOf (K p))) [Finite G] :
     Fintype (PhiType p G) := (Phi_finite p G).fintype
 
 
-instance phiMulAction (G : Subgroup (PGL p)) : MulAction G (PhiType p G) where
-  smul h x := ⟨(h : PGL p) • x.val, Phi_smul_mem p G h x.prop⟩
-  one_smul x := Subtype.ext (one_smul (PGL p) x.val)
-  mul_smul g₁ g₂ x := Subtype.ext (mul_smul (g₁ : PGL p) (g₂ : PGL p) x.val)
+instance phiMulAction (G : Subgroup (PGLOf (K p))) : MulAction G (PhiType p G) where
+  smul h x := ⟨(h : PGLOf (K p)) • x.val, Phi_smul_mem p G h x.prop⟩
+  one_smul x := Subtype.ext (one_smul (PGLOf (K p)) x.val)
+  mul_smul g₁ g₂ x := Subtype.ext (mul_smul (g₁ : PGLOf (K p)) (g₂ : PGLOf (K p)) x.val)
 
 
-lemma sylow_fixedPt_mem_Phi (G : Subgroup (PGL p)) [Finite G]
+lemma sylow_fixedPt_mem_Phi (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
     sylowFixedPoint p G hG_p P ∈ Phi p G := by
   obtain ⟨g, hg_mem, hg_ne⟩ : ∃ g : G, g ∈ (P : Subgroup G) ∧ g ≠ 1 := by
@@ -108,18 +108,18 @@ lemma sylow_fixedPt_mem_Phi (G : Subgroup (PGL p)) [Finite G]
   exact Set.mem_iUnion₂.mpr ⟨g, hg_ne, sylow_element_fixes p G hG_p P g hg_mem⟩
 
 
-lemma Phi_card_le (G : Subgroup (PGL p)) [Finite G] :
+lemma Phi_card_le (G : Subgroup (PGLOf (K p))) [Finite G] :
     Fintype.card (PhiType p G) ≤ 2 * (Nat.card G - 1) := by
 
-  have h_fixed : ∀ (g : G), g ≠ 1 → Set.ncard {x : ProjectiveLine p | (g : PGL p) • x = x} ≤ 2 := by
+  have h_fixed : ∀ (g : G), g ≠ 1 → Set.ncard {x : ProjectiveLine p | (g : PGLOf (K p)) • x = x} ≤ 2 := by
     intro g hg
-    have h_dich := fixedPoints_dichotomy p (g : PGL p) (fun h ↦ hg (Subtype.ext h)) (Submonoid.isOfFinOrder_coe.mpr (isOfFinOrder_of_finite g))
+    have h_dich := fixedPoints_dichotomy p (g : PGLOf (K p)) (fun h ↦ hg (Subtype.ext h)) (Submonoid.isOfFinOrder_coe.mpr (isOfFinOrder_of_finite g))
     rcases element_dichotomy p G g with hp | hcop
     · exact (h_dich.1.mpr hp).symm ▸ by norm_num
     · exact (h_dich.2.mpr hcop.symm).symm ▸ le_rfl
 
   have h_card : ∀ s : Finset G, 1 ∉ s →
-      Set.ncard (⋃ g ∈ (s : Set G), {x : ProjectiveLine p | (g : PGL p) • x = x}) ≤ 2 * s.card := by
+      Set.ncard (⋃ g ∈ (s : Set G), {x : ProjectiveLine p | (g : PGLOf (K p)) • x = x}) ≤ 2 * s.card := by
     intro s
     induction s using Finset.induction with
     | empty =>
@@ -133,7 +133,7 @@ lemma Phi_card_le (G : Subgroup (PGL p)) [Finite G] :
 
   rw [← Nat.card_eq_fintype_card]
   change Set.ncard (Phi p G) ≤ _
-  have h_phi : Phi p G = ⋃ g ∈ (Finset.univ.erase (1 : G) : Set G), {x | (g : PGL p) • x = x} := by
+  have h_phi : Phi p G = ⋃ g ∈ (Finset.univ.erase (1 : G) : Set G), {x | (g : PGLOf (K p)) • x = x} := by
     ext x
     simp only [Phi, Set.mem_iUnion, Set.mem_setOf_eq, Finset.mem_coe, Finset.mem_erase, Finset.mem_univ, and_true, exists_prop]
   rw [h_phi]
@@ -142,7 +142,7 @@ lemma Phi_card_le (G : Subgroup (PGL p)) [Finite G] :
   rw [Finset.card_erase_of_mem (Finset.mem_univ (1 : G)), Finset.card_univ, ← Nat.card_eq_fintype_card] at h_bound
   exact h_bound
 
-theorem sylow_distinct_fixedPoints (G : Subgroup (PGL p)) [Finite G]
+theorem sylow_distinct_fixedPoints (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P Q : Sylow p G) (hPQ : P ≠ Q) :
     sylowFixedPoint p G hG_p P ≠ sylowFixedPoint p G hG_p Q := by
   intro h_eq
@@ -194,9 +194,9 @@ theorem sylow_distinct_fixedPoints (G : Subgroup (PGL p)) [Finite G]
 
   exact hPQ (Sylow.ext hQ_eq_P.symm)
 
-theorem fixes_sylowPoint_normalizes (G : Subgroup (PGL p)) [Finite G]
+theorem fixes_sylowPoint_normalizes (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G)
-    (g : G) (hg : (g : PGL p) • sylowFixedPoint p G hG_p P = sylowFixedPoint p G hG_p P) :
+    (g : G) (hg : (g : PGLOf (K p)) • sylowFixedPoint p G hG_p P = sylowFixedPoint p G hG_p P) :
     g ∈ Subgroup.normalizer ((P : Subgroup G) : Set G) := by
   rw [Subgroup.mem_normalizer_iff]
   have h_map : Subgroup.map (MulAut.conj g) (P : Subgroup G) = (P : Subgroup G) :=
@@ -223,9 +223,9 @@ theorem fixes_sylowPoint_normalizes (G : Subgroup (PGL p)) [Finite G]
     _ = y := by group]
   exact hy
 
-theorem stabilizer_sylowFixedPoint_eq_normalizer (G : Subgroup (PGL p)) [Finite G]
+theorem stabilizer_sylowFixedPoint_eq_normalizer (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
-    {g : G | (g : PGL p) • sylowFixedPoint p G hG_p P = sylowFixedPoint p G hG_p P} =
+    {g : G | (g : PGLOf (K p)) • sylowFixedPoint p G hG_p P = sylowFixedPoint p G hG_p P} =
     (Subgroup.normalizer ((P : Subgroup G) : Set G) : Set G) := by
   have h_norm := normalizer_stabilizes_fixedPoint p G P _
     (sylow_element_fixes p G hG_p P)
@@ -233,7 +233,7 @@ theorem stabilizer_sylowFixedPoint_eq_normalizer (G : Subgroup (PGL p)) [Finite 
   exact Set.ext fun g ↦ ⟨fixes_sylowPoint_normalizes p G hG_p P g, h_norm g⟩
 
 
-lemma sylow_fixedPt_injective (G : Subgroup (PGL p)) [Finite G]
+lemma sylow_fixedPt_injective (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) :
     Function.Injective (fun P : Sylow p G ↦
       (⟨sylowFixedPoint p G hG_p P, sylow_fixedPt_mem_Phi p G hG_p P⟩ : PhiType p G)) := by
@@ -242,10 +242,10 @@ lemma sylow_fixedPt_injective (G : Subgroup (PGL p)) [Finite G]
 
 
 
-lemma fixedBy_eq_fixedPoints (G : Subgroup (PGL p)) [Finite G]
+lemma fixedBy_eq_fixedPoints (G : Subgroup (PGLOf (K p))) [Finite G]
     (g : G) (hg : g ≠ 1) :
     Fintype.card (MulAction.fixedBy (PhiType p G) g) =
-    Set.ncard (fixedPoints p (g : PGL p)) := by
+    Set.ncard (fixedPoints p (g : PGLOf (K p))) := by
   rw [← Nat.card_eq_fintype_card, ← Nat.card_coe_set_eq]
   exact Nat.card_congr {
     toFun := fun x ↦ ⟨x.1.1, Subtype.ext_iff.mp x.2⟩
@@ -254,9 +254,9 @@ lemma fixedBy_eq_fixedPoints (G : Subgroup (PGL p)) [Finite G]
     right_inv := fun _ ↦ Subtype.ext rfl
   }
 
-theorem count_elements_order_p (G : Subgroup (PGL p)) [Finite G]
+theorem count_elements_order_p (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
-    Nat.card {g : G | g ≠ 1 ∧ orderOf (g : PGL p) = p} =
+    Nat.card {g : G | g ≠ 1 ∧ orderOf (g : PGLOf (K p)) = p} =
       Fintype.card (Sylow p G) * (Nat.card P - 1) := by
   rw [← count_order_p_elements p G hG_p P]
   congr with g
@@ -266,31 +266,31 @@ theorem count_elements_order_p (G : Subgroup (PGL p)) [Finite G]
   rw [orderOf_one] at h
   exact Nat.Prime.ne_one Fact.out h.symm
 
-lemma element_fixedPt_sum (G : Subgroup (PGL p)) [Finite G]
+lemma element_fixedPt_sum (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
     let _ : Fintype G := Fintype.ofFinite G
     ∑ g ∈ (Finset.univ : Finset G).erase 1,
-      Set.ncard (fixedPoints p ((g : G) : PGL p)) =
+      Set.ncard (fixedPoints p ((g : G) : PGLOf (K p))) =
     2 * (Nat.card G - 1) -
       Fintype.card (Sylow p G) * (Nat.card P - 1) := by
   intro _
   refine' eq_tsub_of_add_eq _
-  have h_eq : ∀ g ∈ (Finset.univ : Finset G).erase 1, Set.ncard (fixedPoints p (g : PGL p)) = if orderOf (g : PGL p) = p then 1 else 2 := fun g hg ↦ by
+  have h_eq : ∀ g ∈ (Finset.univ : Finset G).erase 1, Set.ncard (fixedPoints p (g : PGLOf (K p))) = if orderOf (g : PGLOf (K p)) = p then 1 else 2 := fun g hg ↦ by
     have hg_ne : g ≠ 1 := Finset.ne_of_mem_erase hg
-    have h_dich := fixedPoints_dichotomy p (g : PGL p) (fun h ↦ hg_ne (Subtype.ext h)) (Submonoid.isOfFinOrder_coe.mpr (isOfFinOrder_of_finite g))
+    have h_dich := fixedPoints_dichotomy p (g : PGLOf (K p)) (fun h ↦ hg_ne (Subtype.ext h)) (Submonoid.isOfFinOrder_coe.mpr (isOfFinOrder_of_finite g))
     split_ifs with h_p
     · exact h_dich.1.mpr h_p
     · exact h_dich.2.mpr ((element_dichotomy p G g).resolve_left h_p).symm
   rw [Finset.sum_congr rfl h_eq, Finset.sum_ite, Finset.sum_const, Finset.sum_const]
   simp only [smul_eq_mul, mul_one]
-  have h_card_p : Nat.card ↥(((Finset.univ : Finset G).erase 1).filter (fun (x : G) ↦ orderOf (x : PGL p) = p)) = Nat.card {g : G | g ≠ 1 ∧ orderOf (g : PGL p) = p} := by
-    have h_set : ((((Finset.univ : Finset G).erase 1).filter (fun (x : G) ↦ orderOf (x : PGL p) = p)) : Set G) = {g : G | g ≠ 1 ∧ orderOf (g : PGL p) = p} := by
+  have h_card_p : Nat.card ↥(((Finset.univ : Finset G).erase 1).filter (fun (x : G) ↦ orderOf (x : PGLOf (K p)) = p)) = Nat.card {g : G | g ≠ 1 ∧ orderOf (g : PGLOf (K p)) = p} := by
+    have h_set : ((((Finset.univ : Finset G).erase 1).filter (fun (x : G) ↦ orderOf (x : PGLOf (K p)) = p)) : Set G) = {g : G | g ≠ 1 ∧ orderOf (g : PGLOf (K p)) = p} := by
       ext g
       simp only [Finset.mem_coe, Finset.mem_filter, Set.mem_setOf_eq, Finset.mem_erase]
       exact ⟨fun h ↦ ⟨h.1.1, h.2⟩, fun h ↦ ⟨⟨h.1, Finset.mem_univ g⟩, h.2⟩⟩
     exact congrArg (fun (s : Set G) ↦ Nat.card ↥s) h_set
-  have h_card_cop : Nat.card ↥(((Finset.univ : Finset G).erase 1).filter (fun (x : G) ↦ ¬orderOf (x : PGL p) = p)) = Nat.card {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGL p)) p} := by
-    have h_set : ((((Finset.univ : Finset G).erase 1).filter (fun (x : G) ↦ ¬orderOf (x : PGL p) = p)) : Set G) = {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGL p)) p} := by
+  have h_card_cop : Nat.card ↥(((Finset.univ : Finset G).erase 1).filter (fun (x : G) ↦ ¬orderOf (x : PGLOf (K p)) = p)) = Nat.card {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGLOf (K p))) p} := by
+    have h_set : ((((Finset.univ : Finset G).erase 1).filter (fun (x : G) ↦ ¬orderOf (x : PGLOf (K p)) = p)) : Set G) = {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGLOf (K p))) p} := by
       ext g
       simp only [Finset.mem_coe, Finset.mem_filter, Set.mem_setOf_eq, Finset.mem_erase]
       exact ⟨fun h ↦ ⟨h.1.1, (element_dichotomy p G g).resolve_left h.2⟩,
@@ -308,7 +308,7 @@ lemma element_fixedPt_sum (G : Subgroup (PGL p)) [Finite G]
 
 
 omit h_odd in
-lemma phi_stab_card_ge_two (G : Subgroup (PGL p)) [Finite G]
+lemma phi_stab_card_ge_two (G : Subgroup (PGLOf (K p))) [Finite G]
     (x : PhiType p G) :
     2 ≤ Nat.card (MulAction.stabilizer G x) := by
   obtain ⟨g, hg_ne, hgx⟩ := Set.mem_iUnion₂.mp x.prop
@@ -321,7 +321,7 @@ lemma phi_stab_card_ge_two (G : Subgroup (PGL p)) [Finite G]
 
 
 
-lemma orbit_count_mul_card (G : Subgroup (PGL p)) [Finite G] :
+lemma orbit_count_mul_card (G : Subgroup (PGLOf (K p))) [Finite G] :
     Fintype.card (Quotient (MulAction.orbitRel G (PhiType p G))) * Nat.card G =
     ∑ x : PhiType p G, Nat.card (MulAction.stabilizer G x) := by
   simp only [Nat.card_eq_fintype_card]
@@ -330,7 +330,7 @@ lemma orbit_count_mul_card (G : Subgroup (PGL p)) [Finite G] :
   exact (Finset.sum_card_bipartiteAbove_eq_sum_card_bipartiteBelow fun x g ↦ g • x = x).symm
 
 
-lemma nonsplit_D_lt_n (G : Subgroup (PGL p)) [Finite G]
+lemma nonsplit_D_lt_n (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G)
     (hn_p_gt1 : Fintype.card (Sylow p G) > 1) :
     (Nat.card P - 2) * Fintype.card (Sylow p G) + 2 < Nat.card G := by
@@ -354,7 +354,7 @@ lemma nonsplit_D_lt_n (G : Subgroup (PGL p)) [Finite G]
     Nat.le_of_dvd Nat.card_pos (Nat.Coprime.mul_dvd_of_dvd_of_dvd h_coprime_full h_dvd_both.1 h_dvd_both.2)
   nlinarith only [h_n_gt_pm, h_n_gt_2p, h_mul_le_card, Nat.sub_add_cancel (by omega : 2 ≤ Nat.card P)]
 
-lemma fixedBy_sum_eq (G : Subgroup (PGL p)) [Finite G]
+lemma fixedBy_sum_eq (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
     let _ : Fintype G := Fintype.ofFinite G
     ∑ g : G, Fintype.card (MulAction.fixedBy (PhiType p G) g) =
@@ -370,7 +370,7 @@ lemma fixedBy_sum_eq (G : Subgroup (PGL p)) [Finite G]
       Finset.sum_congr rfl fun g hg ↦ fixedBy_eq_fixedPoints p G g (Finset.ne_of_mem_erase hg),
       element_fixedPt_sum p G hG_p P]
 
-lemma stab_sum_eq_phi_plus_element (G : Subgroup (PGL p)) [Finite G]
+lemma stab_sum_eq_phi_plus_element (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
     ∑ x : PhiType p G, Nat.card (MulAction.stabilizer G x) =
     Fintype.card (PhiType p G) +
@@ -384,7 +384,7 @@ lemma stab_sum_eq_phi_plus_element (G : Subgroup (PGL p)) [Finite G]
       fixedBy_sum_eq p G hG_p P]
 
 
-lemma sylow_orbit_size (G : Subgroup (PGL p)) [Finite G]
+lemma sylow_orbit_size (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
     Fintype.card (MulAction.orbit G
       (⟨sylowFixedPoint p G hG_p P,
@@ -397,7 +397,7 @@ lemma sylow_orbit_size (G : Subgroup (PGL p)) [Finite G]
     Nat.card_congr (MulAction.orbitEquivQuotientStabilizer G x), h_stab]
   exact (Nat.card_congr (Sylow.equivQuotientNormalizer P)).symm
 
-lemma sylow_fixedPt_phiStab (G : Subgroup (PGL p)) [Finite G]
+lemma sylow_fixedPt_phiStab (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (Q : Sylow p G) :
     let x : PhiType p G := ⟨sylowFixedPoint p G hG_p Q, sylow_fixedPt_mem_Phi p G hG_p Q⟩
     Nat.card (MulAction.stabilizer G x) = Nat.card G / Fintype.card (Sylow p G) := by
@@ -408,7 +408,7 @@ lemma sylow_fixedPt_phiStab (G : Subgroup (PGL p)) [Finite G]
     exact (MulAction.card_orbit_mul_card_stabilizer_eq_card_group G x).symm
 
 
-lemma stab_sum_lower_bound (G : Subgroup (PGL p)) [Finite G]
+lemma stab_sum_lower_bound (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) :
     ∑ x : PhiType p G, Nat.card (MulAction.stabilizer G x) ≥
     Nat.card G + 2 * (Fintype.card (PhiType p G) - Fintype.card (Sylow p G)) := by
@@ -444,7 +444,7 @@ lemma stab_sum_lower_bound (G : Subgroup (PGL p)) [Finite G]
   rw [h_split, h_S]
   exact Nat.add_le_add_left h_Sc _
 
-lemma num_orbits_eq_two (G : Subgroup (PGL p)) [Finite G]
+lemma num_orbits_eq_two (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G)
     (hn_p_gt1 : Fintype.card (Sylow p G) > 1) :
     Fintype.card (Quotient (MulAction.orbitRel G (PhiType p G))) = 2 := by
@@ -490,7 +490,7 @@ noncomputable section PartitionProof
 variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]
 
 omit h_odd in
-theorem card_eq_pm_z1_np' (G : Subgroup (PGL p)) [Finite G]
+theorem card_eq_pm_z1_np' (G : Subgroup (PGLOf (K p))) [Finite G]
     (P : Sylow p G) :
     Nat.card G = Nat.card P * normalizerQuotient p G P *
       Fintype.card (Sylow p G) := by
@@ -580,7 +580,7 @@ theorem branch2_params_of_divisibility
     · exfalso; revert h_div; norm_num
     · right; right; right; exact ⟨rfl, rfl, rfl⟩
 
-theorem nonsplit_torus_divides_geo (G : Subgroup (PGL p)) [Finite G]
+theorem nonsplit_torus_divides_geo (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G)
     (hn_p_gt1 : Fintype.card (Sylow p G) > 1) :
     ((Nat.card P - 2) * Fintype.card (Sylow p G) + 2) ∣ Nat.card G := by
@@ -670,7 +670,7 @@ theorem nonsplit_torus_ge_two_arith
       omega
   · exact Nat.le_add_left 2 k
 
-theorem branch2_params (G : Subgroup (PGL p)) [Finite G]
+theorem branch2_params (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G)
     (hn_p_gt1 : Fintype.card (Sylow p G) > 1) :
     let pm := Nat.card P
@@ -704,7 +704,7 @@ theorem branch2_params (G : Subgroup (PGL p)) [Finite G]
   exact branch2_params_of_divisibility pm z₁ n_p hpm_ge3 hpm_odd hz₁_ge1 hz₁_dvd
     hn_p_gt1 hn_p_cong hD_dvd (nonsplit_torus_ge_two_arith pm z₁ n_p hpm_ge3 hz₁_ge1 (by omega) hD_dvd)
 
-theorem nonsplit_torus_ge_two (G : Subgroup (PGL p)) [Finite G]
+theorem nonsplit_torus_ge_two (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G)
     (hn_p_gt1 : Fintype.card (Sylow p G) > 1) :
     Nat.card G / ((Nat.card P - 2) * Fintype.card (Sylow p G) + 2) ≥ 2 := by
