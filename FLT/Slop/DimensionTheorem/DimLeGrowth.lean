@@ -125,8 +125,6 @@ lemma hilbertSamuel_quotient_le (I : Ideal R) [Nontrivial (R ⧸ I)] (n : ℕ) :
     rw [hilbertSamuel_quotient_eq I n]
     exact colength_le_colength le_sup_right hrad
 
-set_option maxHeartbeats 1000000 in
--- The Artin-Rees comparison below has several large ideal-quotient rewrites.
 /-- **Artin–Rees difference bound.** In a Noetherian local domain, quotienting by
 `0 ≠ x ∈ 𝔪` drops the Hilbert–Samuel function by at least a shifted copy of
 itself: there is `c > 0` with
