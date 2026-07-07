@@ -134,7 +134,7 @@ lemma adicValued.continuous_algebraMap
   rw [ContinuousAt, map_zero, (Valued.hasBasis_nhds_zero _ _).tendsto_iff
     (Valued.hasBasis_nhds_zero _ _)]
   intro γL _
-  let e := v.asIdeal.ramificationIdx w.asIdeal
+  let e := v.asIdeal.ramificationIdx' w.asIdeal
   -- push `γL` to `ℤᵐ⁰`
   let σL := WithVal.valueGroupOrderIso₀ (w.valuation L)
   let σw := valueGroup₀_equiv_withZeroMulInt (w.valuation L)
@@ -203,7 +203,7 @@ where e is computed globally.
 -/
 lemma valued_adicCompletionSemialgHom (x) :
     Valued.v (adicCompletionSemialgHom K L w x) = Valued.v x ^
-      (w.1.under A).asIdeal.ramificationIdx w.1.asIdeal := by
+      (w.1.under A).asIdeal.ramificationIdx' w.1.asIdeal := by
   revert x
   apply funext_iff.mp
   symm
@@ -421,9 +421,8 @@ lemma tensorAdicCompletionIntegersTo_range_subset_closure [FiniteDimensional K L
           rw [Algebra.smul_def]
           exact mul_comm _ _
         have hcf : ContinuousAt f a' := by
-          apply Continuous.continuousAt
           rw [hfval]
-          apply Continuous.smul continuous_subtype_val continuous_const
+          fun_prop
         -- So, because `A` is dense in `𝒪_v`, `b • (1 ⊗ₜ a') ∈ f '' closure A ⊆ closure f '' A`
         have hy : a' ∈ closure (Set.range (algebraMap A _)) := by
           apply denseRange_of_integerAlgebraMap
@@ -687,9 +686,9 @@ lemma _root_.WithZero.ofAdd_neg_ofNat_pow (n : ℕ) :
   rw [← ofAdd_nsmul, nsmul_eq_mul, Int.mul_neg_one]
 
 theorem ramificationIdx_eq_ramificationIdx :
-    (v.completionIdeal K).ramificationIdx (w.1.completionIdeal L) =
-      v.asIdeal.ramificationIdx w.1.asIdeal := by
-  apply Ideal.ramificationIdx_spec
+    (v.completionIdeal K).ramificationIdx' (w.1.completionIdeal L) =
+      v.asIdeal.ramificationIdx' w.1.asIdeal := by
+  apply Ideal.ramificationIdx'_spec
   · rw [Ideal.map_le_iff_le_comap]
     intro x hx
     rw [mem_completionIdeal_iff'] at hx
@@ -710,7 +709,7 @@ theorem ramificationIdx_eq_ramificationIdx :
     simp at hcomap
 
 theorem inertiaDeg_eq_inertiaDeg :
-    v.asIdeal.inertiaDeg w.1.asIdeal = (v.completionIdeal K).inertiaDeg (w.1.completionIdeal L) :=
+    v.asIdeal.inertiaDeg' w.1.asIdeal = (v.completionIdeal K).inertiaDeg' (w.1.completionIdeal L) :=
   letI := Algebra.compHom (adicCompletionIntegers L w.1) (algebraMap A B)
   have : IsScalarTower A B (adicCompletionIntegers L w.1) :=
     IsScalarTower.of_algebraMap_eq fun _ ↦ rfl
@@ -733,12 +732,12 @@ theorem inertiaDeg_eq_inertiaDeg :
         integer_algebraMap_apply, valued_adicCompletionSemialgHom K L, pow_lt_one_iff]
       exact ramificationIdx_ne_zero A B (algebraMap_injective_of_field_isFractionRing A B K L) w.1
   }
-  calc v.asIdeal.inertiaDeg w.1.asIdeal
-      = v.asIdeal.inertiaDeg (w.1.completionIdeal L) := by
-        rw [Ideal.inertiaDeg_algebra_tower v.asIdeal w.1.asIdeal (w.1.completionIdeal L),
+  calc v.asIdeal.inertiaDeg' w.1.asIdeal
+      = v.asIdeal.inertiaDeg' (w.1.completionIdeal L) := by
+        rw [Ideal.inertiaDeg'_algebra_tower v.asIdeal w.1.asIdeal (w.1.completionIdeal L),
           inertiaDeg_asIdeal_completionIdeal, mul_one]
-    _ = (v.completionIdeal K).inertiaDeg (w.1.completionIdeal L) := by
-        rw [Ideal.inertiaDeg_algebra_tower v.asIdeal (v.completionIdeal K) (w.1.completionIdeal L),
+    _ = (v.completionIdeal K).inertiaDeg' (w.1.completionIdeal L) := by
+        rw [Ideal.inertiaDeg'_algebra_tower v.asIdeal (v.completionIdeal K) (w.1.completionIdeal L),
           inertiaDeg_asIdeal_completionIdeal, one_mul]
 
 /-- A shortcut instance for the action of `𝓞ᵥ` on `Kᵥ`. -/
@@ -751,7 +750,7 @@ noncomputable local instance : MulAction (v.adicCompletionIntegers K) (v.adicCom
 -- - equality holds for L/K if L is K-cartesian (Prop 3.6.2.4)
 -- - so for example if K is complete and discretely-valued (Cor 2.4.3.11).
 theorem ramificationIdx_mul_inertiaDeg_eq_finrank [FiniteDimensional K L] [Module.Finite A B] :
-    v.asIdeal.ramificationIdx w.1.asIdeal * v.asIdeal.inertiaDeg w.1.asIdeal =
+    v.asIdeal.ramificationIdx' w.1.asIdeal * v.asIdeal.inertiaDeg' w.1.asIdeal =
       Module.finrank (adicCompletion K v) (adicCompletion L w.1) := by
   have : IsScalarTower (adicCompletionIntegers K v) (adicCompletionIntegers L w.1)
       (adicCompletion L w.1) := .of_algebraMap_smul fun _ _ ↦ rfl
@@ -778,8 +777,8 @@ lemma finrank_tensorProduct_adicCompletion_eq_finrank_pi_adicCompletion :
   letI := Extension.fintype A K L B v
   calc Module.finrank (adicCompletion K v) (L ⊗[K] adicCompletion K v)
     _ = Module.finrank K L := by rw [TensorProduct.finrank_rightAlgebra]
-    _ = ∑ (w : Extension B v), Ideal.ramificationIdx v.asIdeal w.val.asIdeal *
-        Ideal.inertiaDeg v.asIdeal w.val.asIdeal := by
+    _ = ∑ (w : Extension B v), Ideal.ramificationIdx' v.asIdeal w.val.asIdeal *
+        Ideal.inertiaDeg' v.asIdeal w.val.asIdeal := by
         rw [Ideal.sum_ramification_inertia_extensions]
     _ = ∑ (w : Extension B v), Module.finrank (adicCompletion K v) (adicCompletion L w.val) :=
         Finset.sum_congr rfl fun w _ ↦ ramificationIdx_mul_inertiaDeg_eq_finrank K L w

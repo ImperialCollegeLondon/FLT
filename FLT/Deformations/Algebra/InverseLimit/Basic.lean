@@ -111,8 +111,8 @@ variable [instMonoidG : ∀ i, Monoid (G i)] [∀ i j h, MonoidHomClass (T h) (G
   one_mul := one_mul
   mul_one := mul_one
   npow n x := ⟨x.1 ^ n, by simp⟩
-  npow_zero x := by ext i; simp
-  npow_succ n x := by ext i; simp only [Pi.pow_apply, mul_def]; exact pow_succ (x.1 i) n
+  npow_zero x := by simp_rw [HPow.hPow, Pow.pow]; ext i; simp
+  npow_succ n x := by ext i; simp only [mul_def]; exact pow_succ (x.1 i) n
 
 @[to_additive (attr := simp)] theorem npow_def (n : ℕ) : (x ^ n).1 = (x.1 ^ n) := rfl
 
@@ -132,7 +132,7 @@ variable [instGroupG : ∀ i, Group (G i)] [∀ i j h, MonoidHomClass (T h) (G j
   div_eq_mul_inv a b := by
     ext i
     exact div_eq_mul_inv ..
-  zpow_zero' x := by ext i; simp
+  zpow_zero' x := by simp_rw [HPow.hPow, Pow.pow]; ext i; simp
   zpow_succ' n x := by
     ext i
     rw [mul_def]
@@ -205,7 +205,7 @@ instance : DivInvMonoid (InverseLimit G f) where
   div_eq_mul_inv x y := by
     ext i
     exact div_eq_mul_inv ..
-  zpow_zero' x := by simp; rfl
+  zpow_zero' x := by simp_rw [HPow.hPow, Pow.pow, zpow_zero]; rfl
   zpow_succ' n x := by
     ext i
     exact (instGroupWithZeroG i).zpow_succ' n (x.1 i)

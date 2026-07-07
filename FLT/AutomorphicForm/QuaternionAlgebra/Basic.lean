@@ -492,6 +492,7 @@ Then `𝒪` is an order (why?) and `Δ_g/Fˣ ↪ 𝒪¹ := { x ∈ 𝒪 | N(x) =
 where the latter is finite because it is discrete and bounded in `D ⊗_{ℚ} ℝ = ∏ ℍ`
 (See Lemma 17.7.13 in Voight).
 -/
+@[nolint unusedArguments]
 instance isFiniteRelIndex_Δ [NumberField.IsTotallyReal F] [IsQuaternionAlgebra F D]
     [IsQuaternionAlgebra.IsTotallyDefinite F D] (ℒ : LevelStruct F R) (g : GL₂(𝔸ᶠ[F])) :
     Subgroup.IsFiniteRelIndex 𝓕ˣ (ℒ.Δ D g) := by

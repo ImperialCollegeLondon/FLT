@@ -17,43 +17,6 @@ attribute [local instance] RingHom.ker_isPrime
 
 open scoped nonZeroDivisors
 
-lemma CompleteOrthogonalIdempotents.exists_eq_comp_of_ker_eq_span
-    {R S ι : Type*} [CommRing R] [CommRing S] [Fintype ι] (f : R →+* S) (e₀ : R)
-    (he₀ : IsIdempotentElem e₀) (hfe₀ : RingHom.ker f = .span {e₀})
-    (e : ι → S) (he : CompleteOrthogonalIdempotents e) (he : ∀ i, e i ∈ f.range) :
-    ∃ e', CompleteOrthogonalIdempotents (Option.rec e₀ e') ∧ e = f ∘ e' := by
-  choose e' he' using he
-  choose k hk using fun i ↦ Ideal.mem_span_singleton.mp
-      (hfe₀.le (show f (e' i * e' i - e' i) = 0 by simp [he', (he.1.1 i).eq]))
-  refine ⟨(1 - e₀) • e', ⟨⟨Option.rec he₀ fun i ↦ ?_, ?_⟩, ?_⟩, ?_⟩
-  · rintro (_|i) (_|j) h
-    · simp at h
-    · dsimp; linear_combination - he₀.eq * e' j
-    · dsimp; linear_combination - he₀.eq * e' i
-    · obtain ⟨k, hk⟩ := Ideal.mem_span_singleton.mp
-        (hfe₀.le (show f (e' i * e' j) = 0 by simp [he', he.1.2 (by simpa using h)]))
-      dsimp
-      rw [mul_mul_mul_comm, hk, he₀.one_sub.eq, ← mul_assoc, he₀.one_sub_mul_self, zero_mul]
-  · obtain ⟨k, hk⟩ := Ideal.mem_span_singleton.mp
-      (hfe₀.le (show f (∑ i, e' i - 1) = 0 by simpa [he', sub_eq_zero] using he.2))
-    simp only [Fintype.sum_option, Pi.smul_apply, smul_eq_mul, ← Finset.mul_sum,
-      sub_eq_iff_eq_add.mp hk]
-    linear_combination - he₀.eq * k
-  · have : f e₀ = 0 := by simpa using hfe₀.ge (Ideal.mem_span_singleton_self _)
-    aesop
-  · dsimp [IsIdempotentElem]
-    linear_combination congr($(he₀.eq) * ((e' i) ^ 2 - k i) + (1 - e₀) * $(hk i))
-
-lemma Ideal.mem_map_span_singleton_iff_of_isIdempotentElem
-    {R : Type*} [CommRing R] {e r : R} (he : IsIdempotentElem e) {I : Ideal R} :
-    Ideal.Quotient.mk _ r ∈ I.map (Ideal.Quotient.mk (Ideal.span {e})) ↔ (1 - e) * r ∈ I := by
-  simp only [Ideal.mem_map_iff_of_surjective _ Ideal.Quotient.mk_surjective,
-    Ideal.Quotient.mk_eq_mk_iff_sub_mem, Ideal.mem_span_singleton]
-  refine ⟨?_, fun H ↦ ⟨_, H, by simp [sub_mul]⟩⟩
-  rintro ⟨s, hs, t, hrst⟩
-  convert I.mul_mem_left (1 - e) hs using 1
-  linear_combination he.eq * t - (1 - e) * hrst
-
 namespace Algebra
 
 attribute [local instance] Localization.AtPrime.algebraOfLiesOver
@@ -128,31 +91,9 @@ private theorem exists_etale_completeOrthogonalIdempotents_forall_liesOver_eq_au
   · rw [← hP'φ] at heP'; simpa [he'0]
   · simpa
 
-set_option backward.isDefEq.respectTransparency false in
-attribute [local ext high] Ideal.Quotient.algHom_ext in
-/-- If `e` is an element of `R' ⊗ S`, then `R'' ⊗ ((R' ⊗ S) / e) = (R'' ⊗ S) / e`. -/
-def tensorQuotientTensorEquiv
-    {R R' R'' S : Type*} [CommRing R] [CommRing R'] [CommRing R''] [CommRing S]
-    [Algebra R R'] [Algebra R R''] [Algebra R' R''] [IsScalarTower R R' R''] [Algebra R S]
-    (e : R' ⊗[R] S) :
-    R'' ⊗[R'] (R' ⊗[R] S ⧸ Ideal.span {e}) ≃ₐ[R'']
-    (R'' ⊗[R] S ⧸ Ideal.span {Algebra.TensorProduct.map (Algebra.ofId R' R'') (AlgHom.id R S) e}) :=
-  letI φ := Algebra.TensorProduct.map (Algebra.ofId R' R'') (AlgHom.id R S)
-  letI ψ : R'' ⊗[R] S →ₐ[R''] R'' ⊗[R'] (R' ⊗[R] S ⧸ Ideal.span {e}) :=
-    Algebra.TensorProduct.lift (Algebra.ofId _ _)
-      ((Algebra.TensorProduct.includeRight.restrictScalars R).comp
-      ((Ideal.Quotient.mkₐ _ _).comp Algebra.TensorProduct.includeRight)) fun _ _ ↦ .all _ _
-  haveI hψφ : (ψ.restrictScalars R').comp φ =
-      (Algebra.TensorProduct.includeRight.restrictScalars R').comp (Ideal.Quotient.mkₐ _ _) := by
-    ext; simp [ψ, φ]
-  haveI heψ : Ideal.span {φ e} ≤ RingHom.ker ψ := by simpa [Ideal.span_le] using congr($hψφ e)
-  AlgEquiv.ofAlgHom (Algebra.TensorProduct.lift (Algebra.ofId _ _) (Ideal.quotientMapₐ _ φ
-    (Ideal.map_le_iff_le_comap.mp (by simp [Ideal.map_span, φ]))) fun _ _ ↦ .all _ _)
-    (Ideal.Quotient.liftₐ _ ψ heψ) (by ext; simp [ψ, φ]) (by ext; simp [φ, ψ])
-
 lemma ncard_primesOver_quotient_singleton_lt_of_notMem
     {R S : Type*} [CommRing R] [CommRing S] [Algebra R S]
-    (P : Ideal R) [P.IsPrime] (e : S) (P' : Ideal S) [P'.IsPrime] [P'.LiesOver P]
+    (P : Ideal R) (e : S) (P' : Ideal S) [P'.IsPrime] [P'.LiesOver P]
     (heP' : e ∉ P') (H : (P.primesOver S).Finite) :
     (P.primesOver (S ⧸ Ideal.span {e})).ncard < (P.primesOver S).ncard := by
   rw [← Set.ncard_image_of_injective _
@@ -212,7 +153,7 @@ private lemma exists_etale_completeOrthogonalIdempotents_forall_liesOver_eq'.{u,
     let e₁ : R'' ⊗[R'] (R' ⊗[R] S ⧸ Ideal.span {e}) ≃ₐ[R''] (R'' ⊗[R] S ⧸ Ideal.span {φ e}) :=
       tensorQuotientTensorEquiv (R'' := R'') e
     obtain ⟨e'', he'', he''e'⟩ := CompleteOrthogonalIdempotents.exists_eq_comp_of_ker_eq_span
-      (Ideal.Quotient.mk (Ideal.span {φ e})) (ι := Fin (n + 1)) (φ e) (he.map φ) (by simp)
+      (Ideal.Quotient.mk (Ideal.span {φ e})) (I := Fin (n + 1)) (φ e) (he.map φ) (by simp)
       (e₁ ∘ e') (he'.map e₁.toRingHom) (fun _ ↦ Ideal.Quotient.mk_surjective _)
     have he''e'' (i : _) : e₁ (e' i) = e'' i := congr_fun he''e' i
     have hψe'' (i : _) : (e' i) = e₁.symm (e'' i) := e₁.eq_symm_apply.mpr (he''e'' i)
@@ -246,37 +187,5 @@ private lemma exists_etale_completeOrthogonalIdempotents_forall_liesOver_eq'.{u,
       AlgEquiv.toRingEquiv_toRingHom, AlgEquiv.refl_toRingHom, Ideal.comap_id]
     rw [Ideal.comap_map_of_surjective _ Ideal.Quotient.mk_surjective]
     simpa [left_eq_sup, ← RingHom.ker_eq_comap_bot, Ideal.span_le] using heP''
-
-/--
-If `S` is finite over `R`, and `p` is a prime of `R`, then there exists a etale neighborhood
-`(R', P)` of `p` with `κ(p) = κ(P)` such that `R' ⊗[R] S ≃ₐ[R'] R₁ × ... × Rₙ × A`,
-each `Rᵢ` has a unique prime `Pᵢ` lying over `P`, and no other prime in `R' ⊗[R] S` lies over `P`.
-
-This is merely a iterated application of `Algebra.exists_etale_isIdempotentElem_forall_liesOver_eq`.
-This is weaker than the corresponding statement of stacks project, and the only reason is that
-the corresponding stronger statement is even harder to state and even more annoying to prove.
--/
-@[stacks 00UL]
-lemma exists_etale_completeOrthogonalIdempotents_forall_liesOver_eq.{u, v}
-    {R : Type u} {S : Type v} [CommRing R] [CommRing S] [Algebra R S] [Module.Finite R S]
-    (p : Ideal R) [p.IsPrime] :
-    ∃ (R' : Type u) (_ : CommRing R') (_ : Algebra R R') (_ : Algebra.Etale R R') (P : Ideal R')
-      (_ : P.IsPrime) (_ : P.LiesOver p) (n : ℕ) (e : Fin (n + 1) → R' ⊗[R] S)
-      (_ : CompleteOrthogonalIdempotents e) (P' : Fin n → Ideal (R' ⊗[R] S))
-      (_ : ∀ i, (P' i).IsPrime) (_ : ∀ i, (P' i).LiesOver P),
-      Function.Bijective (Ideal.ResidueField.mapₐ p P (Algebra.ofId _ _) (P.over_def p)) ∧
-      (∀ i, e i.castSucc ∉ P' i) ∧
-      ∀ (P'' : Ideal (R' ⊗[R] S)), P''.IsPrime → P''.LiesOver P →
-        e (.last n) ∈ P'' ∧ ∀ i, e i.castSucc ∉ P'' → P'' = P' i := by
-  have ⟨R', _, _, _, P, _, _, n, e, he, P', _, _, hP, hP', H⟩ :=
-    exists_etale_completeOrthogonalIdempotents_forall_liesOver_eq' (S := ULift.{u} S) p
-  let e₁ : R' ⊗[R] S ≃ₐ[R'] R' ⊗[R] ULift.{u} S :=
-    Algebra.TensorProduct.congr .refl ULift.algEquiv.symm
-  refine ⟨R', _, _, ‹_›, P, ‹_›, ‹_›, n, e₁.symm ∘ e, he.map _,
-    fun i ↦ (P' i).comap e₁.toAlgHom, inferInstance, inferInstance, hP, by simpa,
-    fun P'' _ _ ↦ ?_⟩
-  have := H (P''.comap e₁.symm.toAlgHom) inferInstance inferInstance
-  refine ⟨by simpa using this.1, fun i hi ↦ ?_⟩
-  simp [← this.2 i (by simpa), Ideal.comap_comapₐ]
 
 end Algebra

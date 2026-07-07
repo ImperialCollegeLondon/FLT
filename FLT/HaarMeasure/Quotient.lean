@@ -95,8 +95,8 @@ instance {G : Type*} [Group G] [TopologicalSpace G] [MeasurableSpace G] [Separat
     (H : Subgroup G) [IsClosed (X := G) H] : BorelSpace (G ⧸ H) :=
   ⟨continuous_quotient_mk'.map_eq_borel (Y := G ⧸ H) QuotientGroup.mk_surjective⟩
 
-instance {M : Type*} [Monoid M] [TopologicalSpace M] [SecondCountableTopology M]
-    [SeparatelyContinuousMul M] : SecondCountableTopology Mˣ :=
+instance {M : Type*} [Monoid M] [TopologicalSpace M] [SecondCountableTopology M] :
+    SecondCountableTopology Mˣ :=
   TopologicalSpace.secondCountableTopology_induced _ _ _
 
 namespace MeasureTheory
@@ -288,7 +288,7 @@ lemma Measure.continuous_ofQuotientIntegrand [WeaklyLocallyCompactSpace G] [Meas
     exact H ⟨_, Set.inv_mem_inv.mpr ha, _, subset_closure e, by simp⟩
 
 omit [OpensMeasurableSpace G] in
-lemma Measure.ofQuotientIntegrand_lt_top [WeaklyLocallyCompactSpace G] [MeasurableMul₂ G]
+lemma Measure.ofQuotientIntegrand_lt_top [MeasurableMul₂ G]
     [μN.IsMulLeftInvariant] [IsFiniteMeasureOnCompacts μN]
     (hN : IsClosed (X := G) N)
     (f : G → ℝ≥0) (hf : Continuous f) (hf' : HasCompactSupport f) (a : G ⧸ N) :
@@ -327,9 +327,8 @@ instance [LocallyCompactSpace G] [T2Space G] [IsFiniteMeasureOnCompacts μ]
     simp only [Pi.zero_apply, ne_eq, ENNReal.coe_eq_zero] at hx
     refine ⟨_, subset_closure hx, QuotientGroup.eq.mpr (by simp)⟩
 
-instance [LocallyCompactSpace G] [T2Space G] [μN.IsOpenPosMeasure] [μ.IsOpenPosMeasure]
-    [IsClosed (X := G) N] [μN.IsMulLeftInvariant] [MeasurableMul₂ G] [SFinite μN] :
-    (Measure.ofQuotient μ μN).IsOpenPosMeasure where
+instance [μN.IsOpenPosMeasure] [μ.IsOpenPosMeasure] [μN.IsMulLeftInvariant] [MeasurableMul₂ G]
+    [SFinite μN] : (Measure.ofQuotient μ μN).IsOpenPosMeasure where
   open_pos U hU hU' := by
     rw [Measure.ofQuotient_apply _ _ _ hU.measurableSet]
     refine ((lintegral_pos_iff_support (μN.measurable_ofQuotientIntegrand _

@@ -94,8 +94,13 @@ jobs:
           relevant-labels: FLT
           include-drafts: true
 
-      - name: Compile blueprint and documentation
-        uses: leanprover-community/docgen-action@7b5b9a1822650bd45aaeb4182d94bceba2030f89 # 2026-04-14
-        with:
-          blueprint: true
-          homepage: docs
+      # Documentation compilation disabled: docgen regularly runs for hours and
+      # then fails at the very end, turning CI red for reasons unrelated to the
+      # actual project. Disabling it until it can be made reliable again.
+      #
+      # - name: Compile documentation
+      #   uses: leanprover-community/docgen-action@7b5b9a1822650bd45aaeb4182d94bceba2030f89 # 2026-04-14
+      #   with:
+      #     # leanblueprint (incl. checkdecls) disabled while migrating to a verso blueprint
+      #     blueprint: false
+      #     homepage: docs

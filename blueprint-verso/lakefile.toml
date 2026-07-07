@@ -19,7 +19,7 @@ verso.blueprint.foldCodeBlocks = true
 [[require]]
 name = "VersoBlueprint"
 git = "https://github.com/leanprover/verso-blueprint"
-rev = "v4.30.0"
+rev = "v4.31.0"
 
 [[require]]
 name = "FLT"

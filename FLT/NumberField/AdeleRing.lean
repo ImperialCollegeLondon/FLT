@@ -162,19 +162,19 @@ instance [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
     | zero => simp
     | tmul l r =>
         apply Prod.ext
-        · simp only [AlgEquiv.coe_algHom, smul_def, TensorProduct.comm_tmul,
+        · simp only [AlgEquiv.coe_toAlgHom, smul_def, TensorProduct.comm_tmul,
             TensorProduct.smul_tmul', smul_eq_mul, TensorProduct.comm_symm_tmul,
             baseChangeAlgEquiv_fst_apply, smul_fst]
           have := IsBiscalar.map_smul₂ L (S := K∞)
             (f := InfiniteAdeleRing.baseChangeAlgEquiv K L |>.toAlgHom)
-          rw [AlgEquiv.coe_algHom] at this
+          rw [AlgEquiv.coe_toAlgHom] at this
           simp [← this, TensorProduct.smul_tmul']
-        · simp only [AlgEquiv.coe_algHom, smul_def, TensorProduct.comm_tmul,
+        · simp only [AlgEquiv.coe_toAlgHom, smul_def, TensorProduct.comm_tmul,
             TensorProduct.smul_tmul', smul_eq_mul, TensorProduct.comm_symm_tmul,
             baseChangeAlgEquiv_snd_apply, smul_snd]
           change _ = _ • FiniteAdeleRing.baseChangeAdeleAlgEquiv (𝓞 K) K L (𝓞 L) _
           change FiniteAdeleRing.baseChangeAdeleAlgEquiv _ _ _ _ (a.2 • l ⊗ₜ[K] r.2) = _
-          rw [← AlgEquiv.coe_algHom,
+          rw [← AlgEquiv.coe_toAlgHom,
             (FiniteAdeleRing.baseChangeAdeleAlgEquiv (𝓞 K) K L (𝓞 L)).toAlgHom.map_smul_of_tower]
     | add x y _ _ => simp_all
 
@@ -317,7 +317,7 @@ instance [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
     | zero => simp
     | tmul l r =>
         have := IsBiscalar.map_smul₂ L (S := 𝔸 K) (f := (baseChangeAlgEquiv K L).toAlgHom) a
-        rw [AlgEquiv.coe_algHom] at this
+        rw [AlgEquiv.coe_toAlgHom] at this
         simp only [smul_def, TensorProduct.comm_tmul, TensorProduct.smul_tmul',
           TensorProduct.comm_symm_tmul, ModuleBaseChangeLinearEquiv_tmul_apply,
           algebra_compatible_smul (𝔸 L) a]
@@ -663,6 +663,13 @@ def FiniteAdeleRing.toAdicCompletion {K : Type*} [Field K] [NumberField K]
   map_mul' _ _ := rfl
   map_zero' := rfl
   map_add' _ _ := rfl
+
+-- hacks to make the next lemma work with `backward.isDefEq.respectTransparency false `
+-- after mathlib#40144
+variable (p : HeightOneSpectrum (𝓞 ℚ)) in
+noncomputable instance : NonUnitalNonAssocSemiring  (adicCompletion ℚ p) := inferInstance
+variable (p : HeightOneSpectrum (𝓞 ℚ)) in
+noncomputable instance : NonUnitalSemiring  (adicCompletion ℚ p) := inferInstance
 
 -- bleurgh
 set_option backward.isDefEq.respectTransparency false in

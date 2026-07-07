@@ -79,8 +79,8 @@ instance {K : Type*} [Field K] [NumberField K] :
   (ContinuousMulEquiv.restrictedProductUnits _ fun _ ↦
     by exact Valued.isOpen_integer _).isUnimodularGroup
 
-instance {M : Type*} [Monoid M] [TopologicalSpace M] [SecondCountableTopology M]
-    [SeparatelyContinuousMul M] : SecondCountableTopology Mˣ :=
+instance {M : Type*} [Monoid M] [TopologicalSpace M] [SecondCountableTopology M] :
+    SecondCountableTopology Mˣ :=
   TopologicalSpace.secondCountableTopology_induced _ _ _
 
 open scoped NumberField Adele in
@@ -110,8 +110,8 @@ instance {G : Type*} [Group G] [TopologicalSpace G] [MeasurableSpace G] [Separat
     (H : Subgroup G) [IsClosed (X := G) H] : BorelSpace (G ⧸ H) :=
   ⟨continuous_quotient_mk'.map_eq_borel (Y := G ⧸ H) QuotientGroup.mk_surjective⟩
 
-instance {M : Type*} [Monoid M] [TopologicalSpace M] [SecondCountableTopology M]
-    [SeparatelyContinuousMul M] : SecondCountableTopology Mˣ :=
+instance {M : Type*} [Monoid M] [TopologicalSpace M] [SecondCountableTopology M] :
+    SecondCountableTopology Mˣ :=
   TopologicalSpace.secondCountableTopology_induced _ _ _
 
 lemma Module.FaithfullyFlat.smul_top_eq_top_iff
@@ -156,7 +156,7 @@ lemma Module.Free.exists_comp_linearMap_eq_id
 lemma IsModuleTopology.isClosed_one_of_exists_linearMap
     (R A : Type*) [CommRing R] [Ring A] [Algebra R A]
     (H : ∃ f : A →ₗ[R] R, f ∘ₗ Algebra.linearMap R A = .id)
-    [TopologicalSpace R] [IsTopologicalRing R] [TopologicalSpace A]
+    [TopologicalSpace R] [TopologicalSpace A]
     [IsModuleTopology R A] [T1Space A] : IsClosed (X := A) (1 : Submodule R A) := by
   nontriviality A
   have := IsModuleTopology.toContinuousAdd R A

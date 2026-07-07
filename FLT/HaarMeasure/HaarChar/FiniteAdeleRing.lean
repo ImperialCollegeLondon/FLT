@@ -599,9 +599,9 @@ lemma localcomponent_mulLeft (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
     ext
     simp [FiniteAdeleRing.evalContinuousAlgebraMap_singleContinuousLinearMap]
   have : u' =
-      (FiniteAdeleRing.evalContinuousAlgebraMap (𝓞 K) K v).toContinuousLinearMap.rTensor B
+      (FiniteAdeleRing.evalContinuousAlgebraMap (𝓞 K) K v).toContinuousLinearMap.rTensor' B
       ((TensorProduct.map (FiniteAdeleRing.singleContinuousLinearMap (𝓞 K) K v) .id) u') := by
-    rw [ContinuousLinearMap.rTensor, ContinuousLinearMap.coe_mk', LinearMap.rTensor_map, this,
+    rw [ContinuousLinearMap.rTensor', ContinuousLinearMap.coe_mk', LinearMap.rTensor_map, this,
       TensorProduct.map_id, LinearMap.id_apply]
   convert! keyFin.symm
   change _ = Algebra.TensorProduct.rTensor B _ _
@@ -624,9 +624,9 @@ lemma localcomponent_mulRight (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
     ext
     simp [FiniteAdeleRing.evalContinuousAlgebraMap_singleContinuousLinearMap]
   have : u' =
-      (FiniteAdeleRing.evalContinuousAlgebraMap (𝓞 K) K v).toContinuousLinearMap.rTensor B
+      (FiniteAdeleRing.evalContinuousAlgebraMap (𝓞 K) K v).toContinuousLinearMap.rTensor' B
       ((TensorProduct.map (FiniteAdeleRing.singleContinuousLinearMap (𝓞 K) K v) .id) u') := by
-    rw [ContinuousLinearMap.rTensor, ContinuousLinearMap.coe_mk', LinearMap.rTensor_map, this,
+    rw [ContinuousLinearMap.rTensor', ContinuousLinearMap.coe_mk', LinearMap.rTensor_map, this,
       TensorProduct.map_id, LinearMap.id_apply]
   convert! keyFin.symm
   change _ = Algebra.TensorProduct.rTensor B _ _

@@ -244,7 +244,7 @@ lemma Units.measurableEmbedding_val {M : Type*} [Monoid M] [TopologicalSpace M] 
     MeasurableEmbedding ((↑) : Mˣ → M) :=
   Units.continuous_val.measurableEmbedding Units.val_injective
 
-lemma Units.measurableEmbedding_val' {M : Type*} [Monoid M] [TopologicalSpace M] [ContinuousMul M]
+lemma Units.measurableEmbedding_val' {M : Type*} [Monoid M] [TopologicalSpace M]
     [MeasurableSpace M] [BorelSpace M] [SecondCountableTopology M] [IsOpenUnits M] :
     MeasurableEmbedding ((↑) : Mˣ → M) :=
   IsOpenUnits.isOpenEmbedding_unitsVal.measurableEmbedding
@@ -404,7 +404,7 @@ instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [Is
     [Fintype n] [DecidableEq n] : IsOpenUnits (Matrix n n R) := by
   refine ⟨⟨?_, ?_⟩⟩
   · refine Units.isEmbedding_val_mk' (f := (·⁻¹)) ?_ (by simp)
-    refine .smul ?_ continuous_id.matrix_adjugate.continuousOn
+    refine .fun_smul ?_ continuous_id.matrix_adjugate.continuousOn
     · refine .comp' (t := {x : R | IsUnit x}) ?_ continuous_id.matrix_det.continuousOn ?_
       · rw [← Units.range_val, ← Set.image_univ]
         refine IsOpenUnits.isOpenEmbedding_unitsVal.continuousOn_image_iff.mpr ?_
@@ -525,7 +525,7 @@ open _root_.MulOpposite in
 For any ring `R`, we have ring isomorphism `Matₙₓₙ(Rᵒᵖ) ≅ (Matₙₓₙ(R))ᵒᵖ` given by transpose.
 -/
 @[simps! apply symm_apply]
-def Matrix.mopContinuousMulEquiv {m α} [Fintype m] [DecidableEq m] [Mul α] [AddCommMonoid α]
+def Matrix.mopContinuousMulEquiv {m α} [Fintype m] [Mul α] [AddCommMonoid α]
     [TopologicalSpace α] :
     Matrix m m αᵐᵒᵖ ≃ₜ* (Matrix m m α)ᵐᵒᵖ where
   __ := RingEquiv.mopMatrix
@@ -535,7 +535,7 @@ open _root_.MulOpposite in
 For any ring `R`, we have ring isomorphism `Matₙₓₙ(Rᵒᵖ) ≅ (Matₙₓₙ(R))ᵒᵖ` given by transpose.
 -/
 @[simps! apply symm_apply]
-def Matrix.transposeContinuousMulEquiv {m α} [Fintype m] [DecidableEq m]
+def Matrix.transposeContinuousMulEquiv {m α} [Fintype m]
     [CommMagma α] [AddCommMonoid α] [TopologicalSpace α] :
     Matrix m m α ≃ₜ* (Matrix m m α)ᵐᵒᵖ where
   __ := Matrix.transposeRingEquiv m α
