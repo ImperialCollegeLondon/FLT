@@ -8,8 +8,6 @@ module
 public import Mathlib.LinearAlgebra.Dual.Lemmas
 public import FLT.Slop.BrauerInduction.Background.Group.Conjugacy
 
-@[expose] public section
-
 /-!
 # Class functions
 
@@ -17,10 +15,13 @@ This file defines `ClassFun k G`, the type of `k`-valued functions on a group
 `G` which are constant on conjugacy classes, and develops the basic pointwise
 algebraic API for these functions.
 
-A `ClassFun k G` is a bundled function `G → k` together with the proof that it
-takes equal values on conjugate elements. The file provides the coercion to
-functions, extensionality, constant class functions, the inversion involution,
-and pointwise additive, multiplicative, scalar, module, ring, and algebra
+A `ClassFun k G` is a function on the conjugacy classes `ConjClasses G` of `G`
+with values in `k`; equivalently it is a function `G → k` which takes equal
+values on conjugate elements. The file provides the coercion to functions on
+`G` (evaluating through `ConjClasses.mk`), a smart constructor `ClassFun.ofFun`
+turning a conjugacy-invariant function `G → k` into a class function,
+extensionality, constant class functions, the inversion involution, and
+pointwise additive, multiplicative, scalar, module, ring, and algebra
 structures.
 
 It also identifies class functions with the submodule of all functions
@@ -29,7 +30,8 @@ space of class functions is finite-dimensional when `G` is finite.
 
 ## Main declarations
 
-* `ClassFun`: bundled class functions.
+* `ClassFun`: class functions, as functions on conjugacy classes.
+* `ClassFun.ofFun`: the smart constructor from a conjugacy-invariant `G → k`.
 * `ClassFun.const`: the constant class function.
 * `ClassFun.involution`: the involution `f ↦ fun g => f g⁻¹`.
 * `ClassFun.toSubmodule`: the submodule of functions constant on conjugacy
@@ -41,11 +43,17 @@ space of class functions is finite-dimensional when `G` is finite.
 * `ClassFun.constRingHom`: the inclusion of constant functions.
 -/
 
+@[expose] public section
+
+namespace Slop
+open Slop
+
 universe u v w
 
+/-- A class function is a `k`-valued function on the conjugacy classes of `G`. -/
 structure ClassFun (k : Type u) (G : Type v) [Group G] where
-  protected toFun : G → k
-  protected map_conj : ∀ x y : G, IsConj x y → toFun x = toFun y
+  /-- The underlying function on conjugacy classes. -/
+  toFun : ConjClasses G → k
 
 namespace ClassFun
 
@@ -58,17 +66,29 @@ variable {H : Type*} [Group H]
 section Basic
 
 instance : FunLike (ClassFun k G) G k where
-  coe := ClassFun.toFun
+  coe f g := f.toFun (ConjClasses.mk g)
   coe_injective := by
-    intro f g h
-    cases f
-    cases g
-    cases h
-    rfl
+    rintro ⟨f⟩ ⟨g⟩ h
+    congr 1
+    funext c
+    obtain ⟨x, rfl⟩ := ConjClasses.mk_surjective c
+    exact congrFun h x
 
 @[simp]
-lemma coe_mk {f : G → k} {h} (x : G) :
-    ClassFun.mk f h x = f x :=
+lemma coe_mk (F : ConjClasses G → k) (x : G) :
+    ClassFun.mk F x = F (ConjClasses.mk x) :=
+  rfl
+
+/--
+The smart constructor: a function `G → k` that is constant on conjugacy classes
+descends to a class function.
+-/
+def ofFun (f : G → k) (h : ∀ x y : G, IsConj x y → f x = f y) : ClassFun k G where
+  toFun := Quotient.lift f h
+
+@[simp]
+lemma ofFun_apply (f : G → k) (h : ∀ x y : G, IsConj x y → f x = f y) (x : G) :
+    ofFun f h x = f x :=
   rfl
 
 @[ext]
@@ -76,6 +96,12 @@ lemma ext {f g : ClassFun k G}
     (h : ∀ x : G, f x = g x) :
     f = g :=
   DFunLike.ext f g h
+
+/-- A class function takes equal values on conjugate elements. -/
+theorem map_conj (f : ClassFun k G) (x y : G) (h : IsConj x y) :
+    f x = f y := by
+  change f.toFun (ConjClasses.mk x) = f.toFun (ConjClasses.mk y)
+  rw [ConjClasses.mk_eq_mk_iff_isConj.mpr h]
 
 lemma apply_eq_apply_of_isConj
     {f : ClassFun k G} {x y : G}
@@ -100,20 +126,15 @@ lemma map_conj_eq' (f : ClassFun k G) (g x : G) :
 
 def const (a : k) : ClassFun k G where
   toFun := fun _ => a
-  map_conj := by
-    intro _ _ _
-    rfl
 
 @[simp]
 lemma const_apply (a : k) (g : G) :
     ClassFun.const (G := G) a g = a :=
   rfl
 
-def involution (f : ClassFun k G) : ClassFun k G where
-  toFun := fun g => f g⁻¹
-  map_conj := by
-    intro x y hxy
-    exact f.map_conj _ _ (IsConj.inv.mp hxy)
+def involution (f : ClassFun k G) : ClassFun k G :=
+  ofFun (fun g => f g⁻¹)
+    (fun _ _ hxy => f.map_conj _ _ (IsConj.inv.mp hxy))
 
 @[simp]
 lemma involution_apply (f : ClassFun k G) (g : G) :
@@ -131,30 +152,15 @@ end Basic
 section PointwiseOperations
 
 instance [Zero k] : Zero (ClassFun k G) where
-  zero :=
-    { toFun := fun _ => 0
-      map_conj := by
-        intro _ _ _
-        rfl }
+  zero := ⟨fun _ => 0⟩
 
 @[simp]
 lemma zero_apply [Zero k] (g : G) :
     (0 : ClassFun k G) g = 0 :=
   rfl
 
-@[simp]
-lemma toFun_zero_apply [Zero k] (g : G) :
-    ClassFun.toFun 0 g = (0 : k) := rfl
-
 instance [Add k] : Add (ClassFun k G) where
-  add f g :=
-    { toFun := fun x => f x + g x
-      map_conj := by
-        intro x y hxy
-        change f.toFun x + g.toFun x = f.toFun y + g.toFun y
-        exact congrArg₂ (· + ·)
-          (f.map_conj x y hxy)
-          (g.map_conj x y hxy) }
+  add f g := ⟨fun c => f.toFun c + g.toFun c⟩
 
 @[simp]
 lemma add_apply [Add k]
@@ -163,12 +169,7 @@ lemma add_apply [Add k]
   rfl
 
 instance [Neg k] : Neg (ClassFun k G) where
-  neg f :=
-    { toFun := fun x => -f x
-      map_conj := by
-        intro x y hxy
-        change -f.toFun x = -f.toFun y
-        exact congrArg Neg.neg (f.map_conj x y hxy) }
+  neg f := ⟨fun c => -f.toFun c⟩
 
 @[simp]
 lemma neg_apply [Neg k]
@@ -177,12 +178,7 @@ lemma neg_apply [Neg k]
   rfl
 
 instance [Sub k] : Sub (ClassFun k G) where
-  sub f g :=
-    { toFun := fun x => f x - g x
-      map_conj := by
-        intro x y hxy
-        change f.toFun x - g.toFun x = f.toFun y - g.toFun y
-        rw [f.map_conj x y hxy, g.map_conj x y hxy] }
+  sub f g := ⟨fun c => f.toFun c - g.toFun c⟩
 
 @[simp]
 lemma sub_apply [Sub k]
@@ -191,11 +187,7 @@ lemma sub_apply [Sub k]
   rfl
 
 instance [One k] : One (ClassFun k G) where
-  one :=
-    { toFun := fun _ => 1
-      map_conj := by
-        intro _ _ _
-        rfl }
+  one := ⟨fun _ => 1⟩
 
 @[simp]
 lemma one_apply [One k] (g : G) :
@@ -203,12 +195,7 @@ lemma one_apply [One k] (g : G) :
   rfl
 
 instance [Mul k] : Mul (ClassFun k G) where
-  mul f g :=
-    { toFun := fun x => f x * g x
-      map_conj := by
-        intro x y hxy
-        change f.toFun x * g.toFun x = f.toFun y * g.toFun y
-        rw [f.map_conj x y hxy, g.map_conj x y hxy] }
+  mul f g := ⟨fun c => f.toFun c * g.toFun c⟩
 
 @[simp]
 lemma mul_apply [Mul k]
@@ -218,12 +205,7 @@ lemma mul_apply [Mul k]
 
 instance {R : Type w} [SMul R k] :
     SMul R (ClassFun k G) where
-  smul r f :=
-    { toFun := fun x => r • f x
-      map_conj := by
-        intro x y hxy
-        change r • f.toFun x = r • f.toFun y
-        exact congrArg (fun z => r • z) (f.map_conj x y hxy) }
+  smul r f := ⟨fun c => r • f.toFun c⟩
 
 @[simp]
 lemma smul_apply
@@ -248,23 +230,18 @@ instance : Monoid (ClassFun k G) where
   mul_one f := by
     ext x
     exact mul_one (f x)
-  npow := fun n f =>
-    { toFun := fun x => (f x) ^ n
-      map_conj := by
-        intro x y hxy
-        change (f.toFun x) ^ n = (f.toFun y) ^ n
-        rw [f.map_conj x y hxy] }
+  npow := fun n f => ⟨fun c => (f.toFun c) ^ n⟩
   npow_zero := by
     intro f
     ext x
-    change (f.toFun x) ^ 0 = 1
+    change (f x) ^ 0 = 1
     exact pow_zero _
   npow_succ := by
     intro n f
     ext x
     change
-      (f.toFun x) ^ (n + 1) =
-        (f.toFun x) ^ n * f.toFun x
+      (f x) ^ (n + 1) =
+        (f x) ^ n * f x
     exact pow_succ _ _
 
 @[simp]
@@ -305,22 +282,17 @@ instance : AddCommMonoid (ClassFun k G) where
   add_comm f g := by
     ext x
     exact add_comm (f x) (g x)
-  nsmul := fun n f =>
-    { toFun := fun g => n • f g
-      map_conj := by
-        intro x y h
-        change n • f.toFun x = n • f.toFun y
-        rw [f.map_conj x y h] }
+  nsmul := fun n f => ⟨fun c => n • f.toFun c⟩
   nsmul_zero := by
     intro f
     ext g
-    change (0 : ℕ) • f.toFun g = 0
-    exact zero_nsmul (f.toFun g)
+    change (0 : ℕ) • f g = 0
+    exact zero_nsmul (f g)
   nsmul_succ := by
     intro n f
     ext g
-    change (n + 1) • f.toFun g = n • f.toFun g + f.toFun g
-    exact succ_nsmul (f.toFun g) n
+    change (n + 1) • f g = n • f g + f g
+    exact succ_nsmul (f g) n
 
 @[simp]
 lemma nsmul_apply
@@ -360,12 +332,7 @@ instance : AddCommGroup (ClassFun k G) where
   sub_eq_add_neg f g := by
     ext x
     exact sub_eq_add_neg (f x) (g x)
-  zsmul := fun n f =>
-    { toFun := fun x => n • f x
-      map_conj := by
-        intro x y hxy
-        change n • f.toFun x = n • f.toFun y
-        rw [f.map_conj x y hxy] }
+  zsmul := fun n f => ⟨fun c => n • f.toFun c⟩
   zsmul_zero' := by
     intro f
     ext x
@@ -374,16 +341,16 @@ instance : AddCommGroup (ClassFun k G) where
     intro n f
     ext x
     change
-      ((n : ℤ) + 1) • f.toFun x =
-        (n : ℤ) • f.toFun x + f.toFun x
-    simpa using (add_zsmul (f.toFun x) (n : ℤ) 1)
+      ((n : ℤ) + 1) • f x =
+        (n : ℤ) • f x + f x
+    simpa using (add_zsmul (f x) (n : ℤ) 1)
   zsmul_neg' := by
     intro n f
     ext x
     change
-      (-(n.succ : ℤ)) • f.toFun x =
-        -((n.succ : ℤ) • f.toFun x)
-    exact neg_zsmul (f.toFun x) (n.succ : ℤ)
+      (-(n.succ : ℤ)) • f x =
+        -((n.succ : ℤ) • f x)
+    exact neg_zsmul (f x) (n.succ : ℤ)
 
 @[simp]
 lemma zsmul_apply
@@ -548,13 +515,13 @@ variable [Semiring R] [AddCommMonoid k] [Module R k]
 instance : Module R (ClassFun k G) where
   one_smul f := by
     ext x
-    change (1 : R) • f.toFun x = f.toFun x
-    exact one_smul R (f.toFun x)
+    change (1 : R) • f x = f x
+    exact one_smul R (f x)
 
   mul_smul r s f := by
     ext x
-    change (r * s) • f.toFun x = r • s • f.toFun x
-    exact mul_smul r s (f.toFun x)
+    change (r * s) • f x = r • s • f x
+    exact mul_smul r s (f x)
 
   smul_zero r := by
     ext x
@@ -563,20 +530,20 @@ instance : Module R (ClassFun k G) where
 
   smul_add r f g := by
     ext x
-    change r • (f.toFun x + g.toFun x) =
-      r • f.toFun x + r • g.toFun x
-    exact smul_add r (f.toFun x) (g.toFun x)
+    change r • (f x + g x) =
+      r • f x + r • g x
+    exact smul_add r (f x) (g x)
 
   add_smul r s f := by
     ext x
-    change (r + s) • f.toFun x =
-      r • f.toFun x + s • f.toFun x
-    exact add_smul r s (f.toFun x)
+    change (r + s) • f x =
+      r • f x + s • f x
+    exact add_smul r s (f x)
 
   zero_smul f := by
     ext x
-    change (0 : R) • f.toFun x = 0
-    exact zero_smul R (f.toFun x)
+    change (0 : R) • f x = 0
+    exact zero_smul R (f x)
 
 end Module
 
@@ -614,8 +581,7 @@ def toSubmoduleEquiv :
   toFun f :=
     ⟨f, f.map_conj⟩
   invFun f :=
-    { toFun := f
-      map_conj := f.property }
+    ofFun (f : G → k) f.property
   left_inv f := by
     ext x
     rfl
@@ -660,3 +626,5 @@ noncomputable instance finiteDimensional :
 end FiniteDimensional
 
 end ClassFun
+
+end Slop

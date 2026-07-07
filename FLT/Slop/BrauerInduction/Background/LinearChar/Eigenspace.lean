@@ -9,8 +9,6 @@ public import FLT.Slop.BrauerInduction.Background.LinearChar.Inertia
 public import FLT.Slop.BrauerInduction.Background.FDRep.Res
 public import Mathlib.CategoryTheory.Simple
 
-@[expose] public section
-
 /-!
 # Eigenspaces attached to linear characters
 
@@ -22,6 +20,11 @@ The final lemmas record the two Clifford-theoretic facts needed later: elements
 of `A` act by the scalar `ψ`, and if the inertia subgroup is all of `G`, then a
 nonzero eigenspace is the whole simple representation.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v w
 
@@ -415,3 +418,5 @@ lemma rho_eq_smul_of_inertia_eq_top
     (LinearChar.mem_psiEigenspace_iff ρ A ψ v).1 hv a
 
 end LinearChar
+
+end Slop

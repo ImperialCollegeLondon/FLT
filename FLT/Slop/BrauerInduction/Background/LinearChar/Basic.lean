@@ -8,8 +8,6 @@ module
 public import FLT.Slop.BrauerInduction.Background.FDRep.Character.Basic
 public import FLT.Slop.BrauerInduction.Background.FDRep.Res
 
-@[expose] public section
-
 /-!
 
 Linear characters
@@ -27,6 +25,11 @@ This file proves the basic API for these representations, including their
 action on vectors, their characters, their finrank, and compatibility with
 transport along group isomorphisms.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -74,7 +77,7 @@ noncomputable def ofLinearChar (ψ : G →* kˣ) : FDRep k G :=
 lemma char_ofLinearChar {k : Type u} [Field k]
     (ψ : G →* kˣ) (g : G) :
     (ofLinearChar ψ).character g = (ψ g : k) := by
-  simp only [character, ofLinearChar]
+  simp only [FDRep.character, ofLinearChar]
   change
     (LinearMap.trace k k)
         ((ψ g : k) • (LinearMap.id : k →ₗ[k] k))
@@ -170,3 +173,5 @@ noncomputable def FDRep.ofLinearChar_transportEquiv_iso
   rfl
 
 end Group
+
+end Slop

@@ -8,7 +8,17 @@ module
 public import FLT.Slop.BrauerInduction.Background.LinearChar.Basic
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Character.Basic
 
+/-!
+# Linear characters from one-dimensional representations
+
+This file constructs the linear character `FDRep.linearCharOfOneDim`
+associated to a one-dimensional representation.
+-/
+
 @[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -137,3 +147,5 @@ lemma exists_iso_ofLinearChar_of_finrank_one
   exact ⟨(isoLinearCharOfOneDim σ h_dim).symm⟩
 
 end FDRep
+
+end Slop

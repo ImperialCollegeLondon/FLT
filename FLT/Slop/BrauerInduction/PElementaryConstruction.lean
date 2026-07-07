@@ -12,8 +12,6 @@ public import FLT.Slop.BrauerInduction.Background.ClassFun.Zlocal
 public import FLT.Slop.BrauerInduction.Background.RingTheory.RootsOfUnity
 public import FLT.Slop.BrauerInduction.PElementaryGroup
 
-@[expose] public section
-
 /-!
 # Bernstein Step 8: the elementary subgroup and the function `f_a`
 
@@ -25,6 +23,11 @@ The file also proves Bernstein's character-sum formula for `φ_a`, the
 membership statement `φ_a ∈ Q(E(a))`, and the support and evaluation formulas
 for `f_a` needed in the local part of the proof.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -746,9 +749,10 @@ takes the value `0` elsewhere.
 -/
 noncomputable def phi_fun
     (k : Type u) [CommRing k] (a : G) :
-  ClassFun k (E_subgroup p a) where
-  toFun := fun x => if Group.pRegular p (x : G) = a then (orderOf a : k) else 0
-  map_conj := by
+  ClassFun k (E_subgroup p a) :=
+  ClassFun.ofFun
+    (fun x => if Group.pRegular p (x : G) = a then (orderOf a : k) else 0)
+    (by
     intro x y hc
     obtain ⟨g, hg⟩ := hc
     have hy : y = g * x * g⁻¹ := by
@@ -777,7 +781,7 @@ noncomputable def phi_fun
       · intro h1
         rw [h_conj, h1]
         exact E_commutes_with_a p a g
-    exact h_iff.symm
+    exact h_iff.symm)
 
 open Classical in
 @[simp]
@@ -970,7 +974,7 @@ lemma f_a_apply_eq_zero_of_not_isConj [Fintype G]
       refine ⟨q.out⁻¹, ?_⟩
       rw [inv_inv]
       exact hconj_eq
-    simp only [hE, ↓reduceDIte, phi_fun, ClassFun.coe_mk, hne, ↓reduceIte]
+    simp only [hE, ↓reduceDIte, phi_fun, ClassFun.ofFun_apply, hne, ↓reduceIte]
   · simp [hE]
 
 /--
@@ -1105,7 +1109,7 @@ noncomputable def bernsteinIndex (x : G) : ℕ :=
   Nat.card (Subgroup.centralizer
     ({x} : Set G)) / Nat.card (PElementary.P_of_Z  p x)
 
-open Subgroup PElementary in
+open _root_.Subgroup PElementary in
 /--
 Evaluation of `f_a` at `a * u`, where `u` is `p`-singular and commutes with
 `a`, as a filtered count of conjugates of `u` lying in `P_Z(a)`.
@@ -1174,7 +1178,7 @@ variable (p : ℕ)
 variable {k : Type u} [Field k]
 variable {G : Type v} [Group G] [Fact p.Prime]
 
-open Classical PElementary Subgroup in
+open Classical PElementary _root_.Subgroup in
 /--
 Evaluates f_a at x = a * s, reducing the induction sum to a count of elements in C_G(a)
 that conjugate s into the Sylow p-subgroup P_Z(a).
@@ -1269,7 +1273,7 @@ lemma f_a_apply_mul_pSingular_eq_sum
         simp [hxC]
   rw [h_sum, Finset.sum_const, nsmul_eq_mul, mul_assoc]
 
-open Classical PElementary Subgroup in
+open Classical PElementary _root_.Subgroup in
 /--
 Evaluation of `f_a(a * )` as the number of fixed cosets of `P_Z(a)` in the
 centralizer of `a`.
@@ -1338,7 +1342,7 @@ lemma f_a_apply_mul_pSingular_eq_Nfix
       Nat.card { x : G // x ∈ Z_group ∧ x⁻¹ * s * x ∈ P_of_Z p a } =
       Nat.card { x : Z_group // x⁻¹ * s_Z * x ∈ P_Z } :=
     Nat.card_congr e_lift
-  have h_equiv := conjMemEquiv_fixedPointsProd P_Z s_Z
+  have h_equiv := Subgroup.conjMemEquiv_fixedPointsProd P_Z s_Z
   have h_card_prod :
       Nat.card { x : Z_group // x⁻¹ * s_Z * x ∈ P_Z } =
       Nat.card ({ c : Z_group ⧸ P_Z // s_Z • c = c } × P_Z) := Nat.card_congr h_equiv
@@ -1437,3 +1441,5 @@ lemma f_a_apply_a_isUnit_Zlocal
 end ZlocalEvaluation
 
 end ClassFun
+
+end Slop

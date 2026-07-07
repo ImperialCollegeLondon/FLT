@@ -7,10 +7,6 @@ module
 
 public import FLT.Slop.BrauerInduction.PRegularSum
 
-@[expose] public section
-
-universe u
-
 /-!
 # Bernstein's local-to-global step
 
@@ -28,6 +24,13 @@ The file has two parts.
   This is used to prove `one_mem_J_global`.
 
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
+
+universe u
 
 namespace BrauerInduction
 
@@ -180,7 +183,6 @@ lemma mem_of_forall_prime_exists_not_dvd_smul
   have hx : (1 : ℤ) • x ∈ M := h_one_in_I
   simpa using hx
 
-
 /--
 The global integral Bernstein span.
 
@@ -216,3 +218,5 @@ theorem one_mem_J_global [Fintype G] [IsAlgClosed k] [CharZero k] :
 end J_global
 
 end BrauerInduction
+
+end Slop

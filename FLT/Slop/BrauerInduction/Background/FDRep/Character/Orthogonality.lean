@@ -10,8 +10,6 @@ public import FLT.Slop.BrauerInduction.Background.Rep.Invariants
 public import FLT.Slop.BrauerInduction.Background.FDRep.Character.Basic
 public import FLT.Slop.BrauerInduction.Background.FDRep.Simple
 
-@[expose] public section
-
 /-!
 # Orthogonality of irreducible characters
 
@@ -25,6 +23,11 @@ The scalar product is written algebraically as
 which avoids complex conjugation and works over an algebraically closed field of
 characteristic zero.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 open CategoryTheory CategoryTheory.Limits BigOperators
 
@@ -58,7 +61,7 @@ theorem char_scalarProduct_eq_finrank_hom
     apply Finset.sum_congr rfl
     intro g _
     rw [mul_comm]
-    simp only [character, Representation.char_linHom, τ]
+    simp only [FDRep.character, Representation.char_linHom, τ]
     rfl
   rw [hsum]
   rw [Representation.average_char_eq_finrank_invariants τ]
@@ -119,3 +122,5 @@ lemma finrank_hom_eq_of_char_eq
 
 
 end FDRep
+
+end Slop

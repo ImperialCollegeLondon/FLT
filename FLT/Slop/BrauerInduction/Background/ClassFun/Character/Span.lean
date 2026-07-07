@@ -9,8 +9,6 @@ module
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Character.Basic
 public import FLT.Slop.BrauerInduction.Background.FDRep.SimpleDecomposition
 
-@[expose] public section
-
 /-!
 # Spans of irreducible characters
 
@@ -23,6 +21,11 @@ finite biproduct of simple representations. Taking characters gives the
 corresponding decomposition into a finite sum of irreducible characters.
 Consequently, every virtual character lies in their `ℤ`-linear span.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -110,3 +113,5 @@ def virtualCharacterSubmodule
 
 
 end ClassFun
+
+end Slop

@@ -9,8 +9,6 @@ public import Mathlib.RepresentationTheory.FiniteIndex
 public import Mathlib.CategoryTheory.Adjunction.Unique
 public import FLT.Slop.BrauerInduction.Background.FDRep.Res
 
-@[expose] public section
-
 /-!
 # Induction and coinduction of finite-dimensional representations
 
@@ -34,6 +32,11 @@ universe as the coefficient ring.  This reflects the universe shape of Mathlib
 universe, while induced and coinduced `Rep`s are built from the target group.
 
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v v' w
 
@@ -632,3 +635,5 @@ end top
 end top
 
 end FDRep
+
+end Slop

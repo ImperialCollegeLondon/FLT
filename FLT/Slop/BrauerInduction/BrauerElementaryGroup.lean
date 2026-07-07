@@ -7,8 +7,6 @@ module
 
 public import FLT.Slop.BrauerInduction.PElementaryGroup
 
-@[expose] public section
-
 /-!
 # Brauer elementary groups
 
@@ -17,6 +15,11 @@ This file contains an API for Brauer elementary groups.
 A group is **Brauer elementary** if it is `p`-elementary for some prime `p`.
 
  -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -119,3 +122,5 @@ theorem isNilpotent_subgroup
 end IsBrauerElementary
 
 end BrauerInduction
+
+end Slop

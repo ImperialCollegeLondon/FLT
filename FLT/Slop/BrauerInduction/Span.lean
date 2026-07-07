@@ -11,8 +11,6 @@ public import FLT.Slop.BrauerInduction.Background.LinearChar.Clifford
 public import FLT.Slop.BrauerInduction.Background.LinearChar.InducedCharacter
 public import FLT.Slop.BrauerInduction.BrauerElementaryGroup
 
-@[expose] public section
-
 /-!
 # Brauer spans
 
@@ -36,6 +34,11 @@ form of Brauer induction.
 The file also proves that `BrauerSpanChar` is closed under multiplication and
 stable under induction from subgroups.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -360,3 +363,5 @@ end BrauerSpanChar
 end BrauerSpanChar
 
 end BrauerInduction
+
+end Slop

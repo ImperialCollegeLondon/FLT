@@ -7,8 +7,6 @@ module
 
 public import FLT.Slop.BrauerInduction.Background.FDRep.Basic
 
-@[expose] public section
-
 /-!
 # Conjugating finite-dimensional representations of subgroups
 
@@ -26,6 +24,11 @@ subgroup.
 The file also contains helper lemmas for comparing the action of the conjugated
 representation on elements of a normal subgroup contained in `I`.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v w
 
@@ -123,3 +126,5 @@ lemma conjMap_rho_apply_of_mem_normal
   congr
 
 end FDRep
+
+end Slop

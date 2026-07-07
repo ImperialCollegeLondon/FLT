@@ -8,8 +8,6 @@ module
 public import FLT.Slop.BrauerInduction.Background.LinearChar.Basic
 public import FLT.Slop.BrauerInduction.Background.FDRep.ConjMap
 
-@[expose] public section
-
 /-!
 # Inertia groups of linear characters
 
@@ -50,6 +48,11 @@ of `ψ`.
 * `LinearChar.exists_mem_of_conj_ne`: an element outside the inertia subgroup
   changes the value of the character at some element of the normal subgroup.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -215,3 +218,5 @@ lemma exists_conj_coe_apply_ne_of_not_mem_inertia
 end Inertia
 
 end LinearChar
+
+end Slop

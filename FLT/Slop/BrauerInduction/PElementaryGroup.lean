@@ -12,8 +12,6 @@ public import FLT.Slop.BrauerInduction.Background.Group.InternalDirectProduct
 public import Mathlib.GroupTheory.SpecificGroups.Cyclic.Basic
 public import Mathlib.GroupTheory.Index
 
-@[expose] public section
-
 /-!
 # `p`-Elementary groups
 
@@ -27,6 +25,11 @@ The file also constructs the `p`-elementary group associated to a `p`-regular
 element `x`, namely the subgroup `Subgroup.zpowers x ⊔ P_of_Z p x`, where
 `P_of_Z p x` is a chosen Sylow `p`-subgroup of the centralizer of `x`.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -695,3 +698,5 @@ lemma zpowers_of_isOfFinOrder [Fact p.Prime]
 end IsPElementary
 
 end BrauerInduction
+
+end Slop

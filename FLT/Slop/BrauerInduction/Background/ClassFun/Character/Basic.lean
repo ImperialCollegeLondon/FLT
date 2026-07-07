@@ -8,8 +8,6 @@ module
 public import FLT.Slop.BrauerInduction.Background.FDRep.Character.Basic
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Maps
 
-@[expose] public section
-
 /-!
 # Basic character identities for finite-dimensional representations
 
@@ -18,6 +16,11 @@ class function and proves its basic identities: evaluation, invariance under
 isomorphism, and compatibility with standard constructions such as sums, tensor
 products, duals, internal Homs, biproducts, and restriction.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -33,11 +36,9 @@ variable [Field k] [Group G]
 /--
 The character of a finite-dimensional representation, bundled as a class function.
 -/
-noncomputable def character (V : FDRep k G) : ClassFun k G where
-  toFun := V.character
-  map_conj := by
-    intro x y h
-    exact FDRep.char_eq_of_isConj V h
+noncomputable def character (V : FDRep k G) : ClassFun k G :=
+  ofFun V.character
+    (fun _ _ h => FDRep.char_eq_of_isConj V h)
 
 @[simp]
 theorem char_apply (V : FDRep k G) (g : G) :
@@ -59,7 +60,7 @@ theorem char_mul_comm (V : FDRep k G) (g : G) (h : G) :
 @[simp]
 lemma char_one (V : FDRep k G) :
     ClassFun.character V 1 = Module.finrank k V := by
-  simp only [character, coe_mk, FDRep.char_one]
+  simp only [character, ofFun_apply, FDRep.char_one]
 
 /--
 Isomorphic representations have equal characters.
@@ -79,7 +80,7 @@ lemma char_trivial
     [Field k] [Group G] :
     ClassFun.character (FDRep.trivial k G) = (1 : ClassFun k G) := by
   ext g
-  simp only [character, FDRep.char_trivial, coe_mk, Pi.one_apply, one_apply]
+  simp only [character, FDRep.char_trivial, ofFun_apply, Pi.one_apply, one_apply]
 
 /--
 The character of a binary product is the sum of the characters.
@@ -87,8 +88,8 @@ The character of a binary product is the sum of the characters.
 @[simp]
 lemma char_prod (V W : FDRep k G) :
     ClassFun.character (V.prod W) = ClassFun.character V + ClassFun.character W := by
-  simp only [character, FDRep.char_prod]
-  rfl
+  ext g
+  exact congrFun (FDRep.char_prod V W) g
 /--
 The character of a tensor product is the product of the characters.
 -/
@@ -118,7 +119,7 @@ The character of the internal Hom representation is `χ_V(g⁻¹) * χ_W(g)`.
 lemma char_linHom (V W : FDRep k G) (g : G) :
     ClassFun.character (FDRep.linHom V W) g =
       V.character g⁻¹ * W.character g  := by
-  simp only [character, coe_mk, FDRep.char_linHom_apply]
+  simp only [character, ofFun_apply, FDRep.char_linHom_apply]
 
 /--
 The character of a finite biproduct is the sum of the characters.
@@ -163,3 +164,5 @@ the restricted representation.
 end res
 
 end ClassFun
+
+end Slop

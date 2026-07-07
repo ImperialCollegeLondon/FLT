@@ -8,8 +8,6 @@ module
 public import Mathlib.GroupTheory.DoubleCoset
 public import FLT.Slop.BrauerInduction.Background.Group.Coset
 
-@[expose] public section
-
 /-!
 # Double-coset helper lemmas
 
@@ -17,6 +15,11 @@ This file contains auxiliary lemmas for double-coset representatives, fibre
 cardinality computations, and decomposing finite sums over a group into sums over
 double cosets.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -402,15 +405,15 @@ lemma sum_rightCosets_by_doubleCoset
     {k : Type v} [AddCommMonoid k]
     [Finite G] (I : Subgroup G)
     [Fintype (_root_.Quotient (QuotientGroup.rightRel I))]
-    [Fintype (Quotient (G := G) I I)]
+    [Fintype (DoubleCoset.Quotient (G := G) I I)]
     (F : _root_.Quotient (QuotientGroup.rightRel I) → k) :
     (∑ q : _root_.Quotient (QuotientGroup.rightRel I), F q)
       =
-    ∑ d : Quotient (G := G) I I,
+    ∑ d : DoubleCoset.Quotient (G := G) I I,
       (∑ q :
             {q : _root_.Quotient (QuotientGroup.rightRel I) // DoubleCoset.mk I I q.out = d},
           F q.1) := by
-  let φ : _root_.Quotient (QuotientGroup.rightRel I) → Quotient (G := G) I I :=
+  let φ : _root_.Quotient (QuotientGroup.rightRel I) → DoubleCoset.Quotient (G := G) I I :=
     fun q => DoubleCoset.mk I I q.out
   simpa [φ] using (Fintype.sum_fiberwise φ (fun q => F q)).symm
 
@@ -429,3 +432,5 @@ lemma quotToDoubleCoset_eq_doubleCoset_out
   rfl
 
 end DoubleCoset
+
+end Slop

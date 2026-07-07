@@ -12,8 +12,6 @@ public import Mathlib.CategoryTheory.Preadditive.Schur
 public import Mathlib.CategoryTheory.Limits.Shapes.ZeroObjects
 public import Mathlib.RepresentationTheory.FDRep
 
-@[expose] public section
-
 /-!
 # Finite-dimensional representations
 
@@ -25,6 +23,11 @@ Main contents:
 * stable subrepresentations and the mono/injective criterion;
 * the finite-dimensional left regular and trivial representations.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v w w'
 open CategoryTheory
@@ -717,3 +720,5 @@ noncomputable def isoOfLinearEquiv
 end misc
 
 end FDRep
+
+end Slop

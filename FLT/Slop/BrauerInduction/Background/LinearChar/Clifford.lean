@@ -13,8 +13,6 @@ public import FLT.Slop.BrauerInduction.Background.LinearChar.QuotientDescent
 public import FLT.Slop.BrauerInduction.Background.Group.Nilpotent
 public import FLT.Slop.BrauerInduction.Background.Fintype.Basic
 
-@[expose] public section
-
 /-!
 # Clifford theory for nilpotent groups
 
@@ -35,6 +33,11 @@ Brauer induction: every simple representation of a finite nilpotent group over
 an algebraically closed field of characteristic zero is induced from a linear
 character of a subgroup.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -529,3 +532,5 @@ theorem exists_indLin_of_nilpotent_simple
   exact (hP (Nat.card G)) G rfl ρ
 
 end FDRep
+
+end Slop

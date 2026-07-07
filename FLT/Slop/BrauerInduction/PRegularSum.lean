@@ -10,10 +10,6 @@ public import FLT.Slop.BrauerInduction.LocalIdeal
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Zlocal
 public import FLT.Slop.BrauerInduction.Background.Group.PRegularClass
 
-@[expose] public section
-
-universe u v
-
 /-!
 # Bernstein Steps 5–7: the p-regular class sum
 
@@ -37,6 +33,12 @@ local statement
 `one_mem_Jloc : (1 : ClassFun k G) ∈ Jloc p`.
 -/
 
+@[expose] public section
+
+namespace Slop
+open Slop
+
+universe u v
 
 namespace BrauerInduction
 
@@ -53,7 +55,6 @@ This section defines the normalized functions `e_a`, sums them over
 `p`-regular conjugacy classes to obtain `E_p`, and proves the congruence
 `E_p(g) = 1 + pz` in the `p`-local integers.
 -/
-
 
 /--
 The `p`-local unit represented by the value `f_a(a)`.
@@ -140,7 +141,6 @@ noncomputable def E_p
   ∑ C : PRegularClass p G, e_a p
     C.repr (PRegularClass.repr_isPRegular C)
 
-
 open Classical in
 /--
 On `p`-regular elements, the summand indexed by a `p`-regular conjugacy class
@@ -202,7 +202,7 @@ lemma E_p_apply_of_pRegular
   · intro h_not_mem
     exact (h_not_mem (Finset.mem_univ C0)).elim
 
-open PElementary Subgroup in
+open PElementary _root_.Subgroup in
 /--
 The normalized function `e_a` is congruent to `1` modulo `p` on elements of
 the form `a * u`, where `u` is `p`-singular and commutes with `a`.
@@ -661,3 +661,5 @@ lemma one_mem_Jloc
 end PolynomialArgument
 
 end BrauerInduction
+
+end Slop

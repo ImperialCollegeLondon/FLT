@@ -8,8 +8,6 @@ module
 public import FLT.Slop.BrauerInduction.Background.LinearChar.Basic
 public import FLT.Slop.BrauerInduction.Background.FDRep.InducedFinrank
 
-@[expose] public section
-
 /-!
 # Induced representations attached to linear characters
 
@@ -18,6 +16,11 @@ representation associated to a linear character.
 
 Character formulas are kept in `LinearChar.InducedCharacter`.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -156,3 +159,5 @@ theorem finrank_indLin_rightRel
   simp only [finrank_ofLinearChar, mul_one]
 
 end FDRep
+
+end Slop

@@ -8,8 +8,6 @@ module
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Maps
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Induced
 
-@[expose] public section
-
 /-!
 
 # Integer-valued class functions
@@ -30,6 +28,11 @@ The main closure results show that integer-valued class functions are stable
 under the basic class-function operations used in Brauer induction, including
 restriction and induction.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -242,3 +245,5 @@ end C_Z
 end C_Z
 
 end ClassFun
+
+end Slop

@@ -7,8 +7,6 @@ module
 
 public import FLT.Slop.BrauerInduction.Background.FDRep.CoindBasic
 
-@[expose] public section
-
 /-!
 # A basis for coinduced representations
 
@@ -25,6 +23,11 @@ The basis vector indexed by `(q, i)` is supported on the right coset `q`; at an
 element `x` of that coset it is obtained by transporting the basis vector
 `bV i` using the element `x * q.out⁻¹ ∈ H`.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -298,3 +301,5 @@ theorem finrank_coind_of_basis
 end Finrank
 
 end FDRep
+
+end Slop

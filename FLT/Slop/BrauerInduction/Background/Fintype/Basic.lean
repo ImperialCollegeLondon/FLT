@@ -7,7 +7,18 @@ module
 
 public import Mathlib.SetTheory.Cardinal.Finite
 
+/-!
+# Basic finiteness lemmas
+
+This file collects small helper lemmas about finite types and cardinalities,
+including a rewriting of `dite`-sums and the nonvanishing of `Nat.card` for a
+finite type.
+-/
+
 @[expose] public section
+
+namespace Slop
+open Slop
 
 namespace Fintype
 
@@ -59,3 +70,5 @@ lemma natCast_natCard_ne_zero_of_finite
   exact One.natCard_ne_zero_of_finite H (Nat.cast_eq_zero.mp h)
 
 end One
+
+end Slop

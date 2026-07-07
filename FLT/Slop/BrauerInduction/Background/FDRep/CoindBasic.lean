@@ -7,7 +7,18 @@ module
 
 public import FLT.Slop.BrauerInduction.Background.FDRep.Induced
 
+/-!
+# Basic API for coinduced representations
+
+This file provides basic definitions and lemmas for coinduced representations,
+including the evaluation map `FDRep.coindEval` and associated extensionality
+lemmas.
+-/
+
 @[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -70,3 +81,5 @@ lemma coind_ext
   exact h x
 
 end FDRep
+
+end Slop

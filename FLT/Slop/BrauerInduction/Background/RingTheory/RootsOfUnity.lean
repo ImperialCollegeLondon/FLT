@@ -7,7 +7,17 @@ module
 
 public import Mathlib.RingTheory.RootsOfUnity.AlgebraicallyClosed
 
+/-!
+# Sums of powers of roots of unity
+
+This file provides finiteness helpers for the `rootsOfUnity` submonoid and the
+vanishing of a sum of powers of a nontrivial root of unity.
+-/
+
 @[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -118,3 +128,5 @@ lemma isIntegral
   exact Ne.symm (NeZero.ne' (Nat.card G))
 
 end rootsOfUnity
+
+end Slop

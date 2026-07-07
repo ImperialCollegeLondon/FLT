@@ -9,8 +9,6 @@ public import FLT.Slop.BrauerInduction.Background.ClassFun.Basic
 public import FLT.Slop.BrauerInduction.Background.FDRep.Character.Basic
 public import FLT.Slop.BrauerInduction.Background.FDRep.Simple
 
-@[expose] public section
-
 /-!
 
 # The action of class functions on representations
@@ -27,6 +25,11 @@ intertwining maps, its trace formula, scalarity on simple representations,
 compatibility with isomorphisms and finite biproducts, and faithfulness on
 the left regular representation.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -355,3 +358,5 @@ lemma eq_zero_of_action_leftRegular_eq_zero
 end LeftRegular
 
 end ClassFun
+
+end Slop

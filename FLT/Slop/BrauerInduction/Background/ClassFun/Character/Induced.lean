@@ -10,7 +10,17 @@ public import FLT.Slop.BrauerInduction.Background.FDRep.Character.Induced
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Induced
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Character.Basic
 
+/-!
+# Characters of induced class functions
+
+This file relates the induction operation on class functions to representation
+characters, via the lemmas `ClassFun.ind_ofChar` and `ClassFun.char_ind`.
+-/
+
 @[expose] public section
+
+namespace Slop
+open Slop
 
 universe u
 
@@ -54,3 +64,5 @@ theorem char_ind
 end InducedCharacter
 
 end ClassFun
+
+end Slop

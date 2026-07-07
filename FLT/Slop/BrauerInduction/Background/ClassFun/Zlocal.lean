@@ -9,8 +9,6 @@ public import FLT.Slop.BrauerInduction.Background.ClassFun.Maps
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Integral
 public import Mathlib.RingTheory.Localization.Defs
 
-@[expose] public section
-
 /-!
 # The localization of the integers at a prime
 
@@ -23,6 +21,11 @@ The file also defines pointwise casting of integer-valued class functions and
 the induced action of `Zlocal p` on class functions over a characteristic-zero
 field.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -248,3 +251,5 @@ lemma clear_denom
 end Zlocal
 
 end ClassFun
+
+end Slop

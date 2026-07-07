@@ -9,10 +9,6 @@ public import FLT.Slop.BrauerInduction.LocalToGlobal
 public import FLT.Slop.BrauerInduction.Span
 public import FLT.Slop.BrauerInduction.Background.Fintype.Basic
 
-@[expose] public section
-
-universe u v
-
 /-!
 # Projection from `Λ`-coefficients to integral coefficients
 
@@ -40,6 +36,13 @@ characters induced from Brauer-elementary subgroups.  Since `nuStar 1 = 1`,
 the local-to-global result `1 ∈ J_global` implies
 `1 ∈ BrauerSpanChar`.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
+
+universe u v
 
 namespace BrauerInduction
 
@@ -242,7 +245,6 @@ lemma nu_ext_int
 end LambdaProjection
 
 section CharacterCoefficientProjection
-
 
 /-!
 ## Projection on class-function coefficients
@@ -631,3 +633,5 @@ theorem one_mem_BrauerSpanChar
 end CharacterCoefficientProjection
 
 end BrauerInduction
+
+end Slop

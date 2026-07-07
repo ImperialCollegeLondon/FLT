@@ -8,8 +8,6 @@ module
 public import FLT.Slop.BrauerInduction.Background.FDRep.Basic
 public import FLT.Slop.BrauerInduction.Background.Group.Basic
 
-@[expose] public section
-
 /-!
 # Restriction and transport of finite-dimensional representations
 
@@ -27,6 +25,11 @@ Main definitions:
 * `FDRep.ofTop`: identify representations of the top subgroup with
   representations of the ambient group.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v w x
 
@@ -451,3 +454,5 @@ noncomputable def ofTopEquivalence
 end Top
 
 end FDRep
+
+end Slop

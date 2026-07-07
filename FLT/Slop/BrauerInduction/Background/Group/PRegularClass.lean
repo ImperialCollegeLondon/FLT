@@ -7,8 +7,6 @@ module
 
 public import FLT.Slop.BrauerInduction.Background.Group.PDecomposition
 
-@[expose] public section
-
 /-!
 # `p`-regular conjugacy classes
 
@@ -16,6 +14,11 @@ This file defines the subtype of conjugacy classes consisting of `p`-regular
 elements. It also provides a chosen representative for such a class and proves
 that every `p`-regular element lies in a unique `p`-regular conjugacy class.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u
 variable {G : Type u} [Group G]
@@ -102,3 +105,5 @@ noncomputable instance [Finite G] : Fintype (PRegularClass p G) := by
   exact Fintype.ofFinite (PRegularClass p G)
 
 end PRegularClass
+
+end Slop

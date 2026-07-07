@@ -8,10 +8,6 @@ module
 public import Mathlib.FieldTheory.IsAlgClosed.Basic
 public import FLT.Slop.BrauerInduction.Background.FDRep.Simple
 
-@[expose] public section
-
-universe u v
-
 /-!
 # Simple representations of abelian groups
 
@@ -20,6 +16,13 @@ finite-dimensional representations of abelian groups. In particular, over an
 algebraically closed field, every simple finite-dimensional representation of
 a commutative group is one-dimensional.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
+
+universe u v
 
 open CategoryTheory
 
@@ -156,3 +159,5 @@ lemma abelian_simple_is_linear
   exact (finrank_eq_one_iff_of_nonzero v hv).2 hspan_top
 
 end FDRep
+
+end Slop

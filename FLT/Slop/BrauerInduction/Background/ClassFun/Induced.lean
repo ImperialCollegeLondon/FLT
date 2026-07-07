@@ -8,10 +8,6 @@ module
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Maps
 public import FLT.Slop.BrauerInduction.Background.Group.Coset
 
-@[expose] public section
-
-universe u v w
-
 /-!
 # Induction of class functions
 
@@ -23,6 +19,13 @@ additivity, compatibility with scalar multiplication, transitivity, the
 projection formula, compatibility with coefficient maps, and the standard
 averaging formula over the whole group.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
+
+universe u v w
 
 namespace ClassFun
 
@@ -153,26 +156,25 @@ the quotient `G ⧸ H`.
 -/
 noncomputable def ind
     (H : Subgroup G) (φ : ClassFun k H) :
-    ClassFun k G where
-  toFun g :=
-    ∑ q : G ⧸ H, indSummand H φ g q.out
-  map_conj := by
-    intro x y hxy
-    rw [isConj_iff] at hxy
-    rcases hxy with ⟨a, ha⟩
-    let e : G ⧸ H ≃ G ⧸ H := {
-      toFun q := a • q
-      invFun q := a⁻¹ • q
-      left_inv q := by
-        simp [smul_smul]
-      right_inv q := by
-        simp [smul_smul]
-    }
-    nth_rewrite 2 [← Equiv.sum_comp e]
-    apply Finset.sum_congr rfl
-    intro q _
-    dsimp [e]
-    exact (indSummand_smul_quotient H φ a ha q).symm
+    ClassFun k G :=
+  ofFun (fun g => ∑ q : G ⧸ H, indSummand H φ g q.out)
+    (by
+      intro x y hxy
+      rw [isConj_iff] at hxy
+      rcases hxy with ⟨a, ha⟩
+      let e : G ⧸ H ≃ G ⧸ H := {
+        toFun q := a • q
+        invFun q := a⁻¹ • q
+        left_inv q := by
+          simp [smul_smul]
+        right_inv q := by
+          simp [smul_smul]
+      }
+      nth_rewrite 2 [← Equiv.sum_comp e]
+      apply Finset.sum_congr rfl
+      intro q _
+      dsimp [e]
+      exact (indSummand_smul_quotient H φ a ha q).symm)
 
 open Classical in
 /--
@@ -696,3 +698,5 @@ lemma ind_postcomp
 end CoefficientMaps
 
 end ClassFun
+
+end Slop

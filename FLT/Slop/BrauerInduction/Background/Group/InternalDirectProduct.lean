@@ -7,12 +7,16 @@ module
 
 public import FLT.Slop.BrauerInduction.Background.Group.Basic
 
-@[expose] public section
-
 /-!
 If two subgroups form an internal direct product, then multiplication gives a
 multiplicative equivalence from their product to the ambient group.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
+open _root_.Subgroup
 
 variable {G} [Group G]
 variable {H : Type*} [Group H]
@@ -81,3 +85,5 @@ by
   exact MulEquiv.ofBijective φ ⟨hinj, hsurj⟩
 
 end Subgroup
+
+end Slop

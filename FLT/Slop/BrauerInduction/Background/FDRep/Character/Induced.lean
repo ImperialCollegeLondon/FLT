@@ -11,8 +11,6 @@ public import FLT.Slop.BrauerInduction.Background.ClassFun.Induced
 public import FLT.Slop.BrauerInduction.Background.FDRep.Character.Basic
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Character.Basic
 
-@[expose] public section
-
 /-!
 
 # Characters of induced and coinduced representations
@@ -27,6 +25,11 @@ this proves that induction of the character of a representation agrees with
 the character of the induced representation.
 
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -163,7 +166,7 @@ lemma char_ind_as_avg_mul_inv
               (Nat.card I : k)⁻¹ *
                 ∑ x : G,
                   if h : x * g * x⁻¹ ∈ I then
-                    (ClassFun.character σ).toFun
+                    (ClassFun.character σ)
                       ⟨x * g * x⁻¹, h⟩
                   else
                     0
@@ -245,3 +248,5 @@ lemma char_ind_apply
   simp only [Equiv.inv_apply, inv_inv]
 
 end FDRep
+
+end Slop

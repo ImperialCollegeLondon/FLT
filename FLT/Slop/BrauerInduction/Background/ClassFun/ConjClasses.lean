@@ -8,7 +8,18 @@ module
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Basic
 public import Mathlib.FieldTheory.IsAlgClosed.Basic
 
+/-!
+# Class functions as functions on conjugacy classes
+
+This file provides the linear equivalence `ClassFun.linearEquivConjClasses`
+between class functions and functions on conjugacy classes, together with the
+resulting reindexing of sums over the group as sums over conjugacy classes.
+-/
+
 @[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -16,20 +27,15 @@ variable {k : Type u} [Field k] {G : Type v} [Group G]
 
 namespace ClassFun
 
-open Classical in
 /-- The explicit linear equivalence between ClassFun and functions on ConjClasses. -/
 noncomputable def linearEquivConjClasses :
     ClassFun k G ≃ₗ[k] (ConjClasses G → k) where
-  toFun f := Quotient.lift f.toFun f.map_conj
-  invFun F :=
-    { toFun := fun g => F (Quotient.mk _ g)
-      map_conj := fun x y h => by
-        -- `Quotient.sound` turns `IsConj x y` into `Quotient.mk _ x = Quotient.mk _ y`
-        rw [Quotient.sound h] }
-  left_inv f := by ext x; rfl
-  right_inv F := by ext q; revert q; exact Quotient.ind (fun x => rfl)
-  map_add' f g := by ext q; revert q; exact Quotient.ind (fun x => rfl)
-  map_smul' m f := by ext q; revert q; exact Quotient.ind (fun x => rfl)
+  toFun f := f.toFun
+  invFun F := ⟨F⟩
+  left_inv f := by cases f; rfl
+  right_inv F := rfl
+  map_add' f g := rfl
+  map_smul' m f := rfl
 
 open Classical in
 noncomputable instance instFintypeConjClasses
@@ -117,3 +123,5 @@ theorem sum_inv_card_centralizer
   grind
 
 end ClassFun
+
+end Slop

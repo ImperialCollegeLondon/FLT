@@ -8,8 +8,6 @@ module
 public import Mathlib.GroupTheory.PGroup
 public import FLT.Slop.BrauerInduction.Background.Group.Conjugacy
 
-@[expose] public section
-
 /-!
 
 # `p`-regular and `p`-singular elements
@@ -42,6 +40,11 @@ where `s` is `p`-singular and `r` is `p`-regular.
 * `Group.pDecomp_mul_of_commute`: the `p`-decomposition of a commuting product.
 
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -723,3 +726,5 @@ lemma pow_ordProj_eq_pRegular_pow_ordProj [Fact p.Prime]
 end pDecomposition
 
 end Group
+
+end Slop

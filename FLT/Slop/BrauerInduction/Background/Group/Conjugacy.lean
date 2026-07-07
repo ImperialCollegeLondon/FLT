@@ -8,14 +8,18 @@ module
 public import Mathlib.GroupTheory.Nilpotent
 public import FLT.Slop.BrauerInduction.Background.Group.Basic
 
-@[expose] public section
-
 /-!
 # Conjugacy and centralizers
 
 This file contains helper lemmas about conjugacy, centralizers, conjugacy
 classes, and the orbit-stabilizer formula for the conjugation action.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
+open _root_.Subgroup
 
 universe u
 variable {G : Type u} [Group G]
@@ -91,7 +95,6 @@ lemma card_centralizer_inv (g : G) :
     Nat.card (Subgroup.centralizer ({g⁻¹} : Set G)) =
       Nat.card (Subgroup.centralizer ({g} : Set G)) := by
   rw [Subgroup.centralizer_singleton_inv]
-
 
 /--
 Conjugation by `x` gives an equivalence between the centralizer of
@@ -188,7 +191,6 @@ lemma sum_ite_mem_centralizer_mul (k : Type*) [Semiring k]
             rw [Nat.card_eq_fintype_card]
             exact (Fintype.card_subtype (fun x => x ∈ centralizer {a})).symm
           rw [h_card]
-
 
 /--
 An element `x : G` such that `x⁻¹ * u * x ∈ H` is equivalently a fixed point of
@@ -296,3 +298,5 @@ lemma MulAction.card_conjClass_mul_card_centralizer [Fintype G] (g : G) :
   exact
     MulAction.card_orbit_mul_card_stabilizer_eq_card_group
       (ConjAct G) g
+
+end Slop

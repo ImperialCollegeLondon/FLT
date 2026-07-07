@@ -28,6 +28,8 @@ representation, weakens each subgroup's `IsBrauerElementary` hypothesis to `IsSo
 
 @[expose] public section
 
+open Slop
+
 open scoped BigOperators
 
 universe u

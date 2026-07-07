@@ -8,8 +8,6 @@ module
 public import Mathlib.GroupTheory.Nilpotent
 public import FLT.Slop.BrauerInduction.Background.Group.Basic
 
-@[expose] public section
-
 /-!
 # Nilpotent-group helper lemmas
 
@@ -17,6 +15,11 @@ This file contains group-theoretic lemmas about nilpotent groups used in the
 representation-theoretic induction arguments, especially the extraction of
 nontrivial central elements from nontrivial normal subgroups.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u
 variable {G : Type u} [Group G]
@@ -40,28 +43,28 @@ A nontrivial normal subgroup of a nilpotent group has nontrivial intersection
 with the center.
 -/
 lemma Subgroup.inf_center_ne_bot_of_normal_ne_bot_of_nilpotent [Group.IsNilpotent G]
-    (N : Subgroup G) [N.Normal] (hN : N ≠ ⊥) : N ⊓ center G ≠ ⊥ := by
+    (N : Subgroup G) [N.Normal] (hN : N ≠ ⊥) : N ⊓ Subgroup.center G ≠ ⊥ := by
   open Classical in
   obtain ⟨n, hn⟩ := Group.IsNilpotent.nilpotent (G := G)
-  let P : ℕ → Prop := fun i => N ⊓ upperCentralSeries G i ≠ ⊥
+  let P : ℕ → Prop := fun i => N ⊓ Subgroup.upperCentralSeries G i ≠ ⊥
   have h_ex : ∃ i, P i := ⟨n, by dsimp[P]; rw [hn, inf_top_eq]; exact hN⟩
   let k := Nat.find h_ex
-  have hk_min : N ⊓ upperCentralSeries G k ≠ ⊥ := Nat.find_spec h_ex
+  have hk_min : N ⊓ Subgroup.upperCentralSeries G k ≠ ⊥ := Nat.find_spec h_ex
   have k_ne_zero : k ≠ 0 := by
-    intro h0; rw [h0, upperCentralSeries_zero, inf_bot_eq] at hk_min; exact hk_min rfl
+    intro h0; rw [h0, Subgroup.upperCentralSeries_zero, inf_bot_eq] at hk_min; exact hk_min rfl
   obtain ⟨m, hm⟩ := Nat.exists_eq_succ_of_ne_zero k_ne_zero
-  have h_prev_bot : N ⊓ upperCentralSeries G m = ⊥ := by
+  have h_prev_bot : N ⊓ Subgroup.upperCentralSeries G m = ⊥ := by
     by_contra h_ne
     have h_lt : m < k := by rw [hm]; exact Nat.lt_succ_self m
     exact Nat.find_min h_ex h_lt h_ne
   obtain ⟨z, hz_mem, hz_ne⟩ := Subgroup.exists_mem_ne_one_of_ne_bot hk_min
-  have hz_cen : z ∈ center G := by
-    rw [mem_center_iff]
+  have hz_cen : z ∈ Subgroup.center G := by
+    rw [Subgroup.mem_center_iff]
     intro g
-    have h_comm_Z : ⁅g, z⁆ ∈ upperCentralSeries G m := by
-       have h_z_in_Zk : z ∈ upperCentralSeries G k := hz_mem.2
+    have h_comm_Z : ⁅g, z⁆ ∈ Subgroup.upperCentralSeries G m := by
+       have h_z_in_Zk : z ∈ Subgroup.upperCentralSeries G k := hz_mem.2
        rw [hm] at h_z_in_Zk
-       rw [mem_upperCentralSeries_succ_iff] at h_z_in_Zk
+       rw [Subgroup.mem_upperCentralSeries_succ_iff] at h_z_in_Zk
        specialize h_z_in_Zk g
        have h_inv : ⁅g, z⁆ = ⁅z, g⁆⁻¹ := by
          rw [commutatorElement_def, commutatorElement_def]; group
@@ -72,13 +75,13 @@ lemma Subgroup.inf_center_ne_bot_of_normal_ne_bot_of_nilpotent [Group.IsNilpoten
       apply Subgroup.mul_mem
       · exact Subgroup.Normal.conj_mem ‹N.Normal› z hz_mem.1 g
       · exact Subgroup.inv_mem N hz_mem.1
-    have h_in_inf : ⁅g, z⁆ ∈ N ⊓ upperCentralSeries G m := ⟨h_comm_N, h_comm_Z⟩
+    have h_in_inf : ⁅g, z⁆ ∈ N ⊓ Subgroup.upperCentralSeries G m := ⟨h_comm_N, h_comm_Z⟩
     rw [h_prev_bot] at h_in_inf
-    rw [mem_bot, commutatorElement_eq_one_iff_mul_comm] at h_in_inf
+    rw [Subgroup.mem_bot, commutatorElement_eq_one_iff_mul_comm] at h_in_inf
     exact h_in_inf
   intro h_bot
-  have h_z_in_inter : z ∈ N ⊓ center G := ⟨hz_mem.1, hz_cen⟩
-  rw [h_bot, mem_bot] at h_z_in_inter
+  have h_z_in_inter : z ∈ N ⊓ Subgroup.center G := ⟨hz_mem.1, hz_cen⟩
+  rw [h_bot, Subgroup.mem_bot] at h_z_in_inter
   exact hz_ne h_z_in_inter
 
 /--
@@ -216,3 +219,5 @@ lemma Group.exists_normal_abelian_gt_center [Group.IsNilpotent G]
     | inv_left x y _ _ h => exact (Commute.inv_left h).eq
     | inv_right x y _ _ h => exact (Commute.inv_right h).eq
   exact ⟨A, h_A_norm, h_A_comm, h_A_gt⟩
+
+end Slop

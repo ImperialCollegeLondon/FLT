@@ -8,8 +8,6 @@ module
 public import FLT.Slop.BrauerInduction.Background.LinearChar.Induced
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Character.Induced
 
-@[expose] public section
-
 /-!
 # Character formulas for induced linear characters
 
@@ -17,6 +15,11 @@ This file gives character formulas for `FDRep.indLin` and `FDRep.coindLin`.
 The proofs are consequences of the generic character formula for induced
 representations.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -103,3 +106,5 @@ lemma character_indLin
   exact ClassFun.char_ind (G := G) H (FDRep.ofLinearChar ψ)
 
 end ClassFun
+
+end Slop

@@ -9,8 +9,6 @@ public import FLT.Slop.BrauerInduction.Background.FDRep.ConjMap
 public import FLT.Slop.BrauerInduction.Background.FDRep.Basic
 public import FLT.Slop.BrauerInduction.Background.Group.DoubleCoset
 
-@[expose] public section
-
 /-!
 # Mackey summands for induced representations
 
@@ -29,6 +27,11 @@ representations is the Mackey Hom term associated to `g`.
 The character computations for these terms are developed in
 `FDRep.Mackey.Character`.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 open CategoryTheory
 
@@ -339,3 +342,5 @@ lemma finrank_mackeyHomTerm_oneDC_eq_end
     (DoubleCoset.out_oneDC_mem (G := G) I)
 
 end FDRep
+
+end Slop

@@ -7,10 +7,6 @@ module
 
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Basic
 
-public import FLT.Slop.BrauerInduction.Background.ClassFun.Basic
-
-@[expose] public section
-
 /-!
 # Maps of class functions
 
@@ -24,6 +20,11 @@ This file defines the basic functorial operations on class functions:
 It also packages the linear forms of these constructions when the coefficient
 types carry suitable module structures.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 namespace ClassFun
 
@@ -40,11 +41,9 @@ Precompose a class function with a group homomorphism.
 
 This is the pullback of class functions along the homomorphism.
 -/
-def comp (f : ClassFun k G) (φ : H →* G) : ClassFun k H where
-  toFun h := f (φ h)
-  map_conj := by
-    intro x y hxy
-    exact f.map_conj _ _ (MonoidHom.map_isConj φ hxy)
+def comp (f : ClassFun k G) (φ : H →* G) : ClassFun k H :=
+  ofFun (fun h => f (φ h))
+    (fun _ _ hxy => f.map_conj _ _ (MonoidHom.map_isConj φ hxy))
 
 @[simp]
 lemma comp_apply
@@ -119,11 +118,9 @@ section Postcomposition
 Postcompose a class function with a map between coefficient types.
 -/
 def postcomp (f : ClassFun k G) (F : k → l) :
-    ClassFun l G where
-  toFun g := F (f g)
-  map_conj := by
-    intro x y hxy
-    exact congrArg F (f.map_conj x y hxy)
+    ClassFun l G :=
+  ofFun (fun g => F (f g))
+    (fun x y hxy => congrArg F (f.map_conj x y hxy))
 
 @[simp]
 lemma postcomp_apply
@@ -271,3 +268,5 @@ lemma equivOfMulEquiv_symm_apply
 end MulEquiv
 
 end ClassFun
+
+end Slop

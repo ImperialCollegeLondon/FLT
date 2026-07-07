@@ -8,8 +8,6 @@ module
 public import FLT.Slop.BrauerInduction.PElementaryConstruction
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Zlocal
 
-@[expose] public section
-
 /-!
 # Bernstein's prime-local ideal
 
@@ -35,6 +33,11 @@ The file also proves the structural properties needed later:
 The later file `PRegularSum` uses these results to construct the local
 function supported on a chosen `p`-regular conjugacy class.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -244,3 +247,5 @@ lemma Jloc.mul_mem [IsAlgClosed k]
 
 end LocalizedIdeal
 end BrauerInduction
+
+end Slop

@@ -8,8 +8,6 @@ module
 public import Mathlib.GroupTheory.OrderOfElement
 public import Mathlib.Tactic.Group
 
-@[expose] public section
-
 /-!
 # Basic group-theoretic helper lemmas
 
@@ -20,6 +18,11 @@ sums over subtypes.
 More specialised material about cosets, conjugacy, nilpotent groups, and double
 cosets is developed in separate files.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 variable {G : Type u} {H : Type v} [Group G] [Group H]
@@ -36,7 +39,7 @@ theorem exists_mem_ne_one_of_ne_bot {H : Subgroup G} (h : H ≠ ⊥) :
   push Not at h_all
   apply h
   ext x
-  rw [mem_bot]
+  rw [Subgroup.mem_bot]
   constructor
   · intro hx; exact h_all x hx
   · rintro rfl; exact H.one_mem
@@ -167,3 +170,5 @@ def Subgroup.comapSubtypeCommEquiv
     intro x y
     ext
     rfl
+
+end Slop

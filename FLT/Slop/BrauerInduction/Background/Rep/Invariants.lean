@@ -7,14 +7,17 @@ module
 
 public import FLT.Slop.BrauerInduction.Background.Representation
 
-@[expose] public section
-
 /-!
 # Invariants of the internal Hom representation
 
 This file identifies invariant vectors of the representation
 `Representation.linHom X.ρ Y.ρ` with morphisms `X ⟶ Y` in `Rep k G`.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 namespace Rep
 
@@ -59,3 +62,5 @@ noncomputable def linHomInvariantsEquivHom
     rfl
 
 end Rep
+
+end Slop

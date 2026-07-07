@@ -9,7 +9,18 @@ public import FLT.Slop.BrauerInduction.Background.FDRep.Character.Basic
 public import FLT.Slop.BrauerInduction.Background.FDRep.SimpleDecomposition
 public import FLT.Slop.BrauerInduction.Background.Fintype.Basic
 
+/-!
+# Characters in terms of simple characters
+
+This file shows that every character lies in the span of the characters of
+simple representations, and introduces `IsCompleteSetOfSimples`, a complete
+set of representatives of the simple representations.
+-/
+
 @[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v w
 
@@ -95,3 +106,5 @@ lemma iso_iff_eq
 end IsCompleteSetOfSimples
 
 end FDRep
+
+end Slop

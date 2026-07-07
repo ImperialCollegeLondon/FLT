@@ -11,8 +11,6 @@ public import FLT.Slop.BrauerInduction.Background.FDRep.Character.Orthogonality
 public import FLT.Slop.BrauerInduction.Background.FDRep.Character.Induced
 public import FLT.Slop.BrauerInduction.Background.Fintype.Basic
 
-@[expose] public section
-
 /-! # Character computation for Mackey Hom terms
 
 This file computes the dimensions of the Mackey Hom terms introduced in
@@ -24,6 +22,11 @@ The final result expresses
 
 as a sum over double cosets of the dimensions of the corresponding Mackey Hom
 terms. -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 open CategoryTheory BigOperators
 
@@ -952,3 +955,5 @@ lemma finrank_end_ind_eq_hom_res_ind
     (FDRep.indResEquiv I σ τ)
 
 end FDRep
+
+end Slop

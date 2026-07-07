@@ -8,8 +8,6 @@ module
 public import FLT.Slop.BrauerInduction.Background.FDRep.Induced
 public import FLT.Slop.BrauerInduction.Background.FDRep.CoindBasic
 
-@[expose] public section
-
 /-!
 
 # Base change for coinduction along quotient maps
@@ -24,6 +22,11 @@ The main result is
 * `FDRep.CoindBaseChange.comap_coind_quotient_iso`:
   `comap π (coind Q σ) ≅ coind H (comap (H → Q) σ)`.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -267,3 +270,5 @@ noncomputable def comap_coind_quotient_iso
 
 end CoindBaseChange
 end FDRep
+
+end Slop

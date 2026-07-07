@@ -8,7 +8,17 @@ module
 public import FLT.Slop.BrauerInduction.Background.FDRep.CoindBasis
 public import FLT.Slop.BrauerInduction.Background.FDRep.Induced
 
+/-!
+# Dimension of induced and coinduced representations
+
+This file computes the `finrank` of induced and coinduced representations in
+terms of the number of cosets of the subgroup.
+-/
+
 @[expose] public section
+
+namespace Slop
+open Slop
 
 universe u
 
@@ -55,3 +65,5 @@ end FinrankInd
 end Finrank
 
 end FDRep
+
+end Slop

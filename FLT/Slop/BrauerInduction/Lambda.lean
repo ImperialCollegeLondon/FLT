@@ -12,8 +12,6 @@ public import FLT.Slop.BrauerInduction.Background.ClassFun.Character.Basis
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Integral
 public import FLT.Slop.BrauerInduction.Background.RingTheory.RootsOfUnity
 
-@[expose] public section
-
 /-!
 
 # Bernstein's coefficient ring `Λ`
@@ -41,6 +39,11 @@ Pure roots-of-unity facts used here are kept in
 Pointwise integer-valued class functions are developed separately in
 `BrauerInduction.Background.ClassFun.Integral`.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -369,3 +372,5 @@ lemma smul
 end HasLambdaCoords
 end coeffs
 end ClassFun
+
+end Slop

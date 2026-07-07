@@ -8,8 +8,6 @@ module
 public import FLT.Slop.BrauerInduction.Background.FDRep.Character.Orthogonality
 public import FLT.Slop.BrauerInduction.Background.FDRep.SimpleDecomposition
 
-@[expose] public section
-
 /-!
 # Characters determine finite-dimensional representations
 
@@ -21,6 +19,11 @@ The proof decomposes both representations into finite biproducts of simple
 representations, uses Schur orthogonality to compare the multiplicities of each
 simple summand, and then reindexes the resulting biproducts.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 open CategoryTheory
 open CategoryTheory.Limits
@@ -69,10 +72,10 @@ theorem char_eq_iff_iso
       have hHomV :
           Module.finrank k (S ⟶ V) =
             Module.finrank k (S ⟶ ⨁ f) :=
-              Eq.symm (finrank_hom_eq_of_char_eq S (⨁ f) V (char_iso (id eV.symm)))
+              Eq.symm (finrank_hom_eq_of_char_eq S (⨁ f) V (FDRep.char_iso (id eV.symm)))
       have hHomW :
           Module.finrank k (S ⟶ W) =
-            Module.finrank k (S ⟶ ⨁ g) := finrank_hom_eq_of_char_eq S W (⨁ g) (char_iso eW)
+            Module.finrank k (S ⟶ ⨁ g) := finrank_hom_eq_of_char_eq S W (⨁ g) (FDRep.char_iso eW)
       have hsumf :
           Module.finrank k (S ⟶ ⨁ f) =
             ∑ i, (if Nonempty (S ≅ f i) then 1 else 0) :=
@@ -123,3 +126,5 @@ noncomputable def iso_of_char_eq
   Classical.choice ((char_eq_iff_iso V W).mp h)
 
 end FDRep
+
+end Slop

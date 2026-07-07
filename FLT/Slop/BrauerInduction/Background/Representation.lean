@@ -11,10 +11,6 @@ public import Mathlib.RepresentationTheory.Invariants
 
 public import Mathlib.RepresentationTheory.Character
 
-@[expose] public section
-
-universe u v w w'
-
 /-!
 # Auxiliary facts about bundled representations
 
@@ -30,6 +26,13 @@ Main contents:
 * a trace formula for the multiplicity of invariants;
 * universe-lifted representations.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
+
+universe u v w w'
 
 section Helper
 
@@ -55,8 +58,8 @@ lemma LinearMap.trace_pi_diag (f : ∀ i, V i →ₗ[k] V i) :
   simp only [Matrix.trace, Matrix.diag_apply, LinearMap.toMatrix_apply,
     Pi.basis_apply, Pi.basis_repr]
   rw [Finset.sum_sigma']
-  simp_all only [Finset.univ_sigma_univ, pi_apply, coe_comp, coe_proj, Function.comp_apply,
-    Function.eval, Pi.single_eq_same, M']
+  simp_all only [Finset.univ_sigma_univ, LinearMap.pi_apply, LinearMap.coe_comp,
+    LinearMap.coe_proj, Function.comp_apply, Function.eval, Pi.single_eq_same, M']
 
 private lemma conj_lmap_eq (f : ∀ i, V i →ₗ[k] V i) :
     (DirectSum.linearEquivFunOnFintype k ι V).conj (DirectSum.lmap f) =
@@ -92,7 +95,7 @@ variable {G k V W : Type*} [Group G] [CommSemiring k] [AddCommGroup V] [Module k
 /-- dualTensorHom as an equivalence of representations. -/
 @[simps!]
 noncomputable def Representation.Equiv.dualTensorHomOfFiniteFree :
-    Equiv (tprod ρ.dual σ) (linHom ρ σ) where
+    Representation.Equiv (Representation.tprod ρ.dual σ) (Representation.linHom ρ σ) where
   toLinearEquiv := dualTensorHomEquiv (R := k) (M := V) (N := W)
   isIntertwining' g := by
     ext v' w v; simp [Module.Dual.transpose_apply]
@@ -108,14 +111,14 @@ variable {G k : Type*} [Monoid G] [Field k]
 variable {V W : Type*} [AddCommGroup V] [Module k V] [AddCommGroup W] [Module k W]
 
 lemma character_def (ρ : Representation k G V) (g : G) :
-  character ρ g = LinearMap.trace k V (ρ g) := rfl
+  Representation.character ρ g = LinearMap.trace k V (ρ g) := rfl
 
 /-- Equivalent representations have the same character. -/
 lemma char_equiv
     {ρ : Representation k G V} {σ : Representation k G W}
      (h : Representation.Equiv ρ σ) (g : G) :
     ρ.character g = σ.character g := by
-  simp only [character]
+  simp only [Representation.character]
   have h_conj : h.toLinearEquiv.conj (ρ g) = σ g := by
     ext v
     change h (ρ g (h.symm v)) = σ g v
@@ -123,7 +126,6 @@ lemma char_equiv
     simpa using h'
   rw [← h_conj]
   exact Eq.symm (LinearMap.trace_conj' (ρ g) h.toLinearEquiv)
-
 
 /-- The character of a product representation is the sum of the characters of
   the two factors. -/
@@ -150,7 +152,7 @@ open DirectSum
 @[simp]
 lemma char_directSum (ρ : (i : ι) → Representation k G (V i)) (g : G) :
     (Representation.directSum ρ).character g = ∑ i, (ρ i).character g := by
-  dsimp[character]
+  dsimp[Representation.character]
   exact DirectSum.trace_lmap fun x ↦ (ρ x) g
 
 end directSum
@@ -175,7 +177,7 @@ lemma ofMulAction_trace
   · apply Finset.sum_congr rfl
     intro x _
     rw [Matrix.diag_apply, LinearMap.toMatrix_apply, MonoidAlgebra.basis_apply, hrepr,
-      ofMulAction_single, MonoidAlgebra.coeff_single, Finsupp.single_apply]
+      Representation.ofMulAction_single, MonoidAlgebra.coeff_single, Finsupp.single_apply]
   · rw [Nat.card_eq_fintype_card, Fintype.card_subtype, Finset.sum_boole]
 
 end numOfFixedPoints
@@ -213,23 +215,23 @@ theorem mul_average_right (g : G) :
 /-- The action of `average k G` gives a projection map onto the subspace of invariants.
 -/
 noncomputable def averageMap (ρ : Representation k G V) : V →ₗ[k] V :=
-  asAlgebraHom ρ (average k G)
+  Representation.asAlgebraHom ρ (average k G)
 
 /-- The `averageMap` sends elements of `V` to the subspace of invariants.
 -/
 theorem averageMap_invariant (ρ : Representation k G V) (v : V) :
-    averageMap ρ v ∈ invariants ρ := fun g => by
-  rw [averageMap, ← asAlgebraHom_single_one, ← Module.End.mul_apply,
-    ← map_mul (asAlgebraHom ρ), mul_average_left]
+    averageMap ρ v ∈ Representation.invariants ρ := fun g => by
+  rw [averageMap, ← Representation.asAlgebraHom_single_one, ← Module.End.mul_apply,
+    ← map_mul (Representation.asAlgebraHom ρ), mul_average_left]
 
 /--
 In characteristic zero, the averaging operator acts as the identity on invariant
 vectors.
 -/
 theorem averageMap_id [CharZero k]
-    (ρ : Representation k G V) (v : V) (hv : v ∈ invariants ρ) :
+    (ρ : Representation k G V) (v : V) (hv : v ∈ Representation.invariants ρ) :
     averageMap ρ v = v := by
-  rw [mem_invariants] at hv
+  rw [Representation.mem_invariants] at hv
   have hcard : (Fintype.card G : k) ≠ 0 := by
     exact_mod_cast Fintype.card_ne_zero
   simp [averageMap, average, map_sum, hv, Finset.sum_const, Finset.card_univ,
@@ -248,7 +250,7 @@ theorem average_char_eq_finrank_invariants
     (ρ : Representation k G V) :
     ((Fintype.card G : k)⁻¹) * (∑ g : G, ρ.character g)
       =
-    (Module.finrank k (invariants ρ) : k) := by
+    (Module.finrank k (Representation.invariants ρ) : k) := by
   haveI : Invertible (Fintype.card G : k) :=
     invertibleOfNonzero (by exact_mod_cast Fintype.card_ne_zero)
   have h := (GroupAlgebra.isProj_averageMap ρ).trace
@@ -257,7 +259,8 @@ theorem average_char_eq_finrank_invariants
     (Fintype.card G : k)⁻¹ * ∑ x : G, (LinearMap.trace k V) (ρ x) =
       (LinearMap.trace k V) (GroupAlgebra.averageMap ρ)
   rw [GroupAlgebra.averageMap, GroupAlgebra.average]
-  simp only [MonoidAlgebra.of_apply, map_smul, map_sum, asAlgebraHom_single, one_smul, smul_eq_mul]
+  simp only [MonoidAlgebra.of_apply, map_smul, map_sum,
+    Representation.asAlgebraHom_single, one_smul, smul_eq_mul]
 
 noncomputable def ulift
     {k : Type u} [Semiring k]
@@ -344,3 +347,5 @@ lemma character_ulift
   exact LinearMap.trace_conj' (ρ g) ρ.uliftLinearEquiv
 
 end Representation
+
+end Slop

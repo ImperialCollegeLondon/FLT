@@ -8,9 +8,6 @@ module
 public import FLT.Slop.BrauerInduction.Background.FDRep.Mackey.Character
 public import FLT.Slop.BrauerInduction.Background.LinearChar.Eigenspace
 
-@[expose] public section
-
-
 /-!
 # Mackey theory for induced linear characters
 
@@ -23,6 +20,11 @@ the `ψ`-eigenspace of a representation `ρ`, then all Mackey terms outside the
 identity double coset vanish. Consequently the endomorphism ring of
 `Ind_I^G σ` has dimension one when `σ` is simple.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 open CategoryTheory BigOperators
 
@@ -288,3 +290,5 @@ theorem finrank_end_ind_from_inertia_eq_one
     _ = 1 := CategoryTheory.finrank_endomorphism_simple_eq_one k σ
 
 end FDRep
+
+end Slop

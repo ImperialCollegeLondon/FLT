@@ -8,8 +8,6 @@ module
 public import FLT.Slop.BrauerInduction.Background.FDRep.Biproducts
 public import Mathlib.RepresentationTheory.FinGroupCharZero
 
-@[expose] public section
-
 /-!
 # Simple decompositions of finite-dimensional representations
 
@@ -39,6 +37,11 @@ in this file uses a single universe for `k` and `G`.
 * `FDRep.exists_simple_decomposition`: every finite-dimensional representation
   is isomorphic to a finite biproduct of simple representations.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 namespace FDRep
 
@@ -301,3 +304,5 @@ theorem exists_simple_decomposition
   exact hP (finrank V) V rfl
 
 end FDRep
+
+end Slop

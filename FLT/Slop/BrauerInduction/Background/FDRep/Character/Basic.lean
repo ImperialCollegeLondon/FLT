@@ -10,8 +10,6 @@ public import FLT.Slop.BrauerInduction.Background.FDRep.Biproducts
 public import FLT.Slop.BrauerInduction.Background.FDRep.Res
 public import FLT.Slop.BrauerInduction.Background.Fintype.Basic
 
-@[expose] public section
-
 /-!
 # Characters of finite-dimensional representations
 
@@ -19,6 +17,11 @@ This file defines the character of an object of `FDRep k G` and proves its
 basic formal properties: invariance under isomorphism and conjugacy, behaviour
 under standard constructions, restriction, quotients, and finite biproducts.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v w
 
@@ -33,7 +36,7 @@ variable {G : Type v} [Monoid G]
 
 /-- Isomorphic representations have the same character. -/
 lemma char_eq_of_iso {V W : FDRep k G} (i : V ≅ W) : V.character = W.character :=
-  char_iso i
+  FDRep.char_iso i
 
 /-- Transporting a representation along a multiplicative equivalence transports its character. -/
 lemma char_transport
@@ -89,14 +92,14 @@ The character of the internal Hom representation is
 lemma char_linHom_apply
     (V W : FDRep k G) (g : G) :
     (linHom V W).character g = V.character g⁻¹ * W.character g :=
-      char_linHom V W g
+      FDRep.char_linHom V W g
 
 
 /-- Characters are invariant under conjugation by `x⁻¹` on the left. -/
 @[simp]
 lemma char_inv_conj (V : FDRep k G) (g x : G) :
     V.character (x⁻¹ * g * x) = V.character g := by
-  rw [char_mul_comm, ← mul_assoc, mul_inv_cancel, one_mul]
+  rw [FDRep.char_mul_comm, ← mul_assoc, mul_inv_cancel, one_mul]
 
 /-- Characters are constant on conjugacy classes. -/
 lemma char_eq_of_isConj
@@ -104,7 +107,7 @@ lemma char_eq_of_isConj
     V.character x = V.character y := by
   rw [isConj_iff] at h
   obtain ⟨z, hz⟩ := h
-  rw [← hz, char_conj]
+  rw [← hz, FDRep.char_conj]
 
 /--
 The character of a representation lifted to a quotient agrees with the original
@@ -225,3 +228,5 @@ lemma char_biproduct {ι : Type} [Fintype ι] (f : ι → FDRep k G) :
 end Biproducts
 
 end FDRep
+
+end Slop

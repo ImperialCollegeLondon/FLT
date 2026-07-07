@@ -9,8 +9,6 @@ public import FLT.Slop.BrauerInduction.Background.LinearChar.InducedCharacter
 public import FLT.Slop.BrauerInduction.Background.FDRep.Character.Iso
 public import FLT.Slop.BrauerInduction.Background.FDRep.CoindBaseChange
 
-@[expose] public section
-
 /-!
 # Descent of induced linear characters through quotients
 
@@ -18,6 +16,11 @@ This file contains compatibility results for induced linear characters under
 quotient maps, especially when a linear character is pulled back along a
 quotient.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -221,3 +224,5 @@ theorem exists_indLin_of_lift_exists_indLin
       (K := K) (Q := Q) (ψ_Q := ψQ) g
 
 end FDRep
+
+end Slop

@@ -7,8 +7,6 @@ module
 
 public import FLT.Slop.BrauerInduction.Background.FDRep.Simple
 
-@[expose] public section
-
 /-!
 # Central characters and central kernels
 
@@ -17,6 +15,11 @@ representation. By Schur's lemma, every central element acts by a scalar; these
 scalars form a multiplicative character of the center.
 
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -299,3 +302,5 @@ lemma rho_eq_one_of_mem_centralKernel
 end centralKernel
 
 end FDRep
+
+end Slop

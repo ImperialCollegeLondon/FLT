@@ -9,8 +9,6 @@ public import FLT.Slop.BrauerInduction.Background.Group.Basic
 public import FLT.Slop.BrauerInduction.Background.FDRep.SimpleDecomposition
 public import FLT.Slop.BrauerInduction.Background.Fintype.Basic
 
-@[expose] public section
-
 /-!
 # Simple finite-dimensional representations
 
@@ -21,6 +19,11 @@ closed fields, a Maschke-style rank-one characterization of simple
 representations, and a quotient-lift result for representations trivial on a
 normal subgroup.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 namespace FDRep
 
@@ -392,3 +395,5 @@ lemma lift_simple_of_simple
 end QuotientLift
 
 end FDRep
+
+end Slop

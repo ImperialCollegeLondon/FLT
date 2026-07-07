@@ -10,8 +10,6 @@ public import FLT.Slop.BrauerInduction.Background.ClassFun.Character.Basic
 public import FLT.Slop.BrauerInduction.Background.FDRep.Character.Orthogonality
 public import FLT.Slop.BrauerInduction.Background.Fintype.Basic
 
-@[expose] public section
-
 /-!
 # Orthogonality and duality for class functions
 
@@ -31,6 +29,11 @@ trivially on the regular representation itself.
 The pairing is then bundled as a linear map from `ClassFun k G` to its dual
 and shown to be an isomorphism.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -198,22 +201,22 @@ noncomputable def conjClassIndicator
     (k : Type u) [Zero k] [One k]
     {G : Type v} [Group G] (a : G) :
     ClassFun k G :=
-{ toFun := fun x => if IsConj x a then 1 else 0
-  map_conj := by
-    intro x g hxg
-    have hiff : IsConj x a ↔ IsConj g a := by
-      constructor
-      · intro hxa
-        exact hxg.symm.trans hxa
-      · intro hga
-        exact hxg.trans hga
-    by_cases hxa : IsConj x a
-    · have hga : IsConj g a := hiff.mp hxa
-      simp only [hxa, hga]
-    · have hga : ¬ IsConj g a := by
-        intro hg
-        exact hxa (hiff.mpr hg)
-      simp only [hxa, hga] }
+  ofFun (fun x => if IsConj x a then 1 else 0)
+    (by
+      intro x g hxg
+      have hiff : IsConj x a ↔ IsConj g a := by
+        constructor
+        · intro hxa
+          exact hxg.symm.trans hxa
+        · intro hga
+          exact hxg.trans hga
+      by_cases hxa : IsConj x a
+      · have hga : IsConj g a := hiff.mp hxa
+        simp only [hxa, hga]
+      · have hga : ¬ IsConj g a := by
+          intro hg
+          exact hxa (hiff.mpr hg)
+        simp only [hxa, hga])
 
 open Classical in
 @[simp]
@@ -398,3 +401,5 @@ lemma characterPairingLeft_character
     simp only [hWV, ↓reduceIte, CharP.cast_eq_zero, mul_zero, hVW]
 
 end ClassFun
+
+end Slop

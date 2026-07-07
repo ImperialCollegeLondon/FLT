@@ -8,8 +8,6 @@ module
 public import FLT.Slop.BrauerInduction.Background.FDRep.Basic
 public import Mathlib.RingTheory.Finiteness.Prod
 
-@[expose] public section
-
 /-!
 # Biproducts of finite-dimensional representations
 
@@ -20,6 +18,11 @@ with the product representation. We also provide linear equivalences describing
 the underlying module of a biproduct and helper lemmas for morphisms into finite
 biproducts.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 namespace FDRep
 
@@ -465,3 +468,5 @@ noncomputable def biproductOptionIso
 end OptionBiproduct
 
 end FDRep
+
+end Slop

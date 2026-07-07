@@ -11,8 +11,6 @@ public import FLT.Slop.BrauerInduction.Background.ClassFun.Orthogonality
 public import FLT.Slop.BrauerInduction.Background.ClassFun.Character.Span
 public import FLT.Slop.BrauerInduction.Background.ClassFun.ConjClasses
 
-@[expose] public section
-
 /-!
 
 # Bases of class functions from irreducible characters
@@ -35,6 +33,11 @@ that the associated simple representations form a complete set of
 isomorphism-class representatives, and deduces that the dimension of the
 class-function space equals the number of irreducible representations.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v w z
 
@@ -545,3 +548,5 @@ theorem finrank_classFun_eq_num_irreps
       (ClassFun.IrrepCharBasis.isCompleteSetOfSimples (k:= k) (G := G) B)
 
 end FDRep
+
+end Slop

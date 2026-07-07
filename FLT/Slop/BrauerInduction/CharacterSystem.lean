@@ -10,8 +10,6 @@ public import FLT.Slop.BrauerInduction.Background.ClassFun.Maps
 public import FLT.Slop.BrauerInduction.Lambda
 public import FLT.Slop.BrauerInduction.Background.FDRep.Character.Induced
 
-@[expose] public section
-
 /-!
 # Bernstein character systems
 
@@ -31,6 +29,11 @@ The main closure properties proved here are:
 * `ClassFun.R_Lambda.mul_mem`: `R_Λ` is closed under pointwise multiplication;
 * `ClassFun.Q_sys.ind_mem`: induction preserves `Q = R_Λ ∩ C_Z`.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u v
 
@@ -334,3 +337,5 @@ lemma Q_sys.ind_mem
 end QSys
 
 end ClassFun
+
+end Slop

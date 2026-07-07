@@ -8,8 +8,6 @@ module
 public import Mathlib.Algebra.BigOperators.Ring.Finset
 public import FLT.Slop.BrauerInduction.Background.Group.Basic
 
-@[expose] public section
-
 /-!
 # Coset and quotient helper lemmas
 
@@ -17,6 +15,11 @@ This file contains auxiliary equivalences and finite-sum decompositions for left
 and right cosets. These lemmas are used in the induced-character and double-coset
 arguments.
 -/
+
+@[expose] public section
+
+namespace Slop
+open Slop
 
 universe u
 variable {G : Type u} [Group G]
@@ -269,3 +272,5 @@ noncomputable def rightRel_comap_quotient_equiv
       rw [hxπ]
 
 end QuotientGroup
+
+end Slop
