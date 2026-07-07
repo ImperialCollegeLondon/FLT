@@ -205,7 +205,7 @@ theorem WeierstrassCurve.valuation_j_eq (E : WeierstrassCurve k) [E.IsElliptic]
 `j`-invariant, `|j(E)| > 1`: indeed `v(j) = -v(Δ_min) < 0`, since `c₄` is a unit when the
 reduction is multiplicative. -/
 theorem WeierstrassCurve.one_lt_valuation_j (E : WeierstrassCurve k) [E.IsElliptic]
-    [E.IsMinimal 𝒪[k]] [E.HasSplitMultiplicativeReduction 𝒪[k]] :
+    [E.HasSplitMultiplicativeReduction 𝒪[k]] :
     1 < valuation k E.j := by
   rw [E.valuation_j_eq]
   exact (one_lt_inv₀ (zero_lt_iff.mpr E.valuation_Δ_ne_zero)).mpr E.valuation_Δ_lt_one
@@ -219,7 +219,7 @@ isomorphic to `k̄ˣ/q^ℤ`. (The bare existence of an abstract isomorphism `E(k
 would not pin down `q`: already over `ℚ_p` the groups `ℚ_pˣ/p^ℤ` and `ℚ_pˣ/(p(1+p))^ℤ`
 are isomorphic, even topologically.) -/
 noncomputable def WeierstrassCurve.q (E : WeierstrassCurve k) [E.IsElliptic]
-    [E.IsMinimal 𝒪[k]] [E.HasSplitMultiplicativeReduction 𝒪[k]] : k :=
+    [E.HasSplitMultiplicativeReduction 𝒪[k]] : k :=
   tateParameter E.j
 
 -- Let E/k be an elliptic curve, given by a minimal Weierstrass equation,
@@ -227,9 +227,11 @@ noncomputable def WeierstrassCurve.q (E : WeierstrassCurve k) [E.IsElliptic]
 variable (E : WeierstrassCurve k) [E.IsElliptic] [E.IsMinimal 𝒪[k]]
   [E.HasSplitMultiplicativeReduction 𝒪[k]]
 
+omit [E.IsMinimal 𝒪[k]] in
 theorem WeierstrassCurve.q_ne_zero : E.q ≠ 0 :=
   tateParameter_ne_zero E.one_lt_valuation_j
 
+omit [E.IsMinimal 𝒪[k]] in
 /-- The Tate parameter has norm less than `1`. -/
 theorem WeierstrassCurve.valuation_q_lt_one : valuation k E.q < 1 :=
   valuation_tateParameter_lt_one E.one_lt_valuation_j
