@@ -40,7 +40,10 @@ theorem classification_tame_proof (G : Subgroup (PGL p)) [Finite G]
     (Nonempty (G ≃* alternatingGroup (Fin 4))) ∨
     (Nonempty (G ≃* Equiv.Perm (Fin 4))) ∨
     (Nonempty (G ≃* alternatingGroup (Fin 5))) :=
-  classification_tame_slop p G hG_tame hG_nontrivial
+  -- `PGL p` is `Matrix.ProjGenLinGroup (Fin 2) (K p)`, which is definitionally but not
+  -- reducibly the quotient `PGLOf (K p)` that the `FLT.Slop.PGL2` development is stated
+  -- in terms of, so the instance arguments have to be supplied by hand.
+  @classification_tame_slop p ‹_› ‹_› G (Fintype.ofFinite G) hG_tame hG_nontrivial
 
 theorem classification_wild_proof (G : Subgroup (PGL p)) [Finite G]
     (hG_p : p ∣ Nat.card G) :
@@ -53,6 +56,6 @@ theorem classification_wild_proof (G : Subgroup (PGL p)) [Finite G]
       Nonempty (G ≃* (GL (Fin 2) (GaloisField p m) ⧸
         Subgroup.center (GL (Fin 2) (GaloisField p m))))) ∨
     (p = 3 ∧ Nonempty (G ≃* alternatingGroup (Fin 5))) :=
-  classification_wild_slop p G hG_p
+  @classification_wild_slop p ‹_› ‹_› G ‹Finite G› hG_p
 
 end Dickson

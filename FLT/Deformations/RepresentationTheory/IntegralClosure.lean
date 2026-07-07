@@ -6,8 +6,9 @@ Authors: Andrew Yang, Kevin Buzzard
 module
 
 public import FLT.Deformations.Lemmas
-public import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
+public import FLT.Mathlib.Topology.Algebra.ContinuousSMulDiscrete
 public import Mathlib.RingTheory.Invariant.Defs
+
 import Mathlib.Algebra.GCDMonoid.IntegrallyClosed
 
 /-!

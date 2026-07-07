@@ -10,7 +10,7 @@ public import FLT.Slop.PGL2.FiniteSubgroups.FieldReconstruction
 /-!
 # Recognising `PSL₂(𝔽_q)` inside `PGL₂(𝔽̄_p)`
 
-Let `G` be a finite subgroup of `PGL p = PGL₂(𝔽̄_p)` of order `(q² - 1) * q / 2`
+Let `G` be a finite subgroup of `PGLOf (K p) = PGL₂(𝔽̄_p)` of order `(q² - 1) * q / 2`
 (`q = p^m`) arising in the wild case of Dickson's classification. This file shows that
 after conjugation `G` lies in the image of `PGL₂(𝔽_q) → PGL₂(𝔽̄_p)`
 (`Dickson.psl_G_le_pgl_range_from_orbit`), the key step in identifying `G` with
@@ -132,7 +132,7 @@ theorem additive_subgroup_eq_F_q_from_squares (m : ℕ) (hm : m ≥ 1) (hpm : p 
 
 
 
-theorem sylow_order_of_psl_order (G : Subgroup (PGL p)) [Finite G]
+theorem sylow_order_of_psl_order (G : Subgroup (PGLOf (K p))) [Finite G]
     (m : ℕ) (hm : m ≥ 1)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1) / 2)
     (P : Sylow p G) :
@@ -146,7 +146,7 @@ theorem sylow_order_of_psl_order (G : Subgroup (PGL p)) [Finite G]
   rw [h_two, Nat.sub_zero]
   exact congrArg (p ^ ·) (factorization_pgl_order p m hm)
 
-theorem n_p_gt_one_of_psl_order (G : Subgroup (PGL p)) [Finite G]
+theorem n_p_gt_one_of_psl_order (G : Subgroup (PGLOf (K p))) [Finite G]
     (m : ℕ) (hm : m ≥ 1) (hpm : p ^ m ≥ 5)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1) / 2) :
     Fintype.card (Sylow p G) > 1 := by
@@ -180,7 +180,7 @@ variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]
 
 
 
-theorem n_p_eq_psl (G : Subgroup (PGL p)) [Finite G]
+theorem n_p_eq_psl (G : Subgroup (PGLOf (K p))) [Finite G]
     (m : ℕ) (hm : m ≥ 1)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1) / 2)
     (hn_p_gt1 : Fintype.card (Sylow p G) > 1) :
@@ -226,7 +226,7 @@ theorem n_p_eq_psl (G : Subgroup (PGL p)) [Finite G]
       nlinarith only [ha, h_sub, hp_gt_one, h_a_bound]
 
 
-theorem z1_eq_psl (G : Subgroup (PGL p)) [Finite G]
+theorem z1_eq_psl (G : Subgroup (PGLOf (K p))) [Finite G]
     (m : ℕ) (hm : m ≥ 1) (hpm : p ^ m ≥ 5)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1) / 2)
     (P : Sylow p G) (hn_p_gt1 : Fintype.card (Sylow p G) > 1) :
@@ -250,7 +250,7 @@ theorem z1_eq_psl (G : Subgroup (PGL p)) [Finite G]
 
 
 theorem normDilationParam_image_card_eq_normalizerQuotient
-    (G : Subgroup (PGL p)) [Finite G]
+    (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G)
     (P : Sylow p G)
     (hP_fix : ∀ g ∈ (P : Subgroup G).map (Subgroup.subtype G),
@@ -288,7 +288,7 @@ theorem normDilationParam_image_card_eq_normalizerQuotient
 
 
 theorem normalizer_dilation_params_cover_nq_roots
-    (G : Subgroup (PGL p)) [Finite G]
+    (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G)
     (P : Sylow p G)
     (hP_fix : ∀ g ∈ (P : Subgroup G).map (Subgroup.subtype G),
@@ -324,7 +324,7 @@ theorem normalizer_dilation_params_cover_nq_roots
 
 
 theorem translationSet_stable_under_half_roots
-    (G : Subgroup (PGL p)) [Finite G]
+    (G : Subgroup (PGLOf (K p))) [Finite G]
     (m : ℕ) (hm : m ≥ 1) (hpm : p ^ m ≥ 5)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1) / 2)
     (hG_p : p ∣ Nat.card G)
@@ -362,7 +362,7 @@ theorem translationSet_scaled_eq_Fq_psl (m : ℕ) (hm : m ≥ 1) (hpm : p ^ m �
 
 
 theorem orbit_eq_infty_union_translations_psl
-    (G : Subgroup (PGL p)) [Finite G]
+    (G : Subgroup (PGLOf (K p))) [Finite G]
     (m : ℕ) (hm : m ≥ 1) (hpm : p ^ m ≥ 5)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1) / 2)
     (hG_p : p ∣ Nat.card G)
@@ -404,14 +404,14 @@ theorem orbit_eq_infty_union_translations_psl
 
 
 theorem orbit_infty_eq_P1Fq_psl_core
-    (G : Subgroup (PGL p)) [Finite G]
+    (G : Subgroup (PGLOf (K p))) [Finite G]
     (m : ℕ) (hm : m ≥ 1) (hpm : p ^ m ≥ 5)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1) / 2)
     (hG_p : p ∣ Nat.card G)
     (P : Sylow p G)
     (hP_fix : ∀ g ∈ (P : Subgroup G).map (Subgroup.subtype G),
       g • infinity p = infinity p) :
-    ∃ g : PGL p,
+    ∃ g : PGLOf (K p),
       g • infinity p = infinity p ∧
       orbitInfty p (G.map (MulEquiv.toMonoidHom (MulAut.conj g))) = P1Fq p m := by
   have h_card : Set.ncard (orbitInfty p G) = Fintype.card (Sylow p G) := orbitInfty_ncard p G hG_p P hP_fix
@@ -459,10 +459,10 @@ theorem orbit_infty_eq_P1Fq_psl_core
 
 
 theorem orbit_infty_eq_P1Fq_psl
-    (G : Subgroup (PGL p)) [Finite G]
+    (G : Subgroup (PGLOf (K p))) [Finite G]
     (m : ℕ) (hm : m ≥ 1) (hpm : p ^ m ≥ 5)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1) / 2) :
-    ∃ g : PGL p,
+    ∃ g : PGLOf (K p),
       orbitInfty p (G.map (MulEquiv.toMonoidHom (MulAut.conj g))) = P1Fq p m := by
   have h_even : 2 ∣ p ^ (2 * m) - 1 := by
     rw [← even_iff_two_dvd, Nat.even_sub (Nat.one_le_pow _ _ (Nat.le_trans (by norm_num : 1 ≤ 2) (Fact.out : p > 2).le))]
@@ -496,10 +496,10 @@ theorem orbit_infty_eq_P1Fq_psl
 
 
 theorem G_preserves_P1Fq_psl
-    (G : Subgroup (PGL p)) [Finite G]
+    (G : Subgroup (PGLOf (K p))) [Finite G]
     (m : ℕ) (hm : m ≥ 1) (hpm : p ^ m ≥ 5)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1) / 2) :
-    ∃ g : PGL p,
+    ∃ g : PGLOf (K p),
       ∀ h ∈ G.map (MulEquiv.toMonoidHom (MulAut.conj g)),
         ∀ x ∈ P1Fq p m, h • x ∈ P1Fq p m := by
   obtain ⟨g, hg⟩ := orbit_infty_eq_P1Fq_psl p G m hm hpm hn
@@ -507,10 +507,10 @@ theorem G_preserves_P1Fq_psl
 
 
 theorem psl_G_le_pgl_range_from_orbit
-    (G : Subgroup (PGL p)) [Finite G]
+    (G : Subgroup (PGLOf (K p))) [Finite G]
     (m : ℕ) (hm : m ≥ 1) (hpm : p ^ m ≥ 5)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1) / 2) :
-    ∃ g : PGL p, G.map (MulEquiv.toMonoidHom (MulAut.conj g)) ≤
+    ∃ g : PGLOf (K p), G.map (MulEquiv.toMonoidHom (MulAut.conj g)) ≤
       (pglMap (galoisFieldRingHom (p := p) m)).range := by
   obtain ⟨g, hg⟩ := G_preserves_P1Fq_psl p G m hm hpm hn
   exact ⟨g, fun h hh ↦ preserves_P1Fq_in_range p m hm h (hg h hh)⟩
