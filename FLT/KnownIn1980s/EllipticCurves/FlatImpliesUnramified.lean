@@ -118,20 +118,16 @@ theorem WeierstrassCurve.torsion_unramified_of_torsion_flat
   -- `n²` invertible in the residue field is finite étale, hence its generic fibre is an
   -- unramified Galois set — via the `FLT.GroupScheme` API once it exists. That route does
   -- not pass through the torsion points, and is the reason the flat hypotheses are stated.
-  have hgs : ∀ φ : k ⊗[R] H →ₐ[k] ksep, (σ : ksep ≃ₐ[k] ksep).toAlgHom.comp φ = φ := by
-    intro φ
-    -- inertia fixes the torsion point `f φ` (the elementary division-polynomial result)
+  have hgs : ∀ φ : k ⊗[R] H →ₐ[k] ksep, (σ : ksep ≃ₐ[k] ksep).toAlgHom.comp φ = φ := fun φ => by
+    -- inertia fixes the torsion point `f φ` (the elementary division-polynomial result)…
     have h3 : Affine.Point.map (σ : ksep ≃ₐ[k] ksep).toAlgHom
           (f (Additive.ofMul (WithConv.toConv φ)) : (E⁄ksep).Point)
         = (f (Additive.ofMul (WithConv.toConv φ)) : (E⁄ksep).Point) :=
-      WeierstrassCurve.torsion_unramified_of_good_reduction R k E n ksep 𝒪 hn h𝒪 σ hσ
-        (f (Additive.ofMul (WithConv.toConv φ)) : (E⁄ksep).Point)
+      WeierstrassCurve.torsion_unramified_of_good_reduction R k E n ksep 𝒪 hn h𝒪 σ hσ _
         (f (Additive.ofMul (WithConv.toConv φ))).2
-    -- combine with equivariance and undo `f`, `Additive.ofMul`, `WithConv.toConv`
-    have key := (hf (σ : ksep ≃ₐ[k] ksep) φ).trans h3
-    have hab : f (Additive.ofMul (WithConv.toConv ((σ : ksep ≃ₐ[k] ksep).toAlgHom.comp φ)))
-        = f (Additive.ofMul (WithConv.toConv φ)) := by exact_mod_cast key
-    exact WithConv.toConv_injective (Additive.ofMul.injective (f.injective hab))
+    -- …then combine with equivariance and undo `f`, `Additive.ofMul`, `WithConv.toConv`.
+    exact WithConv.toConv_injective (Additive.ofMul.injective
+      (f.injective (by exact_mod_cast (hf (σ : ksep ≃ₐ[k] ksep) φ).trans h3)))
   -- Transport `hgs` across `f` to the chosen torsion point `P`.
   obtain ⟨m, hm⟩ := f.surjective ⟨P, hP⟩
   obtain ⟨φ, hmφ⟩ : ∃ φ : k ⊗[R] H →ₐ[k] ksep, Additive.ofMul (WithConv.toConv φ) = m :=
