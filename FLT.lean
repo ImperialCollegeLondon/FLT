@@ -81,6 +81,8 @@ public import FLT.KnownIn1980s.EllipticCurves.Torsion
 public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
 public import FLT.KnownIn1980s.PGL2.Defs
 public import FLT.KnownIn1980s.PGL2.Proofs
+public import FLT.KnownIn1980s.Ribet_Lemma.Defs
+public import FLT.KnownIn1980s.Ribet_Lemma.Proofs
 public import FLT.Mathlib.Algebra.Algebra.Bilinear
 public import FLT.Mathlib.Algebra.Algebra.Hom
 public import FLT.Mathlib.Algebra.Algebra.Pi
@@ -210,4 +212,7 @@ public import FLT.Slop.PGL2.FiniteSubgroups.PartitionProof
 public import FLT.Slop.PGL2.FiniteSubgroups.RecognitionA5
 public import FLT.Slop.PGL2.FiniteSubgroups.TameClassification
 public import FLT.Slop.PGL2.FiniteSubgroups.WildClassification
+public import FLT.Slop.Ribet_Lemma.Brauer_Nesbitt
+public import FLT.Slop.Ribet_Lemma.Ribet_Lemma
+public import FLT.Slop.Ribet_Lemma.stable_lattices
 public import FLT.TateCurve.TateCurve
