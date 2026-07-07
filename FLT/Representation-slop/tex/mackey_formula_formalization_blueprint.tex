@@ -1,0 +1,773 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{convention}[theorem]{Convention}
+
+\newcommand{\Ind}{\operatorname{Ind}}
+\newcommand{\Res}{\operatorname{Res}}
+\newcommand{\Aut}{\operatorname{Aut}}
+\newcommand{\End}{\operatorname{End}}
+\newcommand{\Hom}{\operatorname{Hom}}
+\newcommand{\Stab}{\operatorname{Stab}}
+\newcommand{\op}{\mathrm{op}}
+\newcommand{\Mod}{\mathrm{Mod}}
+\newcommand{\Span}{\operatorname{span}}
+\newcommand{\supp}{\operatorname{supp}}
+
+\title{A Formalization-Oriented Blueprint for Mackey's Formula for Representations}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This note gives a detailed mathematical proof of Mackey's restriction formula for induced representations in a form intended to guide a future formalization using the representation-theoretic \texttt{Representation} API. No Lean code is included. The proof is written in a generator-and-relation style compatible with a common construction of induced representations as a quotient or coinvariant module. The final section specializes the formula to the index-two subgroup statement: if $K \leq G$ has index $2$, $\psi : K \to k^\times$ is a character, $\rho = \Ind_K^G(\psi)$, and $J \leq G$ is not contained in $K$, then
+\[
+  \Res^G_J \rho \cong \Ind_{K \cap J}^{J}(\psi|_{K\cap J}).
+\]
+The equality should be formalized as an isomorphism of $J$-representations, not as definitional equality.
+\end{abstract}
+
+\tableofcontents
+
+\section{Purpose and ambient assumptions}
+
+The goal is to formalize the Mackey formula for finite groups and finite-index subgroups, using the usual representation-theoretic induction functor.
+
+\begin{convention}[Algebraic setting]
+Let $k$ be a commutative ring. In applications to characters, one may take $k$ to be an algebraically closed field, but the Mackey formula itself does not require algebraic closedness.
+
+Let $G$ be a finite group, and let $H,L \leq G$ be subgroups. Let $V$ be a $k$-module and let
+\[
+  \rho : H \to \Aut_k(V)
+\]
+be a $k$-linear representation of $H$ on $V$.
+\end{convention}
+
+\begin{remark}[Expected Mathlib background]
+For a Mathlib development, one may assume or import the following standard ingredients.
+\begin{enumerate}[label=(\alph*)]
+  \item The type of representations, usually represented by a monoid or group homomorphism into $k$-linear endomorphisms of a module.
+  \item Restriction of a representation along a group homomorphism or subgroup inclusion.
+  \item Induction of representations along a group homomorphism or subgroup inclusion.
+  \item Basic finite group and subgroup facts: cosets, quotient by a subgroup, double cosets, finite direct sums, and finite support functions.
+  \item The theorem that a subgroup of index $2$ is normal. This is useful background, though the index-two corollary below can be proved directly from the coset count.
+\end{enumerate}
+The proof below deliberately avoids Lean identifiers and gives only the mathematical structure that should be formalized.
+\end{remark}
+
+\section{Conventions for induced representations}
+
+The induced representation $\Ind_H^G(V)$ will be described by generators
+\[
+  [g,v], \qquad g\in G,\ v\in V,
+\]
+subject to the relation
+\begin{equation}\label{eq:ind-relation}
+  [hg,\rho(h)v] = [g,v]
+  \qquad (h\in H,\ g\in G,\ v\in V).
+\end{equation}
+Equivalently,
+\begin{equation}\label{eq:ind-relation-inverse}
+  [hg,v] = [g,\rho(h)^{-1}v].
+\end{equation}
+The induced $G$-action is taken to be the right-translation convention
+\begin{equation}\label{eq:G-action}
+  x\cdot[g,v] = [gx^{-1},v]
+  \qquad (x,g\in G,\ v\in V).
+\end{equation}
+Consequently, the restriction to $L\leq G$ acts by
+\begin{equation}\label{eq:L-action-restricted}
+  \ell\cdot[g,v]=[g\ell^{-1},v]
+  \qquad (\ell\in L).
+\end{equation}
+
+\begin{remark}[Why this convention]
+This convention matches the standard proof of Mackey's formula in which $\Ind_H^G(V)$ decomposes as a sum over left cosets $H\backslash G$, and the restricted $L$-action permutes those summands by right multiplication. With this convention, the subgroup attached to a double coset representative $s$ is
+\[
+  H_s := s^{-1}Hs\cap L,
+\]
+and the twisted representation is
+\[
+  \rho^s(a)=\rho(sas^{-1}).
+\]
+\end{remark}
+
+\section{The left-coset decomposition of induction}
+
+Let $T\subseteq G$ be a choice of representatives for the left cosets $H\backslash G$. Thus each $g\in G$ has a unique expression
+\[
+  g=ht
+\]
+with $h\in H$ and $t\in T$.
+
+For each $t\in T$, let $V_t$ denote a copy of $V$. Define a $k$-linear map
+\[
+  \Phi_T : \bigoplus_{t\in T} V_t \longrightarrow \Ind_H^G(V)
+\]
+by sending $v\in V_t$ to
+\[
+  [t,v].
+\]
+
+\begin{proposition}[Induction is a sum over left cosets]\label{prop:left-coset-decomp}
+The map
+\[
+  \Phi_T : \bigoplus_{t\in T} V_t \longrightarrow \Ind_H^G(V)
+\]
+is a $k$-linear isomorphism.
+\end{proposition}
+
+\begin{proof}
+First prove surjectivity. Let $[g,v]$ be a generator of $\Ind_H^G(V)$. Write $g=ht$ with $h\in H$ and $t\in T$. Then by \eqref{eq:ind-relation-inverse},
+\[
+  [g,v]=[ht,v]=[t,\rho(h)^{-1}v].
+\]
+Thus every generator is in the image of the $t$-summand map, so $\Phi_T$ is surjective.
+
+To prove injectivity, define an inverse map on generators. Given $g\in G$, write $g=ht$ uniquely with $h\in H$ and $t\in T$, and set
+\[
+  \Psi_T([g,v])
+  :=
+  \text{the element of }\bigoplus_{t'\in T}V_{t'}
+  \text{ supported at }t\text{ with value }\rho(h)^{-1}v.
+\]
+We must verify that this respects the induction relation. Let $a\in H$. If $g=ht$, then
+\[
+  ag=(ah)t.
+\]
+Therefore
+\[
+  \Psi_T([ag,\rho(a)v])
+  =
+  \text{the vector supported at }t\text{ with value }\rho(ah)^{-1}\rho(a)v.
+\]
+Since $\rho(ah)=\rho(a)\rho(h)$, we have
+\[
+  \rho(ah)^{-1}\rho(a)v
+  =
+  \rho(h)^{-1}\rho(a)^{-1}\rho(a)v
+  =
+  \rho(h)^{-1}v.
+\]
+Hence
+\[
+  \Psi_T([ag,\rho(a)v])=\Psi_T([g,v]).
+\]
+So $\Psi_T$ is well-defined.
+
+The composites are immediate on generators. For $v\in V_t$,
+\[
+  \Psi_T(\Phi_T(v))=\Psi_T([t,v])=v
+\]
+because $t=1\cdot t$. Conversely, if $g=ht$, then
+\[
+  \Phi_T(\Psi_T([g,v]))
+  =
+  [t,\rho(h)^{-1}v]
+  =
+  [ht,v]
+  =
+  [g,v].
+\]
+Thus $\Phi_T$ is an isomorphism.
+\end{proof}
+
+\begin{remark}[Formalization target]
+The proof of \cref{prop:left-coset-decomp} is the basic normal-form lemma for induced representations. In a formal development, it is useful to state this both for a chosen transversal and invariantly as a direct sum indexed by the quotient type $H\backslash G$.
+\end{remark}
+
+\section{Restriction to a subgroup and double-coset decomposition}
+
+The subgroup $L$ acts on the set of left cosets $H\backslash G$ by right multiplication:
+\[
+  (Hg)\cdot \ell := H(g\ell^{-1}).
+\]
+This action is well-defined because if $Hg=Hg'$, then $g'=hg$ for some $h\in H$, so
+\[
+  g'\ell^{-1}=hg\ell^{-1},
+\]
+and therefore
+\[
+  H(g'\ell^{-1})=H(g\ell^{-1}).
+\]
+The inverse in the formula appears because the representation action is $\ell\cdot[g,v]=[g\ell^{-1},v]$.
+
+The orbits of this right $L$-action on $H\backslash G$ are precisely the double cosets $H\backslash G/L$. More explicitly, the orbit of $Hs$ is
+\[
+  \{Hs\ell : \ell\in L\},
+\]
+which corresponds to the double coset $HsL$.
+
+For a double coset $D=HsL$, define
+\[
+  M_D := \Span_k\{[g,v] : g\in D,\ v\in V\}\subseteq \Ind_H^G(V).
+\]
+Equivalently, after choosing a left-coset decomposition, $M_D$ is the direct sum of all summands indexed by left cosets contained in $D$:
+\[
+  M_D = \bigoplus_{Hg\subseteq D} V_{Hg}.
+\]
+
+\begin{lemma}[Double-coset summands are stable]\label{lem:double-coset-stable}
+For each double coset $D=HsL$, the submodule $M_D$ is stable under the restricted $L$-action.
+\end{lemma}
+
+\begin{proof}
+It suffices to check generators. Let $g\in D$ and $\ell\in L$. Then $g\ell^{-1}\in DL=D$, because $D=HsL$ is stable under right multiplication by elements of $L$. Hence
+\[
+  \ell\cdot[g,v]=[g\ell^{-1},v]\in M_D.
+\]
+Thus $M_D$ is $L$-stable.
+\end{proof}
+
+\begin{proposition}[Restriction decomposes over double cosets]\label{prop:double-coset-decomp}
+There is an isomorphism of $L$-representations
+\[
+  \Res^G_L\Ind_H^G(V)
+  \cong
+  \bigoplus_{D\in H\backslash G/L} M_D.
+\]
+\end{proposition}
+
+\begin{proof}
+As a $k$-module, $\Ind_H^G(V)$ decomposes as a direct sum over left cosets $H\backslash G$ by \cref{prop:left-coset-decomp}. The double cosets partition the set of left cosets. Therefore the direct sum over all left cosets can be regrouped as a direct sum over double cosets:
+\[
+  \bigoplus_{Hg\in H\backslash G}V_{Hg}
+  \cong
+  \bigoplus_{D\in H\backslash G/L}\left(\bigoplus_{Hg\subseteq D}V_{Hg}\right).
+\]
+By \cref{lem:double-coset-stable}, each inner summand is stable under the $L$-action. The regrouping map is therefore $L$-equivariant, and hence gives an isomorphism of $L$-representations.
+\end{proof}
+
+\section{The subgroup and twisted representation attached to a double coset}
+
+Fix $s\in G$. Define
+\[
+  H_s := s^{-1}Hs\cap L.
+\]
+This is a subgroup of $L$.
+
+Define a representation
+\[
+  \rho^s : H_s \to \Aut_k(V)
+\]
+by
+\[
+  \rho^s(a)=\rho(sas^{-1}).
+\]
+This is well-defined because $a\in H_s$ implies $a\in s^{-1}Hs$, hence $sas^{-1}\in H$.
+
+\begin{lemma}[The twisted action is a representation]\label{lem:twisted-rep}
+The map $\rho^s$ is a $k$-linear representation of $H_s$ on $V$.
+\end{lemma}
+
+\begin{proof}
+For $a,b\in H_s$,
+\[
+  \rho^s(ab)
+  =
+  \rho(sabs^{-1})
+  =
+  \rho((sas^{-1})(sbs^{-1}))
+  =
+  \rho(sas^{-1})\rho(sbs^{-1})
+  =
+  \rho^s(a)\rho^s(b).
+\]
+Also
+\[
+  \rho^s(1)=\rho(1)=1.
+\]
+Thus $\rho^s$ is a representation.
+\end{proof}
+
+\section{Identifying one double-coset summand}
+
+Let $D=HsL$. We now identify $M_D$ with an induced representation from $H_s$ to $L$.
+
+Consider
+\[
+  \Ind_{H_s}^{L}(V^s),
+\]
+where $V^s$ denotes $V$ equipped with the $H_s$-action $\rho^s$. Its generators will be written
+\[
+  [\ell,v]_s,
+  \qquad \ell\in L,
+  \ v\in V,
+\]
+subject to
+\begin{equation}\label{eq:Hs-ind-relation}
+  [a\ell,\rho^s(a)v]_s=[\ell,v]_s
+  \qquad (a\in H_s).
+\end{equation}
+The $L$-action is
+\begin{equation}\label{eq:ind-L-action}
+  \lambda\cdot[\ell,v]_s=[\ell\lambda^{-1},v]_s.
+\end{equation}
+
+Define a map on generators
+\[
+  \Theta_s : \Ind_{H_s}^{L}(V^s) \longrightarrow M_D
+\]
+by
+\begin{equation}\label{eq:theta-def}
+  \Theta_s([\ell,v]_s)=[s\ell,v].
+\end{equation}
+
+\begin{lemma}[Well-definedness of $\Theta_s$]\label{lem:theta-well-defined}
+The map $\Theta_s$ is well-defined and $k$-linear.
+\end{lemma}
+
+\begin{proof}
+The only nontrivial point is compatibility with the relation \eqref{eq:Hs-ind-relation}. Let $a\in H_s$. Then $sas^{-1}\in H$. Therefore
+\[
+  \Theta_s([a\ell,\rho^s(a)v]_s)
+  =
+  [sa\ell,\rho(sas^{-1})v].
+\]
+But
+\[
+  sa\ell=(sas^{-1})s\ell.
+\]
+Using the induction relation in $\Ind_H^G(V)$, we obtain
+\[
+  [(sas^{-1})s\ell,\rho(sas^{-1})v]
+  =
+  [s\ell,v].
+\]
+Thus
+\[
+  \Theta_s([a\ell,\rho^s(a)v]_s)
+  =
+  \Theta_s([\ell,v]_s).
+\]
+Hence $\Theta_s$ descends to the quotient defining induction, and so is a well-defined $k$-linear map.
+\end{proof}
+
+\begin{lemma}[$L$-equivariance of $\Theta_s$]\label{lem:theta-equivariant}
+The map $\Theta_s$ is $L$-equivariant.
+\end{lemma}
+
+\begin{proof}
+Let $\lambda,\ell\in L$ and $v\in V$. Then by \eqref{eq:ind-L-action} and \eqref{eq:theta-def},
+\[
+  \Theta_s(\lambda\cdot[\ell,v]_s)
+  =
+  \Theta_s([\ell\lambda^{-1},v]_s)
+  =
+  [s\ell\lambda^{-1},v].
+\]
+On the other hand, by the restricted action \eqref{eq:L-action-restricted},
+\[
+  \lambda\cdot\Theta_s([\ell,v]_s)
+  =
+  \lambda\cdot[s\ell,v]
+  =
+  [s\ell\lambda^{-1},v].
+\]
+The two expressions agree on generators, so $\Theta_s$ is $L$-equivariant.
+\end{proof}
+
+\begin{lemma}[Surjectivity of $\Theta_s$]\label{lem:theta-surj}
+The map $\Theta_s$ is surjective onto $M_D$.
+\end{lemma}
+
+\begin{proof}
+The submodule $M_D$ is generated by all $[g,v]$ with $g\in HsL$. Write
+\[
+  g=hs\ell
+\]
+with $h\in H$ and $\ell\in L$. Then
+\[
+  [g,v]
+  =
+  [hs\ell,v]
+  =
+  [s\ell,\rho(h)^{-1}v]
+  =
+  \Theta_s([\ell,\rho(h)^{-1}v]_s).
+\]
+Thus every generator of $M_D$ lies in the image.
+\end{proof}
+
+\begin{lemma}[Injectivity of $\Theta_s$]\label{lem:theta-inj}
+The map $\Theta_s$ is injective.
+\end{lemma}
+
+\begin{proof}
+Construct an inverse map
+\[
+  \Psi_s : M_D\longrightarrow \Ind_{H_s}^{L}(V^s).
+\]
+For a generator $[g,v]$ with $g\in HsL$, choose $h\in H$ and $\ell\in L$ such that
+\[
+  g=hs\ell.
+\]
+Define
+\begin{equation}\label{eq:psi-def}
+  \Psi_s([g,v]) := [\ell,\rho(h)^{-1}v]_s.
+\end{equation}
+We must check that this is independent of the chosen expression $g=hs\ell$.
+
+Suppose
+\[
+  hs\ell=h's\ell'
+\]
+with $h,h'\in H$ and $\ell,\ell'\in L$. Then
+\[
+  h'^{-1}hs=s\ell'\ell^{-1},
+\]
+and hence
+\[
+  s^{-1}h'^{-1}hs=\ell'\ell^{-1}.
+\]
+Set
+\[
+  a:=\ell'\ell^{-1}.
+\]
+Then $a\in L$, and also
+\[
+  a=s^{-1}h'^{-1}hs\in s^{-1}Hs.
+\]
+Thus
+\[
+  a\in H_s=s^{-1}Hs\cap L.
+\]
+Moreover,
+\[
+  \ell'=a\ell.
+\]
+
+Now compute
+\[
+  \rho^s(a)
+  =
+  \rho(sas^{-1})
+  =
+  \rho(h'^{-1}h).
+\]
+Therefore
+\[
+  \rho^s(a)\rho(h)^{-1}v
+  =
+  \rho(h'^{-1}h)\rho(h)^{-1}v
+  =
+  \rho(h')^{-1}\rho(h)\rho(h)^{-1}v
+  =
+  \rho(h')^{-1}v.
+\]
+Using the relation in $\Ind_{H_s}^{L}(V^s)$,
+\[
+  [\ell',\rho(h')^{-1}v]_s
+  =
+  [a\ell,\rho^s(a)\rho(h)^{-1}v]_s
+  =
+  [\ell,\rho(h)^{-1}v]_s.
+\]
+Thus \eqref{eq:psi-def} is independent of the choice of $h$ and $\ell$.
+
+Next, check that $\Psi_s$ respects the original induction relation defining $\Ind_H^G(V)$. Let $b\in H$. If $g=hs\ell$, then
+\[
+  bg=(bh)s\ell.
+\]
+So
+\[
+  \Psi_s([bg,\rho(b)v])
+  =
+  [\ell,\rho(bh)^{-1}\rho(b)v]_s.
+\]
+Since $\rho(bh)=\rho(b)\rho(h)$, this equals
+\[
+  [\ell,\rho(h)^{-1}v]_s
+  =
+  \Psi_s([g,v]).
+\]
+Hence $\Psi_s$ is well-defined on $M_D$.
+
+Finally, the two composites are identities on generators. First,
+\[
+  \Psi_s(\Theta_s([\ell,v]_s))
+  =
+  \Psi_s([s\ell,v])
+  =
+  [\ell,v]_s,
+\]
+using the expression $s\ell=1\cdot s\ell$. Second, if $g=hs\ell$, then
+\[
+  \Theta_s(\Psi_s([g,v]))
+  =
+  \Theta_s([\ell,\rho(h)^{-1}v]_s)
+  =
+  [s\ell,\rho(h)^{-1}v]
+  =
+  [hs\ell,v]
+  =
+  [g,v].
+\]
+Thus $\Psi_s$ is the inverse of $\Theta_s$, so $\Theta_s$ is injective.
+\end{proof}
+
+\begin{proposition}[One double-coset summand]\label{prop:one-summand}
+For each $s\in G$, there is an isomorphism of $L$-representations
+\[
+  \Ind_{s^{-1}Hs\cap L}^{L}(V^s)
+  \cong
+  M_{HsL}.
+\]
+\end{proposition}
+
+\begin{proof}
+The isomorphism is $\Theta_s$. It is well-defined by \cref{lem:theta-well-defined}, $L$-equivariant by \cref{lem:theta-equivariant}, surjective by \cref{lem:theta-surj}, and injective by \cref{lem:theta-inj}.
+\end{proof}
+
+\section{Mackey's restriction formula}
+
+Choose a set $S\subseteq G$ of representatives for the double cosets $H\backslash G/L$.
+
+\begin{theorem}[Mackey formula]\label{thm:mackey}
+There is an isomorphism of $L$-representations
+\[
+  \Res^G_L\Ind_H^G(V)
+  \cong
+  \bigoplus_{s\in S}
+  \Ind_{s^{-1}Hs\cap L}^{L}(V^s),
+\]
+where $V^s$ denotes $V$ with the action
+\[
+  a\cdot_s v := \rho(sas^{-1})v
+  \qquad (a\in s^{-1}Hs\cap L).
+\]
+\end{theorem}
+
+\begin{proof}
+By \cref{prop:double-coset-decomp},
+\[
+  \Res^G_L\Ind_H^G(V)
+  \cong
+  \bigoplus_{D\in H\backslash G/L}M_D.
+\]
+Choosing a representative $s\in S$ for each double coset identifies $D$ with $HsL$. By \cref{prop:one-summand},
+\[
+  M_{HsL}
+  \cong
+  \Ind_{s^{-1}Hs\cap L}^{L}(V^s).
+\]
+Taking the direct sum of these isomorphisms over all $s\in S$ yields
+\[
+  \Res^G_L\Ind_H^G(V)
+  \cong
+  \bigoplus_{s\in S}
+  \Ind_{s^{-1}Hs\cap L}^{L}(V^s).
+\]
+The resulting map is an isomorphism of $L$-representations because each summand map is $L$-equivariant.
+\end{proof}
+
+\begin{remark}[Representative dependence]
+The displayed formula uses a chosen set $S$ of double-coset representatives. A more invariant version is indexed by the quotient type $H\backslash G/L$, with each orbit represented by a chosen representative. For formalization, it may be simpler to first state the theorem with an explicit representative function.
+\end{remark}
+
+\section{The index-two corollary}
+
+Now specialize to the statement motivating the formalization.
+
+\begin{convention}[Character as a one-dimensional representation]
+Let $k$ be a field, and let
+\[
+  \psi : K \to k^\times
+\]
+be a character of a subgroup $K\leq G$. We view $k$ as a one-dimensional $K$-representation by
+\[
+  x\cdot a := \psi(x)a.
+\]
+Let
+\[
+  \rho := \Ind_K^G(\psi).
+\]
+More explicitly, $\rho$ is $\Ind_K^G(k_\psi)$, where $k_\psi$ is the one-dimensional representation associated to $\psi$.
+\end{convention}
+
+\begin{lemma}[The double-coset space is a singleton]\label{lem:index-two-singleton}
+Let $K\leq G$ have index $2$, and let $J\leq G$ be a subgroup not contained in $K$. Then
+\[
+  K\backslash G/J
+\]
+has exactly one element. Equivalently,
+\[
+  KJ=G.
+\]
+\end{lemma}
+
+\begin{proof}
+Since $J$ is not contained in $K$, choose
+\[
+  j\in J\setminus K.
+\]
+Because $K$ has index $2$, there are exactly two right cosets of $K$ in $G$. They are
+\[
+  K
+  \qquad\text{and}\qquad
+  Kj.
+\]
+Indeed, $j\notin K$, so $Kj\neq K$, and hence $K$ and $Kj$ exhaust the two right cosets.
+
+Let $g\in G$. If $g\in K$, then $g\in KJ$ because $1\in J$. If $g\notin K$, then $Kg=Kj$, so $g=kj$ for some $k\in K$, and again $g\in KJ$. Therefore
+\[
+  G\subseteq KJ.
+\]
+The reverse inclusion $KJ\subseteq G$ is automatic, so $KJ=G$.
+
+It follows that the only double coset is
+\[
+  KJ=G.
+\]
+Thus $K\backslash G/J$ is a singleton.
+\end{proof}
+
+\begin{theorem}[Index-two Mackey corollary]\label{thm:index-two-corollary}
+Let $K\leq G$ have index $2$. Let $\psi:K\to k^\times$ be a character, and let
+\[
+  \rho:=\Ind_K^G(\psi).
+\]
+If $J\leq G$ is not contained in $K$, then there is an isomorphism of $J$-representations
+\[
+  \Res^G_J \rho
+  \cong
+  \Ind_{K\cap J}^{J}(\psi|_{K\cap J}).
+\]
+\end{theorem}
+
+\begin{proof}
+Apply \cref{thm:mackey} with $H=K$ and $L=J$. By \cref{lem:index-two-singleton}, the double-coset set $K\backslash G/J$ has a single representative, which we may take to be $s=1$.
+
+The corresponding subgroup is
+\[
+  1^{-1}K1\cap J=K\cap J.
+\]
+The corresponding twisted representation is
+\[
+  \psi^1(x)=\psi(1x1^{-1})=\psi(x).
+\]
+Therefore the single Mackey summand is
+\[
+  \Ind_{K\cap J}^{J}(\psi|_{K\cap J}).
+\]
+Since there is only one summand, Mackey's formula gives
+\[
+  \Res^G_J\Ind_K^G(\psi)
+  \cong
+  \Ind_{K\cap J}^{J}(\psi|_{K\cap J}).
+\]
+This is the desired isomorphism.
+\end{proof}
+
+\begin{remark}[Correction to informal notation]
+Since $\psi$ is defined on $K$, the restriction appearing on the right-hand side should be written
+\[
+  \psi|_{K\cap J},
+\]
+not literally $\psi|_J$, unless one has first extended $\psi$ to a function on $J$.
+\end{remark}
+
+\section{Formalization roadmap, still without Lean code}
+
+A useful order of formalization is the following.
+
+\begin{enumerate}[label=\textbf{Step \arabic*.},wide]
+  \item \textbf{Fix conventions for induction.}
+  Confirm the precise relation used by the chosen induced representation construction. The proof above assumes the convention
+  \[
+    [hg,\rho(h)v]=[g,v]
+  \]
+  and the action
+  \[
+    x\cdot[g,v]=[gx^{-1},v].
+  \]
+  If the library convention differs by inverses, adjust all formulas accordingly.
+
+  \item \textbf{Prove the left-coset normal form.}
+  For a chosen transversal $T$ of $H\backslash G$, prove that every generator $[g,v]$ has normal form $[t,v']$. Then build the isomorphism
+  \[
+    \Ind_H^G(V)\cong \bigoplus_{t\in T}V.
+  \]
+
+  \item \textbf{Make the coset-indexed decomposition intrinsic.}
+  Replace the transversal $T$ with the quotient type $H\backslash G$. This avoids carrying a concrete representative set through later statements.
+
+  \item \textbf{Define double-coset summands.}
+  For each double coset $D=HsL$, define the submodule $M_D$ generated by $[g,v]$ with $g\in D$. Prove $M_D$ is stable under $L$.
+
+  \item \textbf{Regroup the direct sum.}
+  Prove
+  \[
+    \Res^G_L\Ind_H^G(V)
+    \cong
+    \bigoplus_{D\in H\backslash G/L}M_D.
+  \]
+
+  \item \textbf{Define the twisted representation.}
+  For $s\in G$, define
+  \[
+    H_s=s^{-1}Hs\cap L
+  \]
+  and
+  \[
+    \rho^s(a)=\rho(sas^{-1}).
+  \]
+  Prove this is a representation of $H_s$.
+
+  \item \textbf{Identify one summand.}
+  Define the map
+  \[
+    \Theta_s([\ell,v]_s)=[s\ell,v].
+  \]
+  Prove that it is well-defined, $L$-equivariant, surjective, and injective. The inverse is given by
+  \[
+    [hs\ell,v]\mapsto [\ell,\rho(h)^{-1}v]_s.
+  \]
+
+  \item \textbf{Assemble Mackey.}
+  Sum the isomorphisms over chosen double-coset representatives.
+
+  \item \textbf{Specialize to index two.}
+  Prove that if $[G:K]=2$ and $J\not\leq K$, then $KJ=G$, so the double-coset quotient $K\backslash G/J$ is a singleton.
+\end{enumerate}
+
+\section{References}
+
+The proof follows the standard finite-group Mackey decomposition for induced representations. Useful references include:
+
+\begin{enumerate}
+  \item J.-P. Serre, \emph{Linear Representations of Finite Groups}, especially the discussion of induced representations and Mackey's formula.
+  \item B. Conrad, \emph{Mackey theory}, course handout, Stanford University. This source uses the double-coset proof with the formula
+  \[
+    \Res_K^G\Ind_H^G(\rho)
+    \simeq
+    \bigoplus_{s\in H\backslash G/K}
+    \Ind_{s^{-1}Hs\cap K}^{K}(\rho^s).
+  \]
+  \item C. W. Curtis and I. Reiner, \emph{Methods of Representation Theory}, Vol. I, for a broader treatment of induction, restriction, and Mackey decomposition.
+  \item Mathlib documentation for representation theory, especially the files concerning \texttt{Representation}, restriction, and induced representations.
+\end{enumerate}
+
+\end{document}
