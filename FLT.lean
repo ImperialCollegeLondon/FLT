@@ -198,6 +198,13 @@ public import FLT.Patching.Utils.TopologicallyFG
 public import FLT.Patching.VanishingFilter
 public import FLT.Proof
 public import FLT.QuaternionAlgebra.NumberField
+public import FLT.Slop.DimensionTheorem
+public import FLT.Slop.DimensionTheorem.Defs
+public import FLT.Slop.DimensionTheorem.DimEqDelta
+public import FLT.Slop.DimensionTheorem.DimLeGrowth
+public import FLT.Slop.DimensionTheorem.GrowthLeDelta
+public import FLT.Slop.DimensionTheorem.Main
+public import FLT.Slop.DimensionTheorem.Numeric
 public import FLT.Slop.PGL2.FiniteSubgroups.CyclicPartition
 public import FLT.Slop.PGL2.FiniteSubgroups.DicksonClassification
 public import FLT.Slop.PGL2.FiniteSubgroups.FieldReconstruction
