@@ -34,7 +34,6 @@ public import FLT.Deformations.Lemmas
 public import FLT.Deformations.LiftFunctor
 public import FLT.Deformations.Representable
 public import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
-public import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
 public import FLT.Deformations.RepresentationTheory.Etale
 public import FLT.Deformations.RepresentationTheory.Frobenius
 public import FLT.Deformations.RepresentationTheory.GaloisRep
@@ -89,6 +88,7 @@ public import FLT.Mathlib.Algebra.Algebra.Pi
 public import FLT.Mathlib.Algebra.Algebra.Tower
 public import FLT.Mathlib.Algebra.Central.TensorProduct
 public import FLT.Mathlib.Algebra.FixedPoints.Basic
+public import FLT.Mathlib.Algebra.Group.Action.Hom
 public import FLT.Mathlib.Algebra.IsDirectLimit
 public import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 public import FLT.Mathlib.Algebra.Module.Submodule.Basic
@@ -97,8 +97,10 @@ public import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 public import FLT.Mathlib.Data.Fin.Basic
 public import FLT.Mathlib.Data.Real.Archimedean
 public import FLT.Mathlib.Data.Set.Prod
+public import FLT.Mathlib.FieldTheory.Galois.Infinite
 public import FLT.Mathlib.FieldTheory.SplittingField.IsSplittingField
 public import FLT.Mathlib.GroupTheory.DoubleCoset
+public import FLT.Mathlib.GroupTheory.GroupAction.Quotient
 public import FLT.Mathlib.GroupTheory.Index
 public import FLT.Mathlib.LinearAlgebra.Countable
 public import FLT.Mathlib.LinearAlgebra.Determinant
@@ -145,9 +147,11 @@ public import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 public import FLT.Mathlib.Topology.Algebra.Algebra.Hom
 public import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 public import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
+public import FLT.Mathlib.Topology.Algebra.ContinuousSMulDiscrete
 public import FLT.Mathlib.Topology.Algebra.Group.Basic
 public import FLT.Mathlib.Topology.Algebra.Group.Quotient
 public import FLT.Mathlib.Topology.Algebra.Group.Units
+public import FLT.Mathlib.Topology.Algebra.IsUniformGroup.Basic
 public import FLT.Mathlib.Topology.Algebra.Module.Equiv
 public import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
 public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
