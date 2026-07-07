@@ -36,7 +36,7 @@ approaches to adelic points*], where its basic properties are developed
 compatibility with products, smooth morphisms induce open maps, properness
 gives compactness). None of these properties are formalized here; this file
 contains only what is needed to *state* Moret-Bailly's theorem
-(see `FLT.Assumptions.MoretBailly`).
+(see `FLT.KnownIn1980s.MoretBailly.Statement`).
 -/
 
 @[expose] public section

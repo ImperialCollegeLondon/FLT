@@ -133,5 +133,6 @@ def MoretBaillyTheorem : Prop :=
     (∀ v ∈ Sf, (Cf v).Satisfies L P) ∧ (∀ v ∈ Sinf, (Cinf v).Satisfies L P)
 
 set_option linter.unusedSectionVars false in
+@[nolint unusedArguments]
 theorem moretBailly : MoretBaillyTheorem k K K_avoid T Sf Sinf Cf Cinf :=
   knownin1980s
