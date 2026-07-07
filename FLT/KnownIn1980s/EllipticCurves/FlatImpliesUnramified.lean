@@ -86,6 +86,11 @@ isomorphism `f` from the `kˢᵉᵖ`-points of the generic fibre to `E(kˢᵉᵖ
 scheme is prime to the residue characteristic), then the finite flat group scheme is finite
 étale, so the Galois module `E(kˢᵉᵖ)[n]` is unramified: the inertia subgroup at any
 valuation subring `𝒪 ⊆ kˢᵉᵖ` above `R` acts trivially on the `n`-torsion. -/
+-- The finiteness/flatness/étale hypotheses are the mathematical content of "flat ⟹ unramified"
+-- and are consumed by the intended option-(a) proof (see the TODO in the body); the current
+-- option-(b) proof routes through `torsion_unramified_of_good_reduction` and does not use them,
+-- so `nolint unusedArguments` keeps them in the statement without tripping the linter.
+@[nolint unusedArguments]
 theorem WeierstrassCurve.torsion_unramified_of_torsion_flat
     -- the finite flat group scheme, as produced by `torsion_flat_of_good_reduction`:
     (H : Type u) [CommRing H] [HopfAlgebra R H] [Module.Finite R H] [Module.Flat R H]
