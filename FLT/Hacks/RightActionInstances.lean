@@ -28,6 +28,10 @@ own namespace to avoid clashing with the standard left-action instances.
 
 @[expose] public section
 
+-- This file deliberately mirrors mathlib names such as `Algebra.TensorProduct.comm` inside
+-- the `TensorProduct.RightActions` namespace, so full names duplicate `TensorProduct`.
+set_option linter.dupNamespace false
+
 /-
 
 # Right module and algebra instances
