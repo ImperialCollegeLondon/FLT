@@ -272,6 +272,22 @@ theorem Algebra.IsQuadraticExtension.exists_eq_algebraMap_add_algebraMap_mul {θ
 -- Let `M` be a field extension of `L`, for example `L` itself or a separable closure of `K`.
 variable (M : Type*) [Field M] [Algebra K M] [Algebra L M] [IsScalarTower K L M]
 
+omit [Algebra.IsSeparable K L] in
+/-- An automorphism of `M` over `K` fixes the subextension `L` pointwise if and only if its
+restriction to the normal extension `L/K` is the identity. This is the tower analogue of
+`AlgEquiv.restrictNormal_eq_one_iff`, which is stated for `IntermediateField`s; it is what makes
+the quadratic character `quadraticCharacter` multiplicative and surjective. -/
+theorem restrictNormalHom_eq_one_iff (ρ : M ≃ₐ[K] M) :
+    AlgEquiv.restrictNormalHom L ρ = 1 ↔ ∀ x : L, ρ (algebraMap L M x) = algebraMap L M x := by
+  simp only [AlgEquiv.ext_iff, AlgEquiv.one_apply]
+  refine forall_congr' fun x => ?_
+  have h' : ρ.restrictNormal L x = (AlgEquiv.restrictNormalHom L ρ) x := by rfl
+  constructor <;>
+  intro h
+  · rw [← AlgEquiv.restrictNormal_commutes ρ L x, h', h]
+  · apply (algebraMap L M).injective
+    rw [← h', AlgEquiv.restrictNormal_commutes, h]
+
 open Classical in
 /-- The quadratic character of `Aut(M/K)` attached to a separable quadratic subextension
 `K ⊆ L ⊆ M`: it sends `σ` to `1` if `σ` fixes `L` pointwise, and to `-1` otherwise.
@@ -286,23 +302,8 @@ noncomputable def quadraticCharacter : (M ≃ₐ[K] M) →* ℤˣ where
   toFun σ := if ∀ x : L, σ (algebraMap L M x) = algebraMap L M x then 1 else -1
   map_one' := by simp
   map_mul' := by
-    have hP : ∀ ρ : M ≃ₐ[K] M, (∀ x : L, ρ (algebraMap L M x) = algebraMap L M x)
-        ↔ AlgEquiv.restrictNormalHom L ρ = 1 := by
-      intro ρ
-      rw [AlgEquiv.ext_iff]
-      refine forall_congr' fun x => ?_
-      rw [AlgEquiv.one_apply]
-      constructor
-      · intro h
-        apply (algebraMap L M).injective
-        rw [show (AlgEquiv.restrictNormalHom L ρ) x = ρ.restrictNormal L x from rfl,
-          AlgEquiv.restrictNormal_commutes]
-        exact h
-      · intro h
-        rw [← AlgEquiv.restrictNormal_commutes ρ L x,
-          show ρ.restrictNormal L x = (AlgEquiv.restrictNormalHom L ρ) x from rfl, h]
     intro σ τ
-    simp only [hP, map_mul]
+    simp only [← restrictNormalHom_eq_one_iff, map_mul]
     obtain ⟨σ₀, hσ₀⟩ := Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L
     have hsq : σ₀ * σ₀ = 1 := by
       rcases Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq K L hσ₀ (σ₀ * σ₀) with h | h
@@ -327,21 +328,13 @@ of `Aut(M/K)` attached to `L/K` is surjective. -/
 theorem quadraticCharacter_surjective [Normal K M] :
     Function.Surjective (quadraticCharacter K L M) := by
   intro u
-  obtain ⟨σ₀, hσ₀⟩ := Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L
   rcases Int.units_eq_one_or u with rfl | rfl
   · exact ⟨1, by rw [map_one]⟩
-  · obtain ⟨σ, hσ⟩ := AlgEquiv.restrictNormalHom_surjective (K₁ := L) (E := M) (F := K) σ₀
+  · obtain ⟨σ₀, hσ₀⟩ := Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L
+    obtain ⟨σ, hσ⟩ := AlgEquiv.restrictNormalHom_surjective (E := M) σ₀
     refine ⟨σ, ?_⟩
-    unfold quadraticCharacter
-    simp only [MonoidHom.coe_mk, OneHom.coe_mk]
-    rw [if_neg]
-    intro hfix
-    apply hσ₀
-    rw [← hσ, AlgEquiv.ext_iff]
-    intro x
-    apply (algebraMap L M).injective
-    rw [show (AlgEquiv.restrictNormalHom L σ) x = σ.restrictNormal L x from rfl,
-      AlgEquiv.restrictNormal_commutes, hfix, AlgEquiv.one_apply]
+    rw [quadraticCharacter, MonoidHom.coe_mk, OneHom.coe_mk, if_neg]
+    exact fun h ↦ hσ₀ (hσ ▸ (restrictNormalHom_eq_one_iff K L M σ).mpr h)
 
 end QuadraticCharacter
 
