@@ -58,11 +58,14 @@ there, and the functional equation propagates this to all of `kˣ`. The nonvanis
 statement needs a "leading term" lemma for infinite products of `1 + (small)` factors,
 in the style of `valuation_evalInt_eq`.
 
-Formally, `θ` lives in `ℤ[u, u⁻¹]⟦q⟧` (the products converge coefficientwise in the
-`q`-adic topology, as for `ΔFormal`), and identities involving `θ` descend from `ℂ` to
-`k` exactly as in `TateCurveDescent`: proved analytically against the Weierstrass
-`σ`-function, transported to the initial localization of `ℤ[t₁, t₂, …]`, and evaluated
-through `evalK`.
+Formally, `θ` is realised below as `TateCurve.thetaFormal u ∈ k⟦X⟧` (the products
+converge coefficientwise, as for `ΔFormal`), with coefficients bounded so that the
+`evalK` calculus applies (`evalBounded_tprod_theta`), and on the annulus
+`tateTheta u q = evalK q (thetaFormal u)` (`tateTheta_eq_evalK`). Identities between
+theta values therefore reduce to identities between formal series
+(`thetaFormal_sub_kernel`, `thetaFormal_two_torsion_kernel`), which in turn descend
+from `ℂ` against the Weierstrass `σ`-function through a two-variable coefficient ring,
+as in `TateCurveDescent`.
 
 ## Stage 3: injectivity via the difference identity
 
@@ -72,9 +75,13 @@ becomes, on the Tate curve (`tateX_sub_tateX`, constants fixed by the `q⁰`-coe
 `X(u) - X(v) = -v · θ(uv)·θ(u/v) / (θ(u)²·θ(v)²)`.
 
 If `φ(u) = φ(v)` then `X(u) = X(v)`, so `θ(uv)·θ(u/v) = 0` (the denominator is a unit
-for `u, v ∉ qᶻ`), hence `v ≡ u±¹ (mod qᶻ)` by Stage 2. If `v ≡ u⁻¹` but `v ≢ u`, then
-`Y(v) = -Y(u) - X(u) ≠ Y(u)` by Stage 1 — unless `2Y(u) + X(u) = 0`, which is the
-`2`-torsion case `u² ∈ qᶻ`, where `u⁻¹ ≡ u` anyway. Hence `tateCurvePoint_eq_iff`.
+for `u, v ∉ qᶻ`), hence `v ≡ u±¹ (mod qᶻ)` by Stage 2. In the case `v ≡ u⁻¹`,
+comparing `y`-coordinates via Stage 1 gives `2Y(u) + X(u) = 0`; since `2y + x` is the
+difference of the two roots of the `y`-quadratic, its vanishing means `2`-torsion, and
+a second bridge identity — `2Y(u) + X(u) = u·θ(u²)/θ(u)⁴`, the avatar of
+`℘' = -σ(2z)/σ(z)⁴` (`two_mul_tateY_add_tateX`) — converts this to `θ(u²) = 0`, i.e.
+`u² ∈ qᶻ`, so `u⁻¹ ≡ u` and the two cases coincide. This derivation of
+`tateCurvePoint_eq_iff` is carried out below; only the two bridge identities remain.
 
 ## Stage 4: additivity via the generic addition law
 
@@ -131,6 +138,12 @@ composed with the quotient map; the inverse identities follow from
 -/
 
 open scoped WeierstrassCurve.Affine
+
+open scoped PowerSeries
+
+open scoped PowerSeries.WithPiTopology
+
+open scoped Topology
 
 open ValuativeRel
 
@@ -644,15 +657,706 @@ theorem TateCurve.tateTheta_eq_zero_iff (q : kˣ) (hq : valuation k (q : k) < 1)
       rw [tprod_eq_zero (f := fun n : ℕ ↦ 1 - (q : k) ^ (n + 1) * (((q ^ m : kˣ) : k))⁻¹)
         ((m - 1).toNat) hfac, mul_zero]
 
+/-! ### The formal theta function
+
+The bridge identities of Stage 3 are identities between values of *formal* series: the
+`q`-expansion coefficients of `θ(u, ·)` are Laurent polynomials in `u`, and `tateTheta`
+is the `evalK`-value of the formal series `thetaFormal` below (a `tprod` in the
+coefficientwise topology on `k⟦X⟧`, as for `ΔFormal`). This section builds the formal
+object and its coefficient theory, mirroring the `η`-product block of `TateParameter`
+with `C w`-weighted factors, and connects it to `tateTheta` through the `evalK`
+calculus. -/
+
+omit [ValuativeRel k] [IsNonarchimedeanLocalField k] in
+/-- The weighted factors `1 - Xⁿ⁺¹·C w` are multipliable in the coefficientwise
+topology on `k⟦X⟧`: the orders of the perturbations tend to infinity. -/
+theorem TateCurve.multipliable_one_sub_X_pow_mul (w : k) :
+    Multipliable fun n : ℕ ↦ (1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C w := by
+  simp_rw [sub_eq_add_neg]
+  apply PowerSeries.WithPiTopology.multipliable_one_add_of_tendsto_order_atTop_nhds_top
+  refine ENat.tendsto_nhds_top_iff_natCast_lt.mpr fun n ↦
+    Filter.eventually_atTop.mpr ⟨n, fun m hm ↦ ?_⟩
+  rw [PowerSeries.order_neg]
+  refine lt_of_lt_of_le ?_ (PowerSeries.le_order_mul _ _)
+  rw [PowerSeries.order_X_pow]
+  calc (n : ℕ∞) < ((m + 1 : ℕ) : ℕ∞) := by exact_mod_cast Nat.lt_add_one_iff.mpr hm
+    _ ≤ ((m + 1 : ℕ) : ℕ∞) + PowerSeries.order (PowerSeries.C w) := le_self_add
+
+omit [ValuativeRel k] [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- A product of weighted factors `1 - Xⁿ⁺¹·C w` with all `n ≥ m` is `1 + O(X^(m+1))`. -/
+theorem TateCurve.exists_prod_one_sub_X_pow_mul_eq_one_add (w : k) {m : ℕ} :
+    ∀ {u : Finset ℕ}, (∀ n ∈ u, m ≤ n) →
+      ∃ B : k⟦X⟧, ∏ n ∈ u, ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C w) =
+        1 + PowerSeries.X ^ (m + 1) * B := by
+  intro u
+  induction u using Finset.cons_induction with
+  | empty => exact fun _ ↦ ⟨0, by simp⟩
+  | cons a u ha ih =>
+    intro hu
+    obtain ⟨B, hB⟩ := ih fun n hn ↦ hu n (Finset.mem_cons.mpr (Or.inr hn))
+    obtain ⟨d, rfl⟩ := Nat.exists_eq_add_of_le (hu a (Finset.mem_cons_self ..))
+    exact ⟨B - PowerSeries.X ^ d * PowerSeries.C w * (1 + PowerSeries.X ^ (m + 1) * B),
+      by rw [Finset.prod_cons, hB]; ring⟩
+
+omit [ValuativeRel k] [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- Enlarging a partial product of `∏(1 - Xⁿ⁺¹·C w)` beyond `Finset.range m` does not
+change the `m`-th coefficient. -/
+theorem TateCurve.coeff_prod_one_sub_X_pow_mul_stable (w : k) {m : ℕ} {s t : Finset ℕ}
+    (hs : Finset.range m ⊆ s) (hst : s ⊆ t) :
+    PowerSeries.coeff m
+        (∏ n ∈ t, ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C w)) =
+      PowerSeries.coeff m
+        (∏ n ∈ s, ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C w)) := by
+  obtain ⟨B, hB⟩ := exists_prod_one_sub_X_pow_mul_eq_one_add w (m := m) (u := t \ s)
+    fun n hn ↦ by
+      by_contra hlt
+      exact (Finset.mem_sdiff.mp hn).2 (hs (Finset.mem_range.mpr (lt_of_not_ge hlt)))
+  rw [← Finset.prod_sdiff hst, hB, add_mul, one_mul, map_add,
+    show PowerSeries.X ^ (m + 1) * B *
+        ∏ n ∈ s, ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C w) =
+      (B * ∏ n ∈ s, ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C w)) *
+        PowerSeries.X ^ (m + 1) from by ring,
+    PowerSeries.coeff_mul_X_pow']
+  simp
+
+/-- The `m`-th coefficient of the formal product `∏(1 - Xⁿ⁺¹·C w)` equals that of the
+finite partial product over `Finset.range (m + 1)`. -/
+theorem TateCurve.coeff_tprod_one_sub_X_pow_mul (w : k) (m : ℕ) :
+    PowerSeries.coeff m
+        (∏' n : ℕ, ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C w)) =
+      PowerSeries.coeff m
+        (∏ n ∈ Finset.range (m + 1),
+          ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C w)) := by
+  have h1 : Filter.Tendsto
+      (fun s : Finset ℕ ↦ PowerSeries.coeff m
+        (∏ n ∈ s, ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C w)))
+      Filter.atTop (𝓝 (PowerSeries.coeff m
+        (∏' n : ℕ, ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C w)))) := by
+    have hP := (multipliable_one_sub_X_pow_mul w).hasProd
+    simp only [HasProd, SummationFilter.unconditional_filter] at hP
+    exact ((PowerSeries.WithPiTopology.continuous_coeff k m).tendsto _).comp hP
+  have h2 : Filter.Tendsto
+      (fun s : Finset ℕ ↦ PowerSeries.coeff m
+        (∏ n ∈ s, ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C w)))
+      Filter.atTop (𝓝 (PowerSeries.coeff m
+        (∏ n ∈ Finset.range (m + 1),
+          ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C w)))) := by
+    refine Filter.Tendsto.congr' ?_ tendsto_const_nhds
+    filter_upwards [Filter.eventually_ge_atTop (Finset.range (m + 1))] with s hs
+    exact (coeff_prod_one_sub_X_pow_mul_stable w
+      (Finset.range_subset_range.mpr (Nat.le_succ m)) hs).symm
+  exact tendsto_nhds_unique h1 h2
+
+/-- The formal theta function
+`Θ(u) = (1 - u)·∏_{n ≥ 1}(1 - Xⁿ·C u)·∏_{n ≥ 1}(1 - Xⁿ·C u⁻¹) ∈ k⟦X⟧`, with the
+`q`-variable formal. `tateTheta u q` is its value under `evalK` at `q`
+(`tateTheta_eq_evalK`), which is how the bridge identities of Stage 3 will descend to
+values. -/
+noncomputable def TateCurve.thetaFormal (u : k) : k⟦X⟧ :=
+  PowerSeries.C (1 - u) *
+    (∏' n : ℕ, ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C u)) *
+    ∏' n : ℕ, ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C u⁻¹)
+
+/-! ### Evaluation support: `valuation_tsum_le`, closure of `EvalBounded`, `evalK`
+of basic series -/
+
+/-- The valuation of a convergent sum is at most any uniform bound on its terms: some
+partial sum is closer to the limit than the bound could allow otherwise. -/
+theorem TateCurve.valuation_tsum_le {f : ℕ → k} {B : ValueGroupWithZero k}
+    (hf : Summable f) (hB : ∀ n, valuation k (f n) ≤ B) :
+    valuation k (∑' n, f n) ≤ B := by
+  by_contra hgt
+  rw [not_le] at hgt
+  obtain ⟨S, hS⟩ := hf
+  rw [hS.tsum_eq] at hgt
+  have hS' := hS
+  simp only [HasSum, SummationFilter.unconditional_filter] at hS'
+  rw [(IsValuativeTopology.hasBasis_nhds S).tendsto_right_iff] at hS'
+  have hS0 : valuation k S ≠ 0 := fun h0 ↦ by
+    rw [h0] at hgt
+    exact absurd hgt (not_lt.mpr zero_le)
+  obtain ⟨s₀, hs₀⟩ := (hS' (Units.mk0 (valuation k S) hS0) trivial).exists
+  simp only [Set.mem_setOf_eq] at hs₀
+  -- the partial sum has the same valuation as `S`, but is bounded by `B`
+  have hsum : valuation k (∑ n ∈ s₀, f n) = valuation k S := by
+    rw [show (∑ n ∈ s₀, f n) = S + ((∑ n ∈ s₀, f n) - S) from by ring]
+    refine (valuation k).map_add_eq_of_lt_left ?_
+    simpa using hs₀
+  exact absurd ((valuation k).map_sum_le fun n _ ↦ hB n)
+    (by rw [hsum]; exact not_le.mpr hgt)
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+theorem TateCurve.EvalBounded.neg {q : k} {ρ : ValueGroupWithZero k} {F : k⟦X⟧}
+    (hF : EvalBounded q ρ F) : EvalBounded q ρ (-F) := by
+  obtain ⟨C, hC, hb⟩ := hF
+  exact ⟨C, hC, fun n ↦ by rw [map_neg, neg_mul, (valuation k).map_neg]; exact hb n⟩
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+theorem TateCurve.EvalBounded.sub {q : k} {ρ : ValueGroupWithZero k} {F G : k⟦X⟧}
+    (hF : EvalBounded q ρ F) (hG : EvalBounded q ρ G) : EvalBounded q ρ (F - G) := by
+  rw [sub_eq_add_neg]
+  exact hF.add hG.neg
+
+theorem TateCurve.evalK_sub {q : k} {ρ : ValueGroupWithZero k} (hρ : ρ < 1) {F G : k⟦X⟧}
+    (hF : EvalBounded q ρ F) (hG : EvalBounded q ρ G) :
+    evalK q (F - G) = evalK q F - evalK q G := by
+  simp only [evalK, map_sub, sub_mul]
+  exact Summable.tsum_sub (hF.summable hρ) (hG.summable hρ)
+
+omit [ValuativeRel k] [IsNonarchimedeanLocalField k] in
+/-- Evaluation of a constant series. -/
+theorem TateCurve.evalK_C (q a : k) : evalK q (PowerSeries.C a) = a := by
+  have hterm : ∀ n : ℕ, PowerSeries.coeff n (PowerSeries.C a) * q ^ n =
+      if n = 0 then a else 0 := by
+    intro n
+    rcases eq_or_ne n 0 with rfl | hn
+    · simp
+    · rw [PowerSeries.coeff_C, if_neg hn, zero_mul]
+  rw [show evalK q (PowerSeries.C a) =
+    ∑' n : ℕ, (if n = 0 then a else 0) from tsum_congr hterm, tsum_ite_eq]
+
+/-- Evaluation of a basic theta factor. -/
+theorem TateCurve.evalK_one_sub_X_pow_mul (q w : k) (m : ℕ) :
+    evalK q ((1 : k⟦X⟧) - PowerSeries.X ^ (m + 1) * PowerSeries.C w) =
+      1 - q ^ (m + 1) * w := by
+  have hterm : ∀ n : ℕ,
+      PowerSeries.coeff n ((1 : k⟦X⟧) - PowerSeries.X ^ (m + 1) * PowerSeries.C w) *
+        q ^ n =
+      (if n = 0 then 1 else 0) - (if n = m + 1 then w * q ^ (m + 1) else 0) := by
+    intro n
+    rw [map_sub, PowerSeries.coeff_one, PowerSeries.coeff_X_pow_mul', PowerSeries.coeff_C]
+    rcases eq_or_ne n 0 with rfl | h0
+    · rw [if_pos rfl, if_neg (show ¬(m + 1 ≤ 0) from by omega),
+        if_neg (show (0 : ℕ) ≠ m + 1 from by omega)]
+      simp
+    · rw [if_neg h0]
+      rcases eq_or_ne n (m + 1) with rfl | hm
+      · rw [if_pos le_rfl, if_pos (Nat.sub_self (m + 1)), if_pos rfl]
+        ring
+      · rw [if_neg hm]
+        rcases le_or_gt (m + 1) n with hle | hlt
+        · rw [if_pos hle, if_neg (show ¬(n - (m + 1) = 0) from by omega)]
+          simp
+        · rw [if_neg (not_le.mpr hlt)]
+          simp
+  rw [show evalK q ((1 : k⟦X⟧) - PowerSeries.X ^ (m + 1) * PowerSeries.C w) =
+      ∑' n : ℕ, ((if n = 0 then 1 else 0) - (if n = m + 1 then w * q ^ (m + 1) else 0))
+      from tsum_congr hterm,
+    Summable.tsum_sub (hasSum_ite_eq 0 _).summable (hasSum_ite_eq (m + 1) _).summable,
+    tsum_ite_eq, tsum_ite_eq]
+  ring
+
+omit [ValuativeRel k] [IsNonarchimedeanLocalField k] in
+/-- `evalK` of the constant series `1`. -/
+theorem TateCurve.evalK_one (q : k) : evalK q 1 = 1 := by
+  rw [show (1 : k⟦X⟧) = PowerSeries.C 1 from (map_one _).symm, evalK_C]
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- The `C = 1` valuation bound for a basic theta factor: needs `|q| ≤ ρ` and
+`|w|·|q| ≤ ρ` (satisfied by `w = u` and `w = u⁻¹` for `u` in the annulus, with
+`ρ = |q|/|u|`). -/
+theorem TateCurve.valuation_coeff_theta_factor_le {q : k} {ρ : ValueGroupWithZero k}
+    (hqρ : valuation k q ≤ ρ) {w : k} (hwq : valuation k w * valuation k q ≤ ρ)
+    (m n : ℕ) :
+    valuation k (PowerSeries.coeff n
+      ((1 : k⟦X⟧) - PowerSeries.X ^ (m + 1) * PowerSeries.C w) * q ^ n) ≤ ρ ^ n := by
+  rw [map_sub, PowerSeries.coeff_one, PowerSeries.coeff_X_pow_mul', PowerSeries.coeff_C]
+  rcases eq_or_ne n 0 with rfl | h0
+  · rw [if_pos rfl, if_neg (show ¬(m + 1 ≤ 0) from by omega), sub_zero, pow_zero, mul_one,
+      map_one, pow_zero]
+  · rw [if_neg h0]
+    rcases eq_or_ne n (m + 1) with rfl | hm
+    · rw [if_pos le_rfl, if_pos (Nat.sub_self (m + 1)), zero_sub, neg_mul,
+        (valuation k).map_neg, map_mul, map_pow]
+      calc valuation k w * valuation k q ^ (m + 1)
+          = valuation k w * valuation k q * valuation k q ^ m := by
+            rw [pow_succ', ← mul_assoc]
+        _ ≤ ρ * ρ ^ m := mul_le_mul' hwq (pow_le_pow_left' hqρ m)
+        _ = ρ ^ (m + 1) := (pow_succ' ρ m).symm
+    · rcases le_or_gt (m + 1) n with hle | hlt
+      · rw [if_pos hle, if_neg (show ¬(n - (m + 1) = 0) from by omega)]
+        simp only [sub_zero, zero_mul, map_zero]
+        exact zero_le
+      · rw [if_neg (not_le.mpr hlt)]
+        simp only [sub_zero, zero_mul, map_zero]
+        exact zero_le
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- The `C = 1` valuation bound for finite products of theta factors, by the
+antidiagonal convolution. -/
+theorem TateCurve.valuation_coeff_prod_theta_le {q : k} {ρ : ValueGroupWithZero k}
+    (hqρ : valuation k q ≤ ρ) {w : k} (hwq : valuation k w * valuation k q ≤ ρ)
+    (s : Finset ℕ) (n : ℕ) :
+    valuation k (PowerSeries.coeff n
+      (∏ m ∈ s, ((1 : k⟦X⟧) - PowerSeries.X ^ (m + 1) * PowerSeries.C w)) * q ^ n)
+      ≤ ρ ^ n := by
+  induction s using Finset.cons_induction generalizing n with
+  | empty =>
+      rw [Finset.prod_empty, PowerSeries.coeff_one]
+      rcases eq_or_ne n 0 with rfl | h0
+      · rw [if_pos rfl, pow_zero, mul_one, map_one, pow_zero]
+      · rw [if_neg h0, zero_mul, map_zero]
+        exact zero_le
+  | cons a t ha ih =>
+      rw [Finset.prod_cons, PowerSeries.coeff_mul, Finset.sum_mul]
+      refine (valuation k).map_sum_le fun kl hkl ↦ ?_
+      rw [Finset.mem_antidiagonal] at hkl
+      calc valuation k (PowerSeries.coeff kl.1
+              ((1 : k⟦X⟧) - PowerSeries.X ^ (a + 1) * PowerSeries.C w) *
+            PowerSeries.coeff kl.2
+              (∏ m ∈ t, ((1 : k⟦X⟧) - PowerSeries.X ^ (m + 1) * PowerSeries.C w)) *
+            q ^ n)
+          = valuation k (PowerSeries.coeff kl.1
+                ((1 : k⟦X⟧) - PowerSeries.X ^ (a + 1) * PowerSeries.C w) * q ^ kl.1) *
+              valuation k (PowerSeries.coeff kl.2
+                (∏ m ∈ t, ((1 : k⟦X⟧) - PowerSeries.X ^ (m + 1) * PowerSeries.C w)) *
+                q ^ kl.2) := by
+            rw [← map_mul]
+            congr 1
+            rw [← hkl, pow_add]
+            ring
+        _ ≤ ρ ^ kl.1 * ρ ^ kl.2 :=
+            mul_le_mul' (valuation_coeff_theta_factor_le hqρ hwq a kl.1) (ih kl.2)
+        _ = ρ ^ n := by rw [← pow_add, hkl]
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- Basic theta factors are evaluation-bounded with constant `1`. -/
+theorem TateCurve.evalBounded_theta_factor {q : k} {ρ : ValueGroupWithZero k}
+    (hqρ : valuation k q ≤ ρ) {w : k} (hwq : valuation k w * valuation k q ≤ ρ)
+    (m : ℕ) :
+    EvalBounded q ρ ((1 : k⟦X⟧) - PowerSeries.X ^ (m + 1) * PowerSeries.C w) :=
+  ⟨1, one_ne_zero, fun n ↦ by
+    rw [one_mul]
+    exact valuation_coeff_theta_factor_le hqρ hwq m n⟩
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- Finite products of theta factors are evaluation-bounded with constant `1`. -/
+theorem TateCurve.evalBounded_prod_theta {q : k} {ρ : ValueGroupWithZero k}
+    (hqρ : valuation k q ≤ ρ) {w : k} (hwq : valuation k w * valuation k q ≤ ρ)
+    (s : Finset ℕ) :
+    EvalBounded q ρ
+      (∏ m ∈ s, ((1 : k⟦X⟧) - PowerSeries.X ^ (m + 1) * PowerSeries.C w)) :=
+  ⟨1, one_ne_zero, fun n ↦ by
+    rw [one_mul]
+    exact valuation_coeff_prod_theta_le hqρ hwq s n⟩
+
+/-- The formal theta products are evaluation-bounded with constant `1`: their
+coefficients agree with those of finite partial products. -/
+theorem TateCurve.evalBounded_tprod_theta {q : k} {ρ : ValueGroupWithZero k}
+    (hqρ : valuation k q ≤ ρ) {w : k} (hwq : valuation k w * valuation k q ≤ ρ) :
+    EvalBounded q ρ
+      (∏' n : ℕ, ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C w)) :=
+  ⟨1, one_ne_zero, fun n ↦ by
+    rw [one_mul, coeff_tprod_one_sub_X_pow_mul]
+    exact valuation_coeff_prod_theta_le hqρ hwq _ n⟩
+
+/-- The evaluated partial products of a formal theta product converge to the `evalK`
+value of the formal product: the coefficients stabilise, so the difference has zero low
+coefficients and hence small evaluation (`valuation_tsum_le`). The theta analogue of the
+`evalInt_ΔFormal` argument. -/
+theorem TateCurve.hasProd_evalK_tprod_theta {q : k} {ρ : ValueGroupWithZero k}
+    (hρ1 : ρ < 1) (hqρ : valuation k q ≤ ρ) {w : k}
+    (hwq : valuation k w * valuation k q ≤ ρ) :
+    HasProd (fun m : ℕ ↦ 1 - q ^ (m + 1) * w)
+      (evalK q (∏' n : ℕ, ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C w))) := by
+  have hfin : ∀ s : Finset ℕ, evalK q
+      (∏ m ∈ s, ((1 : k⟦X⟧) - PowerSeries.X ^ (m + 1) * PowerSeries.C w)) =
+      ∏ m ∈ s, (1 - q ^ (m + 1) * w) := by
+    intro s
+    induction s using Finset.cons_induction with
+    | empty => rw [Finset.prod_empty, Finset.prod_empty, evalK_one]
+    | cons a t ha ih =>
+        rw [Finset.prod_cons, Finset.prod_cons,
+          evalK_mul hρ1 (evalBounded_theta_factor hqρ hwq a)
+            (evalBounded_prod_theta hqρ hwq t),
+          evalK_one_sub_X_pow_mul, ih]
+  simp only [HasProd, SummationFilter.unconditional_filter]
+  rw [(IsValuativeTopology.hasBasis_nhds _).tendsto_right_iff]
+  intro γ _
+  obtain ⟨M, hM⟩ := exists_pow_lt hρ1 γ
+  filter_upwards [Filter.eventually_ge_atTop (Finset.range M)] with s hs
+  rw [← hfin s, ← evalK_sub hρ1 (evalBounded_prod_theta hqρ hwq s)
+    (evalBounded_tprod_theta hqρ hwq)]
+  refine lt_of_le_of_lt (valuation_tsum_le
+    ((((evalBounded_prod_theta hqρ hwq s).sub
+      (evalBounded_tprod_theta hqρ hwq))).summable hρ1) fun n ↦ ?_) hM
+  rcases lt_or_ge n M with hn | hn
+  · -- low coefficients agree
+    have hcoeff : PowerSeries.coeff n
+        ((∏ m ∈ s, ((1 : k⟦X⟧) - PowerSeries.X ^ (m + 1) * PowerSeries.C w)) -
+          ∏' m : ℕ, ((1 : k⟦X⟧) - PowerSeries.X ^ (m + 1) * PowerSeries.C w)) = 0 := by
+      rw [map_sub, coeff_tprod_one_sub_X_pow_mul,
+        coeff_prod_one_sub_X_pow_mul_stable w
+          (Finset.range_subset_range.mpr (Nat.le_succ n))
+          (le_trans (Finset.range_subset_range.mpr hn) hs), sub_self]
+    rw [hcoeff, zero_mul, map_zero]
+    exact zero_le
+  · -- high terms are small
+    rw [map_sub, sub_mul]
+    refine le_trans ((valuation k).map_sub _ _) (le_trans (max_le
+      (valuation_coeff_prod_theta_le hqρ hwq s n) ?_)
+      (pow_le_pow_right_of_le_one' hρ1.le hn))
+    rw [coeff_tprod_one_sub_X_pow_mul]
+    exact valuation_coeff_prod_theta_le hqρ hwq _ n
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- `EvalBounded` is monotone in the radius. -/
+theorem TateCurve.EvalBounded.mono {q : k} {ρ ρ' : ValueGroupWithZero k} (h : ρ ≤ ρ')
+    {F : k⟦X⟧} (hF : EvalBounded q ρ F) : EvalBounded q ρ' F := by
+  obtain ⟨C, hC, hb⟩ := hF
+  exact ⟨C, hC, fun n ↦ (hb n).trans (mul_le_mul' le_rfl (pow_le_pow_left' h n))⟩
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- The only power of `q` in the annulus `|q| < |·| ≤ 1` is `1` itself. -/
+theorem TateCurve.notMem_zpowers_of_annulus (q w : kˣ) (hq : valuation k (q : k) < 1)
+    (h₁ : valuation k (q : k) < valuation k (w : k)) (h₂ : valuation k (w : k) ≤ 1)
+    (hw1 : (w : k) ≠ 1) : w ∉ Subgroup.zpowers q := by
+  rintro ⟨m, rfl⟩
+  have hvq : valuation k ((q ^ m : kˣ) : k) = valuation k (q : k) ^ m := by
+    rw [Units.val_zpow_eq_zpow_val, map_zpow₀]
+  rcases lt_trichotomy m 0 with hm | hm | hm
+  · -- negative exponents leave the closed unit ball
+    rw [hvq] at h₂
+    have h1q : 1 < (valuation k (q : k))⁻¹ :=
+      (one_lt_inv₀ (zero_lt_iff.mpr ((valuation k).ne_zero_iff.mpr (Units.ne_zero q)))).mpr
+        hq
+    have : (1 : ValueGroupWithZero k) < valuation k (q : k) ^ m := by
+      calc (1 : ValueGroupWithZero k) < (valuation k (q : k))⁻¹ := h1q
+        _ = (valuation k (q : k))⁻¹ ^ 1 := (pow_one _).symm
+        _ ≤ (valuation k (q : k))⁻¹ ^ (-m).toNat :=
+            pow_le_pow_right' h1q.le (by omega)
+        _ = valuation k (q : k) ^ m := by
+            rw [inv_pow, ← zpow_natCast, ← zpow_neg,
+              Int.toNat_of_nonneg (by omega : (0 : ℤ) ≤ -m), neg_neg]
+    exact absurd h₂ (not_le.mpr this)
+  · exact hw1 (by rw [hm]; simp)
+  · -- positive exponents drop below `|q|`
+    rw [hvq] at h₁
+    have : valuation k (q : k) ^ m ≤ valuation k (q : k) := by
+      calc valuation k (q : k) ^ m = valuation k (q : k) ^ m.toNat := by
+            rw [← zpow_natCast, Int.toNat_of_nonneg (by omega : (0 : ℤ) ≤ m)]
+        _ ≤ valuation k (q : k) ^ 1 :=
+            pow_le_pow_right_of_le_one' hq.le (by omega)
+        _ = valuation k (q : k) := pow_one _
+    exact absurd h₁ (not_lt.mpr this)
+
+/-- The formal theta series is evaluation-bounded whenever the radius dominates
+`|q|`, `|w||q|` and `|w|⁻¹|q|`. -/
+theorem TateCurve.evalBounded_thetaFormal {q w : k} {ρ : ValueGroupWithZero k}
+    (hqρ : valuation k q ≤ ρ) (hwqA : valuation k w * valuation k q ≤ ρ)
+    (hwqB : valuation k w⁻¹ * valuation k q ≤ ρ) :
+    EvalBounded q ρ (thetaFormal w) :=
+  ((evalBounded_C _ _ _).mul (evalBounded_tprod_theta hqρ hwqA)).mul
+    (evalBounded_tprod_theta hqρ hwqB)
+
+/-- **The theta evaluation bridge**: on the wide annulus `|q| < |u| < |q|⁻¹`, the
+convergent product `tateTheta u q` is the `evalK`-value at `q` of the formal series
+`thetaFormal u ∈ k⟦X⟧`. This is what lets identities between formal theta series (the
+Stage 3 bridge identities) descend to identities between values, via the `evalK`
+calculus. -/
+theorem TateCurve.tateTheta_eq_evalK (q u : kˣ) (hq : valuation k (q : k) < 1)
+    (h₁ : valuation k (q : k) < valuation k (u : k))
+    (h₂ : valuation k (u : k) * valuation k (q : k) < 1) :
+    tateTheta (u : k) (q : k) = evalK (q : k) (thetaFormal (u : k)) := by
+  have hu0 : (u : k) ≠ 0 := Units.ne_zero u
+  have hvu : valuation k (u : k) ≠ 0 := (valuation k).ne_zero_iff.mpr hu0
+  set ρ := max (valuation k (u : k) * valuation k (q : k))
+    ((valuation k (u : k))⁻¹ * valuation k (q : k)) with hρ
+  have hρ1 : ρ < 1 := by
+    rw [hρ]
+    refine max_lt h₂ ?_
+    rw [mul_comm, ← div_eq_mul_inv]
+    exact (div_lt_one₀ (zero_lt_iff.mpr hvu)).mpr h₁
+  have hqρ : valuation k (q : k) ≤ ρ := by
+    rcases le_total (valuation k (u : k)) 1 with h | h
+    · refine le_trans ?_ (le_max_right _ _)
+      calc valuation k (q : k) = 1 * valuation k (q : k) := (one_mul _).symm
+        _ ≤ (valuation k (u : k))⁻¹ * valuation k (q : k) :=
+          mul_le_mul' ((one_le_inv₀ (zero_lt_iff.mpr hvu)).mpr h) le_rfl
+    · refine le_trans ?_ (le_max_left _ _)
+      calc valuation k (q : k) = 1 * valuation k (q : k) := (one_mul _).symm
+        _ ≤ valuation k (u : k) * valuation k (q : k) := mul_le_mul' h le_rfl
+  have hwqA : valuation k (u : k) * valuation k (q : k) ≤ ρ := le_max_left _ _
+  have hwqB : valuation k ((u : k)⁻¹) * valuation k (q : k) ≤ ρ := by
+    rw [map_inv₀]
+    exact le_max_right _ _
+  have hA := (hasProd_evalK_tprod_theta hρ1 hqρ hwqA).tprod_eq
+  have hB := (hasProd_evalK_tprod_theta hρ1 hqρ hwqB).tprod_eq
+  have htailA : Multipliable fun n : ℕ ↦ 1 - (q : k) ^ (n + 1) * (u : k) :=
+    (multipliable_tateTheta (q : k) hq ((q : k) * u)).congr fun n ↦ by ring
+  have hsplitA : (∏' n : ℕ, (1 - (q : k) ^ n * (u : k))) =
+      (1 - (u : k)) * ∏' n : ℕ, (1 - (q : k) ^ (n + 1) * (u : k)) := by
+    simpa using tprod_eq_zero_mul' (f := fun n : ℕ ↦ 1 - (q : k) ^ n * (u : k)) htailA
+  simp only [tateTheta]
+  rw [hsplitA, hA, hB,
+    show thetaFormal (u : k) = PowerSeries.C (1 - (u : k)) *
+      (∏' n : ℕ, ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C (u : k))) *
+      ∏' n : ℕ, ((1 : k⟦X⟧) - PowerSeries.X ^ (n + 1) * PowerSeries.C ((u : k)⁻¹))
+      from rfl,
+    evalK_mul hρ1 ((evalBounded_C _ _ _).mul (evalBounded_tprod_theta hqρ hwqA))
+      (evalBounded_tprod_theta hqρ hwqB),
+    evalK_mul hρ1 (evalBounded_C _ _ _) (evalBounded_tprod_theta hqρ hwqA),
+    evalK_C]
+
+/-- **Formal difference kernel**: the `σ`-function difference identity as an identity
+of formal series in `k⟦X⟧`, in division-free form. Both sides have coefficients that
+are universal Laurent expressions in `u, v` with integer coefficients; the identity
+descends from `ℂ` (against `℘(z₁) - ℘(z₂) = -σ(z₁+z₂)σ(z₁-z₂)/(σ(z₁)²σ(z₂)²)`) through
+a two-variable coefficient ring, as in `TateCurveDescent`. Consumed by
+`tateX_sub_tateX` through `tateTheta_eq_evalK` and the `evalK` calculus, after
+normalising `u`, `v` (and, via the functional equation `tateTheta_mul_left`, the
+products `uv`, `uv⁻¹`) into the annulus. -/
+theorem TateCurve.thetaFormal_sub_kernel (u v : k) (hu0 : u ≠ 0) (hu1 : u ≠ 1)
+    (hv0 : v ≠ 0) (hv1 : v ≠ 1) :
+    (XField u - XField v) * thetaFormal u ^ 2 * thetaFormal v ^ 2 =
+      PowerSeries.C (-v) * thetaFormal (u * v) * thetaFormal (u * v⁻¹) :=
+  sorry
+
+/-- **Formal two-torsion kernel**: `℘'(z) = -σ(2z)/σ(z)⁴` as an identity of formal
+series in `k⟦X⟧`, in division-free form; cf. `thetaFormal_sub_kernel`. Consumed by
+`two_mul_tateY_add_tateX`. -/
+theorem TateCurve.thetaFormal_two_torsion_kernel (u : k) (hu0 : u ≠ 0) (hu1 : u ≠ 1) :
+    (PowerSeries.C 2 * YField u + XField u) * thetaFormal u ^ 4 =
+      PowerSeries.C u * thetaFormal (u * u) :=
+  sorry
+
 /-! ### Stage 3: the difference identity and injectivity -/
+
+/-- The difference identity in the bridgeable region: `u, v` in the standard annulus
+with the single extra hypothesis `|q| < |uv|`, which makes the `θ(uv)`-slot wide (the
+`θ(u/v)`-slot is wide automatically). Fully derived from `thetaFormal_sub_kernel`
+through the theta bridge and the `evalK` calculus. -/
+theorem WeierstrassCurve.tateX_sub_tateX_of_wide (q u v : kˣ)
+    (hq : valuation k (q : k) < 1)
+    (h₁u : valuation k (q : k) < valuation k (u : k)) (h₂u : valuation k (u : k) ≤ 1)
+    (h₁v : valuation k (q : k) < valuation k (v : k)) (h₂v : valuation k (v : k) ≤ 1)
+    (hu1 : (u : k) ≠ 1) (hv1 : (v : k) ≠ 1)
+    (huv : valuation k (q : k) < valuation k ((u : k) * (v : k))) :
+    tateX (u : k) (q : k) - tateX (v : k) (q : k) =
+      -(v : k) * (TateCurve.tateTheta ((u : k) * (v : k)) (q : k) *
+          TateCurve.tateTheta ((u : k) * (v : k)⁻¹) (q : k)) /
+        (TateCurve.tateTheta (u : k) (q : k) ^ 2 *
+          TateCurve.tateTheta (v : k) (q : k) ^ 2) := by
+  have hu0 : (u : k) ≠ 0 := Units.ne_zero u
+  have hv0 : (v : k) ≠ 0 := Units.ne_zero v
+  have hvu : valuation k (u : k) ≠ 0 := (valuation k).ne_zero_iff.mpr hu0
+  have hvv : valuation k (v : k) ≠ 0 := (valuation k).ne_zero_iff.mpr hv0
+  have h1u : (1 : ValueGroupWithZero k) ≤ (valuation k (u : k))⁻¹ :=
+    (one_le_inv₀ (zero_lt_iff.mpr hvu)).mpr h₂u
+  have h1v : (1 : ValueGroupWithZero k) ≤ (valuation k (v : k))⁻¹ :=
+    (one_le_inv₀ (zero_lt_iff.mpr hvv)).mpr h₂v
+  set ρ := max (max (valuation k (q : k) * (valuation k (u : k))⁻¹)
+      (valuation k (q : k) * (valuation k (v : k))⁻¹))
+    ((valuation k ((u : k) * (v : k)))⁻¹ * valuation k (q : k)) with hρdef
+  have hρu : valuation k (q : k) * (valuation k (u : k))⁻¹ < 1 := by
+    rw [← div_eq_mul_inv]
+    exact (div_lt_one₀ (zero_lt_iff.mpr hvu)).mpr h₁u
+  have hρv : valuation k (q : k) * (valuation k (v : k))⁻¹ < 1 := by
+    rw [← div_eq_mul_inv]
+    exact (div_lt_one₀ (zero_lt_iff.mpr hvv)).mpr h₁v
+  have hρuv : (valuation k ((u : k) * (v : k)))⁻¹ * valuation k (q : k) < 1 := by
+    rw [mul_comm, ← div_eq_mul_inv]
+    exact (div_lt_one₀ (zero_lt_iff.mpr
+      ((valuation k).ne_zero_iff.mpr (mul_ne_zero hu0 hv0)))).mpr huv
+  have hρ1 : ρ < 1 := max_lt (max_lt hρu hρv) hρuv
+  have hqρ : valuation k (q : k) ≤ ρ := by
+    refine le_trans ?_ (le_trans (le_max_left _ _) (le_max_left _ _))
+    calc valuation k (q : k) = valuation k (q : k) * 1 := (mul_one _).symm
+      _ ≤ valuation k (q : k) * (valuation k (u : k))⁻¹ := mul_le_mul' le_rfl h1u
+  have hρu' : valuation k (q : k) * (valuation k (u : k))⁻¹ ≤ ρ :=
+    le_trans (le_max_left _ _) (le_max_left _ _)
+  have hρv' : valuation k (q : k) * (valuation k (v : k))⁻¹ ≤ ρ :=
+    le_trans (le_max_right _ _) (le_max_left _ _)
+  -- the six slot bounds
+  have hAu : valuation k (u : k) * valuation k (q : k) ≤ ρ :=
+    le_trans (le_trans (mul_le_mul' h₂u le_rfl) (le_of_eq (one_mul _))) hqρ
+  have hBu : valuation k ((u : k)⁻¹) * valuation k (q : k) ≤ ρ := by
+    rw [map_inv₀, mul_comm]
+    exact hρu'
+  have hAv : valuation k (v : k) * valuation k (q : k) ≤ ρ :=
+    le_trans (le_trans (mul_le_mul' h₂v le_rfl) (le_of_eq (one_mul _))) hqρ
+  have hBv : valuation k ((v : k)⁻¹) * valuation k (q : k) ≤ ρ := by
+    rw [map_inv₀, mul_comm]
+    exact hρv'
+  have hAuv : valuation k ((u : k) * (v : k)) * valuation k (q : k) ≤ ρ := by
+    rw [map_mul]
+    calc valuation k (u : k) * valuation k (v : k) * valuation k (q : k)
+        ≤ 1 * 1 * valuation k (q : k) := mul_le_mul' (mul_le_mul' h₂u h₂v) le_rfl
+      _ = valuation k (q : k) := by rw [one_mul, one_mul]
+      _ ≤ ρ := hqρ
+  have hBuv : valuation k (((u : k) * (v : k))⁻¹) * valuation k (q : k) ≤ ρ := by
+    rw [map_inv₀]
+    exact le_max_right _ _
+  have hAuv' : valuation k ((u : k) * (v : k)⁻¹) * valuation k (q : k) ≤ ρ := by
+    rw [map_mul, map_inv₀]
+    calc valuation k (u : k) * (valuation k (v : k))⁻¹ * valuation k (q : k)
+        ≤ 1 * (valuation k (v : k))⁻¹ * valuation k (q : k) :=
+          mul_le_mul' (mul_le_mul' h₂u le_rfl) le_rfl
+      _ = valuation k (q : k) * (valuation k (v : k))⁻¹ := by
+          rw [one_mul, mul_comm]
+      _ ≤ ρ := hρv'
+  have hBuv' : valuation k (((u : k) * (v : k)⁻¹)⁻¹) * valuation k (q : k) ≤ ρ := by
+    rw [mul_inv, inv_inv, map_mul, map_inv₀]
+    calc (valuation k (u : k))⁻¹ * valuation k (v : k) * valuation k (q : k)
+        ≤ (valuation k (u : k))⁻¹ * 1 * valuation k (q : k) :=
+          mul_le_mul' (mul_le_mul' le_rfl h₂v) le_rfl
+      _ = valuation k (q : k) * (valuation k (u : k))⁻¹ := by
+          rw [mul_one, mul_comm]
+      _ ≤ ρ := hρu'
+  -- the `EvalBounded` instances at the common radius
+  have hXu : TateCurve.EvalBounded (q : k) ρ (TateCurve.XField (u : k)) :=
+    (TateCurve.evalBounded_XField q u h₂u).mono hρu'
+  have hXv : TateCurve.EvalBounded (q : k) ρ (TateCurve.XField (v : k)) :=
+    (TateCurve.evalBounded_XField q v h₂v).mono hρv'
+  have hθu := TateCurve.evalBounded_thetaFormal (w := (u : k)) hqρ hAu hBu
+  have hθv := TateCurve.evalBounded_thetaFormal (w := (v : k)) hqρ hAv hBv
+  have hθuv := TateCurve.evalBounded_thetaFormal (w := (u : k) * (v : k)) hqρ hAuv hBuv
+  have hθuv' := TateCurve.evalBounded_thetaFormal (w := (u : k) * (v : k)⁻¹) hqρ hAuv'
+    hBuv'
+  -- the bridges
+  have hbXu := tateX_eq_evalK q u hq h₁u h₂u
+  have hbXv := tateX_eq_evalK q v hq h₁v h₂v
+  have hqq : valuation k (u : k) * valuation k (q : k) < 1 :=
+    lt_of_le_of_lt (le_trans (mul_le_mul' h₂u le_rfl) (le_of_eq (one_mul _))) hq
+  have hqq' : valuation k (v : k) * valuation k (q : k) < 1 :=
+    lt_of_le_of_lt (le_trans (mul_le_mul' h₂v le_rfl) (le_of_eq (one_mul _))) hq
+  have hθbu := TateCurve.tateTheta_eq_evalK q u hq h₁u hqq
+  have hθbv := TateCurve.tateTheta_eq_evalK q v hq h₁v hqq'
+  have hθbuv : TateCurve.tateTheta ((u : k) * (v : k)) (q : k) =
+      TateCurve.evalK (q : k) (TateCurve.thetaFormal ((u : k) * (v : k))) := by
+    have h1' : valuation k (q : k) < valuation k ((u * v : kˣ) : k) := by
+      rwa [Units.val_mul]
+    have h2' : valuation k ((u * v : kˣ) : k) * valuation k (q : k) < 1 := by
+      rw [Units.val_mul]
+      exact lt_of_le_of_lt hAuv hρ1
+    have h := TateCurve.tateTheta_eq_evalK q (u * v) hq h1' h2'
+    rwa [Units.val_mul] at h
+  have hθbuv' : TateCurve.tateTheta ((u : k) * (v : k)⁻¹) (q : k) =
+      TateCurve.evalK (q : k) (TateCurve.thetaFormal ((u : k) * (v : k)⁻¹)) := by
+    have h1' : valuation k (q : k) < valuation k ((u * v⁻¹ : kˣ) : k) := by
+      rw [Units.val_mul, Units.val_inv_eq_inv_val, map_mul, map_inv₀]
+      calc valuation k (q : k) < valuation k (u : k) := h₁u
+        _ = valuation k (u : k) * 1 := (mul_one _).symm
+        _ ≤ valuation k (u : k) * (valuation k (v : k))⁻¹ := mul_le_mul' le_rfl h1v
+    have h2' : valuation k ((u * v⁻¹ : kˣ) : k) * valuation k (q : k) < 1 := by
+      rw [Units.val_mul, Units.val_inv_eq_inv_val]
+      exact lt_of_le_of_lt hAuv' hρ1
+    have h := TateCurve.tateTheta_eq_evalK q (u * v⁻¹) hq h1' h2'
+    rwa [Units.val_mul, Units.val_inv_eq_inv_val] at h
+  -- nonvanishing of the denominators
+  have hθu0 : TateCurve.tateTheta (u : k) (q : k) ≠ 0 := fun h0 ↦
+    TateCurve.notMem_zpowers_of_annulus q u hq h₁u h₂u hu1
+      ((TateCurve.tateTheta_eq_zero_iff q hq u).mp h0)
+  have hθv0 : TateCurve.tateTheta (v : k) (q : k) ≠ 0 := fun h0 ↦
+    TateCurve.notMem_zpowers_of_annulus q v hq h₁v h₂v hv1
+      ((TateCurve.tateTheta_eq_zero_iff q hq v).mp h0)
+  -- consume the formal kernel
+  have hker := congrArg (TateCurve.evalK (q : k))
+    (TateCurve.thetaFormal_sub_kernel (u : k) (v : k) hu0 hu1 hv0 hv1)
+  rw [TateCurve.evalK_mul hρ1 ((hXu.sub hXv).mul (hθu.pow 2)) (hθv.pow 2),
+    TateCurve.evalK_mul hρ1 (hXu.sub hXv) (hθu.pow 2),
+    TateCurve.evalK_sub hρ1 hXu hXv, TateCurve.evalK_pow hρ1 hθu 2,
+    TateCurve.evalK_pow hρ1 hθv 2,
+    TateCurve.evalK_mul hρ1 ((TateCurve.evalBounded_C _ _ _).mul hθuv) hθuv',
+    TateCurve.evalK_mul hρ1 (TateCurve.evalBounded_C _ _ _) hθuv,
+    TateCurve.evalK_C] at hker
+  rw [← hbXu, ← hbXv, ← hθbu, ← hθbv, ← hθbuv, ← hθbuv'] at hker
+  rw [eq_div_iff (mul_ne_zero (pow_ne_zero 2 hθu0) (pow_ne_zero 2 hθv0))]
+  linear_combination hker
+
+/-- The two-torsion identity in the bridgeable region: `u` in the standard annulus with
+`|q| < |u²|` (making the `θ(u²)`-slot wide). Fully derived from
+`thetaFormal_two_torsion_kernel` through the theta bridge and the `evalK` calculus. -/
+theorem WeierstrassCurve.two_mul_tateY_add_tateX_of_wide (q u : kˣ)
+    (hq : valuation k (q : k) < 1)
+    (h₁u : valuation k (q : k) < valuation k (u : k)) (h₂u : valuation k (u : k) ≤ 1)
+    (hu1 : (u : k) ≠ 1)
+    (huu : valuation k (q : k) < valuation k ((u : k) * (u : k))) :
+    2 * tateY (u : k) (q : k) + tateX (u : k) (q : k) =
+      (u : k) * TateCurve.tateTheta ((u : k) * (u : k)) (q : k) /
+        TateCurve.tateTheta (u : k) (q : k) ^ 4 := by
+  have hu0 : (u : k) ≠ 0 := Units.ne_zero u
+  have hvu : valuation k (u : k) ≠ 0 := (valuation k).ne_zero_iff.mpr hu0
+  have h1u : (1 : ValueGroupWithZero k) ≤ (valuation k (u : k))⁻¹ :=
+    (one_le_inv₀ (zero_lt_iff.mpr hvu)).mpr h₂u
+  set ρ := max (valuation k (q : k) * (valuation k (u : k))⁻¹)
+    ((valuation k ((u : k) * (u : k)))⁻¹ * valuation k (q : k)) with hρdef
+  have hρu : valuation k (q : k) * (valuation k (u : k))⁻¹ < 1 := by
+    rw [← div_eq_mul_inv]
+    exact (div_lt_one₀ (zero_lt_iff.mpr hvu)).mpr h₁u
+  have hρuu : (valuation k ((u : k) * (u : k)))⁻¹ * valuation k (q : k) < 1 := by
+    rw [mul_comm, ← div_eq_mul_inv]
+    exact (div_lt_one₀ (zero_lt_iff.mpr
+      ((valuation k).ne_zero_iff.mpr (mul_ne_zero hu0 hu0)))).mpr huu
+  have hρ1 : ρ < 1 := max_lt hρu hρuu
+  have hρu' : valuation k (q : k) * (valuation k (u : k))⁻¹ ≤ ρ := le_max_left _ _
+  have hqρ : valuation k (q : k) ≤ ρ := by
+    refine le_trans ?_ hρu'
+    calc valuation k (q : k) = valuation k (q : k) * 1 := (mul_one _).symm
+      _ ≤ valuation k (q : k) * (valuation k (u : k))⁻¹ := mul_le_mul' le_rfl h1u
+  have hAu : valuation k (u : k) * valuation k (q : k) ≤ ρ :=
+    le_trans (le_trans (mul_le_mul' h₂u le_rfl) (le_of_eq (one_mul _))) hqρ
+  have hBu : valuation k ((u : k)⁻¹) * valuation k (q : k) ≤ ρ := by
+    rw [map_inv₀, mul_comm]
+    exact hρu'
+  have hAuu : valuation k ((u : k) * (u : k)) * valuation k (q : k) ≤ ρ := by
+    rw [map_mul]
+    calc valuation k (u : k) * valuation k (u : k) * valuation k (q : k)
+        ≤ 1 * 1 * valuation k (q : k) := mul_le_mul' (mul_le_mul' h₂u h₂u) le_rfl
+      _ = valuation k (q : k) := by rw [one_mul, one_mul]
+      _ ≤ ρ := hqρ
+  have hBuu : valuation k (((u : k) * (u : k))⁻¹) * valuation k (q : k) ≤ ρ := by
+    rw [map_inv₀]
+    exact le_max_right _ _
+  have hXu : TateCurve.EvalBounded (q : k) ρ (TateCurve.XField (u : k)) :=
+    (TateCurve.evalBounded_XField q u h₂u).mono hρu'
+  have hYu : TateCurve.EvalBounded (q : k) ρ (TateCurve.YField (u : k)) :=
+    (TateCurve.evalBounded_YField q u h₂u).mono hρu'
+  have hθu := TateCurve.evalBounded_thetaFormal (w := (u : k)) hqρ hAu hBu
+  have hθuu := TateCurve.evalBounded_thetaFormal (w := (u : k) * (u : k)) hqρ hAuu hBuu
+  have hbXu := tateX_eq_evalK q u hq h₁u h₂u
+  have hbYu := tateY_eq_evalK q u hq h₁u h₂u
+  have hqq : valuation k (u : k) * valuation k (q : k) < 1 :=
+    lt_of_le_of_lt (le_trans (mul_le_mul' h₂u le_rfl) (le_of_eq (one_mul _))) hq
+  have hθbu := TateCurve.tateTheta_eq_evalK q u hq h₁u hqq
+  have hθbuu : TateCurve.tateTheta ((u : k) * (u : k)) (q : k) =
+      TateCurve.evalK (q : k) (TateCurve.thetaFormal ((u : k) * (u : k))) := by
+    have h1' : valuation k (q : k) < valuation k ((u * u : kˣ) : k) := by
+      rwa [Units.val_mul]
+    have h2' : valuation k ((u * u : kˣ) : k) * valuation k (q : k) < 1 := by
+      rw [Units.val_mul]
+      exact lt_of_le_of_lt hAuu hρ1
+    have h := TateCurve.tateTheta_eq_evalK q (u * u) hq h1' h2'
+    rwa [Units.val_mul] at h
+  have hθu0 : TateCurve.tateTheta (u : k) (q : k) ≠ 0 := fun h0 ↦
+    TateCurve.notMem_zpowers_of_annulus q u hq h₁u h₂u hu1
+      ((TateCurve.tateTheta_eq_zero_iff q hq u).mp h0)
+  have hker := congrArg (TateCurve.evalK (q : k))
+    (TateCurve.thetaFormal_two_torsion_kernel (u : k) hu0 hu1)
+  rw [TateCurve.evalK_mul hρ1 (((TateCurve.evalBounded_C _ _ _).mul hYu).add hXu)
+      (hθu.pow 4),
+    TateCurve.evalK_add hρ1 ((TateCurve.evalBounded_C _ _ _).mul hYu) hXu,
+    TateCurve.evalK_mul hρ1 (TateCurve.evalBounded_C _ _ _) hYu,
+    TateCurve.evalK_pow hρ1 hθu 4,
+    TateCurve.evalK_mul hρ1 (TateCurve.evalBounded_C _ _ _) hθuu,
+    TateCurve.evalK_C, TateCurve.evalK_C] at hker
+  rw [← hbXu, ← hbYu, ← hθbu, ← hθbuu] at hker
+  rw [eq_div_iff (pow_ne_zero 4 hθu0)]
+  linear_combination hker
 
 /-- The difference of `x`-coordinates as a theta quotient:
 `X(u) - X(v) = -v·θ(uv)·θ(u/v) / (θ(u)²·θ(v)²)`. This is the Tate-curve form of the
 classical `σ`-function identity `℘(z₁) - ℘(z₂) = -σ(z₁+z₂)σ(z₁-z₂)/(σ(z₁)²σ(z₂)²)`;
 the normalising factor `-v` is fixed by the `q⁰`-coefficient, where both sides reduce
-to `(u - v)(1 - uv)/((1-u)²(1-v)²)`. The proof is a bridge identity in the two-variable
-coefficient ring `ℤ[t₁±, t₂±, (1-t₁)⁻¹, (1-t₂)⁻¹]`, descended as in
-`TateCurveDescent` and evaluated by the `evalK` calculus. -/
+to `(u - v)(1 - uv)/((1-u)²(1-v)²)`.
+
+The bridgeable case is proved: `tateX_sub_tateX_of_wide` derives the identity from the
+formal kernel whenever `u, v` lie in the standard annulus and `|q| < |uv|`. The general
+case reduces to it by `qᶻ`-covariance of both sides (`tateX`-periodicity and the
+functional equation `tateTheta_mul_left`, whose correction factors cancel), except at
+the parity obstruction `|u| = |v|` with `|u|² ∈ |q|·|q|^{2ℤ}`, where no choice of
+representatives makes all four theta slots bridgeable and zero-counting-strength input
+(Stage 5) is needed. -/
 theorem WeierstrassCurve.tateX_sub_tateX (q : kˣ) (hq : valuation k (q : k) < 1)
     (u v : kˣ) (hu : u ∉ Subgroup.zpowers q) (hv : v ∉ Subgroup.zpowers q) :
     tateX (u : k) (q : k) - tateX (v : k) (q : k) =
@@ -662,16 +1366,104 @@ theorem WeierstrassCurve.tateX_sub_tateX (q : kˣ) (hq : valuation k (q : k) < 1
           TateCurve.tateTheta (v : k) (q : k) ^ 2) :=
   sorry
 
+/-- The two-torsion identity `2Y(u) + X(u) = u·θ(u²)/θ(u)⁴`: the Tate-curve avatar of
+the classical `℘'(z) = -σ(2z)/σ(z)⁴`. Here `2y + x = y - negY(x, y)` is the difference
+of the two roots of the `y`-quadratic, so its vanishing detects `2`-torsion, and the
+right-hand side vanishes exactly for `u² ∈ qᶻ` (`tateTheta_eq_zero_iff`). The
+normalising factor `u` is fixed by the `q⁰`-coefficient, where both sides reduce to
+`u(1 + u)/(1 - u)³`.
+
+The bridgeable case is proved: `two_mul_tateY_add_tateX_of_wide` derives the identity
+from the formal kernel for `u` in the standard annulus with `|q| < |u²|`. The general
+case reduces to it by `qᶻ`-covariance except on the sphere `|u|² = |q|` (where the
+`θ(u²)`-slot sits exactly on the annulus edge for every representative), which needs
+zero-counting-strength input (Stage 5). -/
+theorem WeierstrassCurve.two_mul_tateY_add_tateX (q : kˣ)
+    (hq : valuation k (q : k) < 1) (u : kˣ) (hu : u ∉ Subgroup.zpowers q) :
+    2 * tateY (u : k) (q : k) + tateX (u : k) (q : k) =
+      (u : k) * TateCurve.tateTheta ((u : k) * u) (q : k) /
+        TateCurve.tateTheta (u : k) (q : k) ^ 4 :=
+  sorry
+
 /-- Injectivity of the Tate uniformisation, in `iff` form (the `←` direction is
 `tateCurvePoint_eq`, already proved). For `→`: equal points have equal
 `x`-coordinates, so `θ(uv)θ(u/v) = 0` by `tateX_sub_tateX` (the denominator is
-nonzero by `tateTheta_eq_zero_iff`), hence `v ≡ u^{±1} (mod qᶻ)`; the case
-`v ≡ u⁻¹ ≢ u` is excluded by comparing `y`-coordinates via `tateY_inv`, except at
-`2`-torsion (`u² ∈ qᶻ`) where the two cases coincide. -/
+nonzero by `tateTheta_eq_zero_iff`), hence `v ≡ u^{±1} (mod qᶻ)`. In the case
+`v ≡ u⁻¹`, comparing `y`-coordinates via `tateY_inv` gives `2Y(u) + X(u) = 0`, so
+`θ(u²) = 0` by the two-torsion identity `two_mul_tateY_add_tateX`, i.e. `u² ∈ qᶻ` and
+the two cases coincide. -/
 theorem WeierstrassCurve.tateCurvePoint_eq_iff (q : kˣ) (hq : valuation k (q : k) < 1)
     (u v : kˣ) :
-    tateCurvePoint q hq u = tateCurvePoint q hq v ↔ u⁻¹ * v ∈ Subgroup.zpowers q :=
-  sorry
+    tateCurvePoint q hq u = tateCurvePoint q hq v ↔ u⁻¹ * v ∈ Subgroup.zpowers q := by
+  constructor
+  · intro h
+    by_cases hu : u ∈ Subgroup.zpowers q <;> by_cases hv : v ∈ Subgroup.zpowers q
+    · exact Subgroup.mul_mem _ (Subgroup.inv_mem _ hu) hv
+    · rw [tateCurvePoint, dif_pos hu, tateCurvePoint, dif_neg hv] at h
+      exact absurd h (by simp)
+    · rw [tateCurvePoint, dif_neg hu, tateCurvePoint, dif_pos hv] at h
+      exact absurd h (by simp)
+    · rw [tateCurvePoint, dif_neg hu, tateCurvePoint, dif_neg hv,
+        WeierstrassCurve.Affine.Point.some.injEq] at h
+      obtain ⟨hX, hY⟩ := h
+      have hu0 : (u : k) ≠ 0 := Units.ne_zero u
+      have hv0 : (v : k) ≠ 0 := Units.ne_zero v
+      have hθu : TateCurve.tateTheta (u : k) (q : k) ≠ 0 := fun h0 ↦
+        hu ((TateCurve.tateTheta_eq_zero_iff q hq u).mp h0)
+      have hθv : TateCurve.tateTheta (v : k) (q : k) ≠ 0 := fun h0 ↦
+        hv ((TateCurve.tateTheta_eq_zero_iff q hq v).mp h0)
+      -- the difference identity forces `θ(uv)·θ(u/v) = 0`
+      have hdiff := tateX_sub_tateX q hq u v hu hv
+      rw [hX, sub_self, eq_comm, div_eq_zero_iff] at hdiff
+      have hnum : TateCurve.tateTheta ((u : k) * (v : k)) (q : k) *
+          TateCurve.tateTheta ((u : k) * (v : k)⁻¹) (q : k) = 0 := by
+        rcases hdiff with h1 | h1
+        · rcases mul_eq_zero.mp h1 with h2 | h2
+          · exact absurd h2 (neg_ne_zero.mpr hv0)
+          · exact h2
+        · exact absurd h1 (mul_ne_zero (pow_ne_zero _ hθu) (pow_ne_zero _ hθv))
+      rcases mul_eq_zero.mp hnum with h1 | h1
+      · -- `uv ∈ qᶻ`: the potential `2`-torsion case
+        have huv : u * v ∈ Subgroup.zpowers q :=
+          (TateCurve.tateTheta_eq_zero_iff q hq (u * v)).mp
+            (by rw [Units.val_mul]; exact h1)
+        obtain ⟨m, hm⟩ := huv
+        have hm' : q ^ m = u * v := hm
+        have hv_units : v = q ^ m * u⁻¹ := by
+          rw [hm', mul_comm u v, mul_inv_cancel_right]
+        have hv_eq : (v : k) = (q : k) ^ m * (u : k)⁻¹ := by
+          rw [hv_units, Units.val_mul, Units.val_zpow_eq_zpow_val,
+            Units.val_inv_eq_inv_val]
+        have hYv : tateY (v : k) (q : k) =
+            -tateY (u : k) (q : k) - tateX (u : k) (q : k) := by
+          rw [hv_eq, tateY_zpow_mul_left, tateY_inv q u hq]
+        have h2t : 2 * tateY (u : k) (q : k) + tateX (u : k) (q : k) = 0 := by
+          linear_combination hY.trans hYv
+        have hker := two_mul_tateY_add_tateX q hq u hu
+        rw [h2t, eq_comm, div_eq_zero_iff] at hker
+        have hθuu : TateCurve.tateTheta ((u : k) * u) (q : k) = 0 := by
+          rcases hker with h2 | h2
+          · rcases mul_eq_zero.mp h2 with h3 | h3
+            · exact absurd h3 hu0
+            · exact h3
+          · exact absurd h2 (pow_ne_zero _ hθu)
+        have hu2 : u * u ∈ Subgroup.zpowers q :=
+          (TateCurve.tateTheta_eq_zero_iff q hq (u * u)).mp
+            (by rw [Units.val_mul]; exact hθuu)
+        have hfin : u⁻¹ * v = q ^ m * (u * u)⁻¹ := by
+          rw [hv_units, mul_inv, mul_comm u⁻¹ (q ^ m * u⁻¹), mul_assoc]
+        rw [hfin]
+        exact Subgroup.mul_mem _ (Subgroup.zpow_mem _ (Subgroup.mem_zpowers q) m)
+          (Subgroup.inv_mem _ hu2)
+      · -- `u/v ∈ qᶻ`: directly the conclusion
+        have huv : u * v⁻¹ ∈ Subgroup.zpowers q :=
+          (TateCurve.tateTheta_eq_zero_iff q hq (u * v⁻¹)).mp
+            (by rw [Units.val_mul, Units.val_inv_eq_inv_val]; exact h1)
+        have heq : u⁻¹ * v = (u * v⁻¹)⁻¹ := by
+          rw [mul_inv, inv_inv, mul_comm]
+        rw [heq]
+        exact Subgroup.inv_mem _ huv
+  · exact fun h ↦ tateCurvePoint_eq q hq u v h
 
 /-! ### Stage 4: the addition law -/
 
