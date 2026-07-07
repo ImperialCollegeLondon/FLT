@@ -62,6 +62,7 @@ open scoped TensorProduct
 
 open Module
 
+namespace Slop
 namespace OddRep
 
 variable {k : Type*} [Field k]
@@ -490,3 +491,4 @@ theorem isIrreducible_iff_isAbsolutelyIrreducible
     exact isIrreducible_of_baseChange ρ (AlgebraicClosure k) habs
 
 end OddRep
+end Slop

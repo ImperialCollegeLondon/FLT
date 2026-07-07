@@ -45,8 +45,8 @@ is absolutely irreducible. -/
 theorem isIrreducible_iff_isAbsolutelyIrreducible
     (ρ : Representation k G V) [FiniteDimensional k V]
     {g : G} (hg : finrank k (Module.End.eigenspace (ρ g) 1) = 1) :
-    ρ.IsIrreducible ↔ IsAbsolutelyIrreducible ρ :=
-  isIrreducible_iff_isAbsolutelyIrreducible_slop ρ hg
+    ρ.IsIrreducible ↔ Slop.OddRep.IsAbsolutelyIrreducible ρ :=
+  Slop.OddRep.isIrreducible_iff_isAbsolutelyIrreducible_slop ρ hg
 
 end OddRep
 
