@@ -20,6 +20,11 @@ namespace ValuativeRel
 
 variable {R : Type*} [Ring R] [ValuativeRel R]
 
+/-- Naturals have valuation at most `1`: they lie in the integer subring
+`(valuation R).integer` of the valuation. -/
+theorem valuation_natCast_le_one (m : ℕ) : valuation R (m : R) ≤ 1 :=
+  (Valuation.mem_integer_iff _ _).mp (natCast_mem (valuation R).integer m)
+
 /-- Integers have valuation at most `1`: they lie in the integer subring
 `(valuation R).integer` of the valuation. -/
 theorem valuation_intCast_le_one (m : ℤ) : valuation R (m : R) ≤ 1 :=
@@ -33,11 +38,11 @@ false. -/
 theorem exists_pow_valuation_lt [IsRankLeOne R] (q : R) (hq : valuation R q < 1)
     (γ : (ValueGroupWithZero R)ˣ) : ∃ N : ℕ, valuation R q ^ N < γ := by
   rcases eq_or_ne (valuation R q) 0 with h0 | h0
-  · exact ⟨1, by rw [h0, pow_one]; exact zero_lt_iff.mpr γ.ne_zero⟩
+  · exact ⟨1, by simp [h0]⟩
   · obtain ⟨s⟩ := IsRankLeOne.nonempty (R := R)
     obtain ⟨N, hN⟩ := exists_pow_lt_of_lt_one
-      (show 0 < s.emb γ from by simpa using s.strictMono (zero_lt_iff.mpr γ.ne_zero))
-      (show s.emb (valuation R q) < 1 from by simpa using s.strictMono hq)
+      (show 0 < s.emb γ by simpa using s.strictMono (zero_lt_iff.mpr γ.ne_zero))
+      (show s.emb (valuation R q) < 1 by simpa using s.strictMono hq)
     exact ⟨N, s.strictMono.lt_iff_lt.mp (by rwa [map_pow])⟩
 
 end ValuativeRel
