@@ -51,7 +51,7 @@ namespace Dickson
 
 variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]
 
-theorem dickson_classification (G : Subgroup (PGL p)) [Finite G] :
+theorem dickson_classification (G : Subgroup (PGLOf (K p))) [Finite G] :
     (IsCyclic G) ∨
     (∃ n : ℕ, n ≥ 2 ∧ Nonempty (G ≃* DihedralGroup n)) ∨
     (Nonempty (G ≃* alternatingGroup (Fin 4))) ∨

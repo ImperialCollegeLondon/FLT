@@ -11,6 +11,7 @@ public import Mathlib.GroupTheory.SemidirectProduct
 public import Mathlib.GroupTheory.SpecificGroups.Alternating
 public import Mathlib.GroupTheory.SpecificGroups.Dihedral
 public import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Basic
+public import Mathlib.LinearAlgebra.Matrix.GeneralLinearGroup.Projective
 public import Mathlib.LinearAlgebra.Matrix.ProjectiveSpecialLinearGroup
 
 /-!
@@ -31,7 +32,7 @@ variable (p : ℕ) [Fact (Nat.Prime p)]
 noncomputable abbrev K : Type := AlgebraicClosure (ZMod p)
 
 /-- The projective general linear group `PGL₂(K p)`, i.e. `GL₂(K p)` modulo its centre. -/
-abbrev PGL : Type := GL (Fin 2) (K p) ⧸ Subgroup.center (GL (Fin 2) (K p))
+abbrev PGL : Type := Matrix.ProjGenLinGroup (Fin 2) (K p)
 
 /-- The projective special linear group `PSL₂(K p)`. -/
 abbrev PSL : Type := Matrix.ProjectiveSpecialLinearGroup (Fin 2) (K p)
