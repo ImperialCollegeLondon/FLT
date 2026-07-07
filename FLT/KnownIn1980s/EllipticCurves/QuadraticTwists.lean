@@ -284,10 +284,7 @@ unique isomorphism `Gal(L/K) ≃ {±1}`, and in particular is surjective
 (`quadraticCharacter_surjective`). -/
 noncomputable def quadraticCharacter : (M ≃ₐ[K] M) →* ℤˣ where
   toFun σ := if ∀ x : L, σ (algebraMap L M x) = algebraMap L M x then 1 else -1
-  map_one' := by
-    rw [if_pos]
-    intro x
-    rw [AlgEquiv.one_apply]
+  map_one' := by simp
   map_mul' := by
     have hP : ∀ ρ : M ≃ₐ[K] M, (∀ x : L, ρ (algebraMap L M x) = algebraMap L M x)
         ↔ AlgEquiv.restrictNormalHom L ρ = 1 := by
@@ -319,8 +316,7 @@ noncomputable def quadraticCharacter : (M ≃ₐ[K] M) →* ℤˣ where
 
 theorem quadraticCharacter_eq_one_iff (σ : M ≃ₐ[K] M) :
     quadraticCharacter K L M σ = 1 ↔ ∀ x : L, σ (algebraMap L M x) = algebraMap L M x := by
-  unfold quadraticCharacter
-  simp only [MonoidHom.coe_mk, OneHom.coe_mk]
+  simp only [quadraticCharacter, MonoidHom.coe_mk, OneHom.coe_mk]
   split_ifs with h
   · exact iff_of_true rfl h
   · exact iff_of_false (by decide) h
