@@ -167,8 +167,8 @@ theorem map (Λ : Submodule O V) [IsLattice K Λ] (f : V ≃ₗ[K] V) :
 end Submodule.IsLattice
 
 /-- `V` contains a lattice: the `O`-span of any `K`-basis of `V`. -/
-theorem Submodule.exists_isLattice (O : Type*) [CommRing O] [IsDomain O]
-    [IsDiscreteValuationRing O] {K V : Type*} [Field K] [Algebra O K] [IsFractionRing O K]
+theorem Submodule.exists_isLattice (O : Type*) [CommRing O]
+    {K V : Type*} [Field K] [Algebra O K]
     [AddCommGroup V] [Module K V] [Module O V] [IsScalarTower O K V] [FiniteDimensional K V] :
     ∃ Λ : Submodule O V, Submodule.IsLattice K Λ := by
   let b := Module.finBasis K V
