@@ -27,16 +27,16 @@ absolutely irreducible.
 
 ## Main results
 
-* `OddRep.smul_tmul_mem_range_iff`: Fact 1.1 (`l·e ∩ V = k·e` inside `V_l`)
-* `OddRep.exists_smul_eq_of_commute`: Lemma 1.4 (`End_G(V) = k`)
-* `OddRep.adjoinRange_eq_top`: Lemma 1.5 (Jacobson density, `A = End_k(V)`)
-* `OddRep.adjoinRange_baseChange_eq_top`: Lemma 1.6 (base change of `A = End_k(V)`)
-* `OddRep.isIrreducible_of_adjoinRange_eq_top`: step (iv) of the blueprint
-* `OddRep.isIrreducible_of_baseChange`: descent of irreducibility along a field
+* `OddRepOrig.smul_tmul_mem_range_iff`: Fact 1.1 (`l·e ∩ V = k·e` inside `V_l`)
+* `OddRepOrig.exists_smul_eq_of_commute`: Lemma 1.4 (`End_G(V) = k`)
+* `OddRepOrig.adjoinRange_eq_top`: Lemma 1.5 (Jacobson density, `A = End_k(V)`)
+* `OddRepOrig.adjoinRange_baseChange_eq_top`: Lemma 1.6 (base change of `A = End_k(V)`)
+* `OddRepOrig.isIrreducible_of_adjoinRange_eq_top`: step (iv) of the blueprint
+* `OddRepOrig.isIrreducible_of_baseChange`: descent of irreducibility along a field
   extension (the easy direction)
-* `OddRep.isIrreducible_baseChange_of_finrank_eigenspace_eq_one`: the hard
+* `OddRepOrig.isIrreducible_baseChange_of_finrank_eigenspace_eq_one`: the hard
   direction, over an arbitrary field extension `l/k`
-* `OddRep.isIrreducible_iff_isAbsolutelyIrreducible`: Proposition 1.2 /
+* `OddRepOrig.isIrreducible_iff_isAbsolutelyIrreducible`: Proposition 1.2 /
   Theorem 1.3
 
 ## Implementation notes
@@ -46,14 +46,14 @@ absolutely irreducible.
   `IsSimpleOrder (Subrepresentation ρ)`. The notion of a "`G`-invariant
   subspace" is Mathlib's `Subrepresentation` structure: a `Submodule` together
   with the invariance field `apply_mem_toSubmodule`. The lemma
-  `OddRep.isIrreducible_iff_forall` unpacks `Representation.IsIrreducible` into
+  `OddRepOrig.isIrreducible_iff_forall` unpacks `Representation.IsIrreducible` into
   the elementary statement "`V ≠ 0`, plus every invariant subspace is `⊥` or
   `⊤`", which is what most proofs below use.
 * "Absolutely irreducible" is defined here as: the base change to
   `AlgebraicClosure k` is irreducible. The blueprint's proof in fact shows
   irreducibility after base change to *any* field extension `l/k`; this is
   recorded separately as
-  `OddRep.isIrreducible_baseChange_of_finrank_eigenspace_eq_one`.
+  `OddRepOrig.isIrreducible_baseChange_of_finrank_eigenspace_eq_one`.
 -/
 
 @[expose] public section
@@ -63,7 +63,7 @@ open scoped TensorProduct
 open Module
 
 namespace Slop
-namespace OddRep
+namespace OddRepOrig
 
 variable {k : Type*} [Field k]
 variable {G : Type*} [Monoid G]
@@ -490,5 +490,5 @@ theorem isIrreducible_iff_isAbsolutelyIrreducible
     intro habs
     exact isIrreducible_of_baseChange ρ (AlgebraicClosure k) habs
 
-end OddRep
+end OddRepOrig
 end Slop
