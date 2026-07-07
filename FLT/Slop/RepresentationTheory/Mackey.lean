@@ -504,8 +504,10 @@ noncomputable def theta : (⨁ D, Summand H L ρ D) →ₗ[k] IndV H.subtype ρ 
     (existsUnique_theta H L ρ D.out).choose
 
 /-- Values of `Θ`: `Θ (ι_D [l, v]) = [s_D * l, v]`. Proved from `existsUnique_theta`, so
-there is nothing extra to audit here beyond the definition of `theta`. -/
-@[simp]
+there is nothing extra to audit here beyond the definition of `theta`.
+
+Not a `@[simp]` lemma: `twistedMk` is an abbreviation for `IndV.mk`, whose unfolding by
+`simp` rewrites the left-hand side out of simp-normal form (`simpNF` linter). -/
 lemma theta_of (D : Cosets H L) (l : L) (v : V) :
     theta H L ρ (DirectSum.of (Summand H L ρ) D (twistedMk H L ρ D.out l v))
       = IndV.mk H.subtype ρ (D.out * (l : G)) v :=
