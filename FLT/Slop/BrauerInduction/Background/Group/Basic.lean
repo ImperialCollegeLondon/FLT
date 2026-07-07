@@ -133,7 +133,6 @@ lemma QuotientGroup.natCard_quotient_lt_natCard_of_ne_bot
       _ = Fintype.card G := hcard.symm
   simpa [Nat.card_eq_fintype_card] using hlt_fintype
 
-@[simp]
 lemma Subgroup.commute_subtype_iff
     {H : Subgroup G} (x y : H) :
     Commute ((x : H) : G) ((y : H) : G) ↔ Commute x y := by

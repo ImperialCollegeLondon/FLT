@@ -37,7 +37,7 @@ This is proved by decomposing the representation as a finite biproduct of simple
 representations and using additivity of characters over finite biproducts.
 -/
 theorem character_mem_span_simple_characters
-    [Finite G] [CharZero k] [IsAlgClosed k]
+    [Finite G] [CharZero k] [_hk : IsAlgClosed k]
     (V : FDRep k G) :
     V.character ∈
       Submodule.span ℤ

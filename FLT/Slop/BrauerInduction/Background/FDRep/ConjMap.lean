@@ -72,7 +72,6 @@ noncomputable def conjMap
     (MulAut.conj g).subgroupMap I
   exact FDRep.of (σ.ρ.comp e.symm.toMonoidHom)
 
-@[simp]
 lemma conjMap_rho_apply
     (I : Subgroup G) (g : G)
     (σ : FDRep k I)

@@ -75,7 +75,7 @@ The character of the left Mackey restriction is the restriction of `σ.character
 through the left inclusion into `I`.
 -/
 @[simp] lemma char_mackeyLeftRes
-    [Finite G]
+    [_hG : Finite G]
     (I : Subgroup G) (σ : FDRep k I) (g : G)
     (h : mackeyIntersection I g) :
     (mackeyLeftRes (k := k) I σ g).character h
@@ -88,7 +88,7 @@ The Mackey Hom-term dimension formula with the two restricted characters
 expanded explicitly in terms of `σ.character`.
 -/
 @[simp] lemma char_mackeyConjRes
-    [Finite G]
+    [_hG : Finite G]
     (I : Subgroup G) (σ : FDRep k I) (g : G)
     (h : mackeyIntersection I g) :
     (mackeyConjRes (k := k) I σ g).character h

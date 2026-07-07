@@ -106,7 +106,7 @@ characters. If `H ≤ I ≤ G` and `θ` is a linear character of `H`, then induc
 `indLin H θ` from `I` to `G` agrees with inducing the transported character
 from the image of `H` as a subgroup of `G`.
 -/
-noncomputable def indLin_trans
+noncomputable def indLinTrans
     (I : Subgroup G)
     (H : Subgroup I)
     (θ : H →* kˣ) :
@@ -136,7 +136,7 @@ noncomputable def indLin_trans
   let hsrc :
       ((FDRep.transportEquiv (k := k) e).functor.obj σlin) ≅
         FDRep.ofLinearChar θG :=
-    FDRep.ofLinearChar_transportEquiv_iso e θ
+    FDRep.ofLinearCharTransportEquivIso e θ
   exact
     hstage ≪≫
       ((FDRep.indHomFunctor (G := HG) (H := G) HG.subtype).mapIso hsrc)

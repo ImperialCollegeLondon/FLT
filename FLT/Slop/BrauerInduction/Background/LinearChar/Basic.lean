@@ -116,7 +116,7 @@ open CategoryTheory
 Transporting `ofLinearChar` along an isomorphism `e : G ≃* H`.
 If `ψ` is a character on `G`, then `Transport(e, ofLinearChar ψ) ≅ ofLinearChar (ψ ∘ e⁻¹)`.
 -/
-noncomputable def FDRep.transport_ofLinearChar_iso
+noncomputable def FDRep.transportOfLinearCharIso
     {H : Type v} [Group H] (e : G ≃* H) (ψ : G →* kˣ) :
     transport e (ofLinearChar ψ) ≅
     ofLinearChar (ψ.comp e.symm.toMonoidHom) := Iso.refl (transport e (ofLinearChar ψ))
@@ -136,7 +136,7 @@ lemma LinearChar.exists_apply_ne
 open Classical in
 @[simp]
 lemma LinearChar.char_ofTop_ulift_of
-    {k : Type u} [Field k] [Finite G]
+    {k : Type u} [Field k] [_hG : Finite G]
     (ψ : (⊤ : Subgroup G) →* kˣ) (g : G) :
     (FDRep.ofTop
         (FDRep.ofLinearChar (k := k) ψ)).character g
@@ -162,7 +162,7 @@ Transporting the representation attached to a linear character along a group
 equivalence gives the representation attached to the character precomposed with
 the inverse equivalence.
 -/
-noncomputable def FDRep.ofLinearChar_transportEquiv_iso
+noncomputable def FDRep.ofLinearCharTransportEquivIso
     {H : Type v} [Group H]
     (e : G ≃* H)
     (θ : G →* kˣ) :

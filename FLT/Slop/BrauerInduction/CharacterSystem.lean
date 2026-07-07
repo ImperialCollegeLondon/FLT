@@ -16,18 +16,18 @@ public import FLT.Slop.BrauerInduction.Background.FDRep.Character.Induced
 This file defines the character-system pieces used in Bernstein's proof of
 Brauer induction.
 
-For a fixed ambient finite group `G`, the submodule `R_Lambda k G H` is the
+For a fixed ambient finite group `G`, the submodule `rLambda k G H` is the
 `Λ`-span of characters of finite-dimensional representations of the subgroup
-`H`. The set `Q_sys k G H` is the intersection of `R_Lambda k G H` with the
-integer-valued class functions `C_Z k H`.
+`H`. The set `qSys k G H` is the intersection of `rLambda k G H` with the
+integer-valued class functions `cZ k H`.
 
 The main closure properties proved here are:
 
-* `ClassFun.R_Lambda.ind_mem`: induction preserves `R_Λ`;
-* `ClassFun.R_Lambda.comp_inclusion_mem`: restriction along subgroup inclusion
+* `ClassFun.rLambda.ind_mem`: induction preserves `R_Λ`;
+* `ClassFun.rLambda.comp_inclusion_mem`: restriction along subgroup inclusion
   preserves `R_Λ`;
-* `ClassFun.R_Lambda.mul_mem`: `R_Λ` is closed under pointwise multiplication;
-* `ClassFun.Q_sys.ind_mem`: induction preserves `Q = R_Λ ∩ C_Z`.
+* `ClassFun.rLambda.mul_mem`: `R_Λ` is closed under pointwise multiplication;
+* `ClassFun.qSys.ind_mem`: induction preserves `Q = R_Λ ∩ cZ`.
 -/
 
 @[expose] public section
@@ -49,45 +49,45 @@ section R_Λ
 /--
 Bernstein's character system `R_Λ`.
 
-For a subgroup `H ≤ G`, `R_Lambda k G H` is the `Λ`-span of characters of
+For a subgroup `H ≤ G`, `rLambda k G H` is the `Λ`-span of characters of
 finite-dimensional representations of `H`, where `Λ = ClassFun.Lambda k G` is
 formed using the fixed ambient group `G`.
 -/
-def R_Lambda
+def rLambda
     (k : Type u) [Field k]
-    (G : Type u) [Group G] [Finite G]
+    (G : Type u) [Group G] [_hG : Finite G]
     (H : Subgroup G) :
     Submodule (Lambda k G) (ClassFun k H) :=
   Submodule.span (Lambda k G)
     { χ : ClassFun k H |
         ∃ V : FDRep k H, χ = ClassFun.character V }
 
-namespace R_Lambda
+namespace rLambda
 /-- Characters of finite-dimensional representations lie in `R_Λ(H)`. -/
 lemma char_mem
     (H : Subgroup G) (V : FDRep k H) :
-    ClassFun.character V ∈ R_Lambda k G H := by
+    ClassFun.character V ∈ rLambda k G H := by
   exact Submodule.subset_span ⟨V, rfl⟩
 
 /--
 Induction preserves `R_Λ`.
 
 The result is stated after restricting the induced class function to `⊤`, so
-that the target is the subgroup-indexed module `R_Lambda k G ⊤`.
+that the target is the subgroup-indexed module `rLambda k G ⊤`.
 -/
 lemma ind_mem
     [Fintype G]
     (H : Subgroup G)
     {q : ClassFun k H}
-    (hq : q ∈ R_Lambda k G H) :
+    (hq : q ∈ rLambda k G H) :
     ClassFun.res (G := G) (k := k) (⊤ : Subgroup G)
       (ClassFun.ind (G := G) (k := k) H q)
-      ∈ R_Lambda k G (⊤ : Subgroup G) := by
+      ∈ rLambda k G (⊤ : Subgroup G) := by
   refine Submodule.span_induction
     (p := fun q _ =>
       ClassFun.res (G := G) (k := k) (⊤ : Subgroup G)
         (ClassFun.ind (G := G) (k := k) H q)
-        ∈ R_Lambda k G (⊤ : Subgroup G))
+        ∈ rLambda k G (⊤ : Subgroup G))
     ?gen ?zero ?add ?smul hq
   · rintro χ ⟨V, rfl⟩
     rw [← ClassFun.char_ind]
@@ -106,7 +106,7 @@ lemma ind_mem
       ClassFun.res (G := G) (k := k) (⊤ : Subgroup G)
         (ClassFun.ind (G := G) (k := k) H
           (((a : Lambda k G) : k) • x))
-        ∈ R_Lambda k G (⊤ : Subgroup G)
+        ∈ rLambda k G (⊤ : Subgroup G)
     rw [ClassFun.ind_smul (H := H) ((a : Lambda k G) : k) x]
     rw [ClassFun.res_smul
       (K := (⊤ : Subgroup G))
@@ -125,10 +125,10 @@ inclusion `H → K` lies in the corresponding `Λ`-span for `H`.
 lemma comp_inclusion_mem
     {H K : Subgroup G} (hHK : H ≤ K)
     (φ : ClassFun k K)
-    (hφ : φ ∈ R_Lambda k G K) :
+    (hφ : φ ∈ rLambda k G K) :
     φ.comp (Subgroup.inclusion hHK)
-      ∈ R_Lambda k G H := by
-  dsimp [R_Lambda] at hφ ⊢
+      ∈ rLambda k G H := by
+  dsimp [rLambda] at hφ ⊢
   refine Submodule.span_induction
     (s := {χ : ClassFun k K |
       ∃ V : FDRep k K, χ = ClassFun.character V})
@@ -170,16 +170,16 @@ lemma comp_inclusion_mem
 /--
 Restricting from `⊤` to a subgroup preserves membership in `R_Λ`.
 
-This is the special case of `R_Lambda.comp_inclusion_mem` used in the localized
+This is the special case of `rLambda.comp_inclusion_mem` used in the localized
 ideal multiplication proof.
 -/
 lemma res_top_to_subgroup
      {E : Subgroup G} {g : ClassFun k G}
     (hg :
       ClassFun.res (G := G) (k := k) (⊤ : Subgroup G) g
-        ∈ R_Lambda k G (⊤ : Subgroup G)) :
+        ∈ rLambda k G (⊤ : Subgroup G)) :
     ClassFun.res (G := G) (k := k) E g
-      ∈ R_Lambda k G E := by
+      ∈ rLambda k G E := by
   have h_le : E ≤ (⊤ : Subgroup G) := by
     intro x hx
     exact Subgroup.mem_top x
@@ -189,22 +189,22 @@ lemma res_top_to_subgroup
       h_le
       (ClassFun.res (G := G) (k := k) (⊤ : Subgroup G) g)
       hg
-  exact (Submodule.mem_toAddSubgroup (R_Lambda k G E)).mp h_comp
+  exact (Submodule.mem_toAddSubgroup (rLambda k G E)).mp h_comp
 
 /--
 The character system `R_Λ` is closed under pointwise multiplication.
 -/
 lemma mul_mem
     {k : Type u} [Field k] {H : Subgroup G} {f g : ClassFun k H}
-    (hf : f ∈ R_Lambda k G H)
-    (hg : g ∈ R_Lambda k G H) :
-    f * g ∈ R_Lambda k G H := by
+    (hf : f ∈ rLambda k G H)
+    (hg : g ∈ rLambda k G H) :
+    f * g ∈ rLambda k G H := by
   refine Submodule.span_induction
-    (p := fun f _ => f * g ∈ R_Lambda k G H)
+    (p := fun f _ => f * g ∈ rLambda k G H)
     ?gen_f ?zero_f ?add_f ?smul_f hf
   · rintro _ ⟨V, rfl⟩
     refine Submodule.span_induction
-      (p := fun g _ => ClassFun.character V * g ∈ R_Lambda k G H)
+      (p := fun g _ => ClassFun.character V * g ∈ rLambda k G H)
       ?gen_g ?zero_g ?add_g ?smul_g hg
     · rintro _ ⟨W, rfl⟩
       rw [(ClassFun.char_tensor V W).symm]
@@ -247,12 +247,12 @@ lemma mul_mem
 /--
 The global `Λ`-span of characters of finite-dimensional representations of `G`.
 
-This is the version of `R_Lambda k G ⊤` living directly on `G`, rather than on
+This is the version of `rLambda k G ⊤` living directly on `G`, rather than on
 the top subgroup `⊤ : Subgroup G`.
 -/
 def top
     (k : Type u) [Field k]
-    (G : Type u) [Group G] [Finite G] :
+    (G : Type u) [Group G] [_hG : Finite G] :
     Submodule (Lambda k G) (ClassFun k G) :=
   Submodule.span (Lambda k G)
     { χ : ClassFun k G |
@@ -266,10 +266,10 @@ the subgroup-indexed `R_Λ`.
 lemma top_res_to_subgroup
     (H : Subgroup G)
     {f : ClassFun k G}
-    (hf : f ∈ R_Lambda.top k G) :
-    ClassFun.res (G := G) (k := k) H f ∈ R_Lambda k G H := by
-  unfold R_Lambda.top at hf
-  unfold R_Lambda
+    (hf : f ∈ rLambda.top k G) :
+    ClassFun.res (G := G) (k := k) H f ∈ rLambda k G H := by
+  unfold rLambda.top at hf
+  unfold rLambda
   refine Submodule.span_induction
     (p := fun f _ =>
       ClassFun.res (G := G) (k := k) H f ∈
@@ -295,43 +295,43 @@ lemma top_res_to_subgroup
     rw [ClassFun.res_smul]
     exact Submodule.smul_mem _ a hx
 
-end R_Lambda
+end rLambda
 end R_Λ
 
 section QSys
 /--
 Bernstein's character system `Q`.
 
-For a subgroup `H ≤ G`, `Q_sys k G H` consists of class functions lying both in
-`R_Λ(H)` and in the integer-valued class functions `C_Z(H)`.
+For a subgroup `H ≤ G`, `qSys k G H` consists of class functions lying both in
+`R_Λ(H)` and in the integer-valued class functions `cZ(H)`.
 -/
-def Q_sys (k : Type u) [Field k]
+def qSys (k : Type u) [Field k]
     (G : Type u) [Group G] [Finite G]
     (H : Subgroup G) : Set (ClassFun k H) :=
-  { χ | χ ∈ R_Lambda k G H ∧ χ ∈ C_Z k H }
+  { χ | χ ∈ rLambda k G H ∧ χ ∈ cZ k H }
 
 /--
 The character system `Q` on the top subgroup of the fixed ambient group.
 -/
-abbrev Q_top (k : Type u) [Field k]
+abbrev qTop (k : Type u) [Field k]
     (G : Type u) [Group G] [Finite G] :
     Set (ClassFun k (⊤ : Subgroup G)) :=
-  Q_sys k G (⊤ : Subgroup G)
+  qSys k G (⊤ : Subgroup G)
 
 /--
-Induction preserves Bernstein's character system `Q = R_Λ ∩ C_Z`.
+Induction preserves Bernstein's character system `Q = R_Λ ∩ cZ`.
 -/
-lemma Q_sys.ind_mem
+lemma qSys.ind_mem
     {k : Type u} [Field k]
     {G : Type u} [Group G] [Fintype G]
     {H : Subgroup G} {q : ClassFun k H}
-    (hq : q ∈ Q_sys k G H) :
+    (hq : q ∈ qSys k G H) :
     ClassFun.res (G := G) (k := k) (⊤ : Subgroup G)
       (ClassFun.ind (G := G) (k := k) H q)
-      ∈ Q_sys k G (⊤ : Subgroup G) := by
+      ∈ qSys k G (⊤ : Subgroup G) := by
   exact ⟨
-    R_Lambda.ind_mem (k := k) (G := G) H hq.1,
-    C_Z.ind_mem_C_Z (k := k) (G := G) hq.2
+    rLambda.ind_mem (k := k) (G := G) H hq.1,
+    cZ.ind_mem_C_Z (k := k) (G := G) hq.2
   ⟩
 
 end QSys

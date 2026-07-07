@@ -57,7 +57,6 @@ theorem char_mul_comm (V : FDRep k G) (g : G) (h : G) :
     ClassFun.character V (h * g) = ClassFun.character V (g * h) :=
       Representation.char_mul_comm V.ρ g h
 
-@[simp]
 lemma char_one (V : FDRep k G) :
     ClassFun.character V 1 = Module.finrank k V := by
   simp only [character, ofFun_apply, FDRep.char_one]
@@ -115,7 +114,6 @@ lemma char_dual (V : FDRep k G) :
 /--
 The character of the internal Hom representation is `χ_V(g⁻¹) * χ_W(g)`.
 -/
-@[simp]
 lemma char_linHom (V W : FDRep k G) (g : G) :
     ClassFun.character (FDRep.linHom V W) g =
       V.character g⁻¹ * W.character g  := by

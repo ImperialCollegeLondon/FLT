@@ -191,6 +191,7 @@ open scoped MonoidAlgebra
 variable {k : Type u} {G : Type v} [Field k] [Group G] [Fintype G]
 variable {V : Type w} [AddCommGroup V] [Module k V]
 
+/-- The averaging idempotent `|G|⁻¹ • ∑ g, g` in the group algebra `k[G]`. -/
 noncomputable def average (k : Type u) (G : Type v) [Field k] [Monoid G] [Fintype G] : k[G] :=
    ((Fintype.card G : k)⁻¹) • ∑ g : G, MonoidAlgebra.of k G g
 
@@ -262,6 +263,7 @@ theorem average_char_eq_finrank_invariants
   simp only [MonoidAlgebra.of_apply, map_smul, map_sum,
     Representation.asAlgebraHom_single, one_smul, smul_eq_mul]
 
+/-- The representation obtained by transporting `ρ` along the universe lift `ULift`. -/
 noncomputable def ulift
     {k : Type u} [Semiring k]
     {G : Type v} [Monoid G]
@@ -332,7 +334,7 @@ lemma character_ulift
     {k : Type u} [Field k]
     {G : Type v} [Monoid G]
     {V : Type w} [AddCommGroup V] [Module k V]
-    [Module.Finite k V] [Module.Free k V]
+    [_hVfin : Module.Finite k V] [_hVfree : Module.Free k V]
     (ρ : Representation k G V) :
     ρ.ulift.character = ρ.character := by
   ext g

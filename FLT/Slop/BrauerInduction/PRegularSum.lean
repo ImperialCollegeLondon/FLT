@@ -16,18 +16,18 @@ public import FLT.Slop.BrauerInduction.Background.Group.PRegularClass
 This file constructs the local class function used to prove that `1` belongs
 to the localized Bernstein span `Jloc p`.
 
-For each `p`-regular element `a`, the function `f_a` constructed in
-`PElementaryConstruction` is normalized to a function `e_a` satisfying
-`e_a(a) = 1`.  Summing these functions over representatives of `p`-regular
-conjugacy classes gives the class function `E_p`.
+For each `p`-regular element `a`, the function `fA` constructed in
+`PElementaryConstruction` is normalized to a function `eA` satisfying
+`eA(a) = 1`.  Summing these functions over representatives of `p`-regular
+conjugacy classes gives the class function `eP`.
 
 The main result of the first part is the local congruence
 
-`E_p(g) = 1 + p z`
+`eP(g) = 1 + p z`
 
 for some `z : Zlocal p`, formalized as `E_p_congr`.
 
-The second part uses the polynomial with roots `E_p(g)` to prove the final
+The second part uses the polynomial with roots `eP(g)` to prove the final
 local statement
 
 `one_mem_Jloc : (1 : ClassFun k G) ∈ Jloc p`.
@@ -51,68 +51,68 @@ section PRegularClassSum
 /-!
 ## The normalized `p`-regular class sum
 
-This section defines the normalized functions `e_a`, sums them over
-`p`-regular conjugacy classes to obtain `E_p`, and proves the congruence
-`E_p(g) = 1 + pz` in the `p`-local integers.
+This section defines the normalized functions `eA`, sums them over
+`p`-regular conjugacy classes to obtain `eP`, and proves the congruence
+`eP(g) = 1 + pz` in the `p`-local integers.
 -/
 
 /--
-The `p`-local unit represented by the value `f_a(a)`.
+The `p`-local unit represented by the value `fA(a)`.
 
-Bernstein's function `f_a` takes a `p`-local unit value at the defining
-`p`-regular element `a`; this definition chooses that unit so that `e_a`
-can normalize `f_a`.
+Bernstein's function `fA` takes a `p`-local unit value at the defining
+`p`-regular element `a`; this definition chooses that unit so that `eA`
+can normalize `fA`.
 -/
-noncomputable def e_a_unit
+noncomputable def eAUnit
     [Fintype G] [CharZero k]
     {a : G} (ha : IsPRegular p a) : (Zlocal p)ˣ :=
   Classical.choose
     (ClassFun.f_a_apply_a_isUnit_Zlocal (k := k) p (a := a) ha)
 
 /--
-The chosen unit `e_a_unit` maps to the value `f_a(a)` under the canonical map
+The chosen unit `eAUnit` maps to the value `fA(a)` under the canonical map
 `Zlocal p → k`.
 -/
 lemma e_a_unit_spec
     [Fintype G] [CharZero k]
     {a : G} (ha : IsPRegular p a) :
-    Zlocal.toK (k := k) p (e_a_unit (k := k) p ha : Zlocal p)
+    Zlocal.toK (k := k) p (eAUnit (k := k) p ha : Zlocal p)
       =
-    ClassFun.f_a (k := k) p a a :=
+    ClassFun.fA (k := k) p a a :=
   Classical.choose_spec
     (ClassFun.f_a_apply_a_isUnit_Zlocal (k := k) p  ha)
 
 /--
 The normalized Bernstein function attached to a `p`-regular element `a`.
 
-It is obtained from `f_a` by multiplying by the inverse of the `p`-local unit
-`f_a(a)`, so that the resulting class function takes value `1` at `a`.
+It is obtained from `fA` by multiplying by the inverse of the `p`-local unit
+`fA(a)`, so that the resulting class function takes value `1` at `a`.
 -/
-noncomputable def e_a
+noncomputable def eA
     [Fintype G] [CharZero k]
     (a : G) (ha : IsPRegular p a) : ClassFun k G :=
-  ((↑((e_a_unit (k := k) p ha)⁻¹) : Zlocal p) •
-    ClassFun.f_a (k := k) p a)
+  ((↑((eAUnit (k := k) p ha)⁻¹) : Zlocal p) •
+    ClassFun.fA (k := k) p a)
 
 /--
-The normalized function `e_a` belongs to the localized Bernstein span `Jloc p`.
+The normalized function `eA` belongs to the localized Bernstein span `Jloc p`.
 -/
 lemma e_a_mem_Jloc
     {G : Type u} [Group G] [Fintype G] [CharZero k] [IsAlgClosed k]
     (a : G) (ha : IsPRegular p a) :
-    e_a (k := k) p a ha ∈ Jloc p := by
-  unfold e_a
+    eA (k := k) p a ha ∈ Jloc p := by
+  unfold eA
   apply Submodule.smul_mem
   exact f_a_mem_Jloc p a ha
 
 /--
-The normalized function `e_a` takes value `1` at its defining `p`-regular element `a`.
+The normalized function `eA` takes value `1` at its defining `p`-regular element `a`.
 -/
 lemma e_a_apply_self
     [Fintype G] [CharZero k]
     (a : G) (ha : IsPRegular p a) :
-    (e_a (k := k) p a ha) a = 1 := by
-  unfold e_a
+    (eA (k := k) p a ha) a = 1 := by
+  unfold eA
   rw [ClassFun.Zlocal.smul_apply]
   rw [← e_a_unit_spec (k := k) p ha]
   rw [← map_mul]
@@ -120,25 +120,25 @@ lemma e_a_apply_self
   exact map_one _
 
 /--
-The normalized function `e_a` vanishes outside the `p`-section whose
+The normalized function `eA` vanishes outside the `p`-section whose
 `p`-regular part is conjugate to `a`.
 -/
 lemma e_a_apply_not_isConj
     [Fintype G] [CharZero k] {a x : G}
     (ha : IsPRegular p a) (hx : ¬ IsConj (Group.pRegular p x) a) :
-    (e_a (k := k) p a ha) x = (0 : k) := by
-  simp only [e_a, ClassFun.smul_apply, Units.isUnit, IsUnit.smul_eq_zero]
+    (eA (k := k) p a ha) x = (0 : k) := by
+  simp only [eA, ClassFun.smul_apply, Units.isUnit, IsUnit.smul_eq_zero]
   exact ClassFun.f_a_apply_eq_zero_of_not_isConj p a x hx
 
 /--
-The Bernstein class sum `E_p`.
+The Bernstein class sum `eP`.
 
-This is the sum of the normalized functions `e_a`, with one representative
+This is the sum of the normalized functions `eA`, with one representative
 chosen for each conjugacy class of `p`-regular elements.
 -/
-noncomputable def E_p
+noncomputable def eP
     [Fintype G] [CharZero k] : ClassFun k G :=
-  ∑ C : PRegularClass p G, e_a p
+  ∑ C : PRegularClass p G, eA p
     C.repr (PRegularClass.repr_isPRegular C)
 
 open Classical in
@@ -151,19 +151,19 @@ lemma e_a_apply_pRegular_delta
     [Fintype G] [CharZero k]
     (C : PRegularClass p G)
     (g : G) (hg : IsPRegular p g) :
-    (e_a (k := k) p C.repr (PRegularClass.repr_isPRegular C)) g
+    (eA (k := k) p C.repr (PRegularClass.repr_isPRegular C)) g
       =
     if IsConj C.repr g then 1 else 0 := by
   by_cases h : IsConj C.repr g
   · simp only [h, if_pos]
     calc
-      (e_a (k := k) p C.repr
+      (eA (k := k) p C.repr
           (PRegularClass.repr_isPRegular C)) g
           =
-        (e_a (k := k) p C.repr
+        (eA (k := k) p C.repr
           (PRegularClass.repr_isPRegular C)) C.repr := by
             exact
-              (e_a (k := k) p C.repr
+              (eA (k := k) p C.repr
                 (PRegularClass.repr_isPRegular C)).map_conj
                   g C.repr h.symm
       _ = 1 := by
@@ -175,18 +175,18 @@ lemma e_a_apply_pRegular_delta
     exact Not.imp h fun a ↦ id (IsConj.symm a)
 
 /--
-The class sum `E_p` takes value `1` on every `p`-regular element.
+The class sum `eP` takes value `1` on every `p`-regular element.
 -/
 lemma E_p_apply_of_pRegular
   [Fintype G] [CharZero k]
   (g : G) (hg : IsPRegular p g) :
-  E_p (k := k) p g = 1 := by
+  eP (k := k) p g = 1 := by
   rcases PRegularClass.unique_of_isPRegular p g hg with ⟨C0, hC0, huniq⟩
-  simp only [E_p, ClassFun.sum_apply]
+  simp only [eP, ClassFun.sum_apply]
   classical
   have h_sum :
       ∑ i : PRegularClass p G,
-        (e_a (k := k) p i.repr (PRegularClass.repr_isPRegular i)) g =
+        (eA (k := k) p i.repr (PRegularClass.repr_isPRegular i)) g =
       ∑ i : PRegularClass p G, if IsConj i.repr g then (1 : k) else 0 := by
     apply Finset.sum_congr rfl
     intro i _
@@ -204,30 +204,30 @@ lemma E_p_apply_of_pRegular
 
 open PElementary _root_.Subgroup in
 /--
-The normalized function `e_a` is congruent to `1` modulo `p` on elements of
+The normalized function `eA` is congruent to `1` modulo `p` on elements of
 the form `a * u`, where `u` is `p`-singular and commutes with `a`.
 
 This is the local fixed-point congruence from Bernstein's Step 8, after
-normalizing by the unit value `f_a(a)`.
+normalizing by the unit value `fA(a)`.
 -/
 lemma e_a_congr_pSingular
     [CharZero k] [Fintype G]
     (p : ℕ) [Fact p.Prime]
     {a : G} (ha : IsPRegular p a)
     (s : G) (hs : IsPSingular p s) (h_comm : Commute a s) :
-    ∃ z : Zlocal p, e_a (k := k) p a ha (a * s)
+    ∃ z : Zlocal p, eA (k := k) p a ha (a * s)
               = 1 + (Zlocal.toK p z) * (p : k) := by
-  -- Use the same normalizing unit as the definition of `e_a`.
-  let faa : (Zlocal p)ˣ := e_a_unit (k := k) (p := p) ha
+  -- Use the same normalizing unit as the definition of `eA`.
+  let faa : (Zlocal p)ˣ := eAUnit (k := k) (p := p) ha
   have hu0 :
       Zlocal.toK (k := k) p (faa : Zlocal p) =
-        ClassFun.f_a (k := k) p a a := by
+        ClassFun.fA (k := k) p a a := by
     dsimp [faa]
     exact e_a_unit_spec p ha
   have hf_fix := ClassFun.f_a_apply_mul_pSingular_eq_Nfix
       (k := k) p ha s hs h_comm
   let C : Subgroup G := centralizer ({a} : Set G)
-  let H : Subgroup C := (P_in_Z p a : Subgroup C)
+  let H : Subgroup C := (pInZ p a : Subgroup C)
   let uC : C := ⟨s, by
     simpa [C, Subgroup.mem_centralizer_iff] using h_comm.eq⟩
   have huC : IsPSingular p (uC : C) := by
@@ -252,7 +252,7 @@ lemma e_a_congr_pSingular
   obtain ⟨t, ht⟩ := hdvd
   let z : Zlocal p := -↑(faa⁻¹) * (t : Zlocal p)
   use z
-  unfold e_a
+  unfold eA
   rw [ClassFun.Zlocal.smul_apply, hf_fix]
   have h_card_rel :
       (Nat.card { c : C ⧸ H // uC • c = c } : k) =
@@ -266,7 +266,7 @@ lemma e_a_congr_pSingular
     rw [h_cast]
     ring
   letI : Fintype H := Fintype.ofFinite H
-  letI : Fintype (P_of_Z p a) := Fintype.ofFinite (P_of_Z p a)
+  letI : Fintype (pOfZ p a) := Fintype.ofFinite (pOfZ p a)
   have h_u0_val :
       Zlocal.toK (k := k) p (faa : Zlocal p) =
         (Nat.card (C ⧸ H) : k) := by
@@ -274,7 +274,7 @@ lemma e_a_congr_pSingular
     unfold ClassFun.bernsteinIndex
     rw [Subgroup.card_eq_card_quotient_mul_card_subgroup H]
     simp only [Nat.card_eq_fintype_card, Nat.cast_inj]
-    have h_H_card : Fintype.card (P_of_Z p a) = Fintype.card H := by
+    have h_H_card : Fintype.card (pOfZ p a) = Fintype.card H := by
       symm
       apply Fintype.card_congr
       exact (Subgroup.equivMapOfInjective _ _ Subtype.coe_injective).toEquiv
@@ -293,7 +293,7 @@ lemma e_a_congr_pSingular
   ring
 
 /--
-The value of `e_a` at an arbitrary element `g` is congruent modulo `p` to
+The value of `eA` at an arbitrary element `g` is congruent modulo `p` to
 its value at the `p`-regular part of `g`.
 -/
 lemma e_a_congr_pRegularPart
@@ -302,8 +302,8 @@ lemma e_a_congr_pRegularPart
     (a : G) (ha : IsPRegular p a) (g : G) :
     let r := Group.pRegular p g
     ∃ z : Zlocal p,
-      e_a (k := k) p a ha g =
-      e_a p a ha r + (Zlocal.toK p z) * (p : k) := by
+      eA (k := k) p a ha g =
+      eA p a ha r + (Zlocal.toK p z) * (p : k) := by
   intro r
   let s := Group.pSingular p g
   let hfg := isOfFinOrder_of_finite g
@@ -343,12 +343,12 @@ lemma e_a_congr_pRegularPart
       simp only [inv_inv]
       simp [← hx, mul_assoc]
     have h_eval_g :
-        e_a (k := k) p a ha g =
-          e_a p a ha (a * s') :=
+        eA (k := k) p a ha g =
+          eA p a ha (a * s') :=
       ClassFun.apply_eq_apply_of_isConj h_conj_g
     have h_eval_s :
-        e_a (k := k) p a ha r =
-          e_a p a ha a :=
+        eA (k := k) p a ha r =
+          eA p a ha a :=
       ClassFun.apply_eq_apply_of_isConj h_conj_s
     rw [h_eval_g, h_eval_s]
     rw [hz_local]
@@ -369,16 +369,16 @@ lemma e_a_congr_pRegularPart
       exact Not.imp h_conj fun b ↦ id (IsConj.symm b)
 
 /--
-The class sum `E_p` is congruent to `1` modulo `p` at every group element.
+The class sum `eP` is congruent to `1` modulo `p` at every group element.
 
 Equivalently, for every `g : G`, there is some `Z : Zlocal p` such that
-`E_p(g) = 1 + toK(Z) * p`.
+`eP(g) = 1 + toK(Z) * p`.
 -/
 lemma E_p_congr
     [Fintype G] [CharZero k]
     (p : ℕ) [Fact p.Prime] (g : G) :
     ∃ Z : Zlocal p,
-      E_p (k := k) p g =
+      eP (k := k) p g =
         1 + (Zlocal.toK p Z) * (p : k) := by
   let s := Group.pRegular p g
   have hfg : IsOfFinOrder g := isOfFinOrder_of_finite g
@@ -389,8 +389,8 @@ lemma E_p_congr
     Classical.choose
       (e_a_congr_pRegularPart (k := k) p C.repr C.repr_isPRegular g)
   have hz_func : ∀ C : PRegularClass p G,
-      e_a (k := k) p C.repr C.repr_isPRegular g =
-        e_a p C.repr C.repr_isPRegular s
+      eA (k := k) p C.repr C.repr_isPRegular g =
+        eA p C.repr C.repr_isPRegular s
           + (Zlocal.toK p (z_func C)) * (p : k) := by
     intro C
     simpa [s, z_func] using
@@ -410,32 +410,32 @@ lemma E_p_congr
       (fun C : PRegularClass p G => z_func C) Finset.univ).symm
   have h_main :
       ∑ C : PRegularClass p G,
-        e_a p C.repr C.repr_isPRegular s
+        eA p C.repr C.repr_isPRegular s
       =
       (1 : k) := by
     have hEp :=
       E_p_apply_of_pRegular (k := k) p s hs_reg
-    simpa [E_p, ClassFun.sum_apply, s] using hEp
+    simpa [eP, ClassFun.sum_apply, s] using hEp
   calc
-    E_p (k := k) p g
+    eP (k := k) p g
         =
       (∑ C : PRegularClass p G,
-        e_a (k := k) p C.repr C.repr_isPRegular) g := by
+        eA (k := k) p C.repr C.repr_isPRegular) g := by
         rfl
     _ =
       ∑ C : PRegularClass p G,
-        e_a (k := k) p C.repr C.repr_isPRegular g := by
+        eA (k := k) p C.repr C.repr_isPRegular g := by
         rw [ClassFun.sum_apply]
     _ =
       ∑ C : PRegularClass p G,
-        (e_a (k := k) p C.repr C.repr_isPRegular s
+        (eA (k := k) p C.repr C.repr_isPRegular s
           + (Zlocal.toK p (z_func C)) * (p : k)) := by
         apply Finset.sum_congr rfl
         intro C _
         exact hz_func C
     _ =
       (∑ C : PRegularClass p G,
-        e_a (k := k) p C.repr C.repr_isPRegular s)
+        eA (k := k) p C.repr C.repr_isPRegular s)
         +
       ∑ C : PRegularClass p G,
         (Zlocal.toK p (z_func C)) * (p : k) := by
@@ -445,36 +445,36 @@ lemma E_p_congr
         rw [h_error_terms, h_main]
 
 /--
-A `p`-local lift of the value of `E_p` at each group element.
+A `p`-local lift of the value of `eP` at each group element.
 
-The congruence `E_p(g) = 1 + pz` allows us to choose a value in `Zlocal p`
-whose image in `k` is exactly `E_p(g)`.
+The congruence `eP(g) = 1 + pz` allows us to choose a value in `Zlocal p`
+whose image in `k` is exactly `eP(g)`.
 -/
-noncomputable def E_p_val
+noncomputable def ePVal
     [Fintype G] [CharZero k]
     (p : ℕ) [Fact p.Prime] : G → Zlocal p :=
   fun g => 1 + (Classical.choose (E_p_congr (k:=k) p g)) * (p : Zlocal p)
 
 /--
-The value of `E_p` is the image of its chosen `p`-local lift `E_p_val`.
+The value of `eP` is the image of its chosen `p`-local lift `ePVal`.
 -/
 lemma E_p_apply_eq_toK_E_p_val
     [Fintype G] [CharZero k]
     (p : ℕ) [Fact p.Prime] (g : G) :
-    E_p (k:=k) p g = Zlocal.toK p (E_p_val (k:=k) p g) := by
-  unfold E_p_val
+    eP (k:=k) p g = Zlocal.toK p (ePVal (k:=k) p g) := by
+  unfold ePVal
   simp only [map_add, map_one, map_mul, map_natCast]
   have h_congr := Classical.choose_spec (E_p_congr (k:=k) p g)
   exact h_congr
 
 /--
-The class sum `E_p` belongs to the localized Bernstein span `Jloc p`.
+The class sum `eP` belongs to the localized Bernstein span `Jloc p`.
 -/
 lemma E_p_mem_Jloc
     {G : Type u} [Group G] [Fintype G] [CharZero k] [IsAlgClosed k]
     (p : ℕ) [Fact p.Prime] :
-    E_p (G:= G) (k := k) p ∈ Jloc p := by
-  dsimp [E_p]
+    eP (G:= G) (k := k) p ∈ Jloc p := by
+  dsimp [eP]
   refine Submodule.sum_mem (Jloc p) ?_
   intro C hC
   exact e_a_mem_Jloc p (a := C.repr) (ha := C.repr_isPRegular)
@@ -486,48 +486,48 @@ section PolynomialArgument
 /-!
 ## The polynomial argument
 
-This section applies Bernstein's polynomial trick to `E_p`.  Since all values
-of `E_p` are congruent to `1` modulo `p`, the constant term of the polynomial
-with roots `E_p(g)` is a unit in `Zlocal p`.  Evaluating this polynomial at
-`E_p` then expresses `1` as a `Zlocal p`-linear combination of positive powers
-of `E_p`, hence as an element of `Jloc p`.
+This section applies Bernstein's polynomial trick to `eP`.  Since all values
+of `eP` are congruent to `1` modulo `p`, the constant term of the polynomial
+with roots `eP(g)` is a unit in `Zlocal p`.  Evaluating this polynomial at
+`eP` then expresses `1` as a `Zlocal p`-linear combination of positive powers
+of `eP`, hence as an element of `Jloc p`.
 -/
 
 open Polynomial
 
 /--
-The polynomial with roots the `p`-local values `E_p_val g`.
+The polynomial with roots the `p`-local values `ePVal g`.
 
 This is Bernstein's polynomial used to express `1` as a `Zlocal p`-linear
-combination of positive powers of `E_p`.
+combination of positive powers of `eP`.
 -/
-noncomputable def E_p_poly
+noncomputable def ePPoly
     [Fintype G] [CharZero k]
     (p : ℕ) [Fact p.Prime] : Polynomial (Zlocal p) :=
-  ∏ g : G, (X - C (E_p_val (k:=k) p g))
+  ∏ g : G, (X - C (ePVal (k:=k) p g))
 
 /--
-The polynomial `E_p_poly` vanishes at each of the values `E_p_val g`.
+The polynomial `ePPoly` vanishes at each of the values `ePVal g`.
 -/
 lemma E_p_poly_eval_zero
     [Fintype G] [CharZero k]
     (p : ℕ) [Fact p.Prime] (g : G) :
-    (E_p_poly (G := G) (k:=k) p).eval (E_p_val (k:=k) p g) = 0 := by
-  unfold E_p_poly
+    (ePPoly (G := G) (k:=k) p).eval (ePVal (k:=k) p g) = 0 := by
+  unfold ePPoly
   rw [eval_prod]
   apply Finset.prod_eq_zero (Finset.mem_univ g)
   simp only [eval_sub, eval_X, eval_C, sub_self]
 
 /--
-Each value `E_p_val g` is a unit in `Zlocal p`.
+Each value `ePVal g` is a unit in `Zlocal p`.
 
-This follows from the congruence shape `E_p_val g = 1 + pz`.
+This follows from the congruence shape `ePVal g = 1 + pz`.
 -/
 lemma E_p_val_isUnit
     [Fintype G] [CharZero k]
     (p : ℕ) [Fact p.Prime] (g : G) :
-    IsUnit (E_p_val (k:=k) p g) := by
-  unfold E_p_val
+    IsUnit (ePVal (k:=k) p g) := by
+  unfold ePVal
   have h_comm : 1 + (Classical.choose (E_p_congr (k:=k) p g)) * (p : Zlocal p) =
                 1 + (p : Zlocal p) * (Classical.choose (E_p_congr (k:=k) p g)) := by
     rw [mul_comm (Classical.choose _) (p : Zlocal p)]
@@ -535,18 +535,18 @@ lemma E_p_val_isUnit
   exact Zlocal.isUnit_one_add_p_mul _
 
 /--
-The constant coefficient of `E_p_poly` is a unit in `Zlocal p`.
+The constant coefficient of `ePPoly` is a unit in `Zlocal p`.
 
-Indeed, it is, up to sign, the product of the unit values `E_p_val g`.
+Indeed, it is, up to sign, the product of the unit values `ePVal g`.
 -/
 lemma E_p_poly_coeff_zero_isUnit
     [Fintype G] [CharZero k]
     (p : ℕ) [Fact p.Prime] :
-    IsUnit ((E_p_poly (G:=G) (k:=k) p).coeff 0) := by
-  have h_coeff : (E_p_poly (G:=G) (k:=k) p).coeff 0 = (E_p_poly (G:=G) (k:=k) p).eval 0 := by
-    exact coeff_zero_eq_eval_zero (E_p_poly p)
+    IsUnit ((ePPoly (G:=G) (k:=k) p).coeff 0) := by
+  have h_coeff : (ePPoly (G:=G) (k:=k) p).coeff 0 = (ePPoly (G:=G) (k:=k) p).eval 0 := by
+    exact coeff_zero_eq_eval_zero (ePPoly p)
   rw [h_coeff]
-  unfold E_p_poly
+  unfold ePPoly
   rw [Polynomial.eval_prod]
   rw [IsUnit.prod_iff]
   intro g _
@@ -555,15 +555,15 @@ lemma E_p_poly_coeff_zero_isUnit
   exact E_p_val_isUnit p g
 
 /--
-Every strictly positive power of `E_p` belongs to `Jloc p`.
+Every strictly positive power of `eP` belongs to `Jloc p`.
 
-This uses that `E_p ∈ Jloc p` and that `Jloc p` is closed under pointwise
+This uses that `eP ∈ Jloc p` and that `Jloc p` is closed under pointwise
 multiplication.
 -/
 lemma E_p_pow_mem_Jloc
     {G : Type u} [Group G] [Fintype G] [CharZero k] [IsAlgClosed k]
     (p : ℕ) [Fact p.Prime] (n : ℕ) (hn : 0 < n) :
-    E_p (G:=G) (k:=k) p ^ n ∈ Jloc p := by
+    eP (G:=G) (k:=k) p ^ n ∈ Jloc p := by
   induction n with
   | zero =>
     contradiction
@@ -578,12 +578,12 @@ lemma E_p_pow_mem_Jloc
       · exact E_p_mem_Jloc p
 
 /--
-The constant coefficient of `E_p_poly` is nonzero.
+The constant coefficient of `ePPoly` is nonzero.
 -/
 lemma E_p_poly_coeff_zero_ne_zero
     [Fintype G] [CharZero k]
     (p : ℕ) [Fact p.Prime] :
-    (E_p_poly (G := G) (k := k) p).coeff 0 ≠ 0 := by
+    (ePPoly (G := G) (k := k) p).coeff 0 ≠ 0 := by
   haveI : Nontrivial (Zlocal p) := Zlocal.nontrivial (k:=k) p
   exact IsUnit.ne_zero (E_p_poly_coeff_zero_isUnit (k := k) p)
 
@@ -591,8 +591,8 @@ lemma E_p_poly_coeff_zero_ne_zero
 Bernstein's local conclusion: the constant class function `1` belongs to the
 localized Bernstein span `Jloc p`.
 
-The proof applies the polynomial `E_p_poly` to the class function `E_p`.
-Since the constant coefficient is a unit and all positive powers of `E_p`
+The proof applies the polynomial `ePPoly` to the class function `eP`.
+Since the constant coefficient is a unit and all positive powers of `eP`
 belong to `Jloc p`, the resulting relation expresses `1` as an element of
 `Jloc p`.
 -/
@@ -600,11 +600,11 @@ lemma one_mem_Jloc
     {G : Type u} [Group G] [Fintype G] [CharZero k] [IsAlgClosed k]
     (p : ℕ) [Fact p.Prime] :
     (1 : ClassFun k G) ∈ Jloc p := by
-  let P := E_p_poly (G:=G) (k:=k) p
+  let P := ePPoly (G:=G) (k:=k) p
   let u : Zlocal p := ↑(E_p_poly_coeff_zero_isUnit (G:= G) (k:=k) p).unit⁻¹
   have hu : u * P.coeff 0 = 1 := Units.inv_mul (E_p_poly_coeff_zero_isUnit p).unit
   let One_sum : ClassFun k G :=
-    ∑ i ∈ P.support.erase 0,  ((-u * P.coeff i : Zlocal p) • (E_p  p ^ i))
+    ∑ i ∈ P.support.erase 0,  ((-u * P.coeff i : Zlocal p) • (eP  p ^ i))
   have h_One_sum_mem : One_sum ∈ Jloc p := by
     dsimp [One_sum]
     apply Submodule.sum_mem
@@ -617,7 +617,7 @@ lemma one_mem_Jloc
     simp only [ClassFun.one_apply]
     have h_eval := E_p_poly_eval_zero (k:=k) p g
     rw [Polynomial.eval_eq_sum] at h_eval
-    change ∑ i ∈ P.support, P.coeff i * E_p_val p g ^ i = 0 at h_eval
+    change ∑ i ∈ P.support, P.coeff i * ePVal p g ^ i = 0 at h_eval
     have h_mem_zero : 0 ∈ P.support := by
       apply Polynomial.mem_support_iff.mpr
       exact E_p_poly_coeff_zero_ne_zero (k := k) p
@@ -625,32 +625,32 @@ lemma one_mem_Jloc
     rw [Finset.sum_insert (Finset.notMem_erase 0 _)] at h_eval
     simp only [pow_zero, mul_one] at h_eval
     have h_eq_neg :
-      (∑ i ∈ P.support.erase 0, P.coeff i * (E_p_val (k:=k) p g) ^ i) = - P.coeff 0 := by
-      calc (∑ i ∈ P.support.erase 0, P.coeff i * (E_p_val p g) ^ i)
-        _ = -P.coeff 0 + (P.coeff 0 + ∑ i ∈ P.support.erase 0, P.coeff i * (E_p_val p g) ^ i) := by
+      (∑ i ∈ P.support.erase 0, P.coeff i * (ePVal (k:=k) p g) ^ i) = - P.coeff 0 := by
+      calc (∑ i ∈ P.support.erase 0, P.coeff i * (ePVal p g) ^ i)
+        _ = -P.coeff 0 + (P.coeff 0 + ∑ i ∈ P.support.erase 0, P.coeff i * (ePVal p g) ^ i) := by
               ring
         _ = -P.coeff 0 + 0 := by rw [h_eval]
         _ = -P.coeff 0 := by ring
     calc (1 : k) = Zlocal.toK p 1 := by simp only [map_one]
       _ = Zlocal.toK p (u * P.coeff 0) := by rw [hu]
       _ = Zlocal.toK p (-u * -P.coeff 0) := by congr 1; ring
-      _ = Zlocal.toK p (-u * ∑ i ∈ P.support.erase 0, P.coeff i * (E_p_val p g) ^ i) := by
+      _ = Zlocal.toK p (-u * ∑ i ∈ P.support.erase 0, P.coeff i * (ePVal p g) ^ i) := by
             rw [← h_eq_neg]
-      _ = Zlocal.toK p (∑ i ∈ P.support.erase 0, -u * P.coeff i * (E_p_val p g) ^ i) := by
+      _ = Zlocal.toK p (∑ i ∈ P.support.erase 0, -u * P.coeff i * (ePVal p g) ^ i) := by
             rw [Finset.mul_sum]
             simp only [← mul_assoc]
             congr
-      _ = ∑ i ∈ P.support.erase 0, Zlocal.toK p (-u * P.coeff i * (E_p_val p g) ^ i) :=
+      _ = ∑ i ∈ P.support.erase 0, Zlocal.toK p (-u * P.coeff i * (ePVal p g) ^ i) :=
             map_sum (Zlocal.toK p) _ _
       _ = ∑ i ∈ P.support.erase 0,
-            Zlocal.toK p (-u * P.coeff i) * Zlocal.toK p (E_p_val p g) ^ i := by
+            Zlocal.toK p (-u * P.coeff i) * Zlocal.toK p (ePVal p g) ^ i := by
             simp only [neg_mul, map_neg, map_mul, map_pow, Finset.sum_neg_distrib, neg_inj]
             rfl
-      _ = ∑ i ∈ P.support.erase 0, Zlocal.toK p (-u * P.coeff i) * (E_p p g) ^ i := by
+      _ = ∑ i ∈ P.support.erase 0, Zlocal.toK p (-u * P.coeff i) * (eP p g) ^ i := by
             apply Finset.sum_congr rfl
             intro i _
             rw [← E_p_apply_eq_toK_E_p_val p g]
-      _ = ∑ i ∈ P.support.erase 0, Zlocal.toK p (-u * P.coeff i) * (E_p p g) ^ i := by
+      _ = ∑ i ∈ P.support.erase 0, Zlocal.toK p (-u * P.coeff i) * (eP p g) ^ i := by
             congr
       _ = One_sum g := by
             simp only [One_sum, ClassFun.finset_sum_apply,

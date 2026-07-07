@@ -199,7 +199,7 @@ the action of `u` on `G ⧸ H`, together with an element of `H`.
 The map sends `x` to the coset of `x` and the correction term obtained by
 comparing `x` with the chosen representative of that coset.
 -/
-noncomputable def conjMemEquiv_fixedPointsProd
+noncomputable def conjMemEquivFixedPointsProd
   (H : Subgroup G) (u : G) :
     { x : G // x⁻¹ * u * x ∈ H } ≃ { c : G ⧸ H // u • c = c } × H where
   toFun x :=

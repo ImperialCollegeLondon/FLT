@@ -73,7 +73,6 @@ lemma prod_ρ (V W : FDRep k G) :
   simp only [prod, FGModuleCat.of_carrier,
     FDRep.of_ρ' (Representation.prod V.ρ W.ρ)]
 
-@[simp]
 lemma prod_ρ_apply (V W : FDRep k G) (g : G) (x : V × W) :
     (FDRep.prod V W).ρ g x =
       (V.ρ g x.1, W.ρ g x.2) := by
@@ -146,6 +145,8 @@ noncomputable def linearEquivBiprod (X Y : FDRep k G) :
       · simp only [map_add, h3,h4, AddZeroClass.zero_add y]
   }
 
+/-- The categorical biproduct of two finite-dimensional representations is isomorphic to
+their product representation. -/
 noncomputable def biprodIsoProd (V W : FDRep k G) :
     (V ⊞ W) ≅ (FDRep.prod (k:=k) (G:=G) V W) := by
   -- Use your existing linear equivalence
@@ -359,7 +360,7 @@ variable {ι : Type wι} [Finite ι]
 Morphisms into a finite biproduct are linearly equivalent to families of
 morphisms into each summand.
 -/
-noncomputable def hom_to_biproduct_linearEquiv
+noncomputable def homToBiproductLinearEquiv
     (S : FDRep k G) (f : ι → FDRep k G)
     [HasBiproduct f] :
     (S ⟶ (⨁ f : FDRep k G)) ≃ₗ[k] (∀ i, S ⟶ f i) where
@@ -394,7 +395,7 @@ lemma finrank_hom_to_biproduct_eq_sum
     [HasBiproduct f] :
     Module.finrank k (S ⟶ ⨁ f) =
       ∑ i, Module.finrank k (S ⟶ f i) := by
-  let e := hom_to_biproduct_linearEquiv (k := k) (G := G) S f
+  let e := homToBiproductLinearEquiv (k := k) (G := G) S f
   calc
     Module.finrank k (S ⟶ ⨁ f)
         = Module.finrank k (∀ i, S ⟶ f i) := LinearEquiv.finrank_eq e

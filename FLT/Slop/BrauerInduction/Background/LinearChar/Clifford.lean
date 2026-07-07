@@ -106,7 +106,7 @@ If `σ` is a simple representation of the inertia subgroup and embeds into the
 `ψ`-eigenspace of `ρ`, then `Ind_I^G σ` is simple.
 -/
 lemma simple_ind_of_inertia_submodule
-    (ρ : FDRep k G) [Simple ρ]
+    (ρ : FDRep k G) [_hρ : Simple ρ]
     (A : Subgroup G) [A.Normal] [IsMulCommutative A]
     (ψ : A →* kˣ)
     (σ : FDRep k (LinearChar.inertia ψ))
@@ -155,8 +155,8 @@ private lemma rho_trivial_of_mem_normalClosure_singleton
 Inducing a linear character from the top subgroup gives the corresponding
 representation of `G`.
 -/
-noncomputable def indLin_top_iso_self
-    {k : Type u} [Field k] [CharZero k]
+noncomputable def indLinTopIsoSelf
+    {k : Type u} [Field k] [_hk : CharZero k]
     (ψ : (⊤ : Subgroup G) →* kˣ) :
     FDRep.indLin (k := k) (⊤ : Subgroup G) ψ ≅
       FDRep.ofTop (G := G) (k := k)
@@ -191,8 +191,8 @@ theorem simple_of_commGroup_iso_indLin_top
     (ρ.res T).isoLinearCharOfOneDim hdim
   let eind :
       FDRep.indLin T ψ ≅ FDRep.ofTop (FDRep.ofLinearChar ψ) :=
-        indLin_top_iso_self ψ
-  let eres : FDRep.ofTop (ρ.res T) ≅ ρ := FDRep.ofTop_res_top_iso ρ
+        indLinTopIsoSelf ψ
+  let eres : FDRep.ofTop (ρ.res T) ≅ ρ := FDRep.ofTopResTopIso ρ
   let eχ_top :
     FDRep.ofTop (FDRep.ofLinearChar ψ) ≅
       FDRep.ofTop (ρ.res T) :=
@@ -525,7 +525,7 @@ theorem exists_indLin_of_nilpotent_simple
     let estage :
         FDRep.ind I (FDRep.indLin H θ) ≅
           FDRep.indLin HG θG :=
-      FDRep.indLin_trans
+      FDRep.indLinTrans
         (I := I) (H := H) θ
     refine ⟨HG, θG, ?_⟩
     exact ⟨eσ ≪≫ eτ_ind ≪≫ estage⟩

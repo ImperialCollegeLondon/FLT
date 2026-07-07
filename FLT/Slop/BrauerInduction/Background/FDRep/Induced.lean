@@ -142,11 +142,9 @@ noncomputable abbrev indMap [Finite G] (H : Subgroup G) {A B : FDRep k H} (f : A
   indHomMap H.subtype f
 
 /-- Induction from a subgroup as a functor. -/
-@[simps!]
 noncomputable abbrev indFunctor [Finite G] (H : Subgroup G) : FDRep k H ⥤ FDRep k G :=
   indHomFunctor H.subtype
 
-@[simp]
 lemma forget₂_obj_ind [Finite G] (H : Subgroup G) (σ : FDRep k H) :
     (forget₂ (FDRep k G) (Rep k G)).obj (ind H σ) =
       Rep.ind H.subtype (asRep σ) := by
@@ -264,12 +262,10 @@ noncomputable abbrev coindMap [Finite G] [IsNoetherianRing k]
   coindHomMap H.subtype f
 
 /-- Coinduction from a subgroup as a functor. -/
-@[simps!]
 noncomputable abbrev coindFunctor [Finite G] [IsNoetherianRing k]
     (H : Subgroup G) : FDRep k H ⥤ FDRep k G :=
   coindHomFunctor H.subtype
 
-@[simp]
 lemma forget₂_obj_coind [Finite G] [IsNoetherianRing k]
     (H : Subgroup G) (σ : FDRep k H) :
     (forget₂ (FDRep k G) (Rep k G)).obj (coind H σ) =
@@ -373,10 +369,12 @@ noncomputable def indResHomEquiv
     (G := I) (H := G)
     I.subtype σ ρ
 
+/-- The unit of the induction-restriction adjunction from a subgroup. -/
 noncomputable def indResUnit (σ : FDRep k I) :
     σ ⟶ res (G := G) (FDRep.ind (G := G) I σ) I :=
   FDRep.indResHomEquiv (I := I) σ (FDRep.ind (G := G) I σ) (𝟙 _)
 
+/-- The counit of the induction-restriction adjunction from a subgroup. -/
 noncomputable def indResCounit (ρ : FDRep k G) :
     FDRep.ind (G := G) I
         (res (G := G) ρ I) ⟶ ρ :=
@@ -542,6 +540,7 @@ section top
 variable {k : Type u} [CommRing k]
 variable {G : Type u} [Group G] [Finite G]
 
+/-- The top subgroup of `G` is multiplicatively equivalent to `G` itself. -/
 def topSubgroupMulEquiv (G : Type u) [Group G] :
     (⊤ : Subgroup G) ≃* G where
   toFun x := x

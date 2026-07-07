@@ -121,7 +121,7 @@ lemma isIntegral_of_ne_zero
 /-- A `|G|`-th root of unity is integral over `ℤ` -/
 lemma isIntegral
     (k : Type u) [CommRing k]
-    (G : Type v) [Group G] [NeZero (Nat.card G)]
+    (G : Type v) [_hG : Group G] [NeZero (Nat.card G)]
     (ζ : rootsOfUnity (Nat.card G) k) :
     IsIntegral ℤ (ζ.val : k) := by
   refine isIntegral_of_ne_zero k (Nat.card G) ?_ ζ

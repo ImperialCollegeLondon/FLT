@@ -117,13 +117,13 @@ theorem exists_n_not_dvd_smul_one_mem_J
 
 end DenominatorClearing
 
-section J_global
+section jGlobal
 
 /-!
 ## The global Bernstein span
 
 This section combines the prime-local ideals `J p` into the global integral
-Bernstein span `J_global`.
+Bernstein span `jGlobal`.
 
 The key algebraic bridge is a gcd argument: if an integral submodule contains
 a multiple `n_p • 1` with `p ∤ n_p` for every prime `p`, then the ideal of
@@ -189,7 +189,7 @@ The global integral Bernstein span.
 This is the supremum, over all primes `p`, of the prime-local integral spans
 `J p`.
 -/
-def J_global
+def jGlobal
     (k : Type u) [Field k]
     (G : Type u) [Group G] [Fintype G] :
     Submodule ℤ (ClassFun k G) :=
@@ -202,9 +202,9 @@ This is the local-to-global conclusion obtained by applying the denominator
 clearing result prime by prime and then using the gcd bridge.
 -/
 theorem one_mem_J_global [Fintype G] [IsAlgClosed k] [CharZero k] :
-    (1 : ClassFun k G) ∈ J_global k G:= by
+    (1 : ClassFun k G) ∈ jGlobal k G:= by
   refine mem_of_forall_prime_exists_not_dvd_smul
-    (J_global k G) (1 : ClassFun k G) (fun p hp => ?_)
+    (jGlobal k G) (1 : ClassFun k G) (fun p hp => ?_)
   haveI : Fact p.Prime := hp
   obtain ⟨n, hn_ndvd, hn_mem_Jp⟩ :=
     BrauerInduction.exists_n_not_dvd_smul_one_mem_J (k:=k) p (G:=G)
@@ -215,7 +215,7 @@ theorem one_mem_J_global [Fintype G] [IsAlgClosed k] [CharZero k] :
     apply Submodule.mem_iSup_of_mem hp
     exact hn_mem_Jp
 
-end J_global
+end jGlobal
 
 end BrauerInduction
 

@@ -19,7 +19,7 @@ representation from `H` to `G`.
 
 The main result is
 
-* `FDRep.CoindBaseChange.comap_coind_quotient_iso`:
+* `FDRep.CoindBaseChange.comapCoindQuotientIso`:
   `comap π (coind Q σ) ≅ coind H (comap (H → Q) σ)`.
 -/
 
@@ -58,6 +58,8 @@ abbrev quotientPreimageMap
     Q
     (fun x => x.2)
 
+/-- The natural linear map comparing the pullback of a coinduced representation with the
+coinduction of the pullback, in the direction `comap ∘ coind → coind ∘ comap`. -/
 noncomputable def comapCoindToCoindComap
     [Finite G]
     (K : Subgroup G) [K.Normal]
@@ -146,6 +148,8 @@ private lemma coindComap_apply_eq_of_quotientMap_eq
       (N := K) (x := x * y⁻¹)).mp
       (by simpa [quotientMap] using hπ))
 
+/-- The natural linear map comparing the coinduction of a pullback with the pullback of a
+coinduced representation, in the direction `coind ∘ comap → comap ∘ coind`. -/
 noncomputable def coindComapToComapCoind
     [Finite G]
     (K : Subgroup G) [K.Normal]
@@ -212,7 +216,9 @@ noncomputable def coindComapToComapCoind
     intro q
     rfl
 
-noncomputable def comap_coind_quotient_linearEquiv
+/-- The linear equivalence identifying the pullback of a coinduced representation along the
+quotient map with the coinduction of the pullback. -/
+noncomputable def comapCoindQuotientLinearEquiv
     [Finite G]
     (K : Subgroup G) [K.Normal]
     (Q : Subgroup (G ⧸ K))
@@ -252,7 +258,7 @@ If `σ` is a representation of `Q`, then the pullback to `G` of
 `Coind_Q^{G ⧸ K} σ` is naturally isomorphic to
 `Coind_H^G` of the pullback of `σ` to `H`.
 -/
-noncomputable def comap_coind_quotient_iso
+noncomputable def comapCoindQuotientIso
     [Finite G]
     (K : Subgroup G) [K.Normal]
     (Q : Subgroup (G ⧸ K))
@@ -263,7 +269,7 @@ noncomputable def comap_coind_quotient_iso
   refine FDRep.isoOfAsRepIso ?_
   refine Rep.mkIso ?_
   refine Representation.Equiv.mk
-    (comap_coind_quotient_linearEquiv K Q σ) ?_
+    (comapCoindQuotientLinearEquiv K Q σ) ?_
   intro g
   ext v
   rfl

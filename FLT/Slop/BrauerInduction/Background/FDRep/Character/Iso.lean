@@ -120,7 +120,7 @@ theorem char_eq_iff_iso
 Construct an isomorphism between two representations if their characters are equal.
 Uses choice to pick one of the existing isomorphisms.
 -/
-noncomputable def iso_of_char_eq
+noncomputable def isoOfCharEq
   [Finite G] [CharZero k] [IsAlgClosed k]
   {V W : FDRep k G} (h : V.character = W.character) : V ≅ W :=
   Classical.choice ((char_eq_iff_iso V W).mp h)

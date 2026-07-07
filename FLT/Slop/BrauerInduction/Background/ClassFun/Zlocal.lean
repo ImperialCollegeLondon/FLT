@@ -128,7 +128,7 @@ lemma isUnit_natCast (p : ℕ) [Fact p.Prime] (m : ℕ) (h : ¬ (m : ZMod p) = 0
 /--
 Every element congruent to `1` modulo `p` is a unit in `Zlocal p`.
 -/
-lemma isUnit_one_add_p_mul {p : ℕ} [Fact p.Prime] (z : Zlocal p) :
+lemma isUnit_one_add_p_mul {p : ℕ} [_hp : Fact p.Prime] (z : Zlocal p) :
     IsUnit (1 + (p : Zlocal p) * z) := by
   obtain ⟨⟨a, m⟩, hz⟩ := IsLocalization.surj (intCoprimeSubmonoid p) z
   dsimp only at hz

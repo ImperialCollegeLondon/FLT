@@ -39,7 +39,7 @@ of `ψ`.
 
 ## Main results
 
-* `LinearChar.conj_ofLinearChar_iso`: conjugating the representation attached
+* `LinearChar.conjOfLinearCharIso`: conjugating the representation attached
   to a linear character agrees with conjugating the character.
 * `LinearChar.inertia_eq_stabilizer`: the inertia subgroup is the stabilizer
   for the conjugation action.
@@ -96,7 +96,7 @@ Conjugating the one-dimensional representation associated to `ψ` is isomorphic
 to the one-dimensional representation associated to the
 conjugate character `conj ψ g`.
 -/
-noncomputable def conj_ofLinearChar_iso
+noncomputable def conjOfLinearCharIso
     (ψ : H →* kˣ) (g : G) :
     FDRep.conjNormal H (FDRep.ofLinearChar (k := k) ψ) g
       ≅ FDRep.ofLinearChar (k := k) (LinearChar.conj (H := H) ψ g) := by
@@ -134,7 +134,7 @@ The left conjugation action of `G` on the linear characters of `H`. Since
 `conj ψ (g₁ * g₂) = conj (conj ψ g₁) g₂`, the inverse is inserted in the
 definition: `g • ψ = conj ψ g⁻¹`.
 -/
-instance : MulAction G (H →* kˣ) where
+instance instMulActionMonoidHomUnits : MulAction G (H →* kˣ) where
   smul g ψ := conj (H := H) ψ g⁻¹
   one_smul ψ := by
     change conj (H := H) ψ ((1 : G)⁻¹) = ψ
@@ -196,7 +196,7 @@ lemma le_inertia_of_isMulCommutative
 Membership in the inertia subgroup is equivalent to fixing the character under
 the left conjugation action.
 -/
-@[simp] lemma mem_inertia_iff_smul_eq (ψ : H →* kˣ) (g : G) :
+lemma mem_inertia_iff_smul_eq (ψ : H →* kˣ) (g : G) :
     g ∈ LinearChar.inertia (H := H) ψ ↔ g • ψ = ψ := by
   simp [LinearChar.inertia_eq_stabilizer,
       MulAction.mem_stabilizer_iff (G := G) (a := ψ) (g := g)]

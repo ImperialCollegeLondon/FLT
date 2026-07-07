@@ -125,7 +125,7 @@ Coinduced linear characters commute with pullback along a quotient map. For
 `coindLin Q ψ_Q` is naturally isomorphic to the coinduced representation
 attached to the pulled-back character on `H`.
 -/
-noncomputable def comap_coindLin_quotient_iso
+noncomputable def comapCoindLinQuotientIso
      {G : Type u} [Group G] [Finite G]
     (K : Subgroup G) [K.Normal]
     (Q : Subgroup (G ⧸ K))
@@ -143,7 +143,7 @@ noncomputable def comap_coindLin_quotient_iso
         (FDRep.ofLinearChar
           (ψ_Q.comp (FDRep.CoindBaseChange.quotientPreimageMap K Q)))
   exact
-    FDRep.CoindBaseChange.comap_coind_quotient_iso
+    FDRep.CoindBaseChange.comapCoindQuotientIso
       K Q (FDRep.ofLinearChar ψ_Q)
 
 open CoindBaseChange in
@@ -153,7 +153,7 @@ descent. Equivalently, evaluating the coinduced character on `π g` in `G ⧸ K`
 agrees with evaluating the coinduced pulled-back character on `g` in `G`.
 -/
 lemma char_coindLin_comap_quotient
-     {G : Type u} [Group G] [Finite G] [CharZero k]
+     {G : Type u} [Group G] [Finite G] [_hk : CharZero k]
     (K : Subgroup G) [K.Normal]
     (Q : Subgroup (G ⧸ K)) (ψ_Q : Q →* kˣ) (g : G) :
     let π : G →* G ⧸ K := QuotientGroup.mk' K
@@ -173,7 +173,7 @@ lemma char_coindLin_comap_quotient
           (FDRep.coindLin (quotientPreimage K Q)
             (ψ_Q.comp (quotientPreimageMap K Q))) := by
     exact ClassFun.char_eq_of_iso
-      (FDRep.comap_coindLin_quotient_iso (k := k) K Q ψ_Q)
+      (FDRep.comapCoindLinQuotientIso (k := k) K Q ψ_Q)
   have hχg :=
     congrArg (fun χ : ClassFun k G => χ g) hχ
   change
@@ -209,7 +209,7 @@ theorem exists_indLin_of_lift_exists_indLin
   let ψH : H →* kˣ := ψQ.comp πH
   refine ⟨H, ψH, ?_⟩
   refine ⟨?_⟩
-  apply FDRep.iso_of_char_eq
+  apply FDRep.isoOfCharEq
   ext g
   rw [← FDRep.char_lift (ρ := ρ) (K := K) hK g]
   have hchar :

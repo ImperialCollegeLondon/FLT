@@ -53,8 +53,10 @@ A generator for the linear-character Brauer span: a Brauer-elementary subgroup
 together with a linear character of it.
 -/
 structure BrauerLinGen (k : Type u) [CommRing k] (G : Type v) [Group G] where
+  /-- The Brauer-elementary subgroup. -/
   protected H : Subgroup G
   protected hElem : IsBrauerElementary H
+  /-- The chosen linear character of the subgroup. -/
   protected ψ : H →* kˣ
 
 variable {k : Type u} [Field k]

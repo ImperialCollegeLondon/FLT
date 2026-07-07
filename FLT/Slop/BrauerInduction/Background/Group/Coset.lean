@@ -226,7 +226,7 @@ noncomputable def equivSigmaQuotient {K : Subgroup G} (H : Subgroup K) :
 Right cosets of the comap subgroup `Q.comap π` in `G` are equivalent to right
 cosets of `Q` in `G ⧸ K`, where `π : G →* G ⧸ K` is the quotient map.
 -/
-noncomputable def rightRel_comap_quotient_equiv
+noncomputable def rightRelComapQuotientEquiv
     (K : Subgroup G) [K.Normal]
     (Q : Subgroup (G ⧸ K)) :
     let π : G →* G ⧸ K := QuotientGroup.mk' K

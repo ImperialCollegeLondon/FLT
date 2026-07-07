@@ -312,7 +312,7 @@ noncomputable def pRegular (a : G) : G :=
 lemma pRegular_one : pRegular p (1 : G) = 1 := by simp [pRegular]
 
 /-- The inverse of a `p`-regular element is `p`-regular. -/
-lemma pRegular_inv [Fact p.Prime] {a : G} :
+lemma pRegular_inv [_hp : Fact p.Prime] {a : G} :
     pRegular p (a⁻¹) = (pRegular p a)⁻¹ := by
   have h_ord : orderOf (a⁻¹) = orderOf a := orderOf_inv a
   simp only [pRegular, h_ord, Nat.cast_pow, inv_zpow', zpow_neg]
@@ -372,7 +372,7 @@ noncomputable def pSingular (a : G) : G :=
 @[simp]
 lemma pSingular_one : pSingular p (1 : G) = 1 := by simp [pSingular]
 
-lemma pSingular_inv [Fact p.Prime] {a : G} :
+lemma pSingular_inv [_hp : Fact p.Prime] {a : G} :
     pSingular p (a⁻¹) = (pSingular p a)⁻¹ := by
   have h_ord : orderOf (a⁻¹) = orderOf a := orderOf_inv a
   simp only [pSingular, h_ord, Int.natCast_ediv, Nat.cast_pow, inv_zpow', zpow_neg]
@@ -557,7 +557,7 @@ lemma isPRegular_pSingular_eq_one [Fact p.Prime]
 
 /-- Conjugation carries the `p`-elementary/`p`-regular factors
     to those of the conjugate element. -/
-lemma pDecomp_SemiconjBy [Fact p.Prime] {a b c : G} (h : SemiconjBy a b c) :
+lemma pDecomp_SemiconjBy [_hp : Fact p.Prime] {a b c : G} (h : SemiconjBy a b c) :
     SemiconjBy a (pSingular p b) (pSingular p c) ∧
     SemiconjBy a (pRegular p b) (pRegular p c) := by
   have h_ord : orderOf b = orderOf c := h.orderOf_eq

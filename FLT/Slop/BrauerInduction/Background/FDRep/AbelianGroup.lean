@@ -67,7 +67,6 @@ lemma endoOfAction_homToLinearMap
 /--
 Evaluation of the endomorphism induced by the action of a group element.
 -/
-@[simp]
 lemma endoOfAction_hom_apply
     [IsMulCommutative G]
     (ρ : FDRep k G) (g : G) (v : ρ) :

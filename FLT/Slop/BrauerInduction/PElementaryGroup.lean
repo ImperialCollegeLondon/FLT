@@ -22,8 +22,8 @@ part `C`, a `p`-group part `P`, elementwise commutation between `C` and `P`,
 and a decomposition of every element as a product `c * q`.
 
 The file also constructs the `p`-elementary group associated to a `p`-regular
-element `x`, namely the subgroup `Subgroup.zpowers x ⊔ P_of_Z p x`, where
-`P_of_Z p x` is a chosen Sylow `p`-subgroup of the centralizer of `x`.
+element `x`, namely the subgroup `Subgroup.zpowers x ⊔ pOfZ p x`, where
+`pOfZ p x` is a chosen Sylow `p`-subgroup of the centralizer of `x`.
 -/
 
 @[expose] public section
@@ -44,7 +44,9 @@ corresponding proposition is expressed as `Nonempty (PElementary p G)`, or
 equivalently `IsPElementary p G`.
 -/
 structure PElementary (p : ℕ) (G : Type u) [Group G] where
+  /-- The chosen cyclic `p`-regular subgroup. -/
   protected C : Subgroup G
+  /-- The chosen `p`-subgroup. -/
   protected P : Subgroup G
   protected C_isCyclic : IsCyclic C
   protected P_isPGroup : IsPGroup p P
@@ -241,7 +243,7 @@ lemma commute_of_mem_Z_of_mem_Cyc {x z c : G} (hz : z ∈ Z x)
 /--
 A chosen Sylow `p`-subgroup of the centralizer `Z x`.
 -/
-noncomputable def P_in_Z (p : ℕ) (x : G) : Sylow p (Z x) :=
+noncomputable def pInZ (p : ℕ) (x : G) : Sylow p (Z x) :=
   Classical.choice (Sylow.nonempty : Nonempty (Sylow p (Z x)))
 
 /-- Inclusion of `Z(x)` into `G`. -/
@@ -251,27 +253,27 @@ def inclZ (x : G) : Z x →* G := Subgroup.subtype (Z x)
 The chosen Sylow `p`-subgroup of `Z x`, viewed as a subgroup of the ambient
 group `G`.
 -/
-noncomputable def P_of_Z (p : ℕ) (x : G) : Subgroup G :=
-  Subgroup.map (inclZ x) (P_in_Z p x)
+noncomputable def pOfZ (p : ℕ) (x : G) : Subgroup G :=
+  Subgroup.map (inclZ x) (pInZ p x)
 
 lemma P_of_Z_isPGroup (x : G) :
-    IsPGroup p (P_of_Z p x) := IsPGroup.map (P_in_Z p x).isPGroup' (inclZ x)
+    IsPGroup p (pOfZ p x) := IsPGroup.map (pInZ p x).isPGroup' (inclZ x)
 
 /--
 The chosen Sylow `p`-subgroup of `Z x`, viewed inside `G`, is contained in
 `Z x`.
 -/
-lemma P_of_Z_le_Z (x : G) : P_of_Z p x ≤ Z x := by
-  rw [P_of_Z]
+lemma P_of_Z_le_Z (x : G) : pOfZ p x ≤ Z x := by
+  rw [pOfZ]
   apply Subgroup.map_le_iff_le_comap.mpr
   intro g _
   exact g.property
 
-lemma card_P_of_Z_eq_card_P_in_Z [Fact p.Prime] (x : G) :
-    Nat.card ↥(P_of_Z p x)
+lemma card_P_of_Z_eq_card_P_in_Z [_hp : Fact p.Prime] (x : G) :
+    Nat.card ↥(pOfZ p x)
       =
-    Nat.card ↥((P_in_Z p x : Subgroup (Z x))) := by
-  simpa [P_of_Z, PElementary.inclZ] using
+    Nat.card ↥((pInZ p x : Subgroup (Z x))) := by
+  simpa [pOfZ, PElementary.inclZ] using
     (Subgroup.card_map_of_injective (f := inclZ x) Subtype.coe_injective)
 
 /--
@@ -280,20 +282,20 @@ divisible by `p`.
 -/
 lemma p_not_dvd_cardCentralizer_div_cardP
     [Fact p.Prime] (x : G) [Finite (Z x)] :
-    ¬ p ∣ (Nat.card (Z x : Set G) / Nat.card (P_of_Z p x)) := by
+    ¬ p ∣ (Nat.card (Z x : Set G) / Nat.card (pOfZ p x)) := by
   rw [PElementary.card_P_of_Z_eq_card_P_in_Z x]
-  haveI : Finite (P_in_Z p x : Subgroup (Z x)) := inferInstance
-  haveI : (P_in_Z p x : Subgroup (Z x)).FiniteIndex := inferInstance
+  haveI : Finite (pInZ p x : Subgroup (Z x)) := inferInstance
+  haveI : (pInZ p x : Subgroup (Z x)).FiniteIndex := inferInstance
   have h_div :
       Nat.card ↥(Z x : Set G) /
-          Nat.card ↥(P_in_Z p x : Subgroup (Z x))
+          Nat.card ↥(pInZ p x : Subgroup (Z x))
         =
-      (P_in_Z p x : Subgroup (Z x)).index := by
+      (pInZ p x : Subgroup (Z x)).index := by
     exact Nat.div_eq_of_eq_mul_left
       Nat.card_pos
-      (Subgroup.index_mul_card (P_in_Z p x : Subgroup (Z x))).symm
+      (Subgroup.index_mul_card (pInZ p x : Subgroup (Z x))).symm
   rw [h_div]
-  exact Sylow.not_dvd_index (PElementary.P_in_Z p x)
+  exact Sylow.not_dvd_index (PElementary.pInZ p x)
 
 /--
 If every element of `C` commutes with every element of `P`, then every element
@@ -329,15 +331,15 @@ lemma sup_decompose_of_commute
 The `p`-elementary structure on the subgroup associated to a `p`-regular element
 `x`.
 
-The underlying group is `Cyc x ⊔ P_of_Z p x`.
+The underlying group is `Cyc x ⊔ pOfZ p x`.
 -/
 noncomputable def associatedSubgroup {x : G} (hx : IsPRegular p x) :
-    PElementary p ((Cyc x ⊔ P_of_Z p x : Subgroup G)) := by
-  let H : Subgroup G := Cyc x ⊔ P_of_Z p x
+    PElementary p ((Cyc x ⊔ pOfZ p x : Subgroup G)) := by
+  let H : Subgroup G := Cyc x ⊔ pOfZ p x
   let C_H : Subgroup H :=
     Subgroup.comap (Subgroup.subtype H) (Cyc x)
   let P_H : Subgroup H :=
-    Subgroup.comap (Subgroup.subtype H) (P_of_Z p x)
+    Subgroup.comap (Subgroup.subtype H) (pOfZ p x)
   exact
   { C := C_H
     P := P_H
@@ -348,7 +350,7 @@ noncomputable def associatedSubgroup {x : G} (hx : IsPRegular p x) :
       exact (MulEquiv.isCyclic φ.symm).mp (cyc_isCyclic (G := G) x)
 
     P_isPGroup := by
-      have hle : P_of_Z p x ≤ H := le_sup_right
+      have hle : pOfZ p x ≤ H := le_sup_right
       exact IsPGroup.of_equiv
         (P_of_Z_isPGroup (p := p) x)
         (Subgroup.subgroupOfEquivOfLe hle).symm
@@ -363,7 +365,7 @@ noncomputable def associatedSubgroup {x : G} (hx : IsPRegular p x) :
     comm := by
       intro c q hc hq
       have hcG : ((c : H) : G) ∈ Cyc x := hc
-      have hqG : ((q : H) : G) ∈ P_of_Z p x := hq
+      have hqG : ((q : H) : G) ∈ pOfZ p x := hq
       have hqZ : ((q : H) : G) ∈ Z x :=
         P_of_Z_le_Z (p := p) x hqG
       have hcommG : Commute ((c : H) : G) ((q : H) : G) :=
@@ -377,7 +379,7 @@ noncomputable def associatedSubgroup {x : G} (hx : IsPRegular p x) :
       rcases sup_decompose_of_commute
           (G := G)
           (C := Cyc x)
-          (P := P_of_Z p x)
+          (P := pOfZ p x)
           (by
             intro c q hc hq
             have hqZ : q ∈ Z x := P_of_Z_le_Z (p := p) x hq
@@ -489,13 +491,13 @@ abbrev mapEquiv {G : Type u} {G' : Type v} [Group G] [Group G']
 /--
 In the `p`-elementary subgroup associated to a `p`-regular element `r`, the
 elements whose `p`-regular part is `r` are exactly the elements of the coset
-`r * P_of_Z p r`.
+`r * pOfZ p r`.
 -/
 lemma mem_associatedSubgroup_fiber [Fact p.Prime]
     {r : G} (hr : IsPRegular p r)
-    (h : ↥(Subgroup.zpowers r ⊔ P_of_Z p r)) :
-    Group.pRegular p (h : G) = r ↔ ∃ s ∈ P_of_Z p r, (h : G) = r * s := by
-  let H := Subgroup.zpowers r ⊔ P_of_Z p r
+    (h : ↥(Subgroup.zpowers r ⊔ pOfZ p r)) :
+    Group.pRegular p (h : G) = r ↔ ∃ s ∈ pOfZ p r, (h : G) = r * s := by
+  let H := Subgroup.zpowers r ⊔ pOfZ p r
   let eH := associatedSubgroup (p := p) hr
   have hf : IsOfFinOrder (h : G) := by
     have hfH : IsOfFinOrder h := eH.isOfFinOrder h
@@ -682,7 +684,7 @@ lemma of_isCyclic [Finite G] [h_cyc : IsCyclic G]
 /--
 The bottom subgroup, regarded as a group, is `p`-elementary.
 -/
-lemma bot [Fact p.Prime] :
+lemma bot [_hp : Fact p.Prime] :
       IsPElementary (G := (⊥ : Subgroup G)) p := by
   exact ofIsPGroup (p := p) (G := (⊥ : Subgroup G)) IsPGroup.of_bot
 

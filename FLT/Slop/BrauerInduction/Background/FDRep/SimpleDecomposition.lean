@@ -30,7 +30,7 @@ in this file uses a single universe for `k` and `G`.
 
 ## Main results
 
-* `FDRep.splitMono_of_mono`: every monomorphism of finite-dimensional
+* `FDRep.splitMonoOfMono`: every monomorphism of finite-dimensional
   representations splits under the Maschke hypotheses.
 * `FDRep.exists_simple_subobject`: every nonzero finite-dimensional
   representation contains a simple subobject.
@@ -81,7 +81,9 @@ lemma exists_iso_biprod_of_splitMono
     (biprod.uniqueUpToIso (X := S) (Y := cokernel f) hb)
 
 
-noncomputable def splitMono_of_mono
+/-- A monomorphism of finite-dimensional representations over a field of characteristic
+coprime to the group order is a split monomorphism. -/
+noncomputable def splitMonoOfMono
     {k : Type u} [Field k]
     {G : Type u} [Group G]
     [Finite G] [hne : NeZero (Nat.card G : k)]
@@ -166,7 +168,7 @@ theorem exists_simple_subobject
       rcases h_not_simp with ⟨W, f, h_mono, h_not_iso, hf_ne_zero⟩
       haveI : Mono f := h_mono
       -- 1. Split the monomorphism using Maschke's theorem
-      haveI sm : SplitMono f := splitMono_of_mono f
+      haveI sm : SplitMono f := splitMonoOfMono f
       let Q : FDRep k G := CategoryTheory.Limits.cokernel f
       have h_iso : Nonempty (V' ≅ W ⊞ Q) := by
         simpa [Q] using exists_iso_biprod_of_splitMono f sm
@@ -263,7 +265,7 @@ theorem exists_simple_decomposition
           exists_simple_subobject V hV_not_IsZero
         haveI : Mono f := hf_mono
         let sf : SplitMono f :=
-          splitMono_of_mono f
+          splitMonoOfMono f
         let K := cokernel f
         obtain ⟨iso_split⟩ :=
           exists_iso_biprod_of_splitMono f sf

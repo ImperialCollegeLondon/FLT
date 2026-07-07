@@ -105,23 +105,19 @@ lemma homToLinearMap_add {X Y : FDRep k G} (f g : X ⟶ Y) :
     homToLinearMap (f + g) = homToLinearMap f + homToLinearMap g := by
   rfl
 
-@[simp]
 lemma homToLinearMap_id_apply {X : FDRep k G} (x : X) :
     homToLinearMap (𝟙 X) x = x := by
   rfl
 
-@[simp]
 lemma homToLinearMap_zero_apply {X Y : FDRep k G} (x : X) :
     homToLinearMap (0 : X ⟶ Y) x = 0 := by
   rfl
 
-@[simp]
 lemma homToLinearMap_add_apply {X Y : FDRep k G}
     (f g : X ⟶ Y) (x : X) :
     homToLinearMap (f + g) x = homToLinearMap f x + homToLinearMap g x := by
   rfl
 
-@[simp]
 lemma homToLinearMap_comp_apply {X Y Z : FDRep k G}
     (f : X ⟶ Y) (g : Y ⟶ Z) (x : X) :
     homToLinearMap (f ≫ g) x = homToLinearMap g (homToLinearMap f x) := by
@@ -135,7 +131,6 @@ lemma homToLinearMap_smul
     FDRep.homToLinearMap (c • f) = c • FDRep.homToLinearMap f := by
   rfl
 
-@[simp]
 lemma homToLinearMap_smul_apply
     {k : Type u} [CommRing k]
     {G : Type v} [Monoid G]
@@ -268,7 +263,6 @@ lemma dual_ρ (V : FDRep k G) :
     (V.dual).ρ = Representation.dual V.ρ := by
   simp only [dual, FGModuleCat.of_carrier, (FDRep.of_ρ' (Representation.dual V.ρ))]
 
-@[simp]
 lemma dual_ρ_apply (V : FDRep k G) (g : G) :
     (V.dual).ρ g = Module.Dual.transpose (V.ρ g⁻¹) := by
   rw [dual_ρ]
@@ -284,7 +278,7 @@ noncomputable def linHom (V W : FDRep k G) : FDRep k G :=
   FDRep.of (Representation.linHom V.ρ W.ρ)
 
 @[simp]
-lemma linHom_rho (V W : FDRep k G) [Module.Free k V] :
+lemma linHom_rho (V W : FDRep k G) [_hFree : Module.Free k V] :
     (V.linHom W).ρ = Representation.linHom V.ρ W.ρ := by dsimp[FDRep.linHom]
 
 end dual_and_hom
@@ -686,6 +680,7 @@ noncomputable def isoOfAsRepIso
     change e.inv ≫ e.hom = 𝟙 (U.obj W)
     exact e.inv_hom_id
 
+/-- Build an isomorphism in `Rep` from a linear equivalence intertwining the two actions. -/
 noncomputable def _root_.Rep.isoOfLinearEquiv
     {k : Type u} [CommRing k]
     {G : Type v} [Monoid G]
@@ -693,6 +688,7 @@ noncomputable def _root_.Rep.isoOfLinearEquiv
     (h : ∀ g : G, Y.ρ g ∘ₗ e.toLinearMap = e.toLinearMap ∘ₗ X.ρ g) : X ≅ Y :=
   Rep.mkIso (Representation.Equiv.mk e fun g => (h g).symm)
 
+/-- The underlying `Rep k G` of a finite-dimensional representation. -/
 noncomputable abbrev asRep
     {k : Type u} [CommRing k]
     {G : Type v} [Monoid G]

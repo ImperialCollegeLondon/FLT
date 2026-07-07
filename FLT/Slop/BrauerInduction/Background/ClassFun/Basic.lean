@@ -124,6 +124,7 @@ lemma map_conj_eq' (f : ClassFun k G) (g x : G) :
     rw [← this]
     group
 
+/-- The constant class function with value `a : k`. -/
 def const (a : k) : ClassFun k G where
   toFun := fun _ => a
 
@@ -132,6 +133,7 @@ lemma const_apply (a : k) (g : G) :
     ClassFun.const (G := G) a g = a :=
   rfl
 
+/-- The involution on class functions sending `f` to `g ↦ f g⁻¹`. -/
 def involution (f : ClassFun k G) : ClassFun k G :=
   ofFun (fun g => f g⁻¹)
     (fun _ _ hxy => f.map_conj _ _ (IsConj.inv.mp hxy))
@@ -312,7 +314,6 @@ lemma finset_sum_apply
   | empty => simp
   | insert a s ha ih => simp [Finset.sum_insert ha, ih]
 
-@[simp]
 lemma sum_apply
     {ι : Type*} [Fintype ι]
     (f : ι → ClassFun k G) (g : G) :
@@ -402,6 +403,7 @@ lemma natCast_apply (n : ℕ) (x : G) :
   change n • (1 : k) = (n : k)
   simp
 
+/-- Evaluation at a point `x : G` as a ring homomorphism on class functions. -/
 def evalRingHom (x : G) : ClassFun k G →+* k where
   toFun := fun f => f x
   map_one' := by
@@ -464,6 +466,7 @@ section Algebra
 
 variable [CommSemiring k]
 
+/-- The ring homomorphism sending `a : k` to the constant class function with value `a`. -/
 def constRingHom : k →+* ClassFun k G where
   toFun := ClassFun.const (G := G)
   map_zero' := by

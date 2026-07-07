@@ -76,7 +76,6 @@ noncomputable def comapMap (φ : H →* G) {ρ σ : FDRep k G} (f : ρ ⟶ σ) :
           ext x
           exact FDRep.homToLinearMap_comm f (φ h) x })
 
-@[simp]
 lemma comapMap_homToLinearMap_apply
     (φ : H →* G) {ρ σ : FDRep k G} (f : ρ ⟶ σ)
     (x : comap φ ρ) :
@@ -412,7 +411,7 @@ variable [CommRing k] [Group G]
 Restricting a representation transported from `⊤` back to `G` recovers the
 original representation of `⊤`.
 -/
-noncomputable def res_top_ofTop_iso
+noncomputable def resTopOfTopIso
      (σ : FDRep k (⊤ : Subgroup G)) :
     (FDRep.ofTop σ).res (⊤ : Subgroup G) ≅ σ :=
   (FDRep.transportUnitIsoApp
@@ -427,7 +426,7 @@ noncomputable def res_top_ofTop_iso
 Transporting the restriction of a representation to `⊤` back to `G` recovers
 the original representation.
 -/
-noncomputable def ofTop_res_top_iso
+noncomputable def ofTopResTopIso
     (ρ : FDRep k G) :
     FDRep.ofTop (ρ.res (⊤ : Subgroup G)) ≅ ρ :=
   FDRep.transportCounitIsoApp

@@ -28,7 +28,7 @@ The file also proves the structural properties needed later:
 * `J p` absorbs multiplication by global `Q`-functions;
 * `J p ≤ Jloc p`;
 * `Jloc p` is closed under multiplication;
-* Bernstein's Step 8 functions `f_a` belong to `J p`, hence also to `Jloc p`.
+* Bernstein's Step 8 functions `fA` belong to `J p`, hence also to `Jloc p`.
 
 The later file `PRegularSum` uses these results to construct the local
 function supported on a chosen `p`-regular conjugacy class.
@@ -62,7 +62,7 @@ def JGen : Set (ClassFun k G) :=
   { f : ClassFun k G |
       ∃ (E : Subgroup G) (_ : IsPElementary p E)
         (q : ClassFun k E),
-        q ∈ ClassFun.Q_sys k G E ∧
+        q ∈ ClassFun.qSys k G E ∧
         f = ClassFun.ind (k := k) E q }
 
 /-- Bernstein's integral prime-local span `J_p`. -/
@@ -72,7 +72,7 @@ def J : Submodule ℤ (ClassFun k G) := Submodule.span ℤ (JGen p)
 lemma ind_mem_J
     (E : Subgroup G) (hE : IsPElementary p E)
     {q : ClassFun k E}
-    (hq : q ∈ ClassFun.Q_sys k G E) :
+    (hq : q ∈ ClassFun.qSys k G E) :
     ClassFun.ind (k := k) E q ∈ J p := by
   exact Submodule.subset_span ⟨E, hE, q, hq, rfl⟩
 
@@ -100,15 +100,15 @@ lemma JGen_mem_Q_sys
     {y : ClassFun k G}
     (hy : y ∈ JGen p) :
     ClassFun.res (⊤ : Subgroup G) y
-      ∈ ClassFun.Q_sys k G (⊤ : Subgroup G) := by
+      ∈ ClassFun.qSys k G (⊤ : Subgroup G) := by
   rcases hy with ⟨E, hE, q, hq_Q, rfl⟩
-  exact ClassFun.Q_sys.ind_mem (H := E) hq_Q
+  exact ClassFun.qSys.ind_mem (H := E) hq_Q
 
 /-- The integral span `J_p` absorbs multiplication by global `Q`-functions. -/
-lemma mul_mem_J [Fact p.Prime] [CharZero k]
+lemma mul_mem_J [_hp : Fact p.Prime] [_hk : CharZero k]
     (f g : ClassFun k G)
     (hf : f ∈ J p)
-    (hg : ClassFun.res (⊤ : Subgroup G) g ∈ ClassFun.Q_sys (k := k) (G := G) ⊤) :
+    (hg : ClassFun.res (⊤ : Subgroup G) g ∈ ClassFun.qSys (k := k) (G := G) ⊤) :
     f * g ∈ J  p := by
   refine Submodule.span_induction (p := fun f _ => f * g ∈ J p) ?_ ?_ ?_ ?_ hf
   · rintro _ ⟨E, hE, q, ⟨hq_Lambda, hq_Z⟩, rfl⟩
@@ -118,11 +118,11 @@ lemma mul_mem_J [Fact p.Prime] [CharZero k]
     use E, hE, (ClassFun.res E g * q)
     constructor
     · constructor
-      · apply ClassFun.R_Lambda.mul_mem
-        · exact ClassFun.R_Lambda.res_top_to_subgroup hg_Lambda
+      · apply ClassFun.rLambda.mul_mem
+        · exact ClassFun.rLambda.res_top_to_subgroup hg_Lambda
         · exact hq_Lambda
-      · apply ClassFun.C_Z.mul_mem
-        · apply ClassFun.C_Z.res
+      · apply ClassFun.cZ.mul_mem
+        · apply ClassFun.cZ.res
           intro x
           exact hg_Z ⟨x, Subgroup.mem_top x⟩
         · exact hq_Z
@@ -135,14 +135,14 @@ lemma mul_mem_J [Fact p.Prime] [CharZero k]
     rw [smul_mul_assoc]
     exact Submodule.smul_mem _ n hx_mem
 
-/-- Bernstein Step 8: the induced function `f_a` belongs to `J_p`. -/
+/-- Bernstein Step 8: the induced function `fA` belongs to `J_p`. -/
 lemma f_a_mem_J
     [Fact p.Prime] [CharZero k] [IsAlgClosed k]
     (a : G) (ha : IsPRegular p a) :
-    ClassFun.f_a (k := k) p a ∈ J p := by
-  unfold ClassFun.f_a
+    ClassFun.fA (k := k) p a ∈ J p := by
+  unfold ClassFun.fA
   exact ind_mem_J p
-    (E_subgroup p a)
+    (eSubgroup p a)
     (E_isPElementary p ha)
     (ClassFun.phi_mem_Q (k := k) p a ha)
 
@@ -169,7 +169,7 @@ noncomputable def Jloc : Submodule (Zlocal p) (ClassFun k G) :=
 /-- A generator of `Jloc p`: induction from a `p`-elementary subgroup. -/
 lemma ind_mem_Jloc
     (E : Subgroup G) (hE : IsPElementary p E) {q : ClassFun k E}
-    (hq : q ∈ ClassFun.Q_sys k G E) :
+    (hq : q ∈ ClassFun.qSys k G E) :
     ClassFun.ind (k := k) E q ∈ Jloc p := by
   exact Submodule.subset_span ⟨E, hE, q, hq, rfl⟩
 
@@ -189,18 +189,18 @@ lemma J_subset_Jloc
     rw [h_smul]
     exact Submodule.smul_mem _ (n : Zlocal p) hx
 
-/-- Bernstein Step 8, localized form: `f_a ∈ Jloc p`. -/
+/-- Bernstein Step 8, localized form: `fA ∈ Jloc p`. -/
 lemma f_a_mem_Jloc [IsAlgClosed k]
     (a : G) (ha : IsPRegular p a) :
-    ClassFun.f_a (k := k) p a ∈ Jloc p := by
-  unfold ClassFun.f_a
+    ClassFun.fA (k := k) p a ∈ Jloc p := by
+  unfold ClassFun.fA
   exact ind_mem_Jloc p
-    (E_subgroup p a)
+    (eSubgroup p a)
     (E_isPElementary p ha)
     (ClassFun.phi_mem_Q (k := k) p a ha)
 
 /-- The localized span `Jloc_p` is closed under pointwise multiplication. -/
-lemma Jloc.mul_mem [IsAlgClosed k]
+lemma Jloc.mul_mem [_hk : IsAlgClosed k]
     (x y : ClassFun k G) (hx : x ∈ Jloc p) (hy : y ∈ Jloc p) :
     x * y ∈ Jloc p := by
   refine Submodule.span_induction ?_ ?_ ?_ ?_ hx
@@ -214,7 +214,7 @@ lemma Jloc.mul_mem [IsAlgClosed k]
         exact Submodule.subset_span hx_gen
       have hy_Q :
           ClassFun.res (⊤ : Subgroup G) y_gen
-            ∈ ClassFun.Q_sys k G (⊤ : Subgroup G) := by
+            ∈ ClassFun.qSys k G (⊤ : Subgroup G) := by
         exact JGen_mem_Q_sys  p hy_gen
       have hxy_J :
           x_gen * y_gen ∈ J  p := by

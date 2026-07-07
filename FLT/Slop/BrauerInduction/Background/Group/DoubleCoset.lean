@@ -216,7 +216,7 @@ noncomputable def fiberEquiv
 /-- The fibres of `parameterization I g` all have cardinality
   `Nat.card (I ⊓ I.map (MulAut.conj g))`. -/
 lemma natCard_fiber_parameterization
-    [Finite G] (I : Subgroup G) (g : G) (u v : I) :
+    [_hG : Finite G] (I : Subgroup G) (g : G) (u v : I) :
     Nat.card {p : I × I // parameterization I g p = (u : G) * g * (v : G)}
       =
     Nat.card ↥(I ⊓ I.map (MulAut.conj g).toMonoidHom) := by
@@ -371,7 +371,7 @@ Each double coset contributes the sum of `f` over the corresponding subset of
 -/
 lemma sum_over_G_eq_sum_double_cosets
     {k : Type v} [AddCommMonoid k]
-    [Finite G] [Fintype G] (I : Subgroup G) (f : G → k) :
+    [_hG : Finite G] [Fintype G] (I : Subgroup G) (f : G → k) :
     letI : Fintype (DoubleCoset.Quotient (I : Set G) I) :=
        Quotient.fintype (DoubleCoset.setoid (I : Set G) (I : Set G))
     ∑ x : G, f x =
@@ -403,7 +403,7 @@ double coset represented by `q.out`.
 -/
 lemma sum_rightCosets_by_doubleCoset
     {k : Type v} [AddCommMonoid k]
-    [Finite G] (I : Subgroup G)
+    [_hG : Finite G] (I : Subgroup G)
     [Fintype (_root_.Quotient (QuotientGroup.rightRel I))]
     [Fintype (DoubleCoset.Quotient (G := G) I I)]
     (F : _root_.Quotient (QuotientGroup.rightRel I) → k) :

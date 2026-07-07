@@ -113,7 +113,6 @@ lemma char_eq_of_isConj
 The character of a representation lifted to a quotient agrees with the original
 character on representatives.
 -/
-@[simp]
 lemma char_lift
     (ρ : FDRep k G)
     (K : Subgroup G) [K.Normal]

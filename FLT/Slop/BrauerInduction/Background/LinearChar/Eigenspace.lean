@@ -401,7 +401,7 @@ If the inertia subgroup of `ψ` is all of `G`, then `ρ(g)` acts by the scalar
 -/
 lemma rho_eq_smul_of_inertia_eq_top
     (ρ : FDRep k G) [Simple ρ]
-    (A : Subgroup G) [A.Normal] [IsMulCommutative A]
+    (A : Subgroup G) [A.Normal] [_hA : IsMulCommutative A]
     (ψ : A →* kˣ)
     (hI : LinearChar.inertia ψ = ⊤)
     (hW : LinearChar.psiEigenspace ρ A ψ ≠ ⊥) :

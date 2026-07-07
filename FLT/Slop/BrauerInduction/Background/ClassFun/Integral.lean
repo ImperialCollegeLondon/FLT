@@ -21,7 +21,7 @@ The main constructions are:
   `k`-valued class function.
 * `ClassFun.IsIntValued`: the predicate that a `k`-valued class function takes
   values in the image of `ℤ → k`.
-* `ClassFun.C_Z`: the additive subgroup/submodule of integer-valued class
+* `ClassFun.cZ`: the additive subgroup/submodule of integer-valued class
   functions.
 
 The main closure results show that integer-valued class functions are stable
@@ -98,40 +98,40 @@ lemma ind_mapIntCast
 
 end IntegerCoefficients
 
-section C_Z
+section cZ
 
 variable {k : Type u} [CommRing k]
 variable {G : Type v} [Group G]
 
 /--
-`C_Z(H)`: the set of integer-valued class functions on `H`.
+`cZ(H)`: the set of integer-valued class functions on `H`.
 -/
-abbrev C_Z (k : Type u) [CommRing k]
+abbrev cZ (k : Type u) [CommRing k]
     (G : Type v) [Group G] : Set (ClassFun k G) :=
   { f | ClassFun.IsIntValued f }
 
 @[simp]
 lemma mem_C_Z {f : ClassFun k G} :
-    f ∈ C_Z k G ↔ ClassFun.IsIntValued f :=
+    f ∈ cZ k G ↔ ClassFun.IsIntValued f :=
   Iff.rfl
 
-namespace C_Z
+namespace cZ
 
 lemma zero_mem :
-    (0 : ClassFun k G) ∈ C_Z k G := by
+    (0 : ClassFun k G) ∈ cZ k G := by
   intro g
   refine ⟨0, ?_⟩
   simp
 
 lemma one_mem :
-    (1 : ClassFun k G) ∈ C_Z k G := by
+    (1 : ClassFun k G) ∈ cZ k G := by
   intro g
   refine ⟨1, ?_⟩
   simp
 
 lemma add_mem {f g : ClassFun k G}
-    (hf : f ∈ C_Z k G) (hg : g ∈ C_Z k G) :
-    f + g ∈ C_Z k G := by
+    (hf : f ∈ cZ k G) (hg : g ∈ cZ k G) :
+    f + g ∈ cZ k G := by
   intro x
   rcases hf x with ⟨m, hm⟩
   rcases hg x with ⟨n, hn⟩
@@ -139,29 +139,29 @@ lemma add_mem {f g : ClassFun k G}
   simp [ClassFun.add_apply, hm, hn]
 
 lemma neg_mem {f : ClassFun k G}
-    (hf : f ∈ C_Z k G) :
-    -f ∈ C_Z k G := by
+    (hf : f ∈ cZ k G) :
+    -f ∈ cZ k G := by
   intro x
   rcases hf x with ⟨m, hm⟩
   refine ⟨-m, ?_⟩
   simp [hm]
 
 lemma sub_mem {f g : ClassFun k G}
-    (hf : f ∈ C_Z k G) (hg : g ∈ C_Z k G) :
-    f - g ∈ C_Z k G := by
+    (hf : f ∈ cZ k G) (hg : g ∈ cZ k G) :
+    f - g ∈ cZ k G := by
   simpa [sub_eq_add_neg] using add_mem hf (neg_mem hg)
 
 lemma zsmul_mem (n : ℤ) {f : ClassFun k G}
-    (hf : f ∈ C_Z k G) :
-    n • f ∈ C_Z k G := by
+    (hf : f ∈ cZ k G) :
+    n • f ∈ cZ k G := by
   intro x
   rcases hf x with ⟨m, hm⟩
   refine ⟨n * m, ?_⟩
   simp [hm]
 
 lemma mul_mem {f g : ClassFun k G}
-    (hf : f ∈ C_Z k G) (hg : g ∈ C_Z k G) :
-    f * g ∈ C_Z k G := by
+    (hf : f ∈ cZ k G) (hg : g ∈ cZ k G) :
+    f * g ∈ cZ k G := by
   intro x
   rcases hf x with ⟨m, hm⟩
   rcases hg x with ⟨n, hn⟩
@@ -169,8 +169,8 @@ lemma mul_mem {f g : ClassFun k G}
   simp [ClassFun.mul_apply, hm, hn]
 
 lemma pow_mem {f : ClassFun k G}
-    (hf : f ∈ ClassFun.C_Z k G) :
-    ∀ n : ℕ, f ^ n ∈ ClassFun.C_Z k G := by
+    (hf : f ∈ ClassFun.cZ k G) :
+    ∀ n : ℕ, f ^ n ∈ ClassFun.cZ k G := by
   intro n
   induction n with
   | zero => simp only [pow_zero, Set.mem_setOf_eq]; apply one_mem
@@ -180,8 +180,8 @@ lemma pow_mem {f : ClassFun k G}
 lemma res
     {G : Type v} [Group G]
     {H : Subgroup G} {g : ClassFun k G}
-    (hg : g ∈ C_Z k G) :
-    ClassFun.res H g ∈ C_Z k H := by
+    (hg : g ∈ cZ k G) :
+    ClassFun.res H g ∈ cZ k H := by
   intro h
   exact hg h
 
@@ -211,15 +211,15 @@ private lemma exists_int_cast_sum
 Induction preserves integer-valued class functions.
 
 The result is stated after restricting the induced class function to `⊤`, so
-that it is an element of `C_Z k (⊤ : Subgroup G)`.
+that it is an element of `cZ k (⊤ : Subgroup G)`.
 -/
 lemma ind_mem_C_Z
     {G : Type v} [Group G] [Fintype G]
     {H : Subgroup G} {q : ClassFun k H}
-    (hq : q ∈ C_Z k H) :
+    (hq : q ∈ cZ k H) :
     ClassFun.res (G := G) (k := k) (⊤ : Subgroup G)
       (ClassFun.ind (G := G) (k := k) H q)
-      ∈ C_Z k (⊤ : Subgroup G) := by
+      ∈ cZ k (⊤ : Subgroup G) := by
   classical
   intro g_top
   let g : G := g_top
@@ -241,8 +241,8 @@ lemma ind_mem_C_Z
   · refine ⟨0, ?_⟩
     simp [hmem]
 
-end C_Z
-end C_Z
+end cZ
+end cZ
 
 end ClassFun
 

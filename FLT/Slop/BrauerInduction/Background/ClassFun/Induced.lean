@@ -333,7 +333,6 @@ variable {G : Type v} [Group G] [Fintype G]
 /--
 Induction commutes with integer scalar multiplication.
 -/
-@[simp]
 theorem ind_zsmul
     {H : Subgroup G} (n : ℤ) (φ : ClassFun k H) :
     ind H (n • φ) = n • ind H φ :=
