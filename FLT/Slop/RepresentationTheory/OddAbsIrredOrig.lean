@@ -1,35 +1,49 @@
 /-
-# Irreducible ↔ absolutely irreducible, given a 1-dimensional fixed space
+Copyright (c) 2026 Zachary Feng, Y. Samanda Zhang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Zachary Feng, Y. Samanda Zhang
+-/
+import Mathlib
 
-This file states (with `sorry`ed proofs) Proposition 1.2 / Theorem 1.3 of the
-blueprint "Odd_Rep_Irreducible" (July 6, 2026), together with all the
-supporting lemmas from the blueprint:
+/-!
+# Irreducible ↔ absolutely irreducible, given a one-dimensional fixed space
 
-* `OddRep.exists_smul_eq_of_commute`        — Lemma 1.4  (`End_G(V) = k`)
-* `OddRep.adjoinRange_eq_top`               — Lemma 1.5  (Jacobson density: `A = End_k(V)`)
-* `OddRep.adjoinRange_baseChange_eq_top`    — Lemma 1.6  (base change of `A = End_k(V)`)
-* `OddRep.smul_tmul_mem_range_iff`          — Fact 1.1   (`l·e ∩ V = k·e` inside `V_l`)
-* `OddRep.isIrreducible_of_adjoinRange_eq_top` — step (iv) of the blueprint
-* `OddRep.isIrreducible_of_baseChange`      — descent of irreducibility (easy direction)
-* `OddRep.isIrreducible_iff_isAbsolutelyIrreducible` — Proposition 1.2 / Theorem 1.3
+This file proves Proposition 1.2 / Theorem 1.3 of the blueprint
+"Odd_Rep_Irreducible" (July 6, 2026): if `ρ` is a finite-dimensional
+representation of a monoid `G` over a field `k` and some `g : G` has a
+one-dimensional fixed subspace, then `ρ` is irreducible if and only if it is
+absolutely irreducible.
 
-Conventions:
+## Main results
+
+* `OddRep.smul_tmul_mem_range_iff`: Fact 1.1 (`l·e ∩ V = k·e` inside `V_l`)
+* `OddRep.exists_smul_eq_of_commute`: Lemma 1.4 (`End_G(V) = k`)
+* `OddRep.adjoinRange_eq_top`: Lemma 1.5 (Jacobson density, `A = End_k(V)`)
+* `OddRep.adjoinRange_baseChange_eq_top`: Lemma 1.6 (base change of `A = End_k(V)`)
+* `OddRep.isIrreducible_of_adjoinRange_eq_top`: step (iv) of the blueprint
+* `OddRep.isIrreducible_of_baseChange`: descent of irreducibility along a field
+  extension (the easy direction)
+* `OddRep.isIrreducible_baseChange_of_finrank_eigenspace_eq_one`: the hard
+  direction, over an arbitrary field extension `l/k`
+* `OddRep.isIrreducible_iff_isAbsolutelyIrreducible`: Proposition 1.2 /
+  Theorem 1.3
+
+## Implementation notes
+
 * Representations are `Representation k G V := G →* (V →ₗ[k] V)` as in Mathlib.
 * Irreducibility is Mathlib's `Representation.IsIrreducible`, defined as
-  `IsSimpleOrder (Subrepresentation ρ)`.  The notion of a "`G`-invariant
+  `IsSimpleOrder (Subrepresentation ρ)`. The notion of a "`G`-invariant
   subspace" is Mathlib's `Subrepresentation` structure: a `Submodule` together
-  with the invariance field `apply_mem_toSubmodule : ρ g v ∈ toSubmodule` for
-  `v ∈ toSubmodule`.  The lemma `OddRep.isIrreducible_iff_forall` unpacks
-  `Representation.IsIrreducible` into the elementary statement "`V ≠ 0` and every
-  invariant subspace is `⊥` or `⊤`", which is what most proofs below use.
+  with the invariance field `apply_mem_toSubmodule`. The lemma
+  `OddRep.isIrreducible_iff_forall` unpacks `Representation.IsIrreducible` into
+  the elementary statement "`V ≠ 0`, plus every invariant subspace is `⊥` or
+  `⊤`", which is what most proofs below use.
 * "Absolutely irreducible" is defined here as: the base change to
-  `AlgebraicClosure k` is irreducible.  (The blueprint's proof in fact shows
+  `AlgebraicClosure k` is irreducible. The blueprint's proof in fact shows
   irreducibility after base change to *any* field extension `l/k`; this is
   recorded separately as
-  `OddRep.isIrreducible_baseChange_of_finrank_fixedSpace_eq_one`.)
+  `OddRep.isIrreducible_baseChange_of_finrank_eigenspace_eq_one`.
 -/
-
-import Mathlib
 
 open scoped TensorProduct
 
@@ -42,10 +56,6 @@ variable {G : Type*} [Monoid G]
 variable {V : Type*} [AddCommGroup V] [Module k V]
 
 /-! ## Definitions -/
-
-/-- The fixed subspace `V^g = {v : ρ(g) v = v}` of a single group element. -/
-def fixedSpace (ρ : Representation k G V) (g : G) : Submodule k V :=
-  LinearMap.ker (ρ g - LinearMap.id)
 
 /-- Base change of a representation along a field extension `l/k`:
 `G` acts on `l ⊗[k] V` by `1 ⊗ ρ(g)`. -/
@@ -148,19 +158,19 @@ lemma smul_tmul_mem_range_iff (l : Type*) [Field l] [Algebra k l]
 /-! ## Lemma 1.4 : `End_G(V) = k` -/
 
 /-- **Lemma 1.4.** If `ρ` is irreducible and some `g : G` has a one-dimensional
-fixed subspace, then every `G`-equivariant endomorphism of `V` is scalar. -/
+fixed subspace (the eigenspace of `ρ g` for the eigenvalue `1`), then every
+`G`-equivariant endomorphism of `V` is scalar. -/
 lemma exists_smul_eq_of_commute
     (hirr : ρ.IsIrreducible)
-    {g : G} (hg : finrank k (fixedSpace ρ g) = 1)
+    {g : G} (hg : finrank k (Module.End.eigenspace (ρ g) 1) = 1)
     (T : Module.End k V) (hT : ∀ h : G, Commute (ρ h) T) :
     ∃ μ : k, T = μ • (1 : Module.End k V) := by
   obtain ⟨-, hsub⟩ := (isIrreducible_iff_forall ρ).mp hirr
   -- Membership in the fixed space, in applied form.
-  have hfix : ∀ v : V, v ∈ fixedSpace ρ g ↔ ρ g v = v := fun v => by
-    simp [fixedSpace, LinearMap.mem_ker, LinearMap.sub_apply, LinearMap.id_apply,
-      sub_eq_zero]
+  have hfix : ∀ v : V, v ∈ Module.End.eigenspace (ρ g) 1 ↔ ρ g v = v := fun v => by
+    rw [Module.End.mem_eigenspace_iff, one_smul]
   -- `T` preserves the fixed space, because it commutes with `ρ g`.
-  have hTfix : ∀ v ∈ fixedSpace ρ g, T v ∈ fixedSpace ρ g := by
+  have hTfix : ∀ v ∈ Module.End.eigenspace (ρ g) 1, T v ∈ Module.End.eigenspace (ρ g) 1 := by
     intro v hv
     rw [hfix] at hv ⊢
     have hc := LinearMap.congr_fun (hT g) v
@@ -419,11 +429,11 @@ lemma isIrreducible_of_baseChange (l : Type*) [Field l] [Algebra k l]
 /-- The quantitative version of the hard direction: under the hypotheses of
 Theorem 1.3, the base change of `ρ` to *any* field extension `l/k` is
 irreducible. -/
-theorem isIrreducible_baseChange_of_finrank_fixedSpace_eq_one
+theorem isIrreducible_baseChange_of_finrank_eigenspace_eq_one
     [FiniteDimensional k V]
     (l : Type*) [Field l] [Algebra k l]
     (hirr : ρ.IsIrreducible)
-    {g : G} (hg : finrank k (fixedSpace ρ g) = 1) :
+    {g : G} (hg : finrank k (Module.End.eigenspace (ρ g) 1) = 1) :
     (baseChange l ρ).IsIrreducible := by
   -- Lemma 1.4 : every `G`-equivariant endomorphism of `V` is a scalar.
   have hEnd : ∀ T : Module.End k V, (∀ h : G, Commute (ρ h) T) →
@@ -449,18 +459,18 @@ theorem isIrreducible_baseChange_of_finrank_fixedSpace_eq_one
   exact isIrreducible_of_adjoinRange_eq_top (baseChange l ρ) hAbc
 
 /-- **Proposition 1.2 / Theorem 1.3.** Let `V` be a finite-dimensional vector
-space over `k` and `ρ : G →* GL(V)` a representation.  If some `g : G` has a
+space over `k` and `ρ : G →* GL(V)` a representation. If some `g : G` has a
 one-dimensional fixed subspace `V^g`, then `V` is irreducible if and only if it
 is absolutely irreducible. -/
 theorem isIrreducible_iff_isAbsolutelyIrreducible
     [FiniteDimensional k V]
-    {g : G} (hg : finrank k (fixedSpace ρ g) = 1) :
+    {g : G} (hg : finrank k (Module.End.eigenspace (ρ g) 1) = 1) :
     ρ.IsIrreducible ↔ IsAbsolutelyIrreducible ρ := by
   unfold IsAbsolutelyIrreducible
   constructor
   · -- hard direction: irreducible ⇒ irreducible after base change to `k̄`
     intro hirr
-    exact isIrreducible_baseChange_of_finrank_fixedSpace_eq_one ρ
+    exact isIrreducible_baseChange_of_finrank_eigenspace_eq_one ρ
       (AlgebraicClosure k) hirr hg
   · -- easy direction: irreducibility descends along `k → k̄`
     intro habs
