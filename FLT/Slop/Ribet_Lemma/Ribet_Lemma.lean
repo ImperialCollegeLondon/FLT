@@ -1,9 +1,16 @@
-import FLT.KnownIn1980s.Ribet_Lemma.Brauer_Nesbitt
+/-
+Copyright (c) 2026 Bryan Hu. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bryan Hu
+-/
+module
+
+public import FLT.Slop.Ribet_Lemma.Brauer_Nesbitt
 
 /-!
 # Ribet's lemma (Ribet, Invent. Math. 34 (1976), Prop. 2.1)
 
-Sections 8–10, and the goal, of this directory (see the overview in the
+Sections 8–10, and the goal, of this development (see the overview in the
 header of `stable_lattices.lean`).  The reference is
 
   K. A. Ribet, *A modular construction of unramified p-extensions of
@@ -36,14 +43,17 @@ Contents:
   straight chain of neighbors would produce a `ρ`-stable line.  This is the
   lattice form of the convergence of the matrices `Mᵢ = (1 tᵢ; 0 1)` on
   p. 155 of the paper.
-* §9 — Ribet's lemma, `ribet_lemma`.
+* §9 — Ribet's lemma, `ribet_lemma_slop` (the slop proof of
+  `StableLattice.ribet_lemma` in `FLT.KnownIn1980s.Ribet_Lemma.Defs`).
 * §10 — remarks.
 
 Conventions: irreducibility is Mathlib's `Representation.IsIrreducible`,
 that is, `IsSimpleOrder (Subrepresentation ρ)`.  Completeness of `O` is
-`IsAdicComplete (maximalIdeal O) O`; §8 is the only place in the directory
-where it is used.  The whole directory is `sorry`-free.
+`IsAdicComplete (maximalIdeal O) O`; §8 is the only place in the development
+where it is used.  The whole development is `sorry`-free.
 -/
+
+@[expose] public section
 
 open Pointwise IsLocalRing
 
@@ -63,9 +73,9 @@ neighbors `f (n+1) = preimageLattice (f n) Lₙ` — straight meaning
 `f (n+2) ≠ 𝔪 f n`, i.e. no step undoes the previous one — satisfies
 `f n = f (n+1) ⊔ 𝔪ⁿ f 0`, so approximations `xₙ ∈ f n` can be chosen that
 form an `𝔪`-adic Cauchy sequence inside `f 0`; the limit is a nonzero
-element of `⋂ₙ f n`, whose `K`-span is a `ρ`-stable line.  In `ribet_lemma`
-this is ruled out by irreducibility, which is what forces the walk of §9 to
-terminate. -/
+element of `⋂ₙ f n`, whose `K`-span is a `ρ`-stable line.  In
+`ribet_lemma_slop` this is ruled out by irreducibility, which is what forces
+the walk of §9 to terminate. -/
 
 section Completeness
 
@@ -123,7 +133,7 @@ theorem isPrecomplete_of_free {M : Type*} [AddCommGroup M] [Module O M]
 omit [FiniteDimensional K V] in
 /-- **Where completeness enters.**  A "straight" infinite chain of neighboring
 stable lattices (no backtracking: `f (n + 2) ≠ 𝔪 • f n`) yields a `ρ`-stable
-`K`-line — which `ribet_lemma` rules out by irreducibility.  A compatible
+`K`-line — which `ribet_lemma_slop` rules out by irreducibility.  A compatible
 sequence of approximations is chosen along the chain, and its `𝔪`-adic limit
 is a nonzero element of the intersection of the chain, whose `K`-span is the
 line.  Mathlib provides the Hausdorff half of completeness for finite modules
@@ -416,9 +426,9 @@ theorem exists_stable_line_of_chain
 
 omit [IsFractionRing O K] [FiniteDimensional K V] in
 variable (ρ) in
-/-- The data carried along the walk in the proof of `ribet_lemma`: a stable
-lattice whose reduction realizes the ordering sub-`φ₁`/quotient-`φ₂`, with a
-marked line witnessing it. -/
+/-- The data carried along the walk in the proof of `ribet_lemma_slop`: a
+stable lattice whose reduction realizes the ordering sub-`φ₁`/quotient-`φ₂`,
+with a marked line witnessing it. -/
 private def WalkPack (φ₁ φ₂ : G →* (ResidueField O)ˣ) : Type _ :=
   Σ' (Λ : Submodule O V) (h : IsStableLattice ρ Λ)
       (L : Submodule (ResidueField O) (Reduction O V Λ)),
@@ -444,8 +454,11 @@ wrong ordering, one preliminary neighbor step swaps it (key computation,
 forever along splitting lines avoiding the marked sub-line (`WalkPack`),
 producing a straight infinite chain; §8 would turn it into a `ρ`-stable
 line, contradicting irreducibility.  So the walk terminates, at a stable
-lattice whose reduction is the desired non-split extension. -/
-theorem ribet_lemma [IsAdicComplete (maximalIdeal O) O]
+lattice whose reduction is the desired non-split extension.
+
+Slop proof of `StableLattice.ribet_lemma` in
+`FLT.KnownIn1980s.Ribet_Lemma.Defs`. -/
+theorem ribet_lemma_slop [IsAdicComplete (maximalIdeal O) O]
     (ρ : Representation K G V) [ρ.IsIrreducible]
     (hdim : Module.finrank K V = 2)
     (Λ₀ : Submodule O V) (h₀ : IsStableLattice ρ Λ₀)
@@ -604,8 +617,8 @@ theorem ribet_lemma [IsAdicComplete (maximalIdeal O) O]
 /-! ## 10. Remarks
 
 * Neither §4 (existence of stable lattices) nor §7 (independence of the
-  lattice) is used in the proof of `ribet_lemma` itself: the hypothesis is
-  anchored to the given `Λ₀`, and the walk tracks the two characters
+  lattice) is used in the proof of `ribet_lemma_slop` itself: the hypothesis
+  is anchored to the given `Λ₀`, and the walk tracks the two characters
   constructively.  Both are needed to *apply* the lemma as in Ribet's paper:
   §4 produces `Λ₀` for a continuous representation of a compact group
   (Ribet's parenthetical remark on p. 154), and §7 — which the paper quotes

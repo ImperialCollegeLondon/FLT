@@ -1,27 +1,26 @@
-import FLT.KnownIn1980s.Ribet_Lemma.stable_lattices
+/-
+Copyright (c) 2026 Bryan Hu. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bryan Hu
+-/
+module
+
+public import FLT.Slop.Ribet_Lemma.stable_lattices
 
 /-!
 # Extensions of characters, lattice modification, and Brauer–Nesbitt
 
-Sections 5–7 of the Ribet's-lemma directory (see the overview in the header
+Sections 5–7 of the Ribet's-lemma development (see the overview in the header
 of `stable_lattices.lean`; `Ribet_Lemma.lean` §8–10 is the goal).
 
-§5.  For a representation `ρ'` of `G` on a vector space `W` over a field `F`
-and characters `φ₁ φ₂ : G →* Fˣ`, we define what it means for `ρ'` to be
-
-* an extension with sub `φ₁` and quotient `φ₂` (`StableLattice.IsExtensionOf`),
-* a *split* such extension (`StableLattice.IsSplitExtensionOf`),
-* of semisimplification `φ₁ ⊕ φ₂` (`StableLattice.HasSemisimplification`) —
-  in dimension 2, "the semisimplification is `φ₁ ⊕ φ₂`" is *equivalent* to
-  "`ρ'` is an extension in one of the two orders", and we take the latter as
-  the definition to avoid developing semisimplification itself,
-
-together with the elementary geometry of stable lines in dimension 2: a
-stable line carries a character (`exists_character_of_stable_line`), any
-stable line of an extension realizes the two characters in one of the two
-orders (`isExtensionOf_along_stable_line`), and the stable line of a
-non-split extension is unique
-(`stable_line_unique_of_not_isSplitExtensionOf`).
+§5.  The predicates `StableLattice.IsExtensionOf`,
+`StableLattice.IsSplitExtensionOf` and `StableLattice.HasSemisimplification`
+are defined in `FLT.KnownIn1980s.Ribet_Lemma.Defs`; this section develops the
+elementary geometry of stable lines in dimension 2: a stable line carries a
+character (`exists_character_of_stable_line`), any stable line of an
+extension realizes the two characters in one of the two orders
+(`isExtensionOf_along_stable_line`), and the stable line of a non-split
+extension is unique (`stable_line_unique_of_not_isSplitExtensionOf`).
 
 §6 is the engine of the whole development.  For a stable lattice `Λ` and a
 subspace `W` of its reduction, `preimageLattice Λ W` is the sub-lattice of
@@ -35,7 +34,7 @@ way around, with sub-line the image of `𝔪Λ`.  In Ribet's paper this is the
 conjugation by the matrix `P = (1 0; 0 π)` on p. 155.
 
 §7 proves that the semisimplification of the reduction is independent of the
-stable lattice (`hasSemisimplification_independent_of_lattice`).  Ribet
+stable lattice (`hasSemisimplification_independent_of_lattice_slop`).  Ribet
 quotes this from Curtis–Reiner (30.16); Mathlib (as of July 2026) has
 neither semisimplification nor the Brauer–Nesbitt theorem, so a direct proof
 is given instead: after scaling, any two stable lattices are connected by a
@@ -47,15 +46,14 @@ any convenient lattice.  See the remarks in §10.
 
 ## Design decisions
 
-* The action on the quotient by a stable line `L` is encoded by the pointwise
-  condition `ρ' g x - φ₂ g • x ∈ L`, avoiding quotient-module instances in
-  statements.
 * `reductionImage` and `preimageLattice` keep all lattices inside the fixed
   ambient space `V` (as `Submodule O V`), so chains of neighbors can be
   compared without transporting along isomorphisms.
 
 The file is `sorry`-free.
 -/
+
+@[expose] public section
 
 open Pointwise IsLocalRing
 
@@ -68,28 +66,9 @@ section Characters
 variable {G : Type*} [Group G]
 variable {F : Type*} [Field F] {W : Type*} [AddCommGroup W] [Module F W]
 
-/-- `ρ'` admits a stable line `L` on which `G` acts by `φ₁`, with `G` acting by
-`φ₂` on the quotient `W ⧸ L`; that is, `ρ'` is an extension of `φ₂` by `φ₁`
-(sub `φ₁`, quotient `φ₂`).  The quotient action is encoded as
-`ρ' g x - φ₂ g • x ∈ L`. -/
-def IsExtensionOf (ρ' : Representation F G W) (φ₁ φ₂ : G →* Fˣ) : Prop :=
-  ∃ L : Submodule F W,
-    Module.finrank F L = 1 ∧
-    (∀ g : G, ∀ x ∈ L, ρ' g x = (φ₁ g : F) • x) ∧
-    (∀ g : G, ∀ x : W, ρ' g x - (φ₂ g : F) • x ∈ L)
-
-/-- `ρ'` is a *split* extension with sub `φ₁` and quotient `φ₂`: the stable
-line has a stable complement, on which `G` necessarily acts by `φ₂`. -/
-def IsSplitExtensionOf (ρ' : Representation F G W) (φ₁ φ₂ : G →* Fˣ) : Prop :=
-  ∃ L L' : Submodule F W,
-    Module.finrank F L = 1 ∧
-    (∀ g : G, ∀ x ∈ L, ρ' g x = (φ₁ g : F) • x) ∧
-    (∀ g : G, ∀ x ∈ L', ρ' g x = (φ₂ g : F) • x) ∧
-    IsCompl L L'
-
-/-- Sanity check for the two definitions above: a split extension is in
-particular an extension (write `x = l + l'` and compute
-`ρ' g x - φ₂ g • x = (φ₁ g - φ₂ g) • l ∈ L`). -/
+/-- Sanity check for the definitions in `FLT.KnownIn1980s.Ribet_Lemma.Defs`:
+a split extension is in particular an extension (write `x = l + l'` and
+compute `ρ' g x - φ₂ g • x = (φ₁ g - φ₂ g) • l ∈ L`). -/
 theorem IsSplitExtensionOf.isExtensionOf {ρ' : Representation F G W}
     {φ₁ φ₂ : G →* Fˣ} (h : IsSplitExtensionOf ρ' φ₁ φ₂) :
     IsExtensionOf ρ' φ₁ φ₂ := by
@@ -184,13 +163,6 @@ theorem stable_line_unique_of_not_isSplitExtensionOf
     rw [hdisj, Submodule.mem_bot] at h3
     exact sub_eq_zero.mp h3
   exact ⟨L, L', hL₁, hLchar, hL'act, IsCompl.of_eq hdisj hsup⟩
-
-/-- The semisimplification of `ρ'` is `φ₁ ⊕ φ₂`.  In dimension 2 this holds
-iff `ρ'` is an extension in one of the two orders, which we take as the
-definition: it is the statement-level stand-in for
-"`(ρ')^ss ≅ φ₁ ⊕ φ₂`", avoiding a development of semisimplification. -/
-def HasSemisimplification (ρ' : Representation F G W) (φ₁ φ₂ : G →* Fˣ) : Prop :=
-  IsExtensionOf ρ' φ₁ φ₂ ∨ IsExtensionOf ρ' φ₂ φ₁
 
 /-- `φ₁ ⊕ φ₂` and `φ₂ ⊕ φ₁` are the same semisimplification. -/
 theorem HasSemisimplification.symm {ρ' : Representation F G W} {φ₁ φ₂ : G →* Fˣ}
@@ -365,7 +337,8 @@ variable {ρ : Representation K G V}
 
 /-- The preimage in `Λ` (viewed inside `V`) of a subspace `W` of the reduction
 `Λ ⧸ 𝔪Λ`.  (Uses the `Module (ResidueField O)` and
-`IsScalarTower O (ResidueField O)` instances on `Reduction O V Λ` from §2.) -/
+`IsScalarTower O (ResidueField O)` instances on `Reduction O V Λ` from
+`FLT.KnownIn1980s.Ribet_Lemma.Defs`.) -/
 noncomputable def preimageLattice (Λ : Submodule O V)
     (W : Submodule (ResidueField O) (Reduction O V Λ)) : Submodule O V :=
   ((W.restrictScalars O).comap
@@ -498,7 +471,7 @@ omit [FiniteDimensional K V] in
 reduction of `Λ` is an extension with sub `φ₁` and quotient `φ₂`, realized by
 the line `L`, then the reduction of `preimageLattice Λ L` is an extension with
 sub `φ₂` and quotient `φ₁` — and the new sub-line is precisely the image of
-`𝔪Λ`.  (The walk in `ribet_lemma` needs to know the new line, to avoid
+`𝔪Λ`.  (The walk in `ribet_lemma_slop` needs to know the new line, to avoid
 stepping straight back.)
 
 The stability hypothesis `hstab` is derivable from
@@ -785,8 +758,10 @@ omit [FiniteDimensional K V] in
 semisimplification of the reduction is independent of the choice of stable
 lattice.  (Proved by connecting any two stable lattices through a chain of
 neighbors, each step of which swaps the two characters by
-`isExtensionOf_preimageLattice`; no character theory is needed.) -/
-theorem hasSemisimplification_independent_of_lattice
+`isExtensionOf_preimageLattice`; no character theory is needed.)  Slop proof
+of `StableLattice.hasSemisimplification_independent_of_lattice` in
+`FLT.KnownIn1980s.Ribet_Lemma.Defs`. -/
+theorem hasSemisimplification_independent_of_lattice_slop
     (ρ : Representation K G V) (hdim : Module.finrank K V = 2)
     {Λ Λ' : Submodule O V}
     (h : IsStableLattice ρ Λ) (h' : IsStableLattice ρ Λ')

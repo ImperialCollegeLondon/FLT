@@ -1,4 +1,12 @@
-import Mathlib
+/-
+Copyright (c) 2026 Bryan Hu. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Bryan Hu
+-/
+module
+
+public import FLT.KnownIn1980s.Ribet_Lemma.Defs
+public import Mathlib
 
 /-!
 # `G`-stable lattices in representations over the fraction field of a DVR
@@ -15,6 +23,13 @@ development, with sections numbered across the three files:
 * §8–10 (`Ribet_Lemma.lean`): the completeness argument, Ribet's lemma
   itself, concluding remarks.
 
+The definitions (`Reduction`, `Stabilizes`, `IsStableLattice`, `latticeRep`,
+`reductionMap`, `reducedRep`, `latticeStabilizer`, and the character
+predicates of §5) live in the non-slop file
+`FLT.KnownIn1980s.Ribet_Lemma.Defs`, together with the public statements of
+the main results; this directory contains the AI-generated development
+proving them.
+
 Setting: `O` is a DVR with fraction field `K` and residue field `F = O ⧸ 𝔪`,
 and `V` is a finite-dimensional `K`-vector space with a representation `ρ` of a
 group `G`.  This file provides:
@@ -22,13 +37,10 @@ group `G`.  This file provides:
 * complements to Mathlib's lattice API `Submodule.IsLattice`
   (`Mathlib.Algebra.Module.Lattice`): scaling elements and lattices into a
   lattice, images under `K`-automorphisms, existence;
-* `StableLattice.Reduction O V Λ` — the reduction `Λ ⧸ 𝔪Λ` as a vector space
-  over the residue field;
-* `StableLattice.Stabilizes ρ Λ` and `StableLattice.IsStableLattice ρ Λ` —
-  `G`-stability, and `G`-stable lattices;
-* `StableLattice.reducedRep` — the induced representation of `G` on `Λ ⧸ 𝔪Λ`;
-* `StableLattice.exists_isStableLattice` — existence of a stable lattice when
-  `G` is compact and some lattice has open stabilizer.
+* the basic API of the reduction `Λ ⧸ 𝔪Λ` and of the reduced representation
+  `StableLattice.reducedRep`;
+* `StableLattice.exists_isStableLattice_slop` — existence of a stable lattice
+  when `G` is compact and some lattice has open stabilizer.
 
 ## Design decisions
 
@@ -50,11 +62,13 @@ group `G`.  This file provides:
   existence of stable lattices is purely algebraic
   (`exists_isStableLattice_of_finiteIndex`, assuming the stabilizer has finite
   index); compactness of `G` and openness of the stabilizer enter only in the
-  final wrapper `exists_isStableLattice`.  Completeness of `O` is not used in
-  this file; it enters only in Ribet's lemma itself.
+  final wrapper `exists_isStableLattice_slop`.  Completeness of `O` is not
+  used in this file; it enters only in Ribet's lemma itself.
 
 The whole directory is `sorry`-free.
 -/
+
+@[expose] public section
 
 open Pointwise IsLocalRing
 open scoped TensorProduct
@@ -164,27 +178,10 @@ theorem Submodule.exists_isLattice (O : Type*) [CommRing O] [IsDomain O]
 
 namespace StableLattice
 
-/-! ## 2. Reduction modulo the maximal ideal -/
+/-! ## 2. Reduction modulo the maximal ideal
 
-variable (O V) in
-/-- The reduction of `Λ` modulo the maximal ideal `𝔪` of `O`: the vector space
-`Λ ⧸ 𝔪Λ` over the residue field `F = O ⧸ 𝔪`. -/
-abbrev Reduction (Λ : Submodule O V) : Type _ :=
-  Λ ⧸ (maximalIdeal O • ⊤ : Submodule O Λ)
-
-/-- The residue-field module structure on `Λ ⧸ 𝔪Λ`.  This is Mathlib's
-`O ⧸ I`-module instance on `M ⧸ I • ⊤`, rephrased through the definitional
-equality `ResidueField O = O ⧸ maximalIdeal O`. -/
-instance (Λ : Submodule O V) : Module (ResidueField O) (Reduction O V Λ) :=
-  inferInstanceAs
-    (Module (O ⧸ maximalIdeal O) (Λ ⧸ (maximalIdeal O • ⊤ : Submodule O Λ)))
-
-/-- The `O`-action on `Λ ⧸ 𝔪Λ` factors through the residue field.  (Needed to
-`restrictScalars` subspaces of the reduction back to `O`, as in
-`preimageLattice` in `Brauer_Nesbitt.lean`.) -/
-instance (Λ : Submodule O V) : IsScalarTower O (ResidueField O) (Reduction O V Λ) :=
-  inferInstanceAs
-    (IsScalarTower O (O ⧸ maximalIdeal O) (Λ ⧸ (maximalIdeal O • ⊤ : Submodule O Λ)))
+The reduction `Reduction O V Λ = Λ ⧸ 𝔪Λ` and its residue-field module
+structure are defined in `FLT.KnownIn1980s.Ribet_Lemma.Defs`. -/
 
 /-- The residue-field action on `Λ ⧸ 𝔪Λ` is computed by lifting the scalar to
 `O` (definitionally). -/
@@ -210,13 +207,13 @@ theorem finrank_reduction (Λ : Submodule O V) [Submodule.IsLattice K Λ] :
       Ideal.Quotient.mk_surjective
   rw [← e.finrank_eq, Module.finrank_baseChange, Submodule.IsLattice.finrank_eq]
 
-/-! ## 3. Group actions: stable lattices and reduced representations -/
+/-! ## 3. Group actions: stable lattices and reduced representations
+
+`Stabilizes`, `IsStableLattice`, `latticeRep`, `reductionMap` and `reducedRep`
+are defined in `FLT.KnownIn1980s.Ribet_Lemma.Defs`; this section provides
+their basic API. -/
 
 variable {G : Type*} [Group G]
-
-/-- The `O`-submodule `Λ` is stable under the representation `ρ`. -/
-def Stabilizes (ρ : Representation K G V) (Λ : Submodule O V) : Prop :=
-  ∀ g : G, Λ.map ((ρ g).restrictScalars O) = Λ
 
 namespace Stabilizes
 
@@ -240,45 +237,12 @@ theorem smul (h : Stabilizes ρ Λ) (a : O) : Stabilizes ρ (a • Λ) := fun g 
 
 end Stabilizes
 
-/-- A `G`-stable `O`-lattice in `(V, ρ)`. -/
-structure IsStableLattice (ρ : Representation K G V) (Λ : Submodule O V) : Prop where
-  isLattice : Submodule.IsLattice K Λ
-  stable : Stabilizes ρ Λ
-
-/-- The `O`-linear representation of `G` on a stable submodule (each `ρ g`
-restricts to an `O`-linear automorphism of `Λ`). -/
-def latticeRep (ρ : Representation K G V) (Λ : Submodule O V)
-    (h : Stabilizes ρ Λ) : Representation O G Λ where
-  toFun g := ((ρ g).restrictScalars O).restrict
-    fun x hx => (h g).le (Submodule.mem_map_of_mem hx)
-  map_one' := by ext x; simp
-  map_mul' g₁ g₂ := by ext x; simp
-
 omit [IsDomain O] [IsDiscreteValuationRing O] [IsFractionRing O K] [FiniteDimensional K V] in
 @[simp]
 theorem latticeRep_apply_coe (ρ : Representation K G V) (Λ : Submodule O V)
     (h : Stabilizes ρ Λ) (g : G) (y : Λ) :
     ((latticeRep ρ Λ h g y : Λ) : V) = ρ g (y : V) :=
   rfl
-
-/-- Any `O`-linear map sends `𝔪M` into `𝔪N`. -/
-private theorem smul_top_le_comap {M N : Type*} [AddCommGroup M] [Module O M]
-    [AddCommGroup N] [Module O N] (f : M →ₗ[O] N) :
-    (maximalIdeal O • ⊤ : Submodule O M) ≤ (maximalIdeal O • ⊤ : Submodule O N).comap f :=
-  Submodule.map_le_iff_le_comap.mp <| by
-    rw [Submodule.map_smul'']
-    exact smul_mono_right _ le_top
-
-/-- An `O`-linear map between submodules of `V` induces a residue-field-linear
-map between their reductions mod `𝔪`. -/
-noncomputable def reductionMap {Λ₁ Λ₂ : Submodule O V} (f : Λ₁ →ₗ[O] Λ₂) :
-    Reduction O V Λ₁ →ₗ[ResidueField O] Reduction O V Λ₂ where
-  toFun := Submodule.mapQ _ _ f (smul_top_le_comap f)
-  map_add' _ _ := map_add _ _ _
-  map_smul' r x := by
-    obtain ⟨b, rfl⟩ := Ideal.Quotient.mk_surjective r
-    obtain ⟨y, rfl⟩ := Submodule.Quotient.mk_surjective _ x
-    exact congrArg Submodule.Quotient.mk (map_smul f b y)
 
 @[simp]
 theorem reductionMap_mk {Λ₁ Λ₂ : Submodule O V} (f : Λ₁ →ₗ[O] Λ₂) (y : Λ₁) :
@@ -299,19 +263,6 @@ theorem mem_smul_top_iff (I : Ideal O) (N : Submodule O V) (x : N) :
     rw [← hmap] at hx
     obtain ⟨y, hy, hxy⟩ := hx
     rwa [show y = x from Subtype.ext hxy] at hy
-
-/-- The reduced representation of `G` on `Λ ⧸ 𝔪Λ` over the residue field,
-induced by `latticeRep` on the quotient. -/
-noncomputable def reducedRep (ρ : Representation K G V) (Λ : Submodule O V)
-    (h : Stabilizes ρ Λ) :
-    Representation (ResidueField O) G (Reduction O V Λ) where
-  toFun g := reductionMap (latticeRep ρ Λ h g)
-  map_one' := LinearMap.ext fun x => by
-    obtain ⟨y, rfl⟩ := Submodule.Quotient.mk_surjective _ x
-    simp [reductionMap, Submodule.mapQ_apply]
-  map_mul' g₁ g₂ := LinearMap.ext fun x => by
-    obtain ⟨y, rfl⟩ := Submodule.Quotient.mk_surjective _ x
-    simp [reductionMap, Submodule.mapQ_apply]
 
 omit [IsFractionRing O K] [FiniteDimensional K V] in
 @[simp]
@@ -377,30 +328,6 @@ This section is needed to *apply* Ribet's lemma (produce the initial stable
 lattice), not for its proof — see the remarks in §10 (`Ribet_Lemma.lean`). -/
 
 section Existence
-
-/-- The stabilizer of a submodule under `ρ`, as a subgroup of `G`. -/
-def latticeStabilizer (ρ : Representation K G V) (Λ : Submodule O V) : Subgroup G where
-  carrier := {g | Λ.map ((ρ g).restrictScalars O) = Λ}
-  one_mem' := by
-    change Λ.map ((ρ 1).restrictScalars O) = Λ
-    rw [map_one]
-    exact Submodule.map_id Λ
-  mul_mem' := by
-    intro a b ha hb
-    change Λ.map ((ρ (a * b)).restrictScalars O) = Λ
-    rw [map_mul,
-      show ((ρ a * ρ b).restrictScalars O)
-          = ((ρ a).restrictScalars O).comp ((ρ b).restrictScalars O) from rfl,
-      Submodule.map_comp, hb, ha]
-  inv_mem' := by
-    intro a ha
-    change Λ.map ((ρ a⁻¹).restrictScalars O) = Λ
-    conv_lhs => rw [← ha]
-    rw [← Submodule.map_comp,
-      show ((ρ a⁻¹).restrictScalars O).comp ((ρ a).restrictScalars O)
-          = ((ρ a⁻¹ * ρ a).restrictScalars O) from rfl,
-      ← map_mul, inv_mul_cancel, map_one]
-    exact Submodule.map_id Λ
 
 omit [IsDomain O] [IsDiscreteValuationRing O] [IsFractionRing O K] [FiniteDimensional K V] in
 @[simp]
@@ -468,8 +395,10 @@ omit [IsDomain O] [IsDiscreteValuationRing O] [IsFractionRing O K] [FiniteDimens
 /-- If `G` is compact and some lattice has open stabilizer, then a `G`-stable
 lattice exists.  (The stabilizer has finite index by
 `Subgroup.quotient_finite_of_isOpen`; conclude with
-`exists_isStableLattice_of_finiteIndex`.) -/
-theorem exists_isStableLattice [TopologicalSpace G] [IsTopologicalGroup G]
+`exists_isStableLattice_of_finiteIndex`.)  Slop proof of
+`StableLattice.exists_isStableLattice` in
+`FLT.KnownIn1980s.Ribet_Lemma.Defs`. -/
+theorem exists_isStableLattice_slop [TopologicalSpace G] [IsTopologicalGroup G]
     [CompactSpace G] (ρ : Representation K G V)
     (Λ₀ : Submodule O V) [Submodule.IsLattice K Λ₀]
     (hopen : IsOpen (latticeStabilizer ρ Λ₀ : Set G)) :
