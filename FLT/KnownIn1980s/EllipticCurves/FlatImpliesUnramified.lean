@@ -88,8 +88,8 @@ scheme is prime to the residue characteristic), then the finite flat group schem
 valuation subring `𝒪 ⊆ kˢᵉᵖ` above `R` acts trivially on the `n`-torsion. -/
 theorem WeierstrassCurve.torsion_unramified_of_torsion_flat
     -- the finite flat group scheme, as produced by `torsion_flat_of_good_reduction`:
-    (H : Type u) [CommRing H] [HopfAlgebra R H] -- [Module.Finite R H] [Module.Flat R H]
-    -- [Algebra.Etale k (k ⊗[R] H)]
+    (H : Type u) [CommRing H] [HopfAlgebra R H] [Module.Finite R H] [Module.Flat R H]
+    [Algebra.Etale k (k ⊗[R] H)]
     -- the Galois-equivariant identification of its generic-fibre points with the torsion,
     (f : Additive (WithConv (k ⊗[R] H →ₐ[k] ksep)) ≃+
       AddSubgroup.torsionBy (E⁄ksep).Point (n : ℤ))
