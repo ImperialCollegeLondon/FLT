@@ -14,7 +14,7 @@ public import FLT.Slop.PGL2.FiniteSubgroups.PGLBasic
 /-!
 # Dickson's classification: the tame case
 
-This file classifies the finite subgroups `G` of `PGL p = PGL₂(𝔽̄_p)` of order coprime
+This file classifies the finite subgroups `G` of `PGLOf (K p) = PGL₂(𝔽̄_p)` of order coprime
 to `p` (the *tame* case): the main theorem `Dickson.classification_tame_slop` shows any
 such `G` is cyclic, dihedral, or isomorphic to `A₄`, `S₄` or `A₅`.
 
@@ -53,9 +53,9 @@ noncomputable section
 
 variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]
 
-theorem tame_ncard_fixedPoints_eq_two (G : Subgroup (PGL p)) [Fintype G]
+theorem tame_ncard_fixedPoints_eq_two (G : Subgroup (PGLOf (K p))) [Fintype G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
-    (g : PGL p) (hg : g ∈ G) (hg_ne : g ≠ 1) :
+    (g : PGLOf (K p)) (hg : g ∈ G) (hg_ne : g ≠ 1) :
     Set.ncard (fixedPoints p g) = 2 := by
 
   have h_coprime : p.Coprime (orderOf g) := by
@@ -71,8 +71,8 @@ theorem tame_ncard_fixedPoints_eq_two (G : Subgroup (PGL p)) [Fintype G]
 
 /-- The subgroup of `G` consisting of the elements that fix both `x` and `y` on the
 projective line. -/
-def pairStabilizer (G : Subgroup (PGL p)) (x y : ProjectiveLine p) : Subgroup G where
-  carrier := {g : G | (g : PGL p) • x = x ∧ (g : PGL p) • y = y}
+def pairStabilizer (G : Subgroup (PGLOf (K p))) (x y : ProjectiveLine p) : Subgroup G where
+  carrier := {g : G | (g : PGLOf (K p)) • x = x ∧ (g : PGLOf (K p)) • y = y}
   mul_mem' {a b} ha hb :=
     ⟨by rw [Subgroup.coe_mul, mul_smul, hb.1, ha.1],
      by rw [Subgroup.coe_mul, mul_smul, hb.2, ha.2]⟩
@@ -81,9 +81,9 @@ def pairStabilizer (G : Subgroup (PGL p)) (x y : ProjectiveLine p) : Subgroup G 
     ⟨by rw [Subgroup.coe_inv, inv_smul_eq_iff, hg.1],
      by rw [Subgroup.coe_inv, inv_smul_eq_iff, hg.2]⟩
 
-lemma fixedPoints_determined (G : Subgroup (PGL p)) [Fintype G]
+lemma fixedPoints_determined (G : Subgroup (PGLOf (K p))) [Fintype G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
-    (g : PGL p) (hg : g ∈ G) (hg_ne : g ≠ 1)
+    (g : PGLOf (K p)) (hg : g ∈ G) (hg_ne : g ≠ 1)
     (x y : ProjectiveLine p) (hxy : x ≠ y) (hfx : g • x = x) (hfy : g • y = y) :
     fixedPoints p g = {x, y} := by
   have hcard : (fixedPoints p g).ncard = 2 := tame_ncard_fixedPoints_eq_two p G hG_tame g hg hg_ne
@@ -106,8 +106,8 @@ lemma fixedPoints_determined (G : Subgroup (PGL p)) [Fintype G]
 
 omit h_odd in
 @[nolint unusedArguments]
-lemma commute_of_fixedPair (G_sub : Subgroup (PGL p)) [Fintype G_sub]
-    (g h : PGL p) (hg : g ∈ G_sub) (hh : h ∈ G_sub)
+lemma commute_of_fixedPair (G_sub : Subgroup (PGLOf (K p))) [Fintype G_sub]
+    (g h : PGLOf (K p)) (hg : g ∈ G_sub) (hh : h ∈ G_sub)
     (x y : ProjectiveLine p) (hxy : x ≠ y)
     (hgx : g • x = x) (hgy : g • y = y)
     (hhx : h • x = x) (hhy : h • y = y) :
@@ -118,7 +118,7 @@ lemma commute_of_fixedPair (G_sub : Subgroup (PGL p)) [Fintype G_sub]
   obtain ⟨w, hw⟩ := y
 
   have extract_eigen : ∀ {M : GL (Fin 2) (K p)} {u : Fin 2 → K p} {hu : u ≠ 0},
-      (QuotientGroup.mk M : PGL p) • Projectivization.mk (K p) u hu = Projectivization.mk (K p) u
+      (QuotientGroup.mk M : PGLOf (K p)) • Projectivization.mk (K p) u hu = Projectivization.mk (K p) u
           hu →
       ∃ c : K p, M.val.mulVec u = c • u := by
     intro M u hu h_fix
@@ -161,7 +161,7 @@ omit h_odd in
 lemma scalar_eq_one_in_PGL (g : GL (Fin 2) (K p)) (c : K p)
     (x y : ProjectiveLine p) (hxy : x ≠ y)
     (hgx : g.val.mulVec x.rep = c • x.rep) (hgy : g.val.mulVec y.rep = c • y.rep) :
-    (QuotientGroup.mk g : PGL p) = 1 := by
+    (QuotientGroup.mk g : PGLOf (K p)) = 1 := by
   rw [QuotientGroup.eq_one_iff, Subgroup.mem_center_iff]
 
   have h_g_eq : g.val = c • (1 : Matrix (Fin 2) (Fin 2) (K p)) := by
@@ -196,12 +196,12 @@ lemma scalar_eq_one_in_PGL (g : GL (Fin 2) (K p)) (c : K p)
       Matrix.mul_one, Matrix.one_mul])
 omit h_odd in
 
-lemma exists_unique_normalizedLift (g : PGL p) (y : ProjectiveLine p)
+lemma exists_unique_normalizedLift (g : PGLOf (K p)) (y : ProjectiveLine p)
     (hgy : g • y = y) :
     ∃! (g' : GL (Fin 2) (K p)),
-      (QuotientGroup.mk g' : PGL p) = g ∧ g'.val.mulVec y.rep = y.rep := by
+      (QuotientGroup.mk g' : PGLOf (K p)) = g ∧ g'.val.mulVec y.rep = y.rep := by
 
-  have h_z_scalar : ∀ z : GL (Fin 2) (K p), (QuotientGroup.mk z : PGL p) = 1 → ∃ c : K p,
+  have h_z_scalar : ∀ z : GL (Fin 2) (K p), (QuotientGroup.mk z : PGLOf (K p)) = 1 → ∃ c : K p,
       z.val = c • 1 := by
     intro z hz
 
@@ -251,7 +251,7 @@ lemma exists_unique_normalizedLift (g : PGL p) (y : ProjectiveLine p)
   obtain ⟨g₀, hg₀⟩ := QuotientGroup.mk_surjective g
 
   obtain ⟨d, hd_ne_zero, hd⟩ : ∃ d : K p, d ≠ 0 ∧ g₀.val.mulVec y.rep = d • y.rep := by
-    have h_fix : (QuotientGroup.mk g₀ : PGL p) • Projectivization.mk (K p) y.rep y.rep_nonzero =
+    have h_fix : (QuotientGroup.mk g₀ : PGLOf (K p)) • Projectivization.mk (K p) y.rep y.rep_nonzero =
         Projectivization.mk (K p) y.rep y.rep_nonzero := by
       rw [Projectivization.mk_rep y, hg₀, hgy]
     change Projectivization.mk (K p)
@@ -270,7 +270,7 @@ lemma exists_unique_normalizedLift (g : PGL p) (y : ProjectiveLine p)
         rw [Matrix.smul_mul, Matrix.mul_smul, smul_smul, mul_inv_cancel₀ hd_ne_zero, one_smul,
             g₀.inv_val] }
 
-  have hg'_mk : (QuotientGroup.mk g' : PGL p) = g := by
+  have hg'_mk : (QuotientGroup.mk g' : PGLOf (K p)) = g := by
     rw [← hg₀, QuotientGroup.eq, Subgroup.mem_center_iff]
     intro M
     apply Units.ext
@@ -293,8 +293,8 @@ lemma exists_unique_normalizedLift (g : PGL p) (y : ProjectiveLine p)
   rintro g'' ⟨hg''_mk, hg''_y⟩
   let z := g'' * g'⁻¹
 
-  have hz_mk : (QuotientGroup.mk z : PGL p) = 1 := by
-    change (QuotientGroup.mk g'' : PGL p) * (QuotientGroup.mk g' : PGL p)⁻¹ = 1
+  have hz_mk : (QuotientGroup.mk z : PGLOf (K p)) = 1 := by
+    change (QuotientGroup.mk g'' : PGLOf (K p)) * (QuotientGroup.mk g' : PGLOf (K p))⁻¹ = 1
     rw [hg''_mk, hg'_mk, mul_inv_cancel]
   obtain ⟨c, hz_val⟩ := h_z_scalar z hz_mk
 
@@ -323,17 +323,17 @@ lemma exists_unique_normalizedLift (g : PGL p) (y : ProjectiveLine p)
   _ = g'.val := one_smul _ _
 omit h_odd in
 
-lemma pairStabilizer_isCyclic (G : Subgroup (PGL p)) [Fintype G]
+lemma pairStabilizer_isCyclic (G : Subgroup (PGLOf (K p))) [Fintype G]
     (x y : ProjectiveLine p) (hxy : x ≠ y) :
     IsCyclic (pairStabilizer p G x y) := by
 
   have h_norm : ∀ g : pairStabilizer p G x y, ∃ g' : GL (Fin 2) (K p),
-      (QuotientGroup.mk g' : PGL p) = (g : PGL p) ∧ g'.val.mulVec y.rep = y.rep ∧
+      (QuotientGroup.mk g' : PGLOf (K p)) = (g : PGLOf (K p)) ∧ g'.val.mulVec y.rep = y.rep ∧
       ∀ g'',
-          (QuotientGroup.mk g'' : PGL p) = (g : PGL p) → g''.val.mulVec y.rep = y.rep → g'' = g' :=
+          (QuotientGroup.mk g'' : PGLOf (K p)) = (g : PGLOf (K p)) → g''.val.mulVec y.rep = y.rep → g'' = g' :=
             by
     intro g
-    obtain ⟨g', ⟨h1, h2⟩, h3⟩ := exists_unique_normalizedLift p (g : PGL p) y g.2.2
+    obtain ⟨g', ⟨h1, h2⟩, h3⟩ := exists_unique_normalizedLift p (g : PGLOf (K p)) y g.2.2
     exact ⟨g', h1, h2, fun g'' h1' h2' ↦ h3 g'' ⟨h1', h2'⟩⟩
   choose f hf_mk hf_y hf_uniq using h_norm
 
@@ -341,7 +341,7 @@ lemma pairStabilizer_isCyclic (G : Subgroup (PGL p)) [Fintype G]
       c ≠ 0 ∧ (f g).val.mulVec x.rep = c • x.rep := by
     intro g
 
-    have h_fix : (QuotientGroup.mk (f g) : PGL p) • Projectivization.mk (K p) x.rep x.rep_nonzero =
+    have h_fix : (QuotientGroup.mk (f g) : PGLOf (K p)) • Projectivization.mk (K p) x.rep x.rep_nonzero =
         Projectivization.mk (K p) x.rep x.rep_nonzero := by
       rw [Projectivization.mk_rep x, hf_mk, g.2.1]
     change Projectivization.mk (K p)
@@ -356,8 +356,8 @@ lemma pairStabilizer_isCyclic (G : Subgroup (PGL p)) [Fintype G]
     symm
     apply hf_uniq (g₁ * g₂)
 
-    · change (QuotientGroup.mk (f g₁) : PGL p) * (QuotientGroup.mk (f g₂) : PGL p) = (g₁ : PGL p) *
-        (g₂ : PGL p)
+    · change (QuotientGroup.mk (f g₁) : PGLOf (K p)) * (QuotientGroup.mk (f g₂) : PGLOf (K p)) = (g₁ : PGLOf (K p)) *
+        (g₂ : PGLOf (K p))
       rw [hf_mk, hf_mk]
 
     · rw [Units.val_mul, ← Matrix.mulVec_mulVec, hf_y, hf_y]
@@ -374,7 +374,7 @@ lemma pairStabilizer_isCyclic (G : Subgroup (PGL p)) [Fintype G]
     symm
     apply hf_uniq 1
 
-    · change (QuotientGroup.mk 1 : PGL p) = 1; rfl
+    · change (QuotientGroup.mk 1 : PGLOf (K p)) = 1; rfl
 
     · rw [Units.val_one, Matrix.one_mulVec]
 
@@ -399,11 +399,11 @@ lemma pairStabilizer_isCyclic (G : Subgroup (PGL p)) [Fintype G]
         (by rw [hc_x, h_div, one_smul]) (by rw [hf_y, one_smul])
   exact isCyclic_of_injective_ringHom hom hom_inj
 
-lemma disjoint_fixedPairs (G : Subgroup (PGL p)) [Fintype G]
+lemma disjoint_fixedPairs (G : Subgroup (PGLOf (K p))) [Fintype G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
     (x y x' y' : ProjectiveLine p) (hxy : x ≠ y) (hx'y' : x' ≠ y')
     (hpairs : ({x, y} : Set (ProjectiveLine p)) ≠ {x', y'})
-    (g : PGL p) (hg : g ∈ G) (hg_ne : g ≠ 1)
+    (g : PGLOf (K p)) (hg : g ∈ G) (hg_ne : g ≠ 1)
     (hfx : g • x = x) (hfy : g • y = y) (hfx' : g • x' = x') (hfy' : g • y' = y') :
     False := by
   let S := Function.fixedPoints (HSMul.hSMul g : ProjectiveLine p → ProjectiveLine p)
@@ -429,7 +429,7 @@ lemma disjoint_fixedPairs (G : Subgroup (PGL p)) [Fintype G]
       · exact absurd rfl huv
   exact hpairs ((h_eq hxy hfx hfy).symm.trans (h_eq hx'y' hfx' hfy'))
 
-lemma normalizer_permutes_pair (G : Subgroup (PGL p)) [Fintype G]
+lemma normalizer_permutes_pair (G : Subgroup (PGLOf (K p))) [Fintype G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
     (x y : ProjectiveLine p) (hxy : x ≠ y)
     (n : (Subgroup.normalizer (SetLike.coe (pairStabilizer p G x y))))
@@ -443,12 +443,12 @@ lemma normalizer_permutes_pair (G : Subgroup (PGL p)) [Fintype G]
       (fun h ↦ hg_ne (Subtype.ext (Subtype.ext h))) x y hxy g.2.1 g.2.2
   have hn_mem := (Subgroup.mem_normalizer_iff.mp n.property (g : G)).mp g.property
 
-  have h_prop {z : ProjectiveLine p} (hz : (((n : G) * (g : G) * (n : G)⁻¹ : G) : PGL p) • z = z) :
+  have h_prop {z : ProjectiveLine p} (hz : (((n : G) * (g : G) * (n : G)⁻¹ : G) : PGLOf (K p)) • z = z) :
       (n : G).val⁻¹ • z ∈ ({x, y} : Set (ProjectiveLine p)) := by
     rw [← h_fix_set]
     change (g : G).val • ((n : G).val⁻¹ • z) = (n : G).val⁻¹ • z
     rw [Subgroup.coe_mul, Subgroup.coe_mul, Subgroup.coe_inv, mul_smul, mul_smul] at hz
-    rw [← one_smul (PGL p) ((g : G).val • ((n : G).val⁻¹ • z)), ← inv_mul_cancel (n : G).val,
+    rw [← one_smul (PGLOf (K p)) ((g : G).val • ((n : G).val⁻¹ • z)), ← inv_mul_cancel (n : G).val,
         mul_smul, hz]
   have hnx := h_prop hn_mem.1
   have hny := h_prop hn_mem.2
@@ -468,7 +468,7 @@ lemma normalizer_permutes_pair (G : Subgroup (PGL p)) [Fintype G]
 
     · exact absurd (by rw [← h_eq_smul hnx_y, h_eq_smul hny_y]) hxy
 
-lemma normalizer_pairStabilizer_index_le_two (G : Subgroup (PGL p)) [Fintype G]
+lemma normalizer_pairStabilizer_index_le_two (G : Subgroup (PGLOf (K p))) [Fintype G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
     (x y : ProjectiveLine p) (hxy : x ≠ y)
     (hne : ∃ g : pairStabilizer p G x y, g ≠ 1) :
@@ -520,37 +520,37 @@ lemma normalizer_pairStabilizer_index_le_two (G : Subgroup (PGL p)) [Fintype G]
     rw [H_top, Subgroup.index_top]
     omega
 
-lemma mem_pairStabilizer_of_ne_one (G : Subgroup (PGL p)) [Fintype G]
+lemma mem_pairStabilizer_of_ne_one (G : Subgroup (PGLOf (K p))) [Fintype G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
     (g : G) (hg_ne : g ≠ 1) :
     ∃ (x y : ProjectiveLine p), x ≠ y ∧ g ∈ pairStabilizer p G x y := by
 
   obtain ⟨x, y, hxy, hfp⟩ := Set.ncard_eq_two.mp <|
-    tame_ncard_fixedPoints_eq_two p G hG_tame (g : PGL p) g.property (fun h ↦ hg_ne (Subtype.ext h))
+    tame_ncard_fixedPoints_eq_two p G hG_tame (g : PGLOf (K p)) g.property (fun h ↦ hg_ne (Subtype.ext h))
   exact ⟨x, y, hxy,
     show x ∈ fixedPoints p ↑g by rw [hfp]; exact Set.mem_insert x _,
     show y ∈ fixedPoints p ↑g by rw [hfp]; exact Set.mem_insert_of_mem x (Set.mem_singleton y)⟩
 omit h_odd in
 
 @[nolint unusedArguments]
-lemma pairStabilizer_conj (G : Subgroup (PGL p)) [Fintype G]
+lemma pairStabilizer_conj (G : Subgroup (PGLOf (K p))) [Fintype G]
     (x y : ProjectiveLine p) (h : G) :
     (pairStabilizer p G x y).map (MulAut.conj h).toMonoidHom =
-    pairStabilizer p G ((h : PGL p) • x) ((h : PGL p) • y) := by
+    pairStabilizer p G ((h : PGLOf (K p)) • x) ((h : PGLOf (K p)) • y) := by
   ext g
   constructor
 
   · rintro ⟨g', hg', rfl⟩
     have h_eq (z : ProjectiveLine p)
-        (hz : (g' : PGL p) • z = z) : ((h * g' * h⁻¹ : G) : PGL p) • ((h : PGL p) • z) = (h : PGL
-            p) • z := by
+        (hz : (g' : PGLOf (K p)) • z = z) : ((h * g' * h⁻¹ : G) : PGLOf (K p)) • ((h : PGLOf (K p)) • z) =
+          (h : PGLOf (K p)) • z := by
       rw [Subgroup.coe_mul, Subgroup.coe_mul, Subgroup.coe_inv, mul_smul, inv_smul_smul, mul_smul,
           hz]
     exact ⟨h_eq x hg'.1, h_eq y hg'.2⟩
 
   · intro hg
     have h_eq (z : ProjectiveLine p)
-        (hz : (g : PGL p) • ((h : PGL p) • z) = (h : PGL p) • z) : ((h⁻¹ * (g * h) : G) : PGL p) •
+        (hz : (g : PGLOf (K p)) • ((h : PGLOf (K p)) • z) = (h : PGLOf (K p)) • z) : ((h⁻¹ * (g * h) : G) : PGLOf (K p)) •
             z = z := by
       rw [Subgroup.coe_mul, Subgroup.coe_mul, Subgroup.coe_inv, mul_smul, mul_smul, hz,
           inv_smul_smul]
@@ -558,7 +558,7 @@ lemma pairStabilizer_conj (G : Subgroup (PGL p)) [Fintype G]
       show h * (h⁻¹ * (g * h)) * h⁻¹ = g by rw [← mul_assoc h h⁻¹, mul_inv_cancel, one_mul,
           mul_assoc, mul_inv_cancel, mul_one]⟩
 
-lemma conjugate_pairStabilizer_disjoint (G : Subgroup (PGL p)) [Fintype G]
+lemma conjugate_pairStabilizer_disjoint (G : Subgroup (PGLOf (K p))) [Fintype G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
     (H₁ H₂ : Subgroup G)
     (hH₁ : ∃ x y : ProjectiveLine p, x ≠ y ∧ H₁ = pairStabilizer p G x y)
@@ -568,13 +568,13 @@ lemma conjugate_pairStabilizer_disjoint (G : Subgroup (PGL p)) [Fintype G]
     H₁.map (MulAut.conj g₁).toMonoidHom ⊓ H₂.map (MulAut.conj g₂).toMonoidHom = ⊥ := by
   obtain ⟨x₁, y₁, hxy₁, rfl⟩ := hH₁
   obtain ⟨x₂, y₂, hxy₂, rfl⟩ := hH₂
-  let x₁' := (g₁ : PGL p) • x₁
-  let y₁' := (g₁ : PGL p) • y₁
-  let x₂' := (g₂ : PGL p) • x₂
-  let y₂' := (g₂ : PGL p) • y₂
+  let x₁' := (g₁ : PGLOf (K p)) • x₁
+  let y₁' := (g₁ : PGLOf (K p)) • y₁
+  let x₂' := (g₂ : PGLOf (K p)) • x₂
+  let y₂' := (g₂ : PGLOf (K p)) • y₂
 
-  have h_inj (g : G) (x y : ProjectiveLine p) (hxy : x ≠ y) : (g : PGL p) • x ≠ (g : PGL p) • y :=
-    fun h ↦ hxy <| by rw [← inv_smul_smul (g : PGL p) x, h, inv_smul_smul]
+  have h_inj (g : G) (x y : ProjectiveLine p) (hxy : x ≠ y) : (g : PGLOf (K p)) • x ≠ (g : PGLOf (K p)) • y :=
+    fun h ↦ hxy <| by rw [← inv_smul_smul (g : PGLOf (K p)) x, h, inv_smul_smul]
   rw [pairStabilizer_conj, pairStabilizer_conj] at hne ⊢
   by_contra h_not_bot
 
@@ -586,7 +586,7 @@ lemma conjugate_pairStabilizer_disjoint (G : Subgroup (PGL p)) [Fintype G]
     exact ⟨fun hz ↦ by_contra fun hz_ne ↦ h_none ⟨z, hz, hz_ne⟩, fun h ↦ h ▸ Subgroup.one_mem _⟩
 
   have h_set_eq : ({x₁', y₁'} : Set (ProjectiveLine p)) = {x₂', y₂'} := by
-    have hg_ne_val : (g : PGL p) ≠ 1 := fun h ↦ hg_ne (Subtype.ext h)
+    have hg_ne_val : (g : PGLOf (K p)) ≠ 1 := fun h ↦ hg_ne (Subtype.ext h)
     exact (fixedPoints_determined p G hG_tame g g.property hg_ne_val x₁' y₁'
       (h_inj g₁ x₁ y₁ hxy₁) hg1.1 hg1.2).symm.trans
       (fixedPoints_determined p G hG_tame g g.property hg_ne_val x₂' y₂'
@@ -661,7 +661,7 @@ lemma finQuotientReps {α : Type*} [Fintype α] (s : Setoid α) :
       (e.symm j)))
 
 omit h_odd in
-lemma orbitPartitionConstruction (G : Subgroup (PGL p)) [Fintype G]
+lemma orbitPartitionConstruction (G : Subgroup (PGLOf (K p))) [Fintype G]
     (_hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
     (_hG_nontrivial : Nontrivial G) :
     ∃ (r : ℕ) (xrep yrep : Fin r → ProjectiveLine p),
@@ -721,7 +721,7 @@ lemma orbitPartitionConstruction (G : Subgroup (PGL p)) [Fintype G]
       exact ⟨i, g, by rw [heq_rep i] at hg; exact hg⟩,
     fun i j ⟨g, hg⟩ ↦ h_inj i j ⟨g, by rw [← heq_rep i, ← heq_rep j] at hg; exact hg.symm⟩⟩
 
-lemma orbitPartitionData (G : Subgroup (PGL p)) [Fintype G]
+lemma orbitPartitionData (G : Subgroup (PGLOf (K p))) [Fintype G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
     (hG_nontrivial : Nontrivial G) :
     ∃ (r : ℕ) (d f : Fin r → ℕ)
@@ -1467,7 +1467,7 @@ lemma r3_allF_eq_two (d f : Fin 3 → ℕ) (n : ℕ) (hn : n ≥ 2)
 
   · exact hfi
 
-lemma tame_hasCyclicPartition (G : Subgroup (PGL p)) [Fintype G]
+lemma tame_hasCyclicPartition (G : Subgroup (PGLOf (K p))) [Fintype G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
     (hG_nontrivial : Nontrivial G) :
     (∃ N : ℕ, Nat.card G = N ∧ HasCyclicPartition G [{d := N, f := 1}]) ∨
@@ -1634,7 +1634,7 @@ lemma tame_hasCyclicPartition (G : Subgroup (PGL p)) [Fintype G]
           (by rw [hnorm, hf2, hσ₀]) (by rw [hnorm, hf2, hσ₁]) (by rw [hnorm, hf2, hσ₂])
           (h_r3_disj σ) (h_r3_cover σ)
 
-theorem classification_tame_slop (G : Subgroup (PGL p)) [Fintype G]
+theorem classification_tame_slop (G : Subgroup (PGLOf (K p))) [Fintype G]
     (hG_tame : ¬ (p : ℕ) ∣ Nat.card G)
     (hG_nontrivial : Nontrivial G) :
     (IsCyclic G) ∨

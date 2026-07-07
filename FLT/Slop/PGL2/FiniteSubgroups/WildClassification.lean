@@ -16,7 +16,7 @@ public import FLT.Slop.PGL2.FiniteSubgroups.PartitionProof
 /-!
 # Dickson's classification: the wild case
 
-This file classifies the finite subgroups `G` of `PGL p = PGL₂(𝔽̄_p)` of order
+This file classifies the finite subgroups `G` of `PGLOf (K p) = PGL₂(𝔽̄_p)` of order
 divisible by `p` (the *wild* case): the main theorem `Dickson.classification_wild_slop`
 shows any such `G` is
 
@@ -56,22 +56,22 @@ noncomputable section DiagRatio
 variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]
 
 
-/-- The group homomorphism from a finite subgroup `H` of `PGL p` fixing `infinity` to `(K p)ˣ`,
+/-- The group homomorphism from a finite subgroup `H` of `PGLOf (K p)` fixing `infinity` to `(K p)ˣ`,
 sending each element to its dilation parameter. -/
 @[nolint unusedArguments]
-noncomputable def dilationHomOfFix (H : Subgroup (PGL p)) [Finite H]
-    (hH_fix : ∀ g : H, (g : PGL p) • infinity p = infinity p) :
+noncomputable def dilationHomOfFix (H : Subgroup (PGLOf (K p))) [Finite H]
+    (hH_fix : ∀ g : H, (g : PGLOf (K p)) • infinity p = infinity p) :
     H →* (K p)ˣ where
   toFun g := Units.mk0 (dilationParam p ↑g (hH_fix g)) (dilationParam_ne_zero p ↑g (hH_fix g))
   map_one' := Units.ext (dilationParam_one p (hH_fix 1))
   map_mul' g₁ g₂ := Units.ext (dilationParam_mul_eq p ↑g₁ ↑g₂ (hH_fix g₁) (hH_fix g₂) (hH_fix (g₁ * g₂)))
 
 omit h_odd in
-theorem dilationHom_ker_order (H : Subgroup (PGL p)) [Finite H]
-    (hH_fix : ∀ g : H, (g : PGL p) • infinity p = infinity p)
+theorem dilationHom_ker_order (H : Subgroup (PGLOf (K p))) [Finite H]
+    (hH_fix : ∀ g : H, (g : PGLOf (K p)) • infinity p = infinity p)
     (g : H) (hg : g ∈ (dilationHomOfFix p H hH_fix).ker) :
     orderOf g ∣ p := by
-  obtain ⟨β, hβ⟩ := (dilationParam_eq_one_iff p (g : PGL p) (hH_fix g)).mp (congr_arg Units.val hg)
+  obtain ⟨β, hβ⟩ := (dilationParam_eq_one_iff p (g : PGLOf (K p)) (hH_fix g)).mp (congr_arg Units.val hg)
   have h_order_translation : ∀ n : ℕ, (translationPGL p β) ^ n = translationPGL p (n • β) := by
     intro n
     induction n with
@@ -83,12 +83,12 @@ theorem dilationHom_ker_order (H : Subgroup (PGL p)) [Finite H]
       rw [nsmul_eq_mul, nsmul_eq_mul, Nat.cast_add, Nat.cast_one]
       ring
   rw [orderOf_dvd_iff_pow_eq_one, Subtype.ext_iff]
-  change (g : PGL p) ^ p = 1
+  change (g : PGLOf (K p)) ^ p = 1
   rw [hβ, h_order_translation, show p • β = 0 by rw [nsmul_eq_mul, CharP.cast_eq_zero (K p) p, zero_mul], translationPGL_zero p]
 
 omit h_odd in
-theorem fixes_infinity_coprime_isCyclic (H : Subgroup (PGL p)) [Finite H]
-    (hH_fix : ∀ g : H, (g : PGL p) • infinity p = infinity p)
+theorem fixes_infinity_coprime_isCyclic (H : Subgroup (PGLOf (K p))) [Finite H]
+    (hH_fix : ∀ g : H, (g : PGLOf (K p)) • infinity p = infinity p)
     (hH_coprime : Nat.Coprime (Nat.card H) p) :
     IsCyclic H := by
   let f := dilationHomOfFix p H hH_fix
@@ -136,7 +136,7 @@ abbrev partitionTerm (si zi : ℕ) : ℚ := 1 / (si : ℚ) * (1 - 1 / (zi : ℚ)
 
 
 
-theorem sylow_comm_exp_p (G : Subgroup (PGL p)) [Finite G]
+theorem sylow_comm_exp_p (G : Subgroup (PGLOf (K p))) [Finite G]
     (P : Sylow p G) :
     (∀ g h : P.toSubgroup, g * h = h * g) ∧ (∀ g : P.toSubgroup, g ^ p = 1) := by
   let H := P.toSubgroup.map G.subtype
@@ -176,38 +176,38 @@ theorem sylow_comm_exp_p (G : Subgroup (PGL p)) [Finite G]
       exact pf
     exact ⟨fun g h ↦ by rw [h_one g, h_one h], fun g ↦ by rw [h_one g, one_pow]⟩
 
-theorem group_fixes_sylow_point (G : Subgroup (PGL p)) [Finite G]
+theorem group_fixes_sylow_point (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) (hP_normal : (P : Subgroup G).Normal)
-    (g : G) : (g : PGL p) • sylowFixedPoint p G hG_p P = sylowFixedPoint p G hG_p P := by
+    (g : G) : (g : PGLOf (K p)) • sylowFixedPoint p G hG_p P = sylowFixedPoint p G hG_p P := by
   let H := (P : Subgroup G).map (Subgroup.subtype G)
   let x := sylowFixedPoint p G hG_p P
   have hx_spec := (sylow_unique_fixedPoint p G hG_p P).choose_spec
-  have h_conj_fixedPoint : ∀ h ∈ H, h • ((g : PGL p) • x) = (g : PGL p) • x := by
+  have h_conj_fixedPoint : ∀ h ∈ H, h • ((g : PGLOf (K p)) • x) = (g : PGLOf (K p)) • x := by
     intro h hh
     obtain ⟨h', hh', rfl⟩ := Subgroup.mem_map.mp hh
-    have hk : (g : PGL p)⁻¹ * (h' : PGL p) * (g : PGL p) ∈ H :=
+    have hk : (g : PGLOf (K p))⁻¹ * (h' : PGLOf (K p)) * (g : PGLOf (K p)) ∈ H :=
       Subgroup.mem_map_of_mem (Subgroup.subtype G) (inv_inv g ▸ hP_normal.conj_mem h' hh' g⁻¹)
-    have h_mul : (h' : PGL p) * (g : PGL p) = (g : PGL p) * ((g : PGL p)⁻¹ * (h' : PGL p) * (g : PGL p)) := by
-      rw [mul_assoc (g : PGL p)⁻¹, mul_inv_cancel_left]
-    change (h' : PGL p) • ((g : PGL p) • x) = (g : PGL p) • x
+    have h_mul : (h' : PGLOf (K p)) * (g : PGLOf (K p)) = (g : PGLOf (K p)) * ((g : PGLOf (K p))⁻¹ * (h' : PGLOf (K p)) * (g : PGLOf (K p))) := by
+      rw [mul_assoc (g : PGLOf (K p))⁻¹, mul_inv_cancel_left]
+    change (h' : PGLOf (K p)) • ((g : PGLOf (K p)) • x) = (g : PGLOf (K p)) • x
     rw [← mul_smul, h_mul, mul_smul]
     exact congrArg _ (hx_spec.1 _ hk)
-  exact hx_spec.2 ((g : PGL p) • x) h_conj_fixedPoint
+  exact hx_spec.2 ((g : PGLOf (K p)) • x) h_conj_fixedPoint
 
 omit h_odd in
-theorem fixes_point_coprime_isCyclic (H : Subgroup (PGL p)) [Finite H]
+theorem fixes_point_coprime_isCyclic (H : Subgroup (PGLOf (K p))) [Finite H]
     (x : ProjectiveLine p)
-    (hH_fix : ∀ g : H, (g : PGL p) • x = x)
+    (hH_fix : ∀ g : H, (g : PGLOf (K p)) • x = x)
     (hH_coprime : Nat.Coprime (Nat.card H) p) :
     IsCyclic H := by
-  obtain ⟨c, hc⟩ : ∃ c : PGL p, c • x = infinity p := exists_smul_eq_infinity p x
+  obtain ⟨c, hc⟩ : ∃ c : PGLOf (K p), c • x = infinity p := exists_smul_eq_infinity p x
   let e := MulEquiv.subgroupMap (MulAut.conj c) H
   let H' := H.map (MulAut.conj c).toMonoidHom
   haveI : Finite H' := Finite.of_equiv H e.toEquiv
-  have hH'_fix : ∀ g : H', (g : PGL p) • infinity p = infinity p := by
+  have hH'_fix : ∀ g : H', (g : PGLOf (K p)) • infinity p = infinity p := by
     intro ⟨g, hg⟩
     obtain ⟨h, hh, rfl⟩ := Subgroup.mem_map.mp hg
-    have heq : (c * h * c⁻¹ : PGL p) • c • x = c • x := by
+    have heq : (c * h * c⁻¹ : PGLOf (K p)) • c • x = c • x := by
       rw [← mul_smul, inv_mul_cancel_right, mul_smul, hH_fix ⟨h, hh⟩]
     exact hc ▸ heq
   have h_card : Nat.card H = Nat.card H' := Nat.card_congr e.toEquiv
@@ -215,7 +215,7 @@ theorem fixes_point_coprime_isCyclic (H : Subgroup (PGL p)) [Finite H]
     fixes_infinity_coprime_isCyclic p H' hH'_fix (h_card ▸ hH_coprime)
 
 omit h_odd in
-theorem complement_order_coprime (G : Subgroup (PGL p)) [Finite G]
+theorem complement_order_coprime (G : Subgroup (PGLOf (K p))) [Finite G]
     (P : Sylow p G)
     (K : Subgroup G) (hK : P.toSubgroup.IsComplement' K) :
     Nat.Coprime (Nat.card K) p := by
@@ -227,7 +227,7 @@ theorem complement_order_coprime (G : Subgroup (PGL p)) [Finite G]
     Nat.pow_succ_factorization_not_dvd Nat.card_pos.ne' (Fact.out : Nat.Prime p) <|
       h_card_G.symm ▸ mul_dvd_mul_left _ h
 
-theorem complement_isCyclic (G : Subgroup (PGL p)) [Finite G]
+theorem complement_isCyclic (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G) (hP_normal : (P : Subgroup G).Normal)
     (K : Subgroup G) (hK : P.toSubgroup.IsComplement' K) :
     IsCyclic K := by
@@ -235,7 +235,8 @@ theorem complement_isCyclic (G : Subgroup (PGL p)) [Finite G]
   let e : K ≃* K' := Subgroup.equivMapOfInjective K G.subtype Subtype.coe_injective
   haveI : Finite K' := Finite.of_equiv K e.toEquiv
   let x := sylowFixedPoint p G hG_p P
-  have hK'_fix : ∀ g : K', (g : PGL p) • x = x := fun ⟨_, hg⟩ ↦ by
+  -- `Dickson.K` is written out in full here because the local complement `K` shadows it
+  have hK'_fix : ∀ g : K', (g : PGLOf (Dickson.K p)) • x = x := fun ⟨_, hg⟩ ↦ by
     obtain ⟨k, _, rfl⟩ := Subgroup.mem_map.mp hg
     exact group_fixes_sylow_point p G hG_p P hP_normal k
   exact (MulEquiv.isCyclic e).mpr <|
@@ -259,7 +260,7 @@ theorem semidirect_of_complement_iso
   ⟨_, ⟨(SemidirectProduct.mulEquivSubgroup hc).symm.trans (SemidirectProduct.congr' fN fK)⟩⟩
 
 
-theorem branch1_semidirect (G : Subgroup (PGL p)) [Finite G]
+theorem branch1_semidirect (G : Subgroup (PGLOf (K p))) [Finite G]
     (P : Sylow p G) (hP_normal : (P : Subgroup G).Normal)
     (hG_p : p ∣ Nat.card G) :
     ∃ (m t : ℕ) (_ : m ≥ 1) (_ : Nat.Coprime t p) (_ : t ∣ p ^ m - 1)
@@ -342,7 +343,7 @@ theorem branch2a_constraints
     exact ⟨hpm_eq, rfl, Nat.cast_inj.mp <| inv_inj.mp hn_inv_eq⟩
 
 omit h_odd in
-theorem recognition_A4 (G : Subgroup (PGL p))
+theorem recognition_A4 (G : Subgroup (PGLOf (K p)))
     [hfin : Finite G] (hp3 : p = 3) (hn : Nat.card G = 12)
     (hn3 : Fintype.card (Sylow p G) = 4) :
     Nonempty (G ≃* alternatingGroup (Fin 4)) := by
@@ -387,7 +388,7 @@ theorem recognition_A4 (G : Subgroup (PGL p))
 
 
 theorem pgl_unique_index_two_subgroup (m : ℕ) (hm : m ≥ 1) (hpm : p ^ m ≥ 5)
-    (H : Subgroup (PGL p))
+    (H : Subgroup (PGLOf (K p)))
     (hH_le : H ≤ (pglMap (galoisFieldRingHom (p := p) m)).range)
     (hH_card : Nat.card H = p ^ m * (p ^ (2 * m) - 1) / 2) :
     Nonempty (H ≃* Matrix.ProjectiveSpecialLinearGroup (Fin 2) (GaloisField p m)) := by
@@ -429,7 +430,7 @@ theorem m_ge_one_of_pow_ge_three (m : ℕ) (hm : p ^ m ≥ 3) : m ≥ 1 := by
   · exact absurd hm (Nat.not_le_of_gt (Nat.le.step Nat.le.refl))
   · exact Nat.succ_pos _
 
-theorem recognition_PSL_iso (G : Subgroup (PGL p))
+theorem recognition_PSL_iso (G : Subgroup (PGLOf (K p)))
     [Finite G] (m : ℕ) (hm : p ^ m ≥ 5)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1) / 2) :
     Nonempty (G ≃* Matrix.ProjectiveSpecialLinearGroup (Fin 2) (GaloisField p m)) := by
@@ -439,7 +440,7 @@ theorem recognition_PSL_iso (G : Subgroup (PGL p))
     rw [← Nat.card_congr (G.equivMapOfInjective (MulEquiv.toMonoidHom (MulAut.conj g)) (MulEquiv.injective _)).toEquiv, hn])
   exact ⟨(G.equivMapOfInjective _ (MulEquiv.injective _)).trans iso'⟩
 
-theorem recognition_PGL_iso (G : Subgroup (PGL p))
+theorem recognition_PGL_iso (G : Subgroup (PGLOf (K p)))
     [Finite G] (m : ℕ) (hm : p ^ m ≥ 3)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1)) :
     Nonempty (G ≃* (GL (Fin 2) (GaloisField p m) ⧸
@@ -455,7 +456,7 @@ theorem recognition_PGL_iso (G : Subgroup (PGL p))
   exact ⟨(Subgroup.equivMapOfInjective G _ (MulEquiv.injective _)).trans <|
     (MulEquiv.subgroupCongr hg).trans h_pgl_iso_H.symm⟩
 
-theorem recognition_PSL_pm3 (G : Subgroup (PGL p))
+theorem recognition_PSL_pm3 (G : Subgroup (PGLOf (K p)))
     [Finite G] (hp3 : p = 3)
     (hn : Nat.card G = 12)
     (hn3 : Fintype.card (Sylow p G) = 4) :
@@ -466,7 +467,7 @@ theorem recognition_PSL_pm3 (G : Subgroup (PGL p))
   exact ⟨isoA4.trans isoPSL⟩
 
 omit h_odd in
-theorem sylow_count_of_order_12 (G : Subgroup (PGL p))
+theorem sylow_count_of_order_12 (G : Subgroup (PGLOf (K p)))
     [Finite G] (hp3 : p = 3)
     (hn : Nat.card G = 12)
     (hn_p_gt1 : Fintype.card (Sylow p G) > 1) :
@@ -500,7 +501,7 @@ theorem sylow_count_of_order_12 (G : Subgroup (PGL p))
   · rfl
 
 
-theorem recognition_PSL_general (G : Subgroup (PGL p))
+theorem recognition_PSL_general (G : Subgroup (PGLOf (K p)))
     [Finite G] (m : ℕ) (hm : p ^ m ≥ 3)
     (hn : Nat.card G = p ^ m * (p ^ (2 * m) - 1) / 2)
     (hG_p : p ∣ Nat.card G)
@@ -527,7 +528,7 @@ theorem recognition_PSL_general (G : Subgroup (PGL p))
 
 
 theorem partition_equation
-    (G : Subgroup (PGL p)) [Finite G]
+    (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G)
     (P : Sylow p G)
     (hn_p_gt1 : Fintype.card (Sylow p G) > 1) :
@@ -589,7 +590,7 @@ theorem partition_equation
       field_simp [hpm_pos, hz1_pos, hnp_pos]
       ring
 
-theorem dickson_branch2_z1_eq_1 (G : Subgroup (PGL p)) [Finite G]
+theorem dickson_branch2_z1_eq_1 (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G)
     (hn_p_gt1 : Fintype.card (Sylow p G) > 1)
     (pm z1 n r : ℕ) (z : Fin r → ℕ) (s : Fin r → ℕ)
@@ -635,7 +636,7 @@ theorem dickson_branch2_z1_eq_1 (G : Subgroup (PGL p)) [Finite G]
   · exact hn_p_gt1
 
 
-theorem dickson_branch2_z1_ge_2 (G : Subgroup (PGL p)) [Finite G]
+theorem dickson_branch2_z1_ge_2 (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) (P : Sylow p G)
     (hn_p_gt1 : Fintype.card (Sylow p G) > 1)
     (pm : ℕ) (hpm_eq : pm = Nat.card P) (hpm : pm ≥ 3):
@@ -690,7 +691,7 @@ theorem dickson_branch2_z1_ge_2 (G : Subgroup (PGL p)) [Finite G]
       h.1 ▸ (h_pow ▸ dvd_pow_self p fun hm ↦ by rw [hm, pow_zero] at h_pow; linarith only [h.1, h_pow])
     exact Or.inr <| Or.inr <| Or.inr ⟨hp_eq_3, recognition_A5_proof p G hp_eq_3 (by rw [card_eq_pm_z1_np' p G P, h.1, h.2.1, h.2.2]) h.2.2⟩
 
-theorem classification_wild_slop (G : Subgroup (PGL p)) [Finite G]
+theorem classification_wild_slop (G : Subgroup (PGLOf (K p))) [Finite G]
     (hG_p : p ∣ Nat.card G) :
     (∃ (m t : ℕ) (_ : m ≥ 1) (_ : Nat.Coprime t p) (_ : t ∣ p ^ m - 1)
       (φ : Multiplicative (ZMod t) →* MulAut (Multiplicative (Fin m → ZMod p))),

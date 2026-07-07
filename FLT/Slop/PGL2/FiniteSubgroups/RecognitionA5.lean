@@ -13,13 +13,13 @@ public import FLT.Slop.PGL2.FiniteSubgroups.PGLBasic
 # Recognition of `A₅` inside `PGL₂(𝔽̄_p)`
 
 This file proves `Dickson.recognition_A5`-style results: a finite subgroup of
-`PGL p = PGL₂(𝔽̄_p)` of order 60 satisfying the constraints arising in the wild case
+`PGLOf (K p) = PGL₂(𝔽̄_p)` of order 60 satisfying the constraints arising in the wild case
 of Dickson's classification is isomorphic to the alternating group `A₅`.
 
 The proof is the classical Sylow-theoretic argument that a group of order 60 with no
 normal Sylow subgroups is simple, hence isomorphic to `A₅` (via the action on the five
 Sylow 2-subgroups / cosets argument), combined with the dichotomy
-`Dickson.element_dichotomy` for elements of a finite subgroup of `PGL p`: every
+`Dickson.element_dichotomy` for elements of a finite subgroup of `PGLOf (K p)`: every
 element either has order `p` or has order coprime to `p`.
 -/
 
@@ -75,23 +75,23 @@ variable (p : ℕ) [Fact (Nat.Prime p)] [h_odd : Fact (p > 2)]
 
 
 omit h_odd in
-lemma commute_preserves_fixedPoint (g h : PGL p) (x : ProjectiveLine p)
+lemma commute_preserves_fixedPoint (g h : PGLOf (K p)) (x : ProjectiveLine p)
     (hcomm : g * h = h * g) (hfx : h • x = x) :
     h • (g • x) = g • x := by
   rw [← mul_smul, ← hcomm, mul_smul, hfx]
 
-lemma order_p_one_fixed_point (g : PGL p) (hg : orderOf g = p) :
+lemma order_p_one_fixed_point (g : PGLOf (K p)) (hg : orderOf g = p) :
     Set.ncard (fixedPoints p g) = 1 :=
   (fixedPoints_dichotomy p g
     (fun h ↦ Nat.Prime.ne_one Fact.out (hg.symm.trans ((congrArg orderOf h).trans orderOf_one)))
     (orderOf_pos_iff.mp (hg.symm ▸ Nat.Prime.pos Fact.out))).1.mpr hg
 
-lemma coprime_order_two_fixed_points (h : PGL p) (hh_ne : h ≠ 1)
+lemma coprime_order_two_fixed_points (h : PGLOf (K p)) (hh_ne : h ≠ 1)
     (hh_fin : IsOfFinOrder h) (hh_cop : Nat.Coprime (orderOf h) p) :
     Set.ncard (fixedPoints p h) = 2 :=
   (fixedPoints_dichotomy p h hh_ne hh_fin).2.mpr hh_cop.symm
 
-lemma two_fixed_points_contradicts_order_p (g : PGL p) (x y : ProjectiveLine p)
+lemma two_fixed_points_contradicts_order_p (g : PGLOf (K p)) (x y : ProjectiveLine p)
     (hg_order : orderOf g = p)
     (hxy : x ≠ y) (hfx : g • x = x) (hfy : g • y = y) : False :=
   let ⟨_, ha⟩ := Set.ncard_eq_one.mp (order_p_one_fixed_point p g hg_order)
@@ -99,7 +99,7 @@ lemma two_fixed_points_contradicts_order_p (g : PGL p) (x y : ProjectiveLine p)
     ((Set.eq_singleton_iff_unique_mem.mp ha).2 x hfx).trans
     ((Set.eq_singleton_iff_unique_mem.mp ha).2 y hfy).symm
 
-lemma swap_contradicts_odd_order (g : PGL p) (x y : ProjectiveLine p)
+lemma swap_contradicts_odd_order (g : PGLOf (K p)) (x y : ProjectiveLine p)
     (hg_order : orderOf g = p)
     (hxy : x ≠ y) (hswap_x : g • x = y) (hswap_y : g • y = x) : False :=
   two_fixed_points_contradicts_order_p p (g^2) x y
@@ -112,7 +112,7 @@ lemma swap_contradicts_odd_order (g : PGL p) (x y : ProjectiveLine p)
     (by rw [sq, mul_smul, hswap_x, hswap_y])
     (by rw [sq, mul_smul, hswap_y, hswap_x])
 
-theorem no_commute_p_coprime (g h : PGL p) (_ : g ≠ 1) (hh_ne : h ≠ 1)
+theorem no_commute_p_coprime (g h : PGLOf (K p)) (_ : g ≠ 1) (hh_ne : h ≠ 1)
     (hg_order : orderOf g = p) (hh_fin : IsOfFinOrder h)
     (hh_coprime : Nat.Coprime (orderOf h) p)
     (hcomm : g * h = h * g) :
@@ -127,15 +127,15 @@ theorem no_commute_p_coprime (g h : PGL p) (_ : g ≠ 1) (hh_ne : h ≠ 1)
   | Or.inr hgx, Or.inl hgy => exact swap_contradicts_odd_order p g x y hg_order hxy hgx hgy
   | Or.inr hgx, Or.inr hgy => exact absurd (MulAction.injective g (hgx.trans hgy.symm)) hxy
 
-theorem element_dichotomy (G : Subgroup (PGL p)) [Finite G]
+theorem element_dichotomy (G : Subgroup (PGLOf (K p))) [Finite G]
     (g : G) :
-    orderOf (g : PGL p) = p ∨ Nat.Coprime (orderOf (g : PGL p)) p := by
-  have hn : orderOf (g : PGL p) ≠ 0 := (isOfFinOrder_iff_pow_eq_one.mpr ⟨orderOf g,
+    orderOf (g : PGLOf (K p)) = p ∨ Nat.Coprime (orderOf (g : PGLOf (K p))) p := by
+  have hn : orderOf (g : PGLOf (K p)) ≠ 0 := (isOfFinOrder_iff_pow_eq_one.mpr ⟨orderOf g,
     orderOf_pos _, by rw [← Subgroup.coe_pow, pow_orderOf_eq_one, Subgroup.coe_one]⟩).orderOf_pos.ne'
-  obtain ⟨a, ha⟩ : ∃ a : ℕ, p ^ a ∣ orderOf (g : PGL p) ∧ ¬p ^ (a + 1) ∣ orderOf (g : PGL p) :=
+  obtain ⟨a, ha⟩ : ∃ a : ℕ, p ^ a ∣ orderOf (g : PGLOf (K p)) ∧ ¬p ^ (a + 1) ∣ orderOf (g : PGLOf (K p)) :=
     ⟨_, Nat.ordProj_dvd _ _, Nat.pow_succ_factorization_not_dvd hn Fact.out⟩
-  set b := orderOf (g : PGL p) / p ^ a
-  have hab : orderOf (g : PGL p) = p ^ a * b := (Nat.mul_div_cancel' ha.1).symm
+  set b := orderOf (g : PGLOf (K p)) / p ^ a
+  have hab : orderOf (g : PGLOf (K p)) = p ^ a * b := (Nat.mul_div_cancel' ha.1).symm
   have hb_pos : 0 < b := Nat.pos_of_ne_zero (fun h ↦ hn (by rw [hab, h, mul_zero]))
   have hb : b.Coprime p := Nat.Coprime.symm ((Fact.out : Nat.Prime p).coprime_iff_not_dvd.mpr
     (fun h ↦ ha.2 (by rw [hab, pow_succ]; exact mul_dvd_mul_left (p ^ a) h)))
@@ -146,41 +146,41 @@ theorem element_dichotomy (G : Subgroup (PGL p)) [Finite G]
   · by_cases hb_one : b = 1
     · left
       rw [hab, hb_one, pow_one, mul_one]
-    · have hgb_ord : orderOf ((g : PGL p) ^ b) = p := by
+    · have hgb_ord : orderOf ((g : PGLOf (K p)) ^ b) = p := by
         rw [orderOf_pow' _ hb_pos.ne', hab, pow_one, Nat.gcd_eq_right ⟨p, mul_comm p b⟩, Nat.mul_div_cancel _ hb_pos]
-      have hgp_ord : orderOf ((g : PGL p) ^ p) = b := by
+      have hgp_ord : orderOf ((g : PGLOf (K p)) ^ p) = b := by
         rw [orderOf_pow' _ (Fact.out : Nat.Prime p).ne_zero, hab, pow_one, Nat.gcd_eq_right ⟨b, rfl⟩, mul_comm p b, Nat.mul_div_cancel _ (Nat.Prime.pos Fact.out)]
       exfalso
-      exact no_commute_p_coprime p ((g : PGL p) ^ b) ((g : PGL p) ^ p)
+      exact no_commute_p_coprime p ((g : PGLOf (K p)) ^ b) ((g : PGLOf (K p)) ^ p)
         (fun h ↦ by rw [h, orderOf_one] at hgb_ord; exact (Fact.out : Nat.Prime p).ne_one hgb_ord.symm)
         (fun h ↦ by rw [h, orderOf_one] at hgp_ord; exact hb_one hgp_ord.symm)
         hgb_ord
         (isOfFinOrder_iff_pow_eq_one.mpr ⟨b, hb_pos, by rw [← hgp_ord, pow_orderOf_eq_one]⟩)
         (by rw [hgp_ord]; exact hb)
         (by rw [← pow_add, add_comm, pow_add])
-  · have hgb_ord : orderOf ((g : PGL p) ^ b) = p ^ (a + 2) := by
+  · have hgb_ord : orderOf ((g : PGLOf (K p)) ^ b) = p ^ (a + 2) := by
       rw [orderOf_pow' _ hb_pos.ne', hab, Nat.gcd_eq_right ⟨p ^ (a + 2), mul_comm (p ^ (a + 2)) b⟩, Nat.mul_div_cancel _ hb_pos]
-    haveI : Finite (Subgroup.zpowers ((g : PGL p) ^ b)) :=
+    haveI : Finite (Subgroup.zpowers ((g : PGLOf (K p)) ^ b)) :=
       Nat.finite_of_card_ne_zero (by rw [Nat.card_zpowers, hgb_ord]; exact (pow_pos (Nat.Prime.pos Fact.out) _).ne')
-    haveI : IsCyclic (Subgroup.zpowers ((g : PGL p) ^ b)) :=
-      ⟨⟨⟨(g : PGL p) ^ b, Subgroup.mem_zpowers _⟩, fun ⟨x, hx⟩ ↦ by
+    haveI : IsCyclic (Subgroup.zpowers ((g : PGLOf (K p)) ^ b)) :=
+      ⟨⟨⟨(g : PGLOf (K p)) ^ b, Subgroup.mem_zpowers _⟩, fun ⟨x, hx⟩ ↦ by
         obtain ⟨k, hk⟩ := Subgroup.mem_zpowers_iff.mp hx; exact ⟨k, Subtype.ext hk⟩⟩⟩
-    have hpgrp : IsPGroup p (Subgroup.zpowers ((g : PGL p) ^ b)) := fun ⟨x, hx⟩ ↦
+    have hpgrp : IsPGroup p (Subgroup.zpowers ((g : PGLOf (K p)) ^ b)) := fun ⟨x, hx⟩ ↦
       ⟨a + 2, Subtype.ext (orderOf_dvd_iff_pow_eq_one.mp (hgb_ord ▸ orderOf_dvd_of_mem_zpowers hx))⟩
     have hdvd : p ^ (a + 2) ∣ p := by
       rw [← hgb_ord, ← Nat.card_zpowers, ← IsCyclic.exponent_eq_card]
-      exact isPGroup_exponent_dvd_prime p (Subgroup.zpowers ((g : PGL p) ^ b)) hpgrp
+      exact isPGroup_exponent_dvd_prime p (Subgroup.zpowers ((g : PGLOf (K p)) ^ b)) hpgrp
     have h_p_lt_pa : p < p ^ (a + 2) := by
       calc p = p ^ 1 := (pow_one p).symm
            _ < p ^ (a + 2) := Nat.pow_lt_pow_right (Fact.out : Nat.Prime p).one_lt (Nat.succ_lt_succ (Nat.zero_lt_succ a))
     exact absurd (Nat.le_of_dvd (Nat.Prime.pos Fact.out) hdvd) (not_le_of_gt h_p_lt_pa)
 
-theorem element_partition_count (G : Subgroup (PGL p)) [Finite G] :
+theorem element_partition_count (G : Subgroup (PGLOf (K p))) [Finite G] :
     Nat.card G - 1 =
-      Nat.card {g : G | g ≠ 1 ∧ orderOf (g : PGL p) = p} +
-      Nat.card {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGL p)) p} := by
-  have h_disj : Disjoint {g : G | g ≠ 1 ∧ orderOf (g : PGL p) = p}
-                         {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGL p)) p} := by
+      Nat.card {g : G | g ≠ 1 ∧ orderOf (g : PGLOf (K p)) = p} +
+      Nat.card {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGLOf (K p))) p} := by
+  have h_disj : Disjoint {g : G | g ≠ 1 ∧ orderOf (g : PGLOf (K p)) = p}
+                         {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGLOf (K p))) p} := by
     simp only [Set.disjoint_left, Set.mem_setOf_eq]
     rintro g ⟨_, h1⟩ ⟨_, h2⟩
     rw [h1] at h2
@@ -189,8 +189,8 @@ theorem element_partition_count (G : Subgroup (PGL p)) [Finite G] :
     let e : {g : G | g = 1} ⊕ {g : G | g ≠ 1} ≃ G := Equiv.sumCompl (fun g ↦ g = 1)
     haveI : Unique {g : G | g = 1} := ⟨⟨⟨1, rfl⟩⟩, fun ⟨g, hg⟩ ↦ Subtype.ext hg⟩
     rw [← Nat.card_congr e, Nat.card_sum, Nat.card_unique]
-  have h_set : {g : G | g ≠ 1} = {g : G | g ≠ 1 ∧ orderOf (g : PGL p) = p} ∪
-                                 {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGL p)) p} := by
+  have h_set : {g : G | g ≠ 1} = {g : G | g ≠ 1 ∧ orderOf (g : PGLOf (K p)) = p} ∪
+                                 {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGLOf (K p))) p} := by
     ext g
     simp only [Set.mem_setOf_eq, Set.mem_union, ← and_or_left]
     exact (and_iff_left (element_dichotomy p G g)).symm
@@ -302,7 +302,7 @@ lemma sylow_5_options (G : Type*) [Group G] [Finite G]
   interval_cases k <;> (revert h_div12; rw [hk]; norm_num)
 
 
-lemma sylow_5_not_one (G : Subgroup (PGL p))
+lemma sylow_5_not_one (G : Subgroup (PGLOf (K p)))
     [Finite G] (hp3 : p = 3)
     (hn : Nat.card G = 60) (hn3 : Fintype.card (Sylow p G) = 10)
     : Fintype.card (Sylow 5 G) ≠ 1 := by
@@ -321,11 +321,11 @@ lemma sylow_5_not_one (G : Subgroup (PGL p))
     obtain ⟨q', hq_gen⟩ := (isCyclic_of_prime_card hQ_card).exists_generator
     exact ⟨q', q'.2, by rw [Subgroup.orderOf_coe, orderOf_eq_card_of_forall_mem_zpowers hq_gen, hQ_card]⟩
 
-  have hg_ord : orderOf (g : PGL p) = 3 := by rw [Subgroup.orderOf_coe, hg]
-  have hq_ord_PGL : orderOf (q : PGL p) = 5 := by rw [Subgroup.orderOf_coe, hq_ord]
+  have hg_ord : orderOf (g : PGLOf (K p)) = 3 := by rw [Subgroup.orderOf_coe, hg]
+  have hq_ord_PGL : orderOf (q : PGLOf (K p)) = 5 := by rw [Subgroup.orderOf_coe, hq_ord]
 
   exfalso
-  exact no_commute_p_coprime p (g : PGL p) (q : PGL p)
+  exact no_commute_p_coprime p (g : PGLOf (K p)) (q : PGLOf (K p))
     (fun h ↦ by rw [h, orderOf_one] at hg_ord; norm_num at hg_ord)
     (fun h ↦ by rw [h, orderOf_one] at hq_ord_PGL; norm_num at hq_ord_PGL)
     (by rw [hg_ord, hp3])
@@ -881,7 +881,7 @@ lemma is_simple_60_aux {G : Type*} [Group G] [Finite G] [Nontrivial G]
                  (Nat.prime_five.coprime_iff_not_dvd.mpr hN_div_5).symm⟩
         exact normal_divides_4_eq_bot hn hn3 N (h_cop.dvd_of_dvd_mul_right (show Nat.card N ∣ 4 * 15 from h_dvd)) hN_ne_bot
 
-theorem is_simple_60 (G : Subgroup (PGL p))
+theorem is_simple_60 (G : Subgroup (PGLOf (K p)))
     [Finite G] (hp3 : p = 3)
     (hn : Nat.card G = 60) (hn3 : Fintype.card (Sylow p G) = 10) :
     IsSimpleGroup G :=
@@ -973,7 +973,7 @@ theorem simple_60_is_A5 (G : Type*) [Group G] [Finite G]
   exact ⟨(h_iso_range.trans (MulEquiv.subgroupCongr (Equiv.Perm.eq_alternatingGroup_of_index_eq_two h_index))).trans
     (Fintype.equivOfCardEq ((simple_60_n2_eq_5 G hn hs).trans (Fintype.card_fin 5).symm)).altCongrHom⟩
 
-theorem recognition_A5_proof (G : Subgroup (PGL p))
+theorem recognition_A5_proof (G : Subgroup (PGLOf (K p)))
     [Finite G] (hp3 : p = 3)
     (hn : Nat.card G = 60) (hn3 : Fintype.card (Sylow p G) = 10) :
     Nonempty (G ≃* alternatingGroup (Fin 5)) :=
