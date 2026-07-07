@@ -5,8 +5,8 @@ Authors: Andrew Yang
 -/
 module
 
+public import FLT.Mathlib.Topology.Algebra.ContinuousSMulDiscrete
 public import Mathlib.RingTheory.Frobenius
-public import FLT.Deformations.RepresentationTheory.ContinuousSMulDiscrete
 import Mathlib.RingTheory.Invariant.Profinite
 
 /-!
