@@ -53,37 +53,6 @@ For a fixed `s : G`, and `D` ranging over the double cosets `H\G/L`:
 **Main statement** (`Mackey.mackey`): there is an equivalence of `L`-representations
 `e : ⨁_D Ind_{L_{s_D}}^L (V^{s_D}) ≃ Res_L Ind_H^G V` with `e (ι_D [l, v]) = [s_D * l, v]`.
 
-**Pen-and-paper form** (`Mackey.mackey_equiv`): the same equivalence for an *arbitrary*
-choice of representatives `σ`, with no map named. `index_two` is proved from it
-(choose `σ D = 1` once `K\G/J` is a singleton), together with the glue equivalences
-`directSum_unique_equiv` and `indTwisted_one`.
-
-## Correspondence with `Mackey.lean`
-
-| `Mackey.lean` | here | change |
-| --- | --- | --- |
-| `twistedRep` | `twisted` | explicit, computable; no `hφ`, no `ofInjective` |
-| `twisted_rep` (sorried) | `twisted_apply` | now true by `rfl` |
-| `mackeyDirectSum` | `mackeySum` | no `letI` block, no section `σ` |
-| `universal_property` | `existsUnique_indLift`, `indV_mk_eq` | split; converse on generators |
-| `index_two_singleton` | `subsingleton_cosets_of_index_two`, `exists_mul_eq_of_index_two` | split |
-| `double_coset_closure` | `mul_mem_doubleCoset`, `mul_inv_mem_doubleCoset` | conjunction split |
-| `L_action_cosets` | `exists_rightCosetAction` | action packaged as `L →* Equiv.Perm _` |
-| `G_action` | `ind_ext` | |
-| `theta_def` | `existsUnique_theta` | |
-| `thetaSum` | `theta` | value lemma `theta_of` is proved, not sorried |
-| `theta_equivariant` | `theta_component_equivariant` | |
-| `independence` | `independence` | |
-| `pi_def` | `existsUnique_pi` | no `letI`, no `(σ, hσ)` |
-| `piMap` | `pi` | value lemma `pi_mk` is proved, not sorried |
-| `pi_theta` / `theta_pi` | `pi_comp_theta` / `theta_comp_pi` | as `LinearMap` equalities |
-| `mackey` | `theta_intertwines` + `mackey` | a `Representation.Equiv` with prescribed values |
-| `index_two`, `index_two_character` | same names | now both *proved*; `P = K ⊓ J` |
-
-Everywhere, the section `σ : H\G/L → G` with `hσ : ∀ D, ⟦σ D⟧ = D` is replaced by the
-canonical representative `Quotient.out`, so those two arguments disappear from every
-signature — except in `mackey_equiv`, whose pen-and-paper statement deliberately
-quantifies over all representative systems (that generality is what `index_two` uses).
 -/
 
 @[expose] public section
