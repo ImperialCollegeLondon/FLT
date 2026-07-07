@@ -587,7 +587,7 @@ lemma order_30_unique_sylow_5 {G : Type*} [Group G] [Finite G]
       exact ((le_antisymm (by
         have : k ≤ 1 := by by_contra h; exact absurd (dvd_trans (pow_dvd_pow 5 (not_le.mp h)) (hk ▸ hn ▸ Subgroup.card_subgroup_dvd_card Q)) (by norm_num)
         interval_cases k <;> rw [hk] <;> norm_num) (by
-        rw [← hP5'_card]; exact Nat.card_mono (Set.toFinite (Q : Set G)) (show _ ⊆ _ from hQ')) : Nat.card Q = 5).trans hP5'_card.symm).le
+        rw [← hP5'_card]; exact Nat.card_mono (Set.toFinite (Q : Set G)) (SetLike.coe_subset_coe.mpr hQ')) : Nat.card Q = 5).trans hP5'_card.symm).le
     ))
 
   obtain ⟨P₅'', hP₅''⟩ : ∃ P₅'' : Sylow 5 G, (P₅''.toSubgroup).Normal :=
@@ -639,7 +639,7 @@ lemma order_30_unique_sylow_3 {G : Type*} [Group G] [Finite G]
       exact ((le_antisymm (by
         have : k ≤ 1 := by by_contra h; exact absurd (dvd_trans (pow_dvd_pow 3 (not_le.mp h)) (hk ▸ hn ▸ Subgroup.card_subgroup_dvd_card Q)) (by norm_num)
         interval_cases k <;> rw [hk] <;> norm_num) (by
-        rw [← hP3'_card]; exact Nat.card_mono (Set.toFinite (Q : Set G)) (show _ ⊆ _ from hQ')) : Nat.card Q = 3).trans hP3'_card.symm).le
+        rw [← hP3'_card]; exact Nat.card_mono (Set.toFinite (Q : Set G)) (SetLike.coe_subset_coe.mpr hQ')) : Nat.card Q = 3).trans hP3'_card.symm).le
     ))
 
   obtain ⟨P₃'', hP₃''⟩ : ∃ P₃'' : Sylow 3 G, (P₃''.toSubgroup).Normal :=
