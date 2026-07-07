@@ -14,6 +14,8 @@ import Mathlib.Topology.Algebra.Group.Basic
 The typeclass `ContinuousSMulDiscrete G M`, expressing that a `G`-action on
 a (potentially untopologized) `M` is *discretely continuous*: every stabiliser
 is open. Equivalent to `ContinuousSMul` once `M` is given the discrete topology.
+
+Material destined for Mathlib.
 -/
 
 @[expose] public section
