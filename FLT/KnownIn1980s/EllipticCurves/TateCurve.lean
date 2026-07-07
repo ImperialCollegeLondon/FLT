@@ -155,6 +155,12 @@ omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
 theorem TateCurve.valuation_intCast_le_one (m : ℤ) : valuation k (m : k) ≤ 1 :=
   (Valuation.mem_integer_iff _ _).mp (intCast_mem 𝒪[k] m)
 
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- Natural numbers have valuation at most `1`. -/
+theorem TateCurve.valuation_natCast_le_one (n : ℕ) : valuation k (n : k) ≤ 1 := by
+  rw [show ((n : k)) = ((n : ℤ) : k) by push_cast; ring]
+  exact valuation_intCast_le_one _
+
 /-- Powers of an element of the open unit disc become arbitrarily small. This is where the
 rank-one hypothesis on the value group enters (via mathlib's strictly monotone embedding
 into `ℝ≥0`, where the statement is the usual archimedean one): an abstract value group of
@@ -168,6 +174,45 @@ theorem TateCurve.exists_pow_valuation_lt (q : k) (hq : valuation k q < 1)
       (show 0 < s.emb γ from by simpa using s.strictMono (zero_lt_iff.mpr γ.ne_zero))
       (show s.emb (valuation k q) < 1 from by simpa using s.strictMono hq)
     exact ⟨N, s.strictMono.lt_iff_lt.mp (by rwa [map_pow])⟩
+
+/-- Any unit of `k` can be moved into the annulus `|q| < |·| ≤ 1` by a power of `q`:
+a fundamental domain for the action of `qᶻ` on `kˣ`. As with
+`exists_pow_valuation_lt`, this is where the rank-one hypothesis enters, through the
+strictly monotone embedding of the value group into `ℝ≥0` and the archimedean property
+`exists_mem_Ioc_zpow` there. -/
+theorem TateCurve.exists_zpow_mul_mem_annulus (q : kˣ) (hq : valuation k (q : k) < 1)
+    (u : kˣ) : ∃ m : ℤ, valuation k (q : k) < valuation k ((q : k) ^ m * (u : k)) ∧
+      valuation k ((q : k) ^ m * (u : k)) ≤ 1 := by
+  obtain ⟨s⟩ := ValuativeRel.IsRankLeOne.nonempty (R := k)
+  set β := s.emb (valuation k (q : k)) with hβ
+  set α := s.emb (valuation k (u : k)) with hα
+  have hβ0 : 0 < β := by
+    have h : valuation k (q : k) ≠ 0 := (valuation k).ne_zero_iff.mpr (Units.ne_zero q)
+    simpa [hβ] using s.strictMono (zero_lt_iff.mpr h)
+  have hβ1 : β < 1 := by simpa [hβ] using s.strictMono hq
+  have hα0 : 0 < α := by
+    have h : valuation k (u : k) ≠ 0 := (valuation k).ne_zero_iff.mpr (Units.ne_zero u)
+    simpa [hα] using s.strictMono (zero_lt_iff.mpr h)
+  obtain ⟨n, hn⟩ := exists_mem_Ioc_zpow hα0 ((one_lt_inv₀ hβ0).mpr hβ1)
+  have hn1 : β ^ (-n) < α := by
+    have := hn.1
+    rwa [inv_zpow, ← zpow_neg] at this
+  have hn2 : α ≤ β ^ (-(n + 1)) := by
+    have := hn.2
+    rwa [inv_zpow, ← zpow_neg] at this
+  refine ⟨n + 1, ?_, ?_⟩
+  · rw [map_mul, map_zpow₀]
+    refine s.strictMono.lt_iff_lt.mp ?_
+    rw [map_mul, map_zpow₀]
+    calc β = β ^ (n + 1) * β ^ (-n) := by
+          rw [← zpow_add₀ hβ0.ne', show n + 1 + -n = 1 by ring, zpow_one]
+      _ < β ^ (n + 1) * α := mul_lt_mul_of_pos_left hn1 (zpow_pos hβ0 _)
+  · rw [map_mul, map_zpow₀]
+    refine s.strictMono.le_iff_le.mp ?_
+    rw [map_mul, map_zpow₀, map_one]
+    calc β ^ (n + 1) * α ≤ β ^ (n + 1) * β ^ (-(n + 1)) :=
+          mul_le_mul_of_nonneg_left hn2 (zpow_pos hβ0 _).le
+      _ = 1 := by rw [← zpow_add₀ hβ0.ne', show n + 1 + -(n + 1) = 0 by ring, zpow_zero]
 
 /-- The convergence criterion for series over a nonarchimedean local field: if each term
 of `f` is bounded by `|q|^(e i)` for an exponent function `e` with finite sublevel sets,
@@ -284,6 +329,90 @@ theorem TateCurve.evalInt_pow (q : k) (hq : valuation k q < 1) (F : ℤ⟦X⟧) 
   | zero => simp
   | succ m ih => rw [pow_succ, pow_succ, evalInt_mul q hq, ih]
 
+/-- Evaluation of integral power series is compatible with formal substitution: for
+`|q| < 1` and `G` with zero constant term, `(F ∘ G)(q) = F(G(q))`. Together with
+`evalInt_mul` this makes evaluation fully functorial; it is the bridge taking the formal
+compositional identities of `TateCurve.jInvReverse` to the `j`/`q` round-trips of
+Silverman, ATAEC V.5.2. The proof is a Fubini argument on the double series
+`∑_{m,n} FₘGᵐₙqⁿ`: summing rows first gives `∑ₘ Fₘ·G(q)ᵐ = F(G(q))`, summing columns
+first gives `∑ₙ (F∘G)ₙqⁿ` — the columns being *finite* sums, since `ord(Gᵐ) ≥ m`. -/
+theorem TateCurve.evalInt_subst (q : k) (hq : valuation k q < 1) {G : ℤ⟦X⟧}
+    (hG0 : PowerSeries.constantCoeff G = 0) (F : ℤ⟦X⟧) :
+    evalInt q (PowerSeries.subst G F) = evalInt (evalInt q G) F := by
+  -- low coefficients of powers vanish: `ord(Gᵐ) ≥ m`
+  have hvanish : ∀ m n : ℕ, n < m → PowerSeries.coeff n (G ^ m) = (0 : ℤ) := by
+    intro m n hnm
+    obtain ⟨G', hG'⟩ := PowerSeries.X_dvd_iff.mpr hG0
+    rw [hG', mul_pow, mul_comm ((PowerSeries.X : ℤ⟦X⟧) ^ m), PowerSeries.coeff_mul_X_pow',
+      if_neg (by omega)]
+  -- the double series is summable: the `(m, n)` term vanishes for `n < m` and is
+  -- bounded by `|q|ⁿ` otherwise, so it is bounded by `|q|^(max m n)` throughout
+  obtain ⟨S, hS⟩ : Summable fun p : ℕ × ℕ ↦ ((PowerSeries.coeff p.1 F : ℤ) : k) *
+      (((PowerSeries.coeff p.2 (G ^ p.1) : ℤ) : k) * q ^ p.2) := by
+    refine summable_of_valuation_le_pow hq (fun p ↦ max p.1 p.2) (fun N ↦ ?_) fun p ↦ ?_
+    · refine ((Set.finite_Iio N).prod (Set.finite_Iio N)).subset fun p hp ↦ ?_
+      exact Set.mem_prod.mpr ⟨Set.mem_Iio.mpr (lt_of_le_of_lt (le_max_left _ _) hp),
+        Set.mem_Iio.mpr (lt_of_le_of_lt (le_max_right _ _) hp)⟩
+    · rcases lt_or_ge p.2 p.1 with h | h
+      · rw [hvanish p.1 p.2 h]
+        simp
+      · rw [map_mul (valuation k), map_mul (valuation k), map_pow (valuation k)]
+        calc valuation k ((PowerSeries.coeff p.1 F : ℤ) : k) *
+              (valuation k ((PowerSeries.coeff p.2 (G ^ p.1) : ℤ) : k) *
+                valuation k q ^ p.2)
+            ≤ 1 * (1 * valuation k q ^ p.2) :=
+              mul_le_mul' (valuation_intCast_le_one _)
+                (mul_le_mul_left (valuation_intCast_le_one _) _)
+          _ = valuation k q ^ p.2 := by rw [one_mul, one_mul]
+          _ = valuation k q ^ max p.1 p.2 := by rw [max_eq_right h]
+  -- rows: summing over `n` first gives `Fₘ·G(q)ᵐ`
+  have hrow : ∀ m : ℕ, HasSum (fun n : ℕ ↦ ((PowerSeries.coeff m F : ℤ) : k) *
+      (((PowerSeries.coeff n (G ^ m) : ℤ) : k) * q ^ n))
+      (((PowerSeries.coeff m F : ℤ) : k) * evalInt q (G ^ m)) := fun m ↦
+    ((summable_evalInt q hq (G ^ m)).hasSum).mul_left _
+  -- columns: summing over `m` first gives the coefficients of the composite,
+  -- and these sums are finite since `ord(Gᵐ) ≥ m`
+  have hcol : ∀ n : ℕ, HasSum (fun m : ℕ ↦ ((PowerSeries.coeff m F : ℤ) : k) *
+      (((PowerSeries.coeff n (G ^ m) : ℤ) : k) * q ^ n))
+      (((PowerSeries.coeff n (PowerSeries.subst G F) : ℤ) : k) * q ^ n) := by
+    intro n
+    have hcoeff : PowerSeries.coeff n (PowerSeries.subst G F) =
+        ∑ m ∈ Finset.range (n + 1),
+          PowerSeries.coeff m F * PowerSeries.coeff n (G ^ m) := by
+      have hsupp : (Function.support fun d ↦
+          PowerSeries.coeff d F • PowerSeries.coeff n (G ^ d)) ⊆
+            ↑(Finset.range (n + 1)) := by
+        intro m hm
+        simp only [Function.mem_support] at hm
+        simp only [Finset.coe_range, Set.mem_Iio]
+        by_contra hc
+        exact hm (by
+          change PowerSeries.coeff m F • PowerSeries.coeff n (G ^ m) = 0
+          rw [hvanish m n (by omega), smul_zero])
+      rw [PowerSeries.coeff_subst' (PowerSeries.HasSubst.of_constantCoeff_zero' hG0),
+        finsum_eq_finsetSum_of_support_subset _ hsupp]
+      exact Finset.sum_congr rfl fun m _ ↦ smul_eq_mul _ _
+    have hval : ((PowerSeries.coeff n (PowerSeries.subst G F) : ℤ) : k) * q ^ n =
+        ∑ m ∈ Finset.range (n + 1), ((PowerSeries.coeff m F : ℤ) : k) *
+          (((PowerSeries.coeff n (G ^ m) : ℤ) : k) * q ^ n) := by
+      rw [hcoeff]
+      push_cast
+      rw [Finset.sum_mul]
+      exact Finset.sum_congr rfl fun m _ ↦ by ring
+    refine hval.symm ▸ hasSum_sum_of_ne_finset_zero fun m hm ↦ ?_
+    rw [hvanish m n (by simp only [Finset.mem_range] at hm; omega)]
+    simp
+  -- assemble: both iterated sums equal the double sum
+  have hLHS : HasSum (fun n : ℕ ↦
+      ((PowerSeries.coeff n (PowerSeries.subst G F) : ℤ) : k) * q ^ n) S :=
+    HasSum.prod_fiberwise ((Equiv.prodComm ℕ ℕ).hasSum_iff.mpr hS) hcol
+  have hRHS : HasSum (fun m : ℕ ↦
+      ((PowerSeries.coeff m F : ℤ) : k) * evalInt q G ^ m) S := by
+    have h := hS.prod_fiberwise hrow
+    simpa only [evalInt_pow q hq] using h
+  rw [show evalInt q (PowerSeries.subst G F) = S from hLHS.tsum_eq,
+    show evalInt (evalInt q G) F = S from hRHS.tsum_eq]
+
 /-- Powers of an element of the open unit disc tend to zero. -/
 theorem TateCurve.tendsto_pow_nhds_zero {x : k} (hx : valuation k x < 1) :
     Filter.Tendsto (fun n : ℕ ↦ x ^ n) Filter.atTop (𝓝 0) := by
@@ -322,6 +451,216 @@ theorem TateCurve.hasSum_geometric_succ {x : k} (hx : valuation k x < 1) :
   rw [zero_sub]
   field_simp
   ring
+
+/-- The derived geometric series over a nonarchimedean local field: for `|x| < 1`,
+`∑_{j≥1} j·xʲ = x/(1-x)²`. Obtained as the Cauchy product of the geometric series with
+itself: the `N`-th antidiagonal has `N + 1` terms, all equal to `x^(N+1)`. -/
+theorem TateCurve.hasSum_geometric_deriv {x : k} (hx : valuation k x < 1) :
+    HasSum (fun j : ℕ ↦ ((j + 1 : ℕ) : k) * x ^ (j + 1)) (x / (1 - x) ^ 2) := by
+  have hx1 : x ≠ 1 := by
+    rintro rfl
+    simp at hx
+  have h1x : (1 : k) - x ≠ 0 := sub_ne_zero.mpr (Ne.symm hx1)
+  have hgeo₁ := hasSum_geometric_succ hx
+  have hgeo₀ : HasSum (fun j : ℕ ↦ x ^ j) (x / (1 - x) + 1) := by
+    simpa using (hasSum_nat_add_iff (f := fun j : ℕ ↦ x ^ j) 1).mp hgeo₁
+  have hdouble : Summable fun p : ℕ × ℕ ↦ x ^ (p.1 + 1) * x ^ p.2 := by
+    refine summable_of_valuation_le_pow hx (fun p ↦ p.1 + p.2) (fun N ↦ ?_) fun p ↦ ?_
+    · exact ((Set.finite_Iio N).prod (Set.finite_Iio N)).subset fun p hp ↦
+        Set.mem_prod.mpr ⟨Set.mem_Iio.mpr (lt_of_le_of_lt (Nat.le_add_right _ _) hp),
+          Set.mem_Iio.mpr (lt_of_le_of_lt (Nat.le_add_left _ _) hp)⟩
+    · rw [← pow_add, map_pow]
+      exact pow_le_pow_right_of_le_one' hx.le (by omega)
+  have key := hgeo₁.summable.tsum_mul_tsum_eq_tsum_sum_antidiagonal hgeo₀.summable hdouble
+  rw [hgeo₁.tsum_eq, hgeo₀.tsum_eq] at key
+  have hsummable : Summable fun j : ℕ ↦ ((j + 1 : ℕ) : k) * x ^ (j + 1) := by
+    refine summable_of_valuation_le_pow hx (fun j ↦ j) (fun N ↦ Set.finite_Iio N) fun j ↦ ?_
+    rw [map_mul, map_pow, show (((j + 1 : ℕ)) : k) = (((j + 1 : ℕ) : ℤ) : k) by push_cast; ring]
+    calc valuation k (((j + 1 : ℕ) : ℤ) : k) * valuation k x ^ (j + 1)
+        ≤ 1 * valuation k x ^ (j + 1) := mul_le_mul_left (valuation_intCast_le_one _) _
+      _ = valuation k x ^ (j + 1) := one_mul _
+      _ ≤ valuation k x ^ j := pow_le_pow_right_of_le_one' hx.le (Nat.le_succ j)
+  have hinner : ∀ N : ℕ, (∑ kl ∈ Finset.antidiagonal N, x ^ (kl.1 + 1) * x ^ kl.2)
+      = ((N + 1 : ℕ) : k) * x ^ (N + 1) := fun N ↦ by
+    have h1 : ∀ kl ∈ Finset.antidiagonal N, x ^ (kl.1 + 1) * x ^ kl.2 = x ^ (N + 1) := by
+      intro kl hkl
+      rw [Finset.mem_antidiagonal] at hkl
+      rw [← pow_add]
+      congr 1
+      omega
+    rw [Finset.sum_congr rfl h1, Finset.sum_const, Finset.Nat.card_antidiagonal, nsmul_eq_mul]
+  refine hsummable.hasSum_iff.mpr ?_
+  calc ∑' j : ℕ, ((j + 1 : ℕ) : k) * x ^ (j + 1)
+      = ∑' N : ℕ, ∑ kl ∈ Finset.antidiagonal N, x ^ (kl.1 + 1) * x ^ kl.2 :=
+        tsum_congr fun N ↦ (hinner N).symm
+    _ = x / (1 - x) * (x / (1 - x) + 1) := key.symm
+    _ = x / (1 - x) ^ 2 := by
+        field_simp
+        ring
+
+private theorem TateCurve.sum_range_succ_choose_two (n : ℕ) :
+    ∑ i ∈ Finset.range (n + 1), (i + 1) = (n + 2).choose 2 := by
+  induction n with
+  | zero => rfl
+  | succ n ih =>
+      rw [Finset.sum_range_succ, ih]
+      have h := Nat.choose_succ_succ (n + 2) 1
+      simp only [Nat.succ_eq_add_one, Nat.reduceAdd, Nat.choose_one_right] at h
+      rw [show n + 1 + 2 = n + 2 + 1 from by omega]
+      omega
+
+/-- The twice-derived geometric series `∑_{d≥1} (d+1 choose 2)·xᵈ = x/(1-x)³`: the Cauchy
+product of `hasSum_geometric_deriv` with the geometric series. These are the coefficients
+of the `u⁻ᵈ`-half of the `y`-coordinate of Tate's uniformisation. -/
+theorem TateCurve.hasSum_geometric_div_cube {x : k} (hx : valuation k x < 1) :
+    HasSum (fun j : ℕ ↦ (((j + 2).choose 2 : ℕ) : k) * x ^ (j + 1)) (x / (1 - x) ^ 3) := by
+  have hx1 : x ≠ 1 := by
+    rintro rfl
+    simp at hx
+  have h1x : (1 : k) - x ≠ 0 := sub_ne_zero.mpr (Ne.symm hx1)
+  have hderiv := hasSum_geometric_deriv hx
+  have hgeo₀ : HasSum (fun j : ℕ ↦ x ^ j) (x / (1 - x) + 1) := by
+    simpa using (hasSum_nat_add_iff (f := fun j : ℕ ↦ x ^ j) 1).mp (hasSum_geometric_succ hx)
+  have hdouble : Summable fun p : ℕ × ℕ ↦ ((p.1 + 1 : ℕ) : k) * x ^ (p.1 + 1) * x ^ p.2 := by
+    refine summable_of_valuation_le_pow hx (fun p ↦ p.1 + p.2) (fun N ↦ ?_) fun p ↦ ?_
+    · exact ((Set.finite_Iio N).prod (Set.finite_Iio N)).subset fun p hp ↦
+        Set.mem_prod.mpr ⟨Set.mem_Iio.mpr (lt_of_le_of_lt (Nat.le_add_right _ _) hp),
+          Set.mem_Iio.mpr (lt_of_le_of_lt (Nat.le_add_left _ _) hp)⟩
+    · rw [map_mul, map_mul, map_pow, map_pow]
+      calc valuation k ((p.1 + 1 : ℕ) : k) * valuation k x ^ (p.1 + 1) * valuation k x ^ p.2
+          ≤ 1 * valuation k x ^ (p.1 + 1) * valuation k x ^ p.2 :=
+            mul_le_mul_left (mul_le_mul_left (valuation_natCast_le_one _) _) _
+        _ = valuation k x ^ (p.1 + 1 + p.2) := by rw [one_mul, ← pow_add]
+        _ ≤ valuation k x ^ (p.1 + p.2) :=
+            pow_le_pow_right_of_le_one' hx.le (by omega)
+  have key := hderiv.summable.tsum_mul_tsum_eq_tsum_sum_antidiagonal hgeo₀.summable hdouble
+  rw [hderiv.tsum_eq, hgeo₀.tsum_eq] at key
+  have hinner : ∀ N : ℕ,
+      (∑ kl ∈ Finset.antidiagonal N, ((kl.1 + 1 : ℕ) : k) * x ^ (kl.1 + 1) * x ^ kl.2)
+      = (((N + 2).choose 2 : ℕ) : k) * x ^ (N + 1) := fun N ↦ by
+    have h1 : ∀ kl ∈ Finset.antidiagonal N, ((kl.1 + 1 : ℕ) : k) * x ^ (kl.1 + 1) * x ^ kl.2
+        = ((kl.1 + 1 : ℕ) : k) * x ^ (N + 1) := by
+      intro kl hkl
+      rw [Finset.mem_antidiagonal] at hkl
+      rw [mul_assoc, ← pow_add]
+      congr 2
+      omega
+    rw [Finset.sum_congr rfl h1, ← Finset.sum_mul, ← Nat.cast_sum,
+      Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk, sum_range_succ_choose_two]
+  have hsummable : Summable fun j : ℕ ↦ (((j + 2).choose 2 : ℕ) : k) * x ^ (j + 1) := by
+    refine summable_of_valuation_le_pow hx (fun j ↦ j) (fun N ↦ Set.finite_Iio N) fun j ↦ ?_
+    rw [map_mul, map_pow]
+    calc valuation k (((j + 2).choose 2 : ℕ) : k) * valuation k x ^ (j + 1)
+        ≤ 1 * valuation k x ^ (j + 1) := mul_le_mul_left (valuation_natCast_le_one _) _
+      _ = valuation k x ^ (j + 1) := one_mul _
+      _ ≤ valuation k x ^ j := pow_le_pow_right_of_le_one' hx.le (Nat.le_succ j)
+  refine hsummable.hasSum_iff.mpr ?_
+  calc ∑' j : ℕ, (((j + 2).choose 2 : ℕ) : k) * x ^ (j + 1)
+      = ∑' N : ℕ, ∑ kl ∈ Finset.antidiagonal N, ((kl.1 + 1 : ℕ) : k) * x ^ (kl.1 + 1) * x ^ kl.2 :=
+        tsum_congr fun N ↦ (hinner N).symm
+    _ = x / (1 - x) ^ 2 * (x / (1 - x) + 1) := key.symm
+    _ = x / (1 - x) ^ 3 := by
+        field_simp
+        ring
+
+/-- The series `∑_{d≥1} (d choose 2)·xᵈ = x²/(1-x)³`: the Cauchy product of the geometric
+series with `hasSum_geometric_deriv`. These are the coefficients of the `uᵈ`-half of the
+`y`-coordinate of Tate's uniformisation. -/
+theorem TateCurve.hasSum_geometric_sq_div_cube {x : k} (hx : valuation k x < 1) :
+    HasSum (fun j : ℕ ↦ (((j + 1).choose 2 : ℕ) : k) * x ^ (j + 1)) (x ^ 2 / (1 - x) ^ 3) := by
+  have hx1 : x ≠ 1 := by
+    rintro rfl
+    simp at hx
+  have h1x : (1 : k) - x ≠ 0 := sub_ne_zero.mpr (Ne.symm hx1)
+  have hgeo₁ := hasSum_geometric_succ hx
+  have hderiv := hasSum_geometric_deriv hx
+  have hdouble : Summable fun p : ℕ × ℕ ↦
+      x ^ (p.1 + 1) * (((p.2 + 1 : ℕ) : k) * x ^ (p.2 + 1)) := by
+    refine summable_of_valuation_le_pow hx (fun p ↦ p.1 + p.2) (fun N ↦ ?_) fun p ↦ ?_
+    · exact ((Set.finite_Iio N).prod (Set.finite_Iio N)).subset fun p hp ↦
+        Set.mem_prod.mpr ⟨Set.mem_Iio.mpr (lt_of_le_of_lt (Nat.le_add_right _ _) hp),
+          Set.mem_Iio.mpr (lt_of_le_of_lt (Nat.le_add_left _ _) hp)⟩
+    · rw [map_mul, map_mul, map_pow, map_pow]
+      calc valuation k x ^ (p.1 + 1) * (valuation k ((p.2 + 1 : ℕ) : k) *
+            valuation k x ^ (p.2 + 1))
+          ≤ valuation k x ^ (p.1 + 1) * (1 * valuation k x ^ (p.2 + 1)) :=
+            mul_le_mul' le_rfl (mul_le_mul_left (valuation_natCast_le_one _) _)
+        _ = valuation k x ^ (p.1 + 1 + (p.2 + 1)) := by rw [one_mul, ← pow_add]
+        _ ≤ valuation k x ^ (p.1 + p.2) :=
+            pow_le_pow_right_of_le_one' hx.le (by omega)
+  have key := hgeo₁.summable.tsum_mul_tsum_eq_tsum_sum_antidiagonal hderiv.summable hdouble
+  rw [hgeo₁.tsum_eq, hderiv.tsum_eq] at key
+  have hinner : ∀ N : ℕ,
+      (∑ kl ∈ Finset.antidiagonal N, x ^ (kl.1 + 1) * (((kl.2 + 1 : ℕ) : k) * x ^ (kl.2 + 1)))
+      = (((N + 2).choose 2 : ℕ) : k) * x ^ (N + 2) := fun N ↦ by
+    have h1 : ∀ kl ∈ Finset.antidiagonal N,
+        x ^ (kl.1 + 1) * (((kl.2 + 1 : ℕ) : k) * x ^ (kl.2 + 1))
+        = ((kl.2 + 1 : ℕ) : k) * x ^ (N + 2) := by
+      intro kl hkl
+      rw [Finset.mem_antidiagonal] at hkl
+      rw [mul_left_comm, ← pow_add]
+      congr 2
+      omega
+    rw [Finset.sum_congr rfl h1, ← Finset.sum_mul, ← Nat.cast_sum,
+      Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk]
+    congr 2
+    calc ∑ i ∈ Finset.range (N + 1), (N - i + 1)
+        = ∑ i ∈ Finset.range (N + 1), (i + 1) := Finset.sum_range_reflect (fun j ↦ j + 1) (N + 1)
+      _ = (N + 2).choose 2 := sum_range_succ_choose_two N
+  have h2 : HasSum (fun N : ℕ ↦ (((N + 2).choose 2 : ℕ) : k) * x ^ (N + 2))
+      (x / (1 - x) * (x / (1 - x) ^ 2)) := by
+    have hsummable : Summable fun N : ℕ ↦ (((N + 2).choose 2 : ℕ) : k) * x ^ (N + 2) := by
+      refine summable_of_valuation_le_pow hx (fun j ↦ j) (fun N ↦ Set.finite_Iio N) fun j ↦ ?_
+      rw [map_mul, map_pow]
+      calc valuation k (((j + 2).choose 2 : ℕ) : k) * valuation k x ^ (j + 2)
+          ≤ 1 * valuation k x ^ (j + 2) := mul_le_mul_left (valuation_natCast_le_one _) _
+        _ = valuation k x ^ (j + 2) := one_mul _
+        _ ≤ valuation k x ^ j := pow_le_pow_right_of_le_one' hx.le (by omega)
+    refine hsummable.hasSum_iff.mpr ?_
+    calc ∑' N : ℕ, (((N + 2).choose 2 : ℕ) : k) * x ^ (N + 2)
+        = ∑' N : ℕ, ∑ kl ∈ Finset.antidiagonal N,
+            x ^ (kl.1 + 1) * (((kl.2 + 1 : ℕ) : k) * x ^ (kl.2 + 1)) :=
+          tsum_congr fun N ↦ (hinner N).symm
+      _ = x / (1 - x) * (x / (1 - x) ^ 2) := key.symm
+  have h3 := (hasSum_nat_add_iff
+    (f := fun j : ℕ ↦ (((j + 1).choose 2 : ℕ) : k) * x ^ (j + 1)) 1).mp h2
+  have hval : x / (1 - x) * (x / (1 - x) ^ 2) +
+      ∑ i ∈ Finset.range 1, (((i + 1).choose 2 : ℕ) : k) * x ^ (i + 1) = x ^ 2 / (1 - x) ^ 3 := by
+    rw [Finset.sum_range_one, show Nat.choose 1 2 = 0 from rfl, Nat.cast_zero, zero_mul,
+      add_zero, div_mul_div_comm, show x * x = x ^ 2 by ring,
+      show (1 - x) * (1 - x) ^ 2 = (1 - x) ^ 3 by ring]
+  rwa [hval] at h3
+
+omit [ValuativeRel k] [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- The inversion symmetry of the summands of `tateX`: `v/(1-v)² = v⁻¹/(1-v⁻¹)²`. This is
+what makes the two-sided sum `∑_{n ∈ ℤ}` symmetric under `(u, n) ↦ (u⁻¹, -n)`, and it
+converts the `n ≤ -1` half of the sum into geometric series in `q^{-n}u⁻¹`. -/
+theorem TateCurve.div_one_sub_sq_inv {v : k} (hv : v ≠ 0) :
+    v / (1 - v) ^ 2 = v⁻¹ / (1 - v⁻¹) ^ 2 := by
+  rcases eq_or_ne v 1 with rfl | hv1
+  · simp
+  · have h1 : (1 : k) - v ≠ 0 := sub_ne_zero.mpr (Ne.symm hv1)
+    have h2 : (1 : k) - v⁻¹ ≠ 0 := by
+      rw [sub_ne_zero]
+      exact fun h ↦ hv1 (by rw [← inv_inv v, ← h, inv_one])
+    field_simp
+    ring
+
+omit [ValuativeRel k] [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- The inversion antisymmetry of the summands of `tateY`:
+`v²/(1-v)³ = -(v⁻¹/(1-v⁻¹)³)`. It converts the `n ≤ -1` half of the `y`-coordinate sum
+into (negated) geometric series in `q^{-n}u⁻¹`, and is the source of the asymmetric
+coefficients `(d choose 2)uᵈ - (d+1 choose 2)u⁻ᵈ` in Silverman's `q`-expansion. -/
+theorem TateCurve.sq_div_one_sub_cube_inv {v : k} (hv : v ≠ 0) :
+    v ^ 2 / (1 - v) ^ 3 = -(v⁻¹ / (1 - v⁻¹) ^ 3) := by
+  rcases eq_or_ne v 1 with rfl | hv1
+  · simp
+  · have h1 : (1 : k) - v ≠ 0 := sub_ne_zero.mpr (Ne.symm hv1)
+    have h2 : (1 : k) - v⁻¹ ≠ 0 := by
+      rw [sub_ne_zero]
+      exact fun h ↦ hv1 (by rw [← inv_inv v, ← h, inv_one])
+    field_simp
+    ring
 
 /-- The Lambert series rearrangement over a nonarchimedean local field: for any integer
 coefficients `c` and `|q| < 1`,
@@ -394,6 +733,56 @@ theorem TateCurve.tsum_lambert (q : k) (hq : valuation k q < 1) (c : ℕ → ℤ
     | succ n => exact absurd ⟨n.succPNat, rfl⟩ hx
   rw [← tsum_pnat_eq_tsum_succ (f := fun n ↦ ((c n : ℤ) : k) * q ^ n / (1 - q ^ n)),
     hrows.tsum_eq, hcols.tsum_eq]
+
+/-- Regrouping a double power series along `(d, e) ↦ de`: the `k`-coefficient core of the
+Lambert rearrangement (`tsum_lambert` is the `ℤ`-coefficient case, composed with the
+geometric expansion of `qᵈ/(1-qᵈ)`). The boundedness hypothesis on the weights feeds the
+nonarchimedean summability criterion; in the intended application the weights are
+`d·u^{±d}` and similar, with `u` in the annulus `|q| < |u| ≤ 1`. -/
+theorem TateCurve.tsum_prod_pow_eq_tsum_sum_divisors (x : k) (hx : valuation k x < 1)
+    (w : ℕ → k) (hw : ∀ d, valuation k (w d) ≤ 1) :
+    ∑' p : ℕ+ × ℕ+, w (p.1 : ℕ) * x ^ ((p.1 : ℕ) * (p.2 : ℕ)) =
+      ∑' N : ℕ, (∑ d ∈ N.divisors, w d) * x ^ N := by
+  obtain ⟨S, hS⟩ : Summable fun p : ℕ+ × ℕ+ ↦ w (p.1 : ℕ) * x ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by
+    refine summable_of_valuation_le_pow hx (fun p ↦ (p.1 : ℕ) * (p.2 : ℕ))
+      (fun N ↦ ?_) fun p ↦ ?_
+    · refine (((Set.finite_Iio N).preimage PNat.coe_injective.injOn).prod
+        ((Set.finite_Iio N).preimage PNat.coe_injective.injOn)).subset fun p hp ↦ ?_
+      have h1 : (p.1 : ℕ) ≤ (p.1 : ℕ) * (p.2 : ℕ) := Nat.le_mul_of_pos_right _ p.2.pos
+      have h2 : (p.2 : ℕ) ≤ (p.1 : ℕ) * (p.2 : ℕ) := Nat.le_mul_of_pos_left _ p.1.pos
+      exact Set.mem_prod.mpr ⟨Set.mem_preimage.mpr (Set.mem_Iio.mpr (lt_of_le_of_lt h1 hp)),
+        Set.mem_preimage.mpr (Set.mem_Iio.mpr (lt_of_le_of_lt h2 hp))⟩
+    · rw [map_mul, map_pow]
+      simpa using mul_le_mul_left (hw _) (valuation k x ^ ((p.1 : ℕ) * (p.2 : ℕ)))
+  have hsigma : HasSum ((fun p : ℕ+ × ℕ+ ↦ w (p.1 : ℕ) * x ^ ((p.1 : ℕ) * (p.2 : ℕ))) ∘
+      ⇑sigmaAntidiagonalEquivProd) S :=
+    sigmaAntidiagonalEquivProd.hasSum_iff.mpr hS
+  have hfib : ∀ N : ℕ+, HasSum (fun y : (Nat.divisorsAntidiagonal (N : ℕ)) ↦
+      ((fun p : ℕ+ × ℕ+ ↦ w (p.1 : ℕ) * x ^ ((p.1 : ℕ) * (p.2 : ℕ))) ∘
+        ⇑sigmaAntidiagonalEquivProd) ⟨N, y⟩)
+      ((∑ d ∈ (N : ℕ).divisors, w d) * x ^ (N : ℕ)) := by
+    intro N
+    have hterm : ∀ y : (Nat.divisorsAntidiagonal (N : ℕ)),
+        ((fun p : ℕ+ × ℕ+ ↦ w (p.1 : ℕ) * x ^ ((p.1 : ℕ) * (p.2 : ℕ))) ∘
+          ⇑sigmaAntidiagonalEquivProd) ⟨N, y⟩ = w (y : ℕ × ℕ).1 * x ^ (N : ℕ) := by
+      intro y
+      have hy := (Nat.mem_divisorsAntidiagonal.mp y.2).1
+      simp only [Function.comp_apply, sigmaAntidiagonalEquivProd, Equiv.coe_fn_mk,
+        divisorsAntidiagonalFactors, PNat.mk_coe]
+      rw [hy]
+    convert hasSum_fintype _ using 1
+    · symm
+      rw [Finset.univ_eq_attach, Finset.sum_congr rfl fun y _ ↦ hterm y,
+        Finset.sum_attach (Nat.divisorsAntidiagonal (N : ℕ)) (fun y ↦ w y.1 * x ^ (N : ℕ)),
+        ← Finset.sum_mul, Nat.sum_divisorsAntidiagonal (fun d _ ↦ w d)]
+  have hcolsPNat : HasSum (fun N : ℕ+ ↦ (∑ d ∈ (N : ℕ).divisors, w d) * x ^ (N : ℕ)) S :=
+    hsigma.sigma hfib
+  have hcols : HasSum (fun N : ℕ ↦ (∑ d ∈ N.divisors, w d) * x ^ N) S := by
+    refine (PNat.coe_injective.hasSum_iff fun n hn ↦ ?_).mp hcolsPNat
+    cases n with
+    | zero => simp
+    | succ n => exact absurd ⟨n.succPNat, rfl⟩ hn
+  rw [hS.tsum_eq, hcols.tsum_eq]
 
 open scoped ArithmeticFunction.sigma in
 /-- The Lambert series rearrangement `∑_{n≥1} n³qⁿ/(1-qⁿ) = ∑_{n≥1} σ₃(n)qⁿ` for
@@ -510,6 +899,49 @@ theorem TateCurve.valuation_evalInt_le_pow (q : k) (hq : valuation k q < 1) {F :
             evalInt q F)) := Valuation.map_sub _ _ _
     _ < valuation k (evalInt q F) := max_lt (lt_of_le_of_lt (hpart s) hlt) hs
 
+/-- The leading-term principle: if `F = X + O(X²)` then `|F(q)| = |q|` on the punctured
+open unit disc — ultrametrically the leading term dominates the tail, which has valuation
+at most `|q|²` by `valuation_evalInt_le_pow`. -/
+theorem TateCurve.valuation_evalInt_eq (q : k) (hq0 : q ≠ 0) (hq : valuation k q < 1)
+    {F : ℤ⟦X⟧} (h0 : PowerSeries.constantCoeff F = 0) (h1 : PowerSeries.coeff 1 F = 1) :
+    valuation k (evalInt q F) = valuation k q := by
+  have hsplit : evalInt q F = q + evalInt q (F - PowerSeries.X) := by
+    conv_lhs => rw [show F = PowerSeries.X + (F - PowerSeries.X) by ring]
+    rw [evalInt_add (summable_evalInt q hq _) (summable_evalInt q hq _), evalInt_X]
+  have hlow : ∀ m < 2, PowerSeries.coeff m (F - PowerSeries.X) = 0 := by
+    intro m hm
+    rcases m with - | - | m
+    · simp [PowerSeries.coeff_zero_eq_constantCoeff, h0]
+    · simp [h1, PowerSeries.coeff_X]
+    · exact absurd hm (by omega)
+  have hr : valuation k (evalInt q (F - PowerSeries.X)) < valuation k q :=
+    lt_of_le_of_lt (valuation_evalInt_le_pow q hq hlow)
+      (pow_lt_self_of_lt_one₀ (zero_lt_iff.mpr ((valuation k).ne_zero_iff.mpr hq0)) hq
+        one_lt_two)
+  rw [hsplit, (valuation k).map_add_eq_of_lt_left hr]
+
+/-- Quantitative tail bound: the evaluation of an integral power series on the open unit
+disc is within `|q|^N` of its `N`-th partial sum. -/
+theorem TateCurve.valuation_evalInt_sub_sum_le (q : k) (hq : valuation k q < 1)
+    (F : ℤ⟦X⟧) (N : ℕ) :
+    valuation k (evalInt q F -
+      ∑ n ∈ Finset.range N, ((PowerSeries.coeff n F : ℤ) : k) * q ^ n) ≤
+    valuation k q ^ N := by
+  -- the partial sum is the evaluation of the truncation
+  have htrunc : evalInt q ((F.trunc N : Polynomial ℤ) : ℤ⟦X⟧) =
+      ∑ n ∈ Finset.range N, ((PowerSeries.coeff n F : ℤ) : k) * q ^ n := by
+    have h0 : ∀ n ∉ Finset.range N,
+        ((PowerSeries.coeff n ((F.trunc N : Polynomial ℤ) : ℤ⟦X⟧) : ℤ) : k) * q ^ n = 0 := by
+      intro n hn
+      rw [Polynomial.coeff_coe, PowerSeries.coeff_trunc,
+        if_neg (by simpa using hn), Int.cast_zero, zero_mul]
+    refine (hasSum_sum_of_ne_finset_zero h0).tsum_eq.trans ?_
+    exact Finset.sum_congr rfl fun n hn ↦ by
+      rw [Polynomial.coeff_coe, PowerSeries.coeff_trunc, if_pos (Finset.mem_range.mp hn)]
+  rw [← htrunc, ← evalInt_sub (summable_evalInt q hq _) (summable_evalInt q hq _)]
+  refine valuation_evalInt_le_pow q hq fun m hm ↦ ?_
+  rw [map_sub, Polynomial.coeff_coe, PowerSeries.coeff_trunc, if_pos hm, sub_self]
+
 open PowerSeries in
 open scoped PowerSeries.WithPiTopology in
 /-- Evaluation of the formal `η²⁴` product: for `|q| < 1` the formal series
@@ -586,13 +1018,217 @@ theorem WeierstrassCurve.tateΔ_eq_prod (q : k) (hq : valuation k q < 1) :
   push_cast
   ring
 
-/-- Silverman, ATAEC V.1.1(a): for `u` not a power of `q`, the pair `(X(u, q), Y(u, q))` is
-a nonsingular point of the Tate curve `E_q`. The equation `Y² + XY = X³ + a₄X + a₆` itself
-is `TateCurve.weierstrass_equation`; here we transport it to `k` and add nonsingularity. -/
+/-- The discriminant of the Tate curve is the evaluation of the formal discriminant. -/
+theorem WeierstrassCurve.tateCurve_Δ_eq_evalInt (q : k) (hq : valuation k q < 1) :
+    (tateCurve q).Δ = TateCurve.evalInt q TateCurve.ΔFormal := by
+  rw [tateΔ_eq_prod q hq, TateCurve.evalInt_ΔFormal q hq]
+
+/-- `c₄` of the Tate curve is the evaluation of the Eisenstein series `E₄ = 1 + 240s₃`. -/
+theorem WeierstrassCurve.tateCurve_c₄_eq_evalInt (q : k) (hq : valuation k q < 1) :
+    (tateCurve q).c₄ = TateCurve.evalInt q TateCurve.c₄Formal := by
+  have h1 : (tateCurve q).c₄ = 1 - 48 * tateA₄ q := by
+    simp only [tateCurve, WeierstrassCurve.c₄, WeierstrassCurve.b₂, WeierstrassCurve.b₄]
+    ring
+  have h2 : TateCurve.c₄Formal = 1 - PowerSeries.C 48 * TateCurve.a₄Formal := by
+    simp only [TateCurve.c₄Formal, TateCurve.a₄Formal, map_ofNat]
+    ring
+  rw [h1, tateA₄_eq_evalInt q hq, h2,
+    TateCurve.evalInt_sub (TateCurve.summable_evalInt q hq _)
+      (TateCurve.summable_evalInt q hq _),
+    TateCurve.evalInt_one, TateCurve.evalInt_C_mul]
+  push_cast
+  ring
+
+/-- For `q ≠ 0` in the open unit disc, `|Δ(q)| = |q|`: the discriminant of the Tate curve
+is `q + O(q²)`, and the leading term dominates ultrametrically. -/
+theorem WeierstrassCurve.valuation_tateCurve_Δ (q : k) (hq0 : q ≠ 0)
+    (hq : valuation k q < 1) : valuation k (tateCurve q).Δ = valuation k q := by
+  rw [tateCurve_Δ_eq_evalInt q hq]
+  exact TateCurve.valuation_evalInt_eq q hq0 hq TateCurve.constantCoeff_ΔFormal
+    TateCurve.coeff_one_ΔFormal
+
+/-- The Tate curve of a nonzero `q` in the open unit disc has nonvanishing discriminant
+(so it is an elliptic curve). -/
+theorem WeierstrassCurve.tateCurve_Δ_ne_zero (q : k) (hq0 : q ≠ 0)
+    (hq : valuation k q < 1) : (tateCurve q).Δ ≠ 0 := by
+  intro h
+  have hv := valuation_tateCurve_Δ q hq0 hq
+  rw [h, map_zero] at hv
+  exact (valuation k).ne_zero_iff.mpr hq0 hv.symm
+
+/-- `|c₄(q)| = 1` on the open unit disc: `c₄ = 1 + O(q)`. -/
+theorem WeierstrassCurve.valuation_tateCurve_c₄ (q : k) (hq : valuation k q < 1) :
+    valuation k (tateCurve q).c₄ = 1 := by
+  rw [tateCurve_c₄_eq_evalInt q hq]
+  have hsplit : TateCurve.evalInt q TateCurve.c₄Formal =
+      1 + TateCurve.evalInt q (TateCurve.c₄Formal - 1) := by
+    conv_lhs => rw [show TateCurve.c₄Formal = 1 + (TateCurve.c₄Formal - 1) by ring]
+    rw [TateCurve.evalInt_add (TateCurve.summable_evalInt q hq _)
+      (TateCurve.summable_evalInt q hq _), TateCurve.evalInt_one]
+  have htail : valuation k (TateCurve.evalInt q (TateCurve.c₄Formal - 1)) < 1 := by
+    refine lt_of_le_of_lt (TateCurve.valuation_evalInt_le_pow q hq (M := 1) fun m hm ↦ ?_)
+      (by rwa [pow_one])
+    rcases m with - | m
+    · simp [PowerSeries.coeff_zero_eq_constantCoeff, TateCurve.constantCoeff_c₄Formal]
+    · exact absurd hm (by omega)
+  rw [hsplit, (valuation k).map_add_eq_of_lt_left (by rwa [map_one]), map_one]
+
+theorem WeierstrassCurve.tateCurve_c₄_ne_zero (q : k) (hq : valuation k q < 1) :
+    (tateCurve q).c₄ ≠ 0 := by
+  intro h
+  have hv := valuation_tateCurve_c₄ q hq
+  rw [h, map_zero] at hv
+  exact zero_ne_one hv
+
+/-- The evaluation of the formal series `jInv = Δ/c₄³` is the reciprocal of the
+`j`-invariant of the Tate curve: the glue between the formal inversion theory of
+`TateCurve.jInvReverse` and the function `tateJ`. -/
+theorem WeierstrassCurve.evalInt_jInv (q : k) (hq : valuation k q < 1) :
+    TateCurve.evalInt q TateCurve.jInv = (tateJ q)⁻¹ := by
+  have hglue : TateCurve.evalInt q TateCurve.jInv * (tateCurve q).c₄ ^ 3 =
+      (tateCurve q).Δ := by
+    rw [tateCurve_c₄_eq_evalInt q hq, tateCurve_Δ_eq_evalInt q hq,
+      ← TateCurve.evalInt_pow q hq, ← TateCurve.evalInt_mul q hq,
+      TateCurve.jInv_mul_c₄Formal]
+  simp only [tateJ]
+  rw [inv_div, eq_div_iff (pow_ne_zero 3 (tateCurve_c₄_ne_zero q hq))]
+  exact hglue
+
+omit [ValuativeRel k] [IsNonarchimedeanLocalField k] in
+/-- The `x`-coordinate series of Tate's uniformisation is invariant under `u ↦ qu`:
+reindex the `ℤ`-indexed sum by `n ↦ n + 1`. This is the invariance that makes
+`tateCurvePoint` descend to the quotient `kˣ/qᶻ`. -/
+theorem WeierstrassCurve.tateX_mul_left (q : kˣ) (u : k) :
+    tateX ((q : k) * u) (q : k) = tateX u (q : k) := by
+  simp only [tateX]
+  congr 1
+  calc ∑' n : ℤ, (q : k) ^ n * ((q : k) * u) / (1 - (q : k) ^ n * ((q : k) * u)) ^ 2
+      = ∑' n : ℤ, (q : k) ^ (n + 1) * u / (1 - (q : k) ^ (n + 1) * u) ^ 2 := by
+        refine tsum_congr fun n ↦ ?_
+        rw [zpow_add_one₀ (Units.ne_zero q)]
+        ring
+    _ = ∑' n : ℤ, (q : k) ^ n * u / (1 - (q : k) ^ n * u) ^ 2 :=
+        (Equiv.addRight (1 : ℤ)).tsum_eq
+          fun n ↦ (q : k) ^ n * u / (1 - (q : k) ^ n * u) ^ 2
+
+omit [ValuativeRel k] [IsNonarchimedeanLocalField k] in
+/-- The `y`-coordinate series of Tate's uniformisation is invariant under `u ↦ qu`. -/
+theorem WeierstrassCurve.tateY_mul_left (q : kˣ) (u : k) :
+    tateY ((q : k) * u) (q : k) = tateY u (q : k) := by
+  simp only [tateY]
+  congr 1
+  calc ∑' n : ℤ, ((q : k) ^ n * ((q : k) * u)) ^ 2 / (1 - (q : k) ^ n * ((q : k) * u)) ^ 3
+      = ∑' n : ℤ, ((q : k) ^ (n + 1) * u) ^ 2 / (1 - (q : k) ^ (n + 1) * u) ^ 3 := by
+        refine tsum_congr fun n ↦ ?_
+        rw [zpow_add_one₀ (Units.ne_zero q)]
+        ring
+    _ = ∑' n : ℤ, ((q : k) ^ n * u) ^ 2 / (1 - (q : k) ^ n * u) ^ 3 :=
+        (Equiv.addRight (1 : ℤ)).tsum_eq
+          fun n ↦ ((q : k) ^ n * u) ^ 2 / (1 - (q : k) ^ n * u) ^ 3
+
+omit [ValuativeRel k] [IsNonarchimedeanLocalField k] in
+/-- The `x`-coordinate series is invariant under `u ↦ qᵐu` for every `m : ℤ`. -/
+theorem WeierstrassCurve.tateX_zpow_mul_left (q : kˣ) (m : ℤ) (u : k) :
+    tateX ((q : k) ^ m * u) (q : k) = tateX u (q : k) := by
+  induction m using Int.induction_on with
+  | zero => simp
+  | succ m ih =>
+      rw [show (q : k) ^ ((m : ℤ) + 1) * u = (q : k) * ((q : k) ^ (m : ℤ) * u) by
+        rw [zpow_add_one₀ (Units.ne_zero q)]; ring, tateX_mul_left, ih]
+  | pred m ih =>
+      have h1 := tateX_mul_left q ((q : k) ^ (-(m : ℤ) - 1) * u)
+      rw [show (q : k) * ((q : k) ^ (-(m : ℤ) - 1) * u) = (q : k) ^ (-(m : ℤ) - 1 + 1) * u by
+        rw [zpow_add_one₀ (Units.ne_zero q)]; ring, Int.sub_add_cancel] at h1
+      exact h1.symm.trans ih
+
+omit [ValuativeRel k] [IsNonarchimedeanLocalField k] in
+/-- The `y`-coordinate series is invariant under `u ↦ qᵐu` for every `m : ℤ`. -/
+theorem WeierstrassCurve.tateY_zpow_mul_left (q : kˣ) (m : ℤ) (u : k) :
+    tateY ((q : k) ^ m * u) (q : k) = tateY u (q : k) := by
+  induction m using Int.induction_on with
+  | zero => simp
+  | succ m ih =>
+      rw [show (q : k) ^ ((m : ℤ) + 1) * u = (q : k) * ((q : k) ^ (m : ℤ) * u) by
+        rw [zpow_add_one₀ (Units.ne_zero q)]; ring, tateY_mul_left, ih]
+  | pred m ih =>
+      have h1 := tateY_mul_left q ((q : k) ^ (-(m : ℤ) - 1) * u)
+      rw [show (q : k) * ((q : k) ^ (-(m : ℤ) - 1) * u) = (q : k) ^ (-(m : ℤ) - 1 + 1) * u by
+        rw [zpow_add_one₀ (Units.ne_zero q)]; ring, Int.sub_add_cancel] at h1
+      exact h1.symm.trans ih
+
+/-- The annulus case of Silverman, ATAEC V.1.1(a): for `|q| < |u| ≤ 1` and `u ≠ 1`, the
+pair `(X(u, q), Y(u, q))` satisfies the Weierstrass equation of the Tate curve. (In the
+annulus the only power of `q` is `1` itself, so `u ≠ 1` is the full nondegeneracy
+condition.) This is the remaining kernel of V.1.1(a); the route mirrors `tateΔ_eq_prod`:
+
+* on the annulus the two halves of the two-sided sums defining `tateX`, `tateY` expand
+  geometrically — `qⁿu` (`n ≥ 0`) and, after the inversion identities
+  `div_one_sub_sq_inv` and `sq_div_one_sub_cube_inv`, `qⁿu⁻¹` (`n ≥ 1`) — using
+  `hasSum_geometric_deriv` and its `(d choose 2)`-weighted analogue, with summability
+  from `summable_of_valuation_le_pow` (the `u⁻¹`-halves against the base `q * u⁻¹`,
+  which the annulus places in the open unit disc);
+* the resulting double series regroup along `(d, e) ↦ de` into `q`-power series with
+  coefficients the Laurent expressions of Silverman's `q`-expansion, as in
+  `tsum_lambert`;
+* the formal identity `TateCurve.weierstrass_equation` in `(RatFunc ℚ)⟦q⟧`, descended to
+  `ℤ[u, u⁻¹, (1-u)⁻¹]⟦q⟧` and evaluated (the coefficients land in `k` via `u ≠ 0, 1`),
+  then closes the equation as in `tateΔ_eq_prod`. -/
+theorem WeierstrassCurve.tateCurve_equation_of_annulus (q : kˣ)
+    (hq : valuation k (q : k) < 1) (u : kˣ) (hu1 : u ≠ 1)
+    (h₁ : valuation k (q : k) < valuation k (u : k)) (h₂ : valuation k (u : k) ≤ 1) :
+    ((tateCurve (q : k))⁄k).Equation (tateX (u : k) (q : k)) (tateY (u : k) (q : k)) :=
+  sorry
+
+/-- Silverman, ATAEC V.1.1(a), over `k`: for `u` not a power of `q`, the pair
+`(X(u, q), Y(u, q))` satisfies the Weierstrass equation of the Tate curve `E_q`. The
+formal kernel is `TateCurve.weierstrass_equation`, the identity
+`Y² + XY = X³ + a₄X + a₆` in `(RatFunc ℚ)⟦q⟧` proved in
+`FLT.KnownIn1980s.EllipticCurves.TateCurveConstruction`. The transport to `k` should
+mirror `tateΔ_eq_prod`:
+
+* the coefficients of the formal `X(u, q)`, `Y(u, q)` are Laurent polynomials in `u` over
+  `ℤ` (only the `q⁰`-coefficients also require inverting `1 - u`), so the formal identity
+  descends from `RatFunc ℚ` to the subring `ℤ[u, u⁻¹, (1 - u)⁻¹]` by injectivity;
+* for `|q| < 1` and `u ∉ qᶻ` the doubly-infinite defining series of `tateX` and `tateY`
+  rearrange into power series in `q` with those coefficients evaluated at `u ∈ kˣ` —
+  legal, since `u ≠ 0, 1` — by the two-variable analogue of the Lambert rearrangement
+  `TateCurve.tsum_lambert` (over `ℂ` this is `TateCurve.hasSum_X_eval` and
+  `TateCurve.hasSum_Y_eval`);
+* evaluation is a ring homomorphism on convergent series (`evalInt_add`, `evalInt_mul`
+  and their two-variable extensions), so the formal identity evaluates to the equation
+  in `k`.
+
+Here the general case is reduced to the annulus case `tateCurve_equation_of_annulus`:
+normalise `u` into `|q| < |u| ≤ 1` by a power of `q` (`exists_zpow_mul_mem_annulus`),
+under which `tateX` and `tateY` are invariant (`tateX_zpow_mul_left`,
+`tateY_zpow_mul_left`). -/
+theorem WeierstrassCurve.tateCurve_equation (q : kˣ) (hq : valuation k (q : k) < 1)
+    (u : kˣ) (hu : u ∉ Subgroup.zpowers q) :
+    ((tateCurve (q : k))⁄k).Equation (tateX (u : k) (q : k)) (tateY (u : k) (q : k)) := by
+  -- normalise `u` into the annulus `|q| < |·| ≤ 1` by a power of `q`
+  obtain ⟨m, h₁, h₂⟩ := TateCurve.exists_zpow_mul_mem_annulus q hq u
+  have hu' : q ^ m * u ∉ Subgroup.zpowers q := fun h ↦ hu (by
+    have h2 := Subgroup.mul_mem _ (Subgroup.zpow_mem _ (Subgroup.mem_zpowers q) (-m)) h
+    rwa [show q ^ (-m) * (q ^ m * u) = u by group] at h2)
+  have hu1 : (q ^ m * u : kˣ) ≠ 1 := fun h ↦ hu' (h ▸ Subgroup.one_mem _)
+  have hcoe : ((q ^ m * u : kˣ) : k) = (q : k) ^ m * (u : k) := by push_cast; ring
+  have h := tateCurve_equation_of_annulus q hq (q ^ m * u) hu1 (by rwa [hcoe])
+    (by rwa [hcoe])
+  rw [hcoe, tateX_zpow_mul_left, tateY_zpow_mul_left] at h
+  exact h
+
+/-- Silverman, ATAEC V.1.1(a): for `u` not a power of `q`, the pair `(X(u, q), Y(u, q))`
+is a *nonsingular* point of the Tate curve `E_q`: it satisfies the Weierstrass equation
+(`tateCurve_equation`), and every point of a Weierstrass curve with nonvanishing
+discriminant is nonsingular (`tateCurve_Δ_ne_zero`, since `0 < |q| < 1`). -/
 theorem WeierstrassCurve.tateCurve_nonsingular (q : kˣ) (hq : valuation k (q : k) < 1)
     (u : kˣ) (hu : u ∉ Subgroup.zpowers q) :
-    ((tateCurve (q : k))⁄k).Nonsingular (tateX (u : k) (q : k)) (tateY (u : k) (q : k)) :=
-  sorry
+    ((tateCurve (q : k))⁄k).Nonsingular (tateX (u : k) (q : k)) (tateY (u : k) (q : k)) := by
+  have hΔ : ((tateCurve (q : k))⁄k).Δ ≠ 0 := by
+    rw [show (tateCurve (q : k))⁄k = tateCurve (q : k) by
+      simp only [WeierstrassCurve.baseChange, Algebra.algebraMap_self, WeierstrassCurve.map_id]]
+    exact tateCurve_Δ_ne_zero (q : k) q.ne_zero hq
+  exact (Affine.equation_iff_nonsingular_of_Δ_ne_zero hΔ).mp (tateCurve_equation q hq u hu)
 
 open scoped Classical in
 /-- The point of `E_q(k)` attached to a unit `u ∈ kˣ` by Tate's uniformisation: the affine
@@ -602,6 +1238,31 @@ noncomputable def WeierstrassCurve.tateCurvePoint (q : kˣ) (hq : valuation k (q
     (u : kˣ) : ((tateCurve (q : k))⁄k).Point :=
   if hu : u ∈ Subgroup.zpowers q then .zero
   else .some (tateX (u : k) (q : k)) (tateY (u : k) (q : k)) (tateCurve_nonsingular q hq u hu)
+
+/-- `tateCurvePoint` only depends on the class of `u` in `kˣ/qᶻ`: on the point at
+infinity the two membership conditions agree, and on affine points the coordinate series
+are `qᶻ`-invariant (`tateX_zpow_mul_left`, `tateY_zpow_mul_left`). -/
+theorem WeierstrassCurve.tateCurvePoint_eq (q : kˣ) (hq : valuation k (q : k) < 1)
+    (u v : kˣ) (h : u⁻¹ * v ∈ Subgroup.zpowers q) :
+    tateCurvePoint q hq u = tateCurvePoint q hq v := by
+  obtain ⟨m, hm⟩ := h
+  have hm' : q ^ m = u⁻¹ * v := hm
+  have hv : v = q ^ m * u := by
+    rw [hm', mul_comm u⁻¹ v, inv_mul_cancel_right]
+  subst hv
+  have hXeq : tateX ((q ^ m * u : kˣ) : k) (q : k) = tateX (u : k) (q : k) := by
+    push_cast
+    exact tateX_zpow_mul_left q m u
+  have hYeq : tateY ((q ^ m * u : kˣ) : k) (q : k) = tateY (u : k) (q : k) := by
+    push_cast
+    exact tateY_zpow_mul_left q m u
+  simp only [tateCurvePoint]
+  split_ifs with h1 h2 h2
+  · rfl
+  · exact absurd (Subgroup.mul_mem _ (Subgroup.zpow_mem _ (Subgroup.mem_zpowers q) m) h1) h2
+  · exact absurd
+      ((Subgroup.mul_mem_cancel_left _ (Subgroup.zpow_mem _ (Subgroup.mem_zpowers q) m)).mp h2) h1
+  · simp only [hXeq, hYeq]
 
 -- `DecidableEq k` is needed for the group law on the points
 variable [DecidableEq k] in
@@ -613,7 +1274,8 @@ nose with every valuative field morphism (see `tateCurve_baseChange` for the equ
 statement). -/
 noncomputable def WeierstrassCurve.tateCurveEquiv (q : kˣ) (hq : valuation k (q : k) < 1) :
     Additive (kˣ ⧸ Subgroup.zpowers q) ≃+ ((tateCurve (q : k))⁄k).Point where
-  toFun m := Quotient.liftOn' (Additive.toMul m) (tateCurvePoint q hq) (fun _ _ _ => sorry)
+  toFun m := Quotient.liftOn' (Additive.toMul m) (tateCurvePoint q hq) fun u v h ↦
+    tateCurvePoint_eq q hq u v (QuotientGroup.leftRel_apply.mp h)
   invFun := sorry
   left_inv := sorry
   right_inv := sorry
@@ -625,35 +1287,101 @@ noncomputable def WeierstrassCurve.tateCurveEquiv (q : kˣ) (hq : valuation k (q
 -- `j⁻¹` of an explicit integral power series. Here we state its interaction with the
 -- valuation and with `tateJ` (the two halves of V.5.2).
 
+/-- The Tate parameter of `j` has valuation exactly `|j|⁻¹`: the leading term `j⁻¹` of
+the inverse series `q = j⁻¹ + 744j⁻² + ⋯` dominates ultrametrically. -/
+theorem WeierstrassCurve.valuation_tateParameter_eq {j : k} (hj : 1 < valuation k j) :
+    valuation k (tateParameter j) = (valuation k j)⁻¹ := by
+  have hj0 : j ≠ 0 := by
+    rintro rfl
+    rw [map_zero] at hj
+    simp at hj
+  have hjinv : valuation k j⁻¹ < 1 := by
+    rw [map_inv₀]
+    exact inv_lt_one_of_one_lt₀ hj
+  have h := TateCurve.valuation_evalInt_eq j⁻¹ (inv_ne_zero hj0) hjinv
+    TateCurve.constantCoeff_jInvReverse TateCurve.coeff_one_jInvReverse
+  rw [show tateParameter j = TateCurve.evalInt j⁻¹ TateCurve.jInvReverse from rfl, h,
+    map_inv₀]
+
 theorem WeierstrassCurve.tateParameter_ne_zero {j : k} (hj : 1 < valuation k j) :
-    tateParameter j ≠ 0 :=
-  sorry
+    tateParameter j ≠ 0 := by
+  intro h
+  have heq := valuation_tateParameter_eq hj
+  rw [h, map_zero] at heq
+  exact inv_ne_zero (ne_of_gt (lt_trans zero_lt_one hj)) heq.symm
 
 theorem WeierstrassCurve.valuation_tateParameter_lt_one {j : k} (hj : 1 < valuation k j) :
-    valuation k (tateParameter j) < 1 :=
-  sorry
+    valuation k (tateParameter j) < 1 := by
+  rw [valuation_tateParameter_eq hj]
+  exact inv_lt_one_of_one_lt₀ hj
 
 /-- `tateParameter` is a right inverse of `tateJ`: the *existence* half of Silverman,
-ATAEC V.5.2. -/
+ATAEC V.5.2. The evaluation of the formal identity `jInv ∘ jInvReverse = X` at `j⁻¹`,
+via `evalInt_subst`. -/
 theorem WeierstrassCurve.tateJ_tateParameter {j : k} (hj : 1 < valuation k j) :
-    tateJ (tateParameter j) = j :=
-  sorry
+    tateJ (tateParameter j) = j := by
+  have hjinv : valuation k j⁻¹ < 1 := by
+    rw [map_inv₀]
+    exact inv_lt_one_of_one_lt₀ hj
+  have h2 : TateCurve.evalInt (tateParameter j) TateCurve.jInv = j⁻¹ := by
+    rw [show tateParameter j = TateCurve.evalInt j⁻¹ TateCurve.jInvReverse from rfl,
+      ← TateCurve.evalInt_subst j⁻¹ hjinv TateCurve.constantCoeff_jInvReverse TateCurve.jInv,
+      TateCurve.jInv_subst_jInvReverse, TateCurve.evalInt_X]
+  exact inv_injective
+    (((evalInt_jInv (tateParameter j) (valuation_tateParameter_lt_one hj)).symm.trans h2))
 
-/-- `tateParameter` is a left inverse of `tateJ` on the punctured open unit disc: the
-*uniqueness* half of Silverman, ATAEC V.5.2, stated choice-freely as a round-trip
-identity — if `q₁, q₂` both lie in the punctured disc and `tateJ q₁ = tateJ q₂`, apply
-`tateParameter` to both sides. -/
-theorem WeierstrassCurve.tateParameter_tateJ {q : k} (hq0 : q ≠ 0)
-    (hq1 : valuation k q < 1) : tateParameter (tateJ q) = q :=
-  sorry
+/-- `tateParameter` is a left inverse of `tateJ` on the open unit disc: the *uniqueness*
+half of Silverman, ATAEC V.5.2, stated choice-freely as a round-trip identity — if
+`q₁, q₂` both lie in the disc and `tateJ q₁ = tateJ q₂`, apply `tateParameter` to both
+sides. (At `q = 0` the junk values of `tateJ` and `tateParameter` happen to align, so
+the puncture is not needed.) -/
+theorem WeierstrassCurve.tateParameter_tateJ {q : k}
+    (hq1 : valuation k q < 1) : tateParameter (tateJ q) = q := by
+  rw [show tateParameter (tateJ q) =
+      TateCurve.evalInt (tateJ q)⁻¹ TateCurve.jInvReverse from rfl,
+    ← evalInt_jInv q hq1,
+    ← TateCurve.evalInt_subst q hq1 TateCurve.constantCoeff_jInv TateCurve.jInvReverse,
+    TateCurve.subst_jInvReverse, TateCurve.evalInt_X]
 
 /-- An elliptic curve over `k` with split multiplicative reduction has non-integral
 `j`-invariant, `|j(E)| > 1`: indeed `v(j) = -v(Δ_min) < 0`, since `c₄` is a unit when the
 reduction is multiplicative. -/
 theorem WeierstrassCurve.one_lt_valuation_j (E : WeierstrassCurve k) [E.IsElliptic]
     [E.IsMinimal 𝒪[k]] [E.HasSplitMultiplicativeReduction 𝒪[k]] :
-    1 < valuation k E.j :=
-  sorry
+    1 < valuation k E.j := by
+  have hmult : E.HasMultiplicativeReduction 𝒪[k] := inferInstance
+  -- transfer `mathlib`'s reduction-theoretic facts (stated for the adic valuation of the
+  -- discrete valuation ring `𝒪[k]`) to the canonical valuation of `k`, through unit and
+  -- maximal-ideal membership in `𝒪[k]`
+  have hint := Valuation.integer.integers (valuation k)
+  -- `|Δ| < 1`: the discriminant of the integral model lies in the maximal ideal
+  have hΔlt : valuation k E.Δ < 1 := by
+    have hbad := hmult.badReduction
+    rw [← integralModel_Δ_eq 𝒪[k] E] at hbad ⊢
+    have hmem : (integralModel 𝒪[k] E).Δ ∈ IsLocalRing.maximalIdeal 𝒪[k] :=
+      (IsDedekindDomain.HeightOneSpectrum.valuation_lt_one_iff_mem _ _).mp hbad
+    have hne : ¬IsUnit (integralModel 𝒪[k] E).Δ :=
+      mem_nonunits_iff.mp ((IsLocalRing.mem_maximalIdeal _).mp hmem)
+    exact lt_of_le_of_ne (hint.map_le_one _)
+      fun h ↦ hne (hint.isUnit_iff_valuation_eq_one.mpr h)
+  -- `|c₄| = 1`: `c₄` of the integral model is a unit of `𝒪[k]`
+  have hc₄ : valuation k E.c₄ = 1 := by
+    have hmul := hmult.multiplicativeReduction
+    rw [← integralModel_c₄_eq 𝒪[k] E] at hmul ⊢
+    have hunit : IsUnit (integralModel 𝒪[k] E).c₄ := by
+      by_contra h
+      exact ((IsDedekindDomain.HeightOneSpectrum.valuation_eq_one_iff_notMem _).mp hmul)
+        ((IsLocalRing.mem_maximalIdeal _).mpr (mem_nonunits_iff.mpr h))
+    exact hint.isUnit_iff_valuation_eq_one.mp hunit
+  -- hence `|j| = |c₄|³/|Δ| = |Δ|⁻¹ > 1`
+  have hΔ0 : valuation k E.Δ ≠ 0 := by
+    rw [(valuation k).ne_zero_iff, ← E.coe_Δ']
+    exact Units.ne_zero _
+  have hj : valuation k E.j = (valuation k E.Δ)⁻¹ := by
+    rw [show E.j = (↑(E.Δ'⁻¹) : k) * E.c₄ ^ 3 from rfl, map_mul, map_pow, hc₄, one_pow,
+      mul_one, Units.val_inv_eq_inv_val, map_inv₀, E.coe_Δ']
+  rw [hj]
+  exact (one_lt_inv₀ (zero_lt_iff.mpr hΔ0)).mpr hΔlt
 
 /-- The Tate parameter of an elliptic curve `E`, given by a minimal Weierstrass equation with
 split multiplicative reduction over a nonarchimedean local field `k`: the unique element
@@ -690,8 +1418,8 @@ constraint on `q` is needed for uniqueness as `tateJ` takes junk values outside 
 theorem WeierstrassCurve.existsUnique_tateJ_eq :
     ∃! q : k, q ≠ 0 ∧ valuation k q < 1 ∧ E.j = tateJ q := by
   refine ⟨E.q, ⟨E.q_ne_zero, E.valuation_q_lt_one, E.j_eq_tateJ_q⟩, ?_⟩
-  rintro q' ⟨hq0, hq1, hj⟩
-  rw [← tateParameter_tateJ hq0 hq1, ← hj]
+  rintro q' ⟨-, hq1, hj⟩
+  rw [← tateParameter_tateJ hq1, ← hj]
   rfl
 
 /-- The Tate parameter as an element of `kˣ`. -/
@@ -736,13 +1464,91 @@ variable {l : Type*} [Field l] [ValuativeRel l] [TopologicalSpace l]
 instance : (E.baseChange l).IsElliptic :=
   inferInstanceAs (E.map (algebraMap k l)).IsElliptic
 
--- The construction of the Tate curve commutes on the nose with any valuative morphism:
--- its coefficients are power series in `q` with *integer* coefficients, and a valuative
--- morphism is continuous, so preserves the sums. The same is true of the uniformisation
--- `tateCurveEquiv` (a statement we defer, as it needs transport along this equality).
-theorem WeierstrassCurve.tateCurve_baseChange (q : k) :
-    (tateCurve q)⁄l = tateCurve (algebraMap k l q) :=
-  sorry
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] [TopologicalSpace l]
+  [IsNonarchimedeanLocalField l] in
+/-- A valuative extension maps the open unit disc into the open unit disc: the induced
+map of value groups (`ValuativeExtension.mapValueGroupWithZero`) is strictly monotone. -/
+theorem TateCurve.valuation_algebraMap_lt_one {q : k} (hq : valuation k q < 1) :
+    valuation l (algebraMap k l q) < 1 := by
+  simpa using ValuativeExtension.mapValueGroupWithZero_strictMono (A := k) (B := l) hq
+
+/-- Evaluation of integral power series commutes with valuative extensions of
+nonarchimedean local fields: the coefficients are (the same) integers on both sides, and
+both evaluations are within `|q|^N` of the common `N`-th partial sum
+(`valuation_evalInt_sub_sum_le`), whose bound transfers along the strictly monotone map
+of value groups — no continuity argument is needed. -/
+theorem TateCurve.evalInt_map (q : k) (hq : valuation k q < 1) (F : ℤ⟦X⟧) :
+    algebraMap k l (evalInt q F) = evalInt (algebraMap k l q) F := by
+  have hq' : valuation l (algebraMap k l q) < 1 := valuation_algebraMap_lt_one hq
+  rw [← sub_eq_zero]
+  by_contra h
+  obtain ⟨N, hN⟩ := exists_pow_valuation_lt (algebraMap k l q) hq'
+    (Units.mk0 _ ((valuation l).ne_zero_iff.mpr h))
+  -- the image of the `k`-side partial sum is the `l`-side partial sum
+  have hmapsum : algebraMap k l
+      (∑ n ∈ Finset.range N, ((PowerSeries.coeff n F : ℤ) : k) * q ^ n) =
+      ∑ n ∈ Finset.range N, ((PowerSeries.coeff n F : ℤ) : l) * (algebraMap k l q) ^ n := by
+    rw [map_sum]
+    exact Finset.sum_congr rfl fun n _ ↦ by rw [map_mul, map_pow, map_intCast]
+  -- the `k`-side tail bound, transferred along the map of value groups
+  have h1 : valuation l (algebraMap k l (evalInt q F) -
+      ∑ n ∈ Finset.range N, ((PowerSeries.coeff n F : ℤ) : l) * (algebraMap k l q) ^ n) ≤
+      valuation l (algebraMap k l q) ^ N := by
+    rw [← hmapsum, ← map_sub]
+    calc valuation l (algebraMap k l (evalInt q F -
+            ∑ n ∈ Finset.range N, ((PowerSeries.coeff n F : ℤ) : k) * q ^ n))
+        = ValuativeExtension.mapValueGroupWithZero k l (valuation k (evalInt q F -
+            ∑ n ∈ Finset.range N, ((PowerSeries.coeff n F : ℤ) : k) * q ^ n)) :=
+          (ValuativeExtension.mapValueGroupWithZero_valuation _).symm
+      _ ≤ ValuativeExtension.mapValueGroupWithZero k l (valuation k q ^ N) :=
+          ValuativeExtension.mapValueGroupWithZero_strictMono.monotone
+            (valuation_evalInt_sub_sum_le q hq F N)
+      _ = valuation l (algebraMap k l q) ^ N := by
+          rw [map_pow, ValuativeExtension.mapValueGroupWithZero_valuation]
+  -- the `l`-side tail bound
+  have h2 := valuation_evalInt_sub_sum_le (algebraMap k l q) hq' F N
+  -- ultrametrically, the difference is then smaller than its own valuation: absurd
+  refine absurd ?_ (lt_irrefl (valuation l
+    (algebraMap k l (evalInt q F) - evalInt (algebraMap k l q) F)))
+  calc valuation l (algebraMap k l (evalInt q F) - evalInt (algebraMap k l q) F)
+      = valuation l ((algebraMap k l (evalInt q F) -
+          ∑ n ∈ Finset.range N, ((PowerSeries.coeff n F : ℤ) : l) * (algebraMap k l q) ^ n) -
+        (evalInt (algebraMap k l q) F -
+          ∑ n ∈ Finset.range N, ((PowerSeries.coeff n F : ℤ) : l) * (algebraMap k l q) ^ n)) := by
+        congr 1
+        ring
+    _ ≤ max _ _ := Valuation.map_sub _ _ _
+    _ ≤ valuation l (algebraMap k l q) ^ N := max_le h1 h2
+    _ < _ := hN
+
+/-- The construction of the Tate curve commutes on the nose with any valuative morphism:
+its coefficients are power series in `q` with *integer* coefficients, and the partial
+sums converge at matching rates on both sides (`TateCurve.evalInt_map`). The same is true
+of the uniformisation `tateCurveEquiv` (a statement we defer, as it needs transport along
+this equality).
+
+On the hypothesis `|q| < 1`: the coefficient series `tateA₄`, `tateA₆` are `tsum`s, which
+take *junk values* outside the open unit disc (the `tsum` of a non-summable family is
+`0`, and terms with vanishing denominators `1 - qⁿ = 0` are the junk `x/0 = 0`). Without
+the hypothesis this lemma would be a statement about the alignment of junk values across
+two different fields: for `|q| > 1` it would hold by accident — each term of `tateA₄` has
+size `|(n+1)³|`, which does not tend to `0`, so both sides are non-summable and both junk
+to `0` — but for `|q| = 1` summability hinges on how well `qⁿ` approximates `1`, a
+Diophantine condition on `q`, and transferring (non-)summability along `k → l` would
+further require the image of `ValuativeExtension.mapValueGroupWithZero` to be cofinal in
+the value group of `l` (true for local fields, by finiteness of ramification, but yet
+another argument). None of this buys anything: every consumer feeds this lemma a Tate
+parameter, which lies strictly inside the disc (`valuation_q_lt_one`). So the hypothesis
+is free in practice, and keeps the statement the honest identity of convergent series
+that it is in Silverman. -/
+theorem WeierstrassCurve.tateCurve_baseChange (q : k) (hq : valuation k q < 1) :
+    (tateCurve q)⁄l = tateCurve (algebraMap k l q) := by
+  have hq' : valuation l (algebraMap k l q) < 1 := TateCurve.valuation_algebraMap_lt_one hq
+  have h4 : algebraMap k l (tateA₄ q) = tateA₄ (algebraMap k l q) := by
+    rw [tateA₄_eq_evalInt q hq, tateA₄_eq_evalInt _ hq', TateCurve.evalInt_map q hq]
+  have h6 : algebraMap k l (tateA₆ q) = tateA₆ (algebraMap k l q) := by
+    rw [tateA₆_eq_evalInt q hq, tateA₆_eq_evalInt _ hq', TateCurve.evalInt_map q hq]
+  ext <;> simp [WeierstrassCurve.baseChange, tateCurve, h4, h6]
 
 -- Claude says that the base change of E to l is still given by a minimal Weierstrass equation.
 -- This uses the multiplicative reduction hypothesis (which makes `c₄` a unit): minimality by
@@ -756,9 +1562,25 @@ instance : (E.baseChange l).IsMinimal 𝒪[l] :=
 instance : (E.baseChange l).HasSplitMultiplicativeReduction 𝒪[l] :=
   sorry
 
--- The Tate parameter pushes forward under base change.
-theorem WeierstrassCurve.q_baseChange : (E.baseChange l).q = algebraMap k l E.q :=
-  sorry
+/-- The Tate parameter series commutes with valuative extensions: it is the evaluation of
+an integral power series at `j⁻¹`, so this is a direct instance of `evalInt_map`. -/
+theorem WeierstrassCurve.tateParameter_map {j : k} (hj : 1 < valuation k j) :
+    tateParameter (algebraMap k l j) = algebraMap k l (tateParameter j) := by
+  have hjinv : valuation k j⁻¹ < 1 := by
+    rw [map_inv₀]
+    exact inv_lt_one_of_one_lt₀ hj
+  rw [show tateParameter j = TateCurve.evalInt j⁻¹ TateCurve.jInvReverse from rfl,
+    show tateParameter (algebraMap k l j) =
+      TateCurve.evalInt (algebraMap k l j)⁻¹ TateCurve.jInvReverse from rfl,
+    TateCurve.evalInt_map j⁻¹ hjinv, map_inv₀]
+
+-- The Tate parameter pushes forward under base change: `j` is functorial and the inverse
+-- `j`-series has universal integer coefficients, so commutes with the extension.
+theorem WeierstrassCurve.q_baseChange : (E.baseChange l).q = algebraMap k l E.q := by
+  rw [show (E.baseChange l).q = tateParameter (E.baseChange l).j from rfl,
+    show E.q = tateParameter E.j from rfl,
+    show (E.baseChange l).j = algebraMap k l E.j from E.map_j (algebraMap k l),
+    tateParameter_map E.one_lt_valuation_j]
 
 -- The uniformisations of `E` and of its base change fit into a commutative diagram, but only
 -- up to a sign `ε` which cannot in general be removed, whatever choices are made in
