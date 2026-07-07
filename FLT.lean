@@ -263,6 +263,13 @@ public import FLT.Slop.BrauerInduction.PElementaryGroup
 public import FLT.Slop.BrauerInduction.PRegularSum
 public import FLT.Slop.BrauerInduction.Projection
 public import FLT.Slop.BrauerInduction.Span
+public import FLT.Slop.DimensionTheorem
+public import FLT.Slop.DimensionTheorem.Defs
+public import FLT.Slop.DimensionTheorem.DimEqDelta
+public import FLT.Slop.DimensionTheorem.DimLeGrowth
+public import FLT.Slop.DimensionTheorem.GrowthLeDelta
+public import FLT.Slop.DimensionTheorem.Main
+public import FLT.Slop.DimensionTheorem.Numeric
 public import FLT.Slop.PGL2.FiniteSubgroups.CyclicPartition
 public import FLT.Slop.PGL2.FiniteSubgroups.DicksonClassification
 public import FLT.Slop.PGL2.FiniteSubgroups.FieldReconstruction
