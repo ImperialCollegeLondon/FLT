@@ -8,6 +8,7 @@ module
 public import Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
 public import Mathlib.NumberTheory.LocalField.Basic
 public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
+public import FLT.KnownIn1980s.EllipticCurves.TateParameter
 
 /-!
 
@@ -119,15 +120,107 @@ noncomputable def WeierstrassCurve.tateCurveEquiv (q : kˣ) (hq : valuation k (q
     Additive (kˣ ⧸ Subgroup.zpowers q) ≃+ ((tateCurve (q : k))⁄k).Point :=
   sorry
 
+-- `tateParameter` — the inverse of `q ↦ j(q)` of Silverman, ATAEC V.5.2, by which the
+-- Tate parameter is *defined* below, choice-freely — is constructed in
+-- `FLT.KnownIn1980s.EllipticCurves.TateParameter` (imported above) as the evaluation at
+-- `j⁻¹` of an explicit integral power series. Here we state its interaction with the
+-- valuation.
+
+omit [ValuativeRel k] [IsNonarchimedeanLocalField k] in
+lemma WeierstrassCurve.tateParameter_eq {j : k} : WeierstrassCurve.tateParameter j =
+    TateCurve.evalInt j⁻¹ TateCurve.jInvReverse := by
+  rfl
+
+/-- The Tate parameter of `j` has valuation exactly `|j|⁻¹`: the leading term `j⁻¹` of
+the inverse series `q = j⁻¹ + 744j⁻² + ⋯` dominates ultrametrically. -/
+theorem WeierstrassCurve.valuation_tateParameter_eq {j : k} (hj : 1 < valuation k j) :
+    valuation k (tateParameter j) = (valuation k j)⁻¹ := by
+  have hj0 : j ≠ 0 := by
+    rintro rfl
+    simp [map_zero] at hj
+  have h := TateCurve.valuation_evalInt_eq j⁻¹ (inv_ne_zero hj0)
+    (by simpa [map_inv₀] using inv_lt_one_of_one_lt₀ hj) TateCurve.constantCoeff_jInvReverse
+    TateCurve.coeff_one_jInvReverse
+  rw [WeierstrassCurve.tateParameter_eq, h, map_inv₀]
+
+theorem WeierstrassCurve.tateParameter_ne_zero {j : k} (hj : 1 < valuation k j) :
+    tateParameter j ≠ 0 := by
+  intro h
+  have heq := valuation_tateParameter_eq hj
+  rw [h, map_zero] at heq
+  exact inv_ne_zero (ne_of_gt (lt_trans zero_lt_one hj)) heq.symm
+
+theorem WeierstrassCurve.valuation_tateParameter_lt_one {j : k} (hj : 1 < valuation k j) :
+    valuation k (tateParameter j) < 1 := by
+  simpa [valuation_tateParameter_eq hj] using inv_lt_one_of_one_lt₀ hj
+
+-- The next few lemmas transfer `mathlib`'s reduction-theoretic facts (stated for the adic
+-- valuation of the discrete valuation ring `𝒪[k]`) to the canonical valuation of `k`,
+-- through unit and maximal-ideal membership in `𝒪[k]`.
+
+/-- An elliptic curve over `k` with bad (here multiplicative) reduction has discriminant of
+valuation less than `1`: the discriminant of the integral model lies in the maximal ideal. -/
+theorem WeierstrassCurve.valuation_Δ_lt_one (E : WeierstrassCurve k)
+    [E.HasMultiplicativeReduction 𝒪[k]] :
+    valuation k E.Δ < 1 := by
+  have hint := Valuation.integer.integers (valuation k)
+  have hbad := HasMultiplicativeReduction.badReduction (R := 𝒪[k]) (W := E)
+  rw [← integralModel_Δ_eq 𝒪[k] E] at hbad ⊢
+  have hmem : (integralModel 𝒪[k] E).Δ ∈ IsLocalRing.maximalIdeal 𝒪[k] :=
+    (IsDedekindDomain.HeightOneSpectrum.valuation_lt_one_iff_mem _ _).mp hbad
+  have hne : ¬IsUnit (integralModel 𝒪[k] E).Δ :=
+    mem_nonunits_iff.mp ((IsLocalRing.mem_maximalIdeal _).mp hmem)
+  exact lt_of_le_of_ne (hint.map_le_one _)
+    fun h ↦ hne (hint.isUnit_iff_valuation_eq_one.mpr h)
+
+/-- An elliptic curve over `k` with multiplicative reduction has `c₄` of valuation exactly
+`1`: `c₄` of the integral model is a unit of `𝒪[k]`. -/
+theorem WeierstrassCurve.valuation_c₄_eq_one (E : WeierstrassCurve k)
+    [E.HasMultiplicativeReduction 𝒪[k]] :
+    valuation k E.c₄ = 1 := by
+  have hint := Valuation.integer.integers (valuation k)
+  have hmul := HasMultiplicativeReduction.multiplicativeReduction (R := 𝒪[k]) (W := E)
+  rw [← integralModel_c₄_eq 𝒪[k] E] at hmul ⊢
+  have hunit : IsUnit (integralModel 𝒪[k] E).c₄ := by
+    by_contra h
+    exact ((IsDedekindDomain.HeightOneSpectrum.valuation_eq_one_iff_notMem _).mp hmul)
+      ((IsLocalRing.mem_maximalIdeal _).mpr (mem_nonunits_iff.mpr h))
+  exact hint.isUnit_iff_valuation_eq_one.mp hunit
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- The discriminant of an elliptic curve has nonzero valuation. -/
+theorem WeierstrassCurve.valuation_Δ_ne_zero (E : WeierstrassCurve k) [E.IsElliptic] :
+    valuation k E.Δ ≠ 0 := by
+  rw [(valuation k).ne_zero_iff, ← E.coe_Δ']
+  exact Units.ne_zero _
+
+/-- An elliptic curve over `k` with multiplicative reduction has `|j| = |c₄|³/|Δ| = |Δ|⁻¹`. -/
+theorem WeierstrassCurve.valuation_j_eq (E : WeierstrassCurve k) [E.IsElliptic]
+    [E.HasMultiplicativeReduction 𝒪[k]] :
+    valuation k E.j = (valuation k E.Δ)⁻¹ := by
+  rw [show E.j = (↑(E.Δ'⁻¹) : k) * E.c₄ ^ 3 from rfl, map_mul, map_pow,
+    E.valuation_c₄_eq_one, one_pow, mul_one, Units.val_inv_eq_inv_val, map_inv₀, E.coe_Δ']
+
+/-- An elliptic curve over `k` with split multiplicative reduction has non-integral
+`j`-invariant, `|j(E)| > 1`: indeed `v(j) = -v(Δ_min) < 0`, since `c₄` is a unit when the
+reduction is multiplicative. -/
+theorem WeierstrassCurve.one_lt_valuation_j (E : WeierstrassCurve k) [E.IsElliptic]
+    [E.IsMinimal 𝒪[k]] [E.HasSplitMultiplicativeReduction 𝒪[k]] :
+    1 < valuation k E.j := by
+  rw [E.valuation_j_eq]
+  exact (one_lt_inv₀ (zero_lt_iff.mpr E.valuation_Δ_ne_zero)).mpr E.valuation_Δ_lt_one
+
 /-- The Tate parameter of an elliptic curve `E`, given by a minimal Weierstrass equation with
-split multiplicative reduction over a nonarchimedean local field `k`. It is the unique element
-`q` of `k` with `0 < |q| < 1` such that `j(E) = j(q) = q⁻¹ + 744 + 196884q + ⋯`; equivalently,
-the unique `q` such that `E(k̄)` is Galois-equivariantly isomorphic to `k̄ˣ/q^ℤ`. (The bare
-existence of an abstract isomorphism `E(k) ≅ kˣ/q^ℤ` would not pin down `q`: already over
-`ℚ_p` the groups `ℚ_pˣ/p^ℤ` and `ℚ_pˣ/(p(1+p))^ℤ` are isomorphic, even topologically.) -/
+split multiplicative reduction over a nonarchimedean local field `k`: the unique element
+`q` of `k` with `0 < |q| < 1` such that `j(E) = j(q) = q⁻¹ + 744 + 196884q + ⋯`, defined
+directly (with no appeal to choice) as `tateParameter E.j`, the inverse `j`-series
+evaluated at `j(E)`. Equivalently, the unique `q` such that `E(k̄)` is Galois-equivariantly
+isomorphic to `k̄ˣ/q^ℤ`. (The bare existence of an abstract isomorphism `E(k) ≅ kˣ/q^ℤ`
+would not pin down `q`: already over `ℚ_p` the groups `ℚ_pˣ/p^ℤ` and `ℚ_pˣ/(p(1+p))^ℤ`
+are isomorphic, even topologically.) -/
 noncomputable def WeierstrassCurve.q (E : WeierstrassCurve k) [E.IsElliptic]
     [E.IsMinimal 𝒪[k]] [E.HasSplitMultiplicativeReduction 𝒪[k]] : k :=
-  sorry
+  tateParameter E.j
 
 -- Let E/k be an elliptic curve, given by a minimal Weierstrass equation,
 -- with split multiplicative reduction
@@ -135,11 +228,11 @@ variable (E : WeierstrassCurve k) [E.IsElliptic] [E.IsMinimal 𝒪[k]]
   [E.HasSplitMultiplicativeReduction 𝒪[k]]
 
 theorem WeierstrassCurve.q_ne_zero : E.q ≠ 0 :=
-  sorry
+  tateParameter_ne_zero E.one_lt_valuation_j
 
 /-- The Tate parameter has norm less than `1`. -/
 theorem WeierstrassCurve.valuation_q_lt_one : valuation k E.q < 1 :=
-  sorry
+  valuation_tateParameter_lt_one E.one_lt_valuation_j
 
 /-- The Tate parameter as an element of `kˣ`. -/
 noncomputable def WeierstrassCurve.qUnit : kˣ :=

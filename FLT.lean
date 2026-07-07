@@ -77,6 +77,7 @@ public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists
 public import FLT.KnownIn1980s.EllipticCurves.TateCurve
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstruction
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstructionExperiment
+public import FLT.KnownIn1980s.EllipticCurves.TateParameter
 public import FLT.KnownIn1980s.EllipticCurves.Torsion
 public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
 public import FLT.KnownIn1980s.PGL2.Defs
@@ -143,6 +144,7 @@ public import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct
 public import FLT.Mathlib.RingTheory.TensorProduct.Basis
 public import FLT.Mathlib.RingTheory.TensorProduct.Pi
 public import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
+public import FLT.Mathlib.RingTheory.Valuation.ValuativeRel.Basic
 public import FLT.Mathlib.Topology.Algebra.Algebra.Hom
 public import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 public import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
@@ -165,6 +167,7 @@ public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 public import FLT.Mathlib.Topology.Algebra.UniformRing
+public import FLT.Mathlib.Topology.Algebra.ValuativeRel.ValuativeTopology
 public import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 public import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 public import FLT.Mathlib.Topology.Bases
