@@ -72,6 +72,7 @@ public import FLT.Hacks.RightActionInstances
 public import FLT.HenselianLocalRing.EtaleDecomposition
 public import FLT.HenselianLocalRing.Finite
 public import FLT.HenselianLocalRing.Stuff
+public import FLT.KnownIn1980s.EllipticCurves.DivisionPolynomialTorsion
 public import FLT.KnownIn1980s.EllipticCurves.Flat
 public import FLT.KnownIn1980s.EllipticCurves.FlatImpliesUnramified
 public import FLT.KnownIn1980s.EllipticCurves.GoodReduction

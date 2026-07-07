@@ -74,4 +74,30 @@ theorem WeierstrassCurve.torsion_unramified_of_good_reduction
     -- Then every element of the inertia subgroup at 𝒪 fixes every n-torsion point of E(ksep)
     ∀ σ ∈ 𝒪.inertiaSubgroup k, ∀ P ∈ AddSubgroup.torsionBy (E⁄ksep).Point (n : ℤ),
       Affine.Point.map (σ : ksep ≃ₐ[k] ksep).toAlgHom P = P :=
+  -- PROOF SKETCH (the elementary division-polynomial route; Silverman VII.7.1). Let `κ` be
+  -- the residue field of `𝒪`.
+  --
+  -- 1. Integrality: `E[n] ⊆ E(𝒪)`. For a nonzero `n`-torsion point `P = (x, y)`, the
+  --    dictionary lemma `WeierstrassCurve.Affine.Point.eval_ΨSq_eq_zero_of_smul_eq_zero`
+  --    (in `FLT.KnownIn1980s.EllipticCurves.DivisionPolynomialTorsion`) says `x` is a root
+  --    of `ΨSqₙ`. Its leading coefficient `n²` (`leadingCoeff_ΨSq`) is a unit in `R` by
+  --    `hn`, so `x` is integral over `R`, hence lies in `𝒪` (which, via `h𝒪`, contains the
+  --    integral closure of `R` in `kˢᵉᵖ`); the Weierstrass equation then puts `y ∈ 𝒪` too.
+  --
+  -- 2. Reduction is injective on `E[n]`. Reducing coordinates mod the maximal ideal of `𝒪`
+  --    gives a map to `Ẽ(κ)` (`Ẽ = E.reduction`, elliptic by good reduction). By
+  --    `WeierstrassCurve.isCoprime_Φ_ΨSq` (`Δ` is a unit in `κ`), `Φₙ` and `ΨSqₙ` share no
+  --    root mod the maximal ideal, so distinct `n`-torsion `x`-coordinates stay distinct
+  --    after reduction; hence reduction is injective on `E[n]`.
+  --
+  -- 3. Inertia kills the difference. `σ ∈ 𝒪.inertiaSubgroup k` acts trivially on `κ` (this
+  --    is the *definition* of the inertia subgroup, `ValuationSubring.inertiaSubgroup` being
+  --    the kernel of the action on the residue field). Reduction is Galois-equivariant, so
+  --    `(σ • P - P)` reduces to `0`; being also in `E[n]`, step 2 forces `σ • P = P`.
+  --
+  -- REMAINING GAP: steps 1–3 need a *reduction map on points* `E(kˢᵉᵖ) → Ẽ(κ)` compatible
+  -- with the group law and Galois action. Mathlib has `WeierstrassCurve.reduction` of the
+  -- curve but not this map on `Affine.Point` over an extension; constructing it (and its
+  -- equivariance / injectivity-on-torsion lemmas) is the one missing piece. The dictionary
+  -- and `isCoprime_Φ_ΨSq` (now proved modulo `resultant_Φ_ΨSq`) are the other inputs.
   sorry

@@ -74,6 +74,9 @@ variable (ksep : Type*) [Field ksep] [Algebra k ksep] [IsSepClosure k ksep] [Dec
 -- Let 𝒪 be a valuation subring of ksep (the hypothesis that it lies above R is `h𝒪` below).
 variable (𝒪 : ValuationSubring ksep)
 
+-- `NeZero n` is subsumed by `hn` below (the option-(b) proof does not use it); it is kept in
+-- the section for the flat construction and the corollary, so we omit it just here.
+omit [NeZero n] in
 /-- **Flat implies unramified.** Suppose the `n`-torsion of `E` prolongs to a finite flat
 group scheme over `R`, presented as in `WeierstrassCurve.torsion_flat_of_good_reduction`
 by a commutative Hopf algebra `H` over `R` which is finite and flat as an `R`-module, whose
@@ -99,8 +102,45 @@ theorem WeierstrassCurve.torsion_unramified_of_torsion_flat
     (h𝒪 : (𝒪.comap (algebraMap k ksep)).toSubring = (algebraMap R k).range) :
     -- Then every element of the inertia subgroup at 𝒪 fixes every n-torsion point of E(ksep).
     ∀ σ ∈ 𝒪.inertiaSubgroup k, ∀ P ∈ AddSubgroup.torsionBy (E⁄ksep).Point (n : ℤ),
-      Affine.Point.map (σ : ksep ≃ₐ[k] ksep).toAlgHom P = P :=
-  sorry
+      Affine.Point.map (σ : ksep ≃ₐ[k] ksep).toAlgHom P = P := by
+  intro σ hσ P hP
+  -- The `kˢᵉᵖ`-points of the generic fibre of the group scheme are the `k`-algebra
+  -- homomorphisms `k ⊗[R] H → kˢᵉᵖ`, on which `Gal(kˢᵉᵖ/k)` acts by `φ ↦ σ ∘ φ`. The heart
+  -- of the matter is that the inertia subgroup fixes every such homomorphism.
+  --
+  -- Option (b): we discharge `hgs` by transporting the unramifiedness of the *torsion
+  -- points* (`WeierstrassCurve.torsion_unramified_of_good_reduction`, the elementary
+  -- division-polynomial argument) back across the isomorphism `f`. This proves the
+  -- statement but does not itself use the finite flatness of `H` (only `f`, `hf`).
+  --
+  -- TODO (option (a), the genuine "flat ⟹ unramified" argument): prove `hgs` directly from
+  -- the finite flat group scheme structure — `H` finite flat over the DVR `R` with order
+  -- `n²` invertible in the residue field is finite étale, hence its generic fibre is an
+  -- unramified Galois set — via the `FLT.GroupScheme` API once it exists. That route does
+  -- not pass through the torsion points, and is the reason the flat hypotheses are stated.
+  have hgs : ∀ φ : k ⊗[R] H →ₐ[k] ksep, (σ : ksep ≃ₐ[k] ksep).toAlgHom.comp φ = φ := by
+    intro φ
+    -- inertia fixes the torsion point `f φ` (the elementary division-polynomial result)
+    have h3 : Affine.Point.map (σ : ksep ≃ₐ[k] ksep).toAlgHom
+          (f (Additive.ofMul (WithConv.toConv φ)) : (E⁄ksep).Point)
+        = (f (Additive.ofMul (WithConv.toConv φ)) : (E⁄ksep).Point) :=
+      WeierstrassCurve.torsion_unramified_of_good_reduction R k E n ksep 𝒪 hn h𝒪 σ hσ
+        (f (Additive.ofMul (WithConv.toConv φ)) : (E⁄ksep).Point)
+        (f (Additive.ofMul (WithConv.toConv φ))).2
+    -- combine with equivariance and undo `f`, `Additive.ofMul`, `WithConv.toConv`
+    have key := (hf (σ : ksep ≃ₐ[k] ksep) φ).trans h3
+    have hab : f (Additive.ofMul (WithConv.toConv ((σ : ksep ≃ₐ[k] ksep).toAlgHom.comp φ)))
+        = f (Additive.ofMul (WithConv.toConv φ)) := by exact_mod_cast key
+    exact WithConv.toConv_injective (Additive.ofMul.injective (f.injective hab))
+  -- Transport `hgs` across `f` to the chosen torsion point `P`.
+  obtain ⟨m, hm⟩ := f.surjective ⟨P, hP⟩
+  obtain ⟨φ, hmφ⟩ : ∃ φ : k ⊗[R] H →ₐ[k] ksep, Additive.ofMul (WithConv.toConv φ) = m :=
+    ⟨(Additive.toMul m).ofConv, rfl⟩
+  have hφ : (f (Additive.ofMul (WithConv.toConv φ)) : (E⁄ksep).Point) = P := by
+    rw [hmφ, hm]
+  have key := hf (σ : ksep ≃ₐ[k] ksep) φ
+  rw [hgs φ, hφ] at key
+  exact key.symm
 
 /-- **Néron–Ogg–Shafarevich, easy direction, as a corollary of flatness.** If `E` has good
 reduction over `R` and `n` is invertible in the residue field of `R`, then the Galois
