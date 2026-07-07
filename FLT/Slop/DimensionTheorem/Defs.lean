@@ -1,4 +1,13 @@
-import FLT.Slop.DimensionTheorem.Numeric
+/-
+Copyright (c) 2026 Akhil Mathew. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Akhil Mathew
+-/
+module
+
+public import Mathlib.RingTheory.Ideal.KrullsHeightTheorem
+public import Mathlib.RingTheory.Length
+public import FLT.Slop.DimensionTheorem.Numeric
 
 /-!
 # The Hilbert–Samuel function, `d(R)`, and `δ(R)`
@@ -38,6 +47,8 @@ formulation above, which requires no graded machinery; the two definitions
 agree once eventual polynomiality is known. Upgrading `growthDeg` to the
 polynomial degree (i.e. formalizing Hilbert–Serre) is the natural next step.
 -/
+
+@[expose] public section
 
 namespace DimensionTheorem
 
@@ -105,6 +116,7 @@ lemma colength_coe {I : Ideal R} (h : I.radical = maximalIdeal R) :
 
 set_option linter.unusedSectionVars false in
 /-- Powers of an ideal of definition are ideals of definition. -/
+@[nolint unusedArguments]
 lemma radical_pow_eq_of_radical_eq {I : Ideal R} (h : I.radical = maximalIdeal R)
     {n : ℕ} (hn : n ≠ 0) : (I ^ n).radical = maximalIdeal R := by
   rw [I.radical_pow hn, h]
@@ -140,6 +152,7 @@ lemma hilbertSamuel_monotone : Monotone (hilbertSamuel R) := by
 set_option linter.unusedSectionVars false in
 /-- Additivity of length along a pair of nested ideals `I ≤ J`, from the exact
 sequence `0 → J/I → R/I → R/J → 0` (valid in `ℕ∞`, no finiteness needed). -/
+@[nolint unusedArguments]
 lemma length_quotient_eq_add (I J : Ideal R) (hIJ : I ≤ J) :
     Module.length R (R ⧸ I) =
       Module.length R (Submodule.map (Submodule.mkQ (I : Submodule R R)) (J : Submodule R R)) +

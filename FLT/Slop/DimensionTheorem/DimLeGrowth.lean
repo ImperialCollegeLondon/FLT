@@ -1,4 +1,13 @@
-import FLT.Slop.DimensionTheorem.Defs
+/-
+Copyright (c) 2026 Akhil Mathew. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Akhil Mathew
+-/
+module
+
+public import Mathlib.RingTheory.KrullDimension.Field
+public import Mathlib.RingTheory.KrullDimension.Regular
+public import FLT.Slop.DimensionTheorem.Defs
 
 /-!
 # `dim R ≤ d(R)`
@@ -46,6 +55,8 @@ available in the growth-order formulation of `d(R)`.
 /- Some lemmas below do not use all the section variables; keep the statements
 exactly as in the interface rather than `omit`-ting hypotheses. -/
 set_option linter.unusedSectionVars false
+
+@[expose] public section
 
 namespace DimensionTheorem
 
@@ -298,6 +309,7 @@ lemma ringKrullDim_le_zero_of_growthLE_zero
 
 /-- Reduction to domain quotients: to bound `dim R` it suffices to bound
 `dim (R ⧸ p)` for every minimal prime `p`. -/
+@[nolint unusedArguments]
 lemma ringKrullDim_le_of_forall_minimalPrimes {n : ℕ}
     (h : ∀ p ∈ minimalPrimes R, ringKrullDim (R ⧸ p) ≤ (n : WithBot ℕ∞)) :
     ringKrullDim R ≤ (n : WithBot ℕ∞) := by

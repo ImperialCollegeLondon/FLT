@@ -1,4 +1,13 @@
-import Mathlib
+/-
+Copyright (c) 2026 Akhil Mathew. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Akhil Mathew
+-/
+module
+
+public import Mathlib.Algebra.Order.BigOperators.Group.Finset
+public import Mathlib.Data.Sym.Card
+public import Mathlib.Tactic.Ring.RingNF
 
 /-!
 # Numerical growth lemmas for the dimension theorem
@@ -33,6 +42,8 @@ from the Pascal-type recurrence `Nat.multichoose_succ_succ`. Used in
 `FLT/Slop/DimensionTheorem/GrowthLeDelta.lean` to bound the number of degree-`n`
 monomials in the generators of an ideal of definition.
 -/
+
+@[expose] public section
 
 namespace DimensionTheorem
 
@@ -85,6 +96,7 @@ private lemma telescope_aux {f g : ℕ → ℕ} {c : ℕ}
 -- `hc` is kept for interface stability but is not actually needed:
 -- each application of `h` is at a point `n + (j + 1) * c ≥ c` regardless.
 set_option linter.unusedVariables false in
+@[nolint unusedArguments]
 lemma of_le_sub {f g : ℕ → ℕ} {c d : ℕ} (hc : 0 < c) (hf : GrowthLE f (d + 1))
     (hg : Monotone g) (h : ∀ n, c ≤ n → g n + f (n - c) ≤ f n) :
     GrowthLE g d := by

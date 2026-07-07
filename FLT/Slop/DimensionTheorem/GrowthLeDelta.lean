@@ -1,4 +1,12 @@
-import FLT.Slop.DimensionTheorem.Defs
+/-
+Copyright (c) 2026 Akhil Mathew. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Akhil Mathew
+-/
+module
+
+public import Mathlib.LinearAlgebra.Quotient.Pi
+public import FLT.Slop.DimensionTheorem.Defs
 
 /-!
 # `d(R) ≤ δ(R)`
@@ -32,6 +40,8 @@ in degree one by `k` elements — without any graded-ring machinery.
   `growthDeg` is nonempty, so `growthDeg` is an attained minimum.
 * `DimensionTheorem.growthDeg_le_minGenPrimary` — `d(R) ≤ δ(R)`.
 -/
+
+@[expose] public section
 
 namespace DimensionTheorem
 

@@ -1,6 +1,13 @@
-import FLT.Slop.DimensionTheorem.DimEqDelta
-import FLT.Slop.DimensionTheorem.GrowthLeDelta
-import FLT.Slop.DimensionTheorem.DimLeGrowth
+/-
+Copyright (c) 2026 Akhil Mathew. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Akhil Mathew
+-/
+module
+
+public import FLT.Slop.DimensionTheorem.DimEqDelta
+public import FLT.Slop.DimensionTheorem.DimLeGrowth
+public import FLT.Slop.DimensionTheorem.GrowthLeDelta
 
 /-!
 # The dimension theorem for Noetherian local rings
@@ -38,6 +45,8 @@ polynomial-degree definitions of `d(R)` agree. The results depend only on the
 standard axioms (`propext`, `Classical.choice`, `Quot.sound`); the development
 is `sorry`-free.
 -/
+
+@[expose] public section
 
 namespace DimensionTheorem
 
