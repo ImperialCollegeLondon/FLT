@@ -40,7 +40,7 @@ variable (k : Type*) [Field k] [Algebra R k] [IsFractionRing R k]
 variable (E : WeierstrassCurve k) [E.IsElliptic] [E.HasGoodReduction R]
 
 -- Let n be a natural which is nonzero in k
-variable (n : ℕ) [NeZero (n : k)]
+variable (n : ℕ) [NeZero (n : IsLocalRing.ResidueField R)]
 
 -- Let ksep be a separable closure of k (`DecidableEq` is needed for the group law on points)
 variable (ksep : Type*) [Field ksep] [Algebra k ksep] [IsSepClosure k ksep] [DecidableEq ksep]

@@ -99,6 +99,11 @@ complex analysis entirely; see
 https://mathoverflow.net/questions/469021/low-level-proof-of-identity-related-to-weierstrass-p-function
 This file does not take that route.
 
+# Other notes
+
+Main statements written by Kevin Buzzard, slop proofs written by William
+Coram and Samual Yin, final clean-up done by codex, file now compiles
+in a couple of seconds.
 -/
 
 @[expose] public section
@@ -650,9 +655,16 @@ theorem weierstrassP_q_expansion (τ : ℂ) (hτ : 0 < τ.im) (z : ℂ) (hz : 0 
       tsum_congr fun m ↦ by congr 1; ring, tsum_int_inv_pow_sub,
       sum_int_inv_sq' _ (im_sub_int_mul_ne_zero hτ hz hzτ n), e_sub_intCast_mul]
   -- Step 4: summability of the row values
+  have hV : Summable fun n : ℤ ↦
+      e τ ^ n * e z / (1 - e τ ^ n * e z) ^ 2 :=
+    summable_V (u := e z) (q := e τ) hq0 hqu hu1
+  have hVneg : Summable fun n : ℤ ↦
+      e τ ^ (-n) * e z / (1 - e τ ^ (-n) * e z) ^ 2 :=
+    summable_comp_neg
+      (f := fun n : ℤ ↦ e τ ^ n * e z / (1 - e τ ^ n * e z) ^ 2) hV
   have hT1 : Summable fun n : ℤ ↦
       (2 * (Real.pi : ℂ) * I) ^ 2 * (e τ ^ (-n) * e z / (1 - e τ ^ (-n) * e z) ^ 2) :=
-    Summable.mul_left _ (summable_comp_neg (summable_V hq0 hqu hu1))
+    hVneg.mul_left ((2 * (Real.pi : ℂ) * I) ^ 2)
   have hT2 : Summable fun n : ℤ ↦
       (2 * (Real.pi : ℂ) * I) ^ 2 * (e τ ^ n / (1 - e τ ^ n) ^ 2) :=
     Summable.mul_left _ (summable_corr_int hq0 hq1)
@@ -1151,13 +1163,20 @@ private lemma tsum_int_decomp {f : ℤ → ℂ} (hf : Summable f) :
 
 private lemma hasSum_pnat_lambert₁ {v : ℂ} (hv : ‖v‖ < 1) :
     HasSum (fun m : ℕ+ ↦ ((m : ℕ) : ℂ) * v ^ (m : ℕ)) (v / (1 - v) ^ 2) :=
-  hasSum_pnat_of_nat (hasSum_coe_mul_geometric_of_norm_lt_one hv) (by simp)
+  by
+  have hnat : HasSum (fun n : ℕ ↦ (n : ℂ) * v ^ n) (v / (1 - v) ^ 2) :=
+    hasSum_coe_mul_geometric_of_norm_lt_one hv
+  exact hasSum_pnat_of_nat
+    (f := fun n : ℕ ↦ (n : ℂ) * v ^ n) (a := v / (1 - v) ^ 2) hnat (by simp)
 
 private lemma hasSum_pnat_lambert₂ {v : ℂ} (hv : ‖v‖ < 1) :
     HasSum (fun m : ℕ+ ↦ (((m : ℕ).choose 2 : ℕ) : ℂ) * v ^ (m : ℕ))
       (v ^ 2 / (1 - v) ^ 3) := by
   rw [div_eq_mul_inv]
-  exact hasSum_pnat_of_nat (hasSum_choose_two_mul_geometric hv) (by simp)
+  exact hasSum_pnat_of_nat
+    (f := fun n : ℕ ↦ ((n.choose 2 : ℕ) : ℂ) * v ^ n)
+    (a := v ^ 2 * ((1 - v) ^ 3)⁻¹)
+    (hasSum_choose_two_mul_geometric hv) (by simp)
 
 private lemma hasSum_pnat_lambert₂' {v : ℂ} (hv : ‖v‖ < 1) :
     HasSum (fun m : ℕ+ ↦ ((((m : ℕ) + 1).choose 2 : ℕ) : ℂ) * v ^ (m : ℕ))
