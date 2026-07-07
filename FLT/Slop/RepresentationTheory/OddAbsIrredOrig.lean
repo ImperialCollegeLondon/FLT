@@ -3,7 +3,18 @@ Copyright (c) 2026 Zachary Feng, Y. Samanda Zhang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Zachary Feng, Y. Samanda Zhang
 -/
-import Mathlib
+module
+
+public import Mathlib.Algebra.Module.StablyFree.Basic
+public import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
+public import Mathlib.LinearAlgebra.Eigenspace.Basic
+public import Mathlib.LinearAlgebra.FreeModule.PID
+public import Mathlib.RepresentationTheory.Irreducible
+public import Mathlib.RingTheory.Flat.TorsionFree
+public import Mathlib.RingTheory.Henselian
+public import Mathlib.RingTheory.RegularLocalRing.Defs
+public import Mathlib.RingTheory.SimpleRing.Principal
+public import Mathlib.RingTheory.TensorProduct.Free
 
 /-!
 # Irreducible ↔ absolutely irreducible, given a one-dimensional fixed space
@@ -44,6 +55,8 @@ absolutely irreducible.
   recorded separately as
   `OddRep.isIrreducible_baseChange_of_finrank_eigenspace_eq_one`.
 -/
+
+@[expose] public section
 
 open scoped TensorProduct
 

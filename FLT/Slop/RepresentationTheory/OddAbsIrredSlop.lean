@@ -5,7 +5,16 @@ Authors: Zachary Feng, Y. Samanda Zhang
 -/
 module
 
-public import Mathlib
+public import Mathlib.Algebra.Module.StablyFree.Basic
+public import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
+public import Mathlib.LinearAlgebra.Eigenspace.Basic
+public import Mathlib.LinearAlgebra.FreeModule.PID
+public import Mathlib.RepresentationTheory.Irreducible
+public import Mathlib.RingTheory.Flat.TorsionFree
+public import Mathlib.RingTheory.Henselian
+public import Mathlib.RingTheory.RegularLocalRing.Defs
+public import Mathlib.RingTheory.SimpleRing.Principal
+public import Mathlib.RingTheory.TensorProduct.Free
 
 /-!
 # Irreducible ↔ absolutely irreducible, given a one-dimensional fixed space: proofs

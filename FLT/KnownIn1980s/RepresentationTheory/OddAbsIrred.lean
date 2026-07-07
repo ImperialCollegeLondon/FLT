@@ -5,8 +5,6 @@ Authors: Zachary Feng, Y. Samanda Zhang
 -/
 module
 
-public import Mathlib
-
 public import FLT.Slop.RepresentationTheory.OddAbsIrredSlop
 
 /-!
