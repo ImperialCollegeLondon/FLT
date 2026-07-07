@@ -1,4 +1,11 @@
-import FLT.Slop.Clifford
+/-
+Copyright (c) 2026 Jack McKoen. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Jack McKoen
+-/
+module
+
+public import FLT.Slop.Clifford
 
 /-!
 # Two-dimensional restrictions to a normal subgroup
@@ -19,6 +26,8 @@ The file works with Mathlib's unbundled `Representation k G V`, i.e. a monoid ho
 `G →* V →ₗ[k] V`.  Direct sums of characters are encoded by complementary one-dimensional
 submodules rather than by a bundled representation isomorphism.
 -/
+
+@[expose] public section
 
 open scoped Pointwise
 

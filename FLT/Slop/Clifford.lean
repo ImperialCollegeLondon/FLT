@@ -1,14 +1,21 @@
-import Mathlib.GroupTheory.Index
-import Mathlib.GroupTheory.IndexNormal
-import Mathlib.GroupTheory.GroupAction.ConjAct
-import Mathlib.GroupTheory.SpecificGroups.Cyclic.Basic
-import Mathlib.LinearAlgebra.Dimension.Free
-import Mathlib.LinearAlgebra.Eigenspace.Triangularizable
-import Mathlib.LinearAlgebra.FiniteDimensional.Basic
-import Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
-import Mathlib.LinearAlgebra.Projection
-import Mathlib.RepresentationTheory.Induced
-import Mathlib.RepresentationTheory.Irreducible
+/-
+Copyright (c) 2026 Jack McKoen. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Jack McKoen
+-/
+module
+
+public import Mathlib.GroupTheory.Index
+public import Mathlib.GroupTheory.IndexNormal
+public import Mathlib.GroupTheory.GroupAction.ConjAct
+public import Mathlib.GroupTheory.SpecificGroups.Cyclic.Basic
+public import Mathlib.LinearAlgebra.Dimension.Free
+public import Mathlib.LinearAlgebra.Eigenspace.Triangularizable
+public import Mathlib.LinearAlgebra.FiniteDimensional.Basic
+public import Mathlib.LinearAlgebra.FiniteDimensional.Lemmas
+public import Mathlib.LinearAlgebra.Projection
+public import Mathlib.RepresentationTheory.Induced
+public import Mathlib.RepresentationTheory.Irreducible
 
 /-!
 # Two-dimensional restrictions to a normal subgroup
@@ -29,6 +36,8 @@ The file works with Mathlib's unbundled `Representation k G V`, i.e. a monoid ho
 `G →* V →ₗ[k] V`.  Direct sums of characters are encoded by complementary one-dimensional
 submodules rather than by a bundled representation isomorphism.
 -/
+
+@[expose] public section
 
 open scoped Pointwise
 
@@ -625,8 +634,8 @@ noncomputable def inducedStableLineToAmbientLinear
     IndV K.subtype (stableLineRepresentation K ρ L hKstable) →ₗ[k] V := by
   let ρL := stableLineRepresentation K ρ L hKstable
   refine Coinvariants.lift _
-    (TensorProduct.lift <| Finsupp.linearCombination k fun g : G =>
-      (ρ g⁻¹).comp L.subtype) ?_
+    (TensorProduct.lift <| (Finsupp.linearCombination k fun g : G =>
+      (ρ g⁻¹).comp L.subtype) ∘ₗ (MonoidAlgebra.coeffLinearEquiv k).toLinearMap) ?_
   intro s
   ext g v
   simp [stableLineRepresentation, map_mul]
@@ -676,14 +685,15 @@ lemma IndV_mk_subgroup_mul
   simpa [IndV.mk] using
     (Coinvariants.mk_tmul_inv
       (ρ := (leftRegular k G).comp K.subtype) (τ := σ)
-      (x := Finsupp.single g 1) (y := v) (g := s)).symm
+      (x := MonoidAlgebra.single g 1) (y := v) (g := s)).symm
 
 private lemma IndV_mk_finsupp_single
     (K : Subgroup G) (σ : Representation k K V) (g : G) (r : k) (v : V) :
     Coinvariants.mk (Representation.tprod ((leftRegular k G).comp K.subtype) σ)
-        (Finsupp.single g r ⊗ₜ[k] v) =
+        (MonoidAlgebra.single g r ⊗ₜ[k] v) =
       IndV.mk K.subtype σ g (r • v) := by
-  rw [← Finsupp.smul_single_one g r, TensorProduct.smul_tmul]
+  rw [show (MonoidAlgebra.single g r : MonoidAlgebra k G) = r • MonoidAlgebra.single g 1 by
+        rw [MonoidAlgebra.smul_single', mul_one], TensorProduct.smul_tmul]
   simp [IndV.mk]
 
 set_option linter.unnecessarySimpa false in
@@ -698,7 +708,7 @@ lemma IndV_exists_mk_one_add_mk_inv_of_index_two
   | zero =>
       exact ⟨0, 0, by simp⟩
   | tmul f v =>
-      induction f using Finsupp.induction_linear with
+      induction f using MonoidAlgebra.induction_linear with
       | zero =>
           exact ⟨0, 0, by simp⟩
       | add f₁ f₂ hf₁ hf₂ =>
@@ -710,7 +720,7 @@ lemma IndV_exists_mk_one_add_mk_inv_of_index_two
       | single g r =>
           have hsingle :
               Coinvariants.mk (Representation.tprod ((leftRegular k G).comp K.subtype) σ)
-                  (Finsupp.single g r ⊗ₜ[k] v) =
+                  (MonoidAlgebra.single g r ⊗ₜ[k] v) =
                 IndV.mk K.subtype σ g (r • v) :=
             IndV_mk_finsupp_single K σ g r v
           by_cases hg : g ∈ K
@@ -718,7 +728,7 @@ lemma IndV_exists_mk_one_add_mk_inv_of_index_two
             refine ⟨σ s⁻¹ (r • v), 0, ?_⟩
             calc
               Coinvariants.mk (Representation.tprod ((leftRegular k G).comp K.subtype) σ)
-                    (Finsupp.single g r ⊗ₜ[k] v)
+                    (MonoidAlgebra.single g r ⊗ₜ[k] v)
                   = IndV.mk K.subtype σ g (r • v) := hsingle
               _ = IndV.mk K.subtype σ 1 (σ s⁻¹ (r • v)) +
                     IndV.mk K.subtype σ t⁻¹ 0 := by
@@ -730,7 +740,7 @@ lemma IndV_exists_mk_one_add_mk_inv_of_index_two
             refine ⟨0, σ s⁻¹ (r • v), ?_⟩
             calc
               Coinvariants.mk (Representation.tprod ((leftRegular k G).comp K.subtype) σ)
-                    (Finsupp.single g r ⊗ₜ[k] v)
+                    (MonoidAlgebra.single g r ⊗ₜ[k] v)
                   = IndV.mk K.subtype σ g (r • v) := hsingle
               _ = IndV.mk K.subtype σ 1 0 +
                     IndV.mk K.subtype σ t⁻¹ (σ s⁻¹ (r • v)) := by
