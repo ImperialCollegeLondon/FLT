@@ -99,6 +99,11 @@ complex analysis entirely; see
 https://mathoverflow.net/questions/469021/low-level-proof-of-identity-related-to-weierstrass-p-function
 This file does not take that route.
 
+# Other notes
+
+Main statements written by Kevin Buzzard, slop proofs written by William
+Coram and Samual Yin, final clean-up done by codex, file now compiles
+in a couple of seconds.
 -/
 
 @[expose] public section
