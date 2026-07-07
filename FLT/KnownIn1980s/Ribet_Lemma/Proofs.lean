@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2026 Bryan Hu. All rights reserved.
+Copyright (c) 2026 Zachary Feng, Bryan Hu, Y. Samanda Zhang. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Zachary Feng, Bryan Hu, Y. Samanda Zhang
 -/
