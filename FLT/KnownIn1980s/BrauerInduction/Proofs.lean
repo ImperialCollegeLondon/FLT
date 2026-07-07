@@ -9,7 +9,7 @@ public import Mathlib.RepresentationTheory.Character
 public import Mathlib.RepresentationTheory.Induced
 public import Mathlib.GroupTheory.Solvable
 public import Mathlib.FieldTheory.IsAlgClosed.Basic
-import FLT.KnownIn1980s.BrauerInduction.Slop.Main
+import FLT.Slop.Main
 
 /-!
 # Brauer induction: the trivial-character / solvable-subgroup corollary
