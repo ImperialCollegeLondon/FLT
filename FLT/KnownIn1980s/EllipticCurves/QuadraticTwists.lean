@@ -284,19 +284,68 @@ unique isomorphism `Gal(L/K) ≃ {±1}`, and in particular is surjective
 (`quadraticCharacter_surjective`). -/
 noncomputable def quadraticCharacter : (M ≃ₐ[K] M) →* ℤˣ where
   toFun σ := if ∀ x : L, σ (algebraMap L M x) = algebraMap L M x then 1 else -1
-  map_one' := sorry
-  map_mul' := sorry
+  map_one' := by
+    rw [if_pos]
+    intro x
+    rw [AlgEquiv.one_apply]
+  map_mul' := by
+    have hP : ∀ ρ : M ≃ₐ[K] M, (∀ x : L, ρ (algebraMap L M x) = algebraMap L M x)
+        ↔ AlgEquiv.restrictNormalHom L ρ = 1 := by
+      intro ρ
+      rw [AlgEquiv.ext_iff]
+      refine forall_congr' fun x => ?_
+      rw [AlgEquiv.one_apply]
+      constructor
+      · intro h
+        apply (algebraMap L M).injective
+        rw [show (AlgEquiv.restrictNormalHom L ρ) x = ρ.restrictNormal L x from rfl,
+          AlgEquiv.restrictNormal_commutes]
+        exact h
+      · intro h
+        rw [← AlgEquiv.restrictNormal_commutes ρ L x,
+          show ρ.restrictNormal L x = (AlgEquiv.restrictNormalHom L ρ) x from rfl, h]
+    intro σ τ
+    simp only [hP, map_mul]
+    obtain ⟨σ₀, hσ₀⟩ := Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L
+    have hsq : σ₀ * σ₀ = 1 := by
+      rcases Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq K L hσ₀ (σ₀ * σ₀) with h | h
+      · exact h
+      · exact absurd (mul_right_cancel h) hσ₀
+    rcases Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq K L hσ₀
+        (AlgEquiv.restrictNormalHom L σ) with ha | ha <;>
+    rcases Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq K L hσ₀
+        (AlgEquiv.restrictNormalHom L τ) with hb | hb <;>
+      rw [ha, hb] <;> simp [hsq, hσ₀]
 
 theorem quadraticCharacter_eq_one_iff (σ : M ≃ₐ[K] M) :
-    quadraticCharacter K L M σ = 1 ↔ ∀ x : L, σ (algebraMap L M x) = algebraMap L M x :=
-  sorry
+    quadraticCharacter K L M σ = 1 ↔ ∀ x : L, σ (algebraMap L M x) = algebraMap L M x := by
+  unfold quadraticCharacter
+  simp only [MonoidHom.coe_mk, OneHom.coe_mk]
+  split_ifs with h
+  · exact iff_of_true rfl h
+  · exact iff_of_false (by decide) h
 
 /-- If `M/K` is normal (for example `M = L`, or `M` a separable closure of `K`) then the
 nontrivial element of `Gal(L/K)` extends to an automorphism of `M`, so the quadratic character
 of `Aut(M/K)` attached to `L/K` is surjective. -/
 theorem quadraticCharacter_surjective [Normal K M] :
-    Function.Surjective (quadraticCharacter K L M) :=
-  sorry
+    Function.Surjective (quadraticCharacter K L M) := by
+  intro u
+  obtain ⟨σ₀, hσ₀⟩ := Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L
+  rcases Int.units_eq_one_or u with rfl | rfl
+  · exact ⟨1, by rw [map_one]⟩
+  · obtain ⟨σ, hσ⟩ := AlgEquiv.restrictNormalHom_surjective (K₁ := L) (E := M) (F := K) σ₀
+    refine ⟨σ, ?_⟩
+    unfold quadraticCharacter
+    simp only [MonoidHom.coe_mk, OneHom.coe_mk]
+    rw [if_neg]
+    intro hfix
+    apply hσ₀
+    rw [← hσ, AlgEquiv.ext_iff]
+    intro x
+    apply (algebraMap L M).injective
+    rw [show (AlgEquiv.restrictNormalHom L σ) x = σ.restrictNormal L x from rfl,
+      AlgEquiv.restrictNormal_commutes, hfix, AlgEquiv.one_apply]
 
 end QuadraticCharacter
 
