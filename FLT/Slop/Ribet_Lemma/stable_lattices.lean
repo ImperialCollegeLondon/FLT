@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Bryan Hu. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Bryan Hu
+Authors: Zachary Feng, Bryan Hu, Y. Samanda Zhang
 -/
 module
 
