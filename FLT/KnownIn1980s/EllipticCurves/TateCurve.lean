@@ -734,26 +734,27 @@ theorem TateCurve.tsum_lambert (q : k) (hq : valuation k q < 1) (c : ℕ → ℤ
   rw [← tsum_pnat_eq_tsum_succ (f := fun n ↦ ((c n : ℤ) : k) * q ^ n / (1 - q ^ n)),
     hrows.tsum_eq, hcols.tsum_eq]
 
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- The sublevel sets of `(d, e) ↦ de` on `ℕ+ × ℕ+` are finite. -/
+theorem TateCurve.finite_pnat_mul_lt (N : ℕ) :
+    {p : ℕ+ × ℕ+ | (p.1 : ℕ) * (p.2 : ℕ) < N}.Finite := by
+  refine (((Set.finite_Iio N).preimage PNat.coe_injective.injOn).prod
+    ((Set.finite_Iio N).preimage PNat.coe_injective.injOn)).subset fun p hp ↦ ?_
+  have h1 : (p.1 : ℕ) ≤ (p.1 : ℕ) * (p.2 : ℕ) := Nat.le_mul_of_pos_right _ p.2.pos
+  have h2 : (p.2 : ℕ) ≤ (p.1 : ℕ) * (p.2 : ℕ) := Nat.le_mul_of_pos_left _ p.1.pos
+  exact Set.mem_prod.mpr ⟨Set.mem_preimage.mpr (Set.mem_Iio.mpr (lt_of_le_of_lt h1 hp)),
+    Set.mem_preimage.mpr (Set.mem_Iio.mpr (lt_of_le_of_lt h2 hp))⟩
+
 /-- Regrouping a double power series along `(d, e) ↦ de`: the `k`-coefficient core of the
 Lambert rearrangement (`tsum_lambert` is the `ℤ`-coefficient case, composed with the
-geometric expansion of `qᵈ/(1-qᵈ)`). The boundedness hypothesis on the weights feeds the
-nonarchimedean summability criterion; in the intended application the weights are
-`d·u^{±d}` and similar, with `u` in the annulus `|q| < |u| ≤ 1`. -/
-theorem TateCurve.tsum_prod_pow_eq_tsum_sum_divisors (x : k) (hx : valuation k x < 1)
-    (w : ℕ → k) (hw : ∀ d, valuation k (w d) ≤ 1) :
-    ∑' p : ℕ+ × ℕ+, w (p.1 : ℕ) * x ^ ((p.1 : ℕ) * (p.2 : ℕ)) =
-      ∑' N : ℕ, (∑ d ∈ N.divisors, w d) * x ^ N := by
-  obtain ⟨S, hS⟩ : Summable fun p : ℕ+ × ℕ+ ↦ w (p.1 : ℕ) * x ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by
-    refine summable_of_valuation_le_pow hx (fun p ↦ (p.1 : ℕ) * (p.2 : ℕ))
-      (fun N ↦ ?_) fun p ↦ ?_
-    · refine (((Set.finite_Iio N).preimage PNat.coe_injective.injOn).prod
-        ((Set.finite_Iio N).preimage PNat.coe_injective.injOn)).subset fun p hp ↦ ?_
-      have h1 : (p.1 : ℕ) ≤ (p.1 : ℕ) * (p.2 : ℕ) := Nat.le_mul_of_pos_right _ p.2.pos
-      have h2 : (p.2 : ℕ) ≤ (p.1 : ℕ) * (p.2 : ℕ) := Nat.le_mul_of_pos_left _ p.1.pos
-      exact Set.mem_prod.mpr ⟨Set.mem_preimage.mpr (Set.mem_Iio.mpr (lt_of_le_of_lt h1 hp)),
-        Set.mem_preimage.mpr (Set.mem_Iio.mpr (lt_of_le_of_lt h2 hp))⟩
-    · rw [map_mul, map_pow]
-      simpa using mul_le_mul_left (hw _) (valuation k x ^ ((p.1 : ℕ) * (p.2 : ℕ)))
+geometric expansion of `qᵈ/(1-qᵈ)`). Summability of the double family is a hypothesis, to
+accommodate the annulus weights `d·u^{-d}`, whose natural bound is by powers of `q·u⁻¹`
+rather than `q`. -/
+theorem TateCurve.hasSum_sum_divisors_mul_pow (x : k) (w : ℕ → k)
+    (hsum : Summable fun p : ℕ+ × ℕ+ ↦ w (p.1 : ℕ) * x ^ ((p.1 : ℕ) * (p.2 : ℕ))) :
+    HasSum (fun N : ℕ ↦ (∑ d ∈ N.divisors, w d) * x ^ N)
+      (∑' p : ℕ+ × ℕ+, w (p.1 : ℕ) * x ^ ((p.1 : ℕ) * (p.2 : ℕ))) := by
+  obtain ⟨S, hS⟩ := hsum
   have hsigma : HasSum ((fun p : ℕ+ × ℕ+ ↦ w (p.1 : ℕ) * x ^ ((p.1 : ℕ) * (p.2 : ℕ))) ∘
       ⇑sigmaAntidiagonalEquivProd) S :=
     sigmaAntidiagonalEquivProd.hasSum_iff.mpr hS
@@ -782,7 +783,46 @@ theorem TateCurve.tsum_prod_pow_eq_tsum_sum_divisors (x : k) (hx : valuation k x
     cases n with
     | zero => simp
     | succ n => exact absurd ⟨n.succPNat, rfl⟩ hn
-  rw [hS.tsum_eq, hcols.tsum_eq]
+  rwa [hS.tsum_eq]
+
+/-- Workhorse for the annulus expansions: if `g` has the geometric-type expansion
+`g x = ∑_{d ≥ 1} a(d)·xᵈ` on the open unit disc, then the row sums `∑_n g(qⁿ⁺¹t)`
+regroup along `(d, e) ↦ de` into a `q`-power series with divisor-sum coefficients
+`∑_{d ∣ N} a(d)·tᵈ`. Both `HasSum`s are returned with a common (junk-free) value.
+Summability of the double family is a hypothesis, to accommodate both `t = u` (bounded
+by powers of `q`) and `t = u⁻¹` (bounded by powers of `q·u⁻¹`). -/
+theorem TateCurve.hasSum_geom_rows (q t : k) (a : ℕ → ℕ) (g : k → k)
+    (hgeo : ∀ x : k, valuation k x < 1 →
+      HasSum (fun j : ℕ ↦ ((a (j + 1) : ℕ) : k) * x ^ (j + 1)) (g x))
+    (hlt : ∀ n : ℕ, valuation k (q ^ (n + 1) * t) < 1)
+    (hsum : Summable fun p : ℕ+ × ℕ+ ↦
+      ((a (p.1 : ℕ) : ℕ) : k) * t ^ (p.1 : ℕ) * q ^ ((p.1 : ℕ) * (p.2 : ℕ))) :
+    ∃ T : k, HasSum (fun n : ℕ ↦ g (q ^ (n + 1) * t)) T ∧
+      HasSum (fun N : ℕ ↦ (∑ d ∈ N.divisors, ((a d : ℕ) : k) * t ^ d) * q ^ N) T := by
+  have hdouble : Summable fun p : ℕ × ℕ ↦
+      ((a (p.2 + 1) : ℕ) : k) * (q ^ (p.1 + 1) * t) ^ (p.2 + 1) := by
+    have he := ((Equiv.prodComm ℕ ℕ).trans
+      (Equiv.prodCongr Equiv.pnatEquivNat.symm Equiv.pnatEquivNat.symm)).summable_iff.mpr hsum
+    refine he.congr fun p ↦ ?_
+    change ((a (p.2 + 1) : ℕ) : k) * t ^ (p.2 + 1) * q ^ ((p.2 + 1) * (p.1 + 1)) = _
+    rw [mul_pow, ← pow_mul]
+    ring
+  have hrows : HasSum (fun n : ℕ ↦ g (q ^ (n + 1) * t)) (∑' p : ℕ × ℕ,
+      ((a (p.2 + 1) : ℕ) : k) * (q ^ (p.1 + 1) * t) ^ (p.2 + 1)) :=
+    hdouble.hasSum.prod_fiberwise fun n ↦ hgeo _ (hlt n)
+  have hreg : HasSum (fun N : ℕ ↦ (∑ d ∈ N.divisors, ((a d : ℕ) : k) * t ^ d) * q ^ N)
+      (∑' p : ℕ+ × ℕ+, ((a (p.1 : ℕ) : ℕ) : k) * t ^ (p.1 : ℕ) * q ^ ((p.1 : ℕ) * (p.2 : ℕ))) :=
+    hasSum_sum_divisors_mul_pow q (fun d ↦ ((a d : ℕ) : k) * t ^ d) hsum
+  refine ⟨_, hrows, ?_⟩
+  convert hreg using 1
+  rw [← ((Equiv.prodComm ℕ ℕ).trans (Equiv.prodCongr Equiv.pnatEquivNat.symm
+    Equiv.pnatEquivNat.symm)).tsum_eq (fun p : ℕ+ × ℕ+ ↦
+      ((a (p.1 : ℕ) : ℕ) : k) * t ^ (p.1 : ℕ) * q ^ ((p.1 : ℕ) * (p.2 : ℕ)))]
+  refine tsum_congr fun p ↦ ?_
+  change ((a (p.2 + 1) : ℕ) : k) * (q ^ (p.1 + 1) * t) ^ (p.2 + 1) =
+    ((a (p.2 + 1) : ℕ) : k) * t ^ (p.2 + 1) * q ^ ((p.2 + 1) * (p.1 + 1))
+  rw [mul_pow, ← pow_mul]
+  ring
 
 open scoped ArithmeticFunction.sigma in
 /-- The Lambert series rearrangement `∑_{n≥1} n³qⁿ/(1-qⁿ) = ∑_{n≥1} σ₃(n)qⁿ` for
@@ -1155,6 +1195,282 @@ theorem WeierstrassCurve.tateY_zpow_mul_left (q : kˣ) (m : ℤ) (u : k) :
       rw [show (q : k) * ((q : k) ^ (-(m : ℤ) - 1) * u) = (q : k) ^ (-(m : ℤ) - 1 + 1) * u by
         rw [zpow_add_one₀ (Units.ne_zero q)]; ring, Int.sub_add_cancel] at h1
       exact h1.symm.trans ih
+
+/-- Silverman's `q`-expansion of the `x`-coordinate on the annulus `|q| < |u| ≤ 1`:
+`X(u, q) = u/(1-u)² + ∑_{N ≥ 1} (∑_{d ∣ N} (d·uᵈ + d·u⁻ᵈ - 2d))·qᴺ`. The two halves of
+the two-sided sum expand geometrically (`hasSum_geom_rows` with `hasSum_geometric_deriv`,
+the `n ≤ -1` half after the inversion `div_one_sub_sq_inv`), and the Lambert correction
+regroups by `tsum_lambert`. -/
+theorem WeierstrassCurve.tateX_eq_annulus (q u : kˣ) (hq : valuation k (q : k) < 1)
+    (h₁ : valuation k (q : k) < valuation k (u : k)) (h₂ : valuation k (u : k) ≤ 1) :
+    tateX (u : k) (q : k) = (u : k) / (1 - (u : k)) ^ 2 +
+      ∑' N : ℕ, (∑ d ∈ N.divisors, ((d : k) * (u : k) ^ d
+        + (d : k) * ((u : k)⁻¹) ^ d - 2 * (d : k))) * (q : k) ^ N := by
+  have hq0 : (q : k) ≠ 0 := Units.ne_zero q
+  have hu0 : (u : k) ≠ 0 := Units.ne_zero u
+  have hvu : valuation k (u : k) ≠ 0 := (valuation k).ne_zero_iff.mpr hu0
+  have hρ : valuation k ((q : k) * (u : k)⁻¹) < 1 := by
+    rw [map_mul, map_inv₀, ← div_eq_mul_inv]
+    exact (div_lt_one₀ (zero_lt_iff.mpr hvu)).mpr h₁
+  -- the discs on which the geometric expansions are valid
+  have hposlt : ∀ n : ℕ, valuation k ((q : k) ^ (n + 1) * (u : k)) < 1 := by
+    intro n
+    rw [map_mul, map_pow]
+    calc valuation k (q : k) ^ (n + 1) * valuation k (u : k)
+        ≤ valuation k (q : k) ^ (n + 1) * 1 := mul_le_mul' le_rfl h₂
+      _ = valuation k (q : k) ^ (n + 1) := mul_one _
+      _ ≤ valuation k (q : k) ^ 1 := pow_le_pow_right_of_le_one' hq.le (by omega)
+      _ = valuation k (q : k) := pow_one _
+      _ < 1 := hq
+  have hneglt : ∀ n : ℕ, valuation k ((q : k) ^ (n + 1) * (u : k)⁻¹) < 1 := by
+    intro n
+    refine lt_of_le_of_lt ?_ hρ
+    rw [map_mul, map_mul, map_pow]
+    refine mul_le_mul' ?_ le_rfl
+    calc valuation k (q : k) ^ (n + 1) ≤ valuation k (q : k) ^ 1 :=
+          pow_le_pow_right_of_le_one' hq.le (by omega)
+      _ = valuation k (q : k) := pow_one _
+  -- summability of the two double families
+  have hsumApos : Summable fun p : ℕ+ × ℕ+ ↦
+      ((p.1 : ℕ) : k) * (u : k) ^ (p.1 : ℕ) * (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by
+    refine TateCurve.summable_of_valuation_le_pow hq (fun p ↦ (p.1 : ℕ) * (p.2 : ℕ))
+      (fun N ↦ TateCurve.finite_pnat_mul_lt N) fun p ↦ ?_
+    rw [map_mul, map_mul, map_pow, map_pow]
+    calc valuation k ((p.1 : ℕ) : k) * valuation k (u : k) ^ (p.1 : ℕ) *
+          valuation k (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ))
+        ≤ 1 * 1 * valuation k (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ)) :=
+          mul_le_mul' (mul_le_mul' (TateCurve.valuation_natCast_le_one _)
+            (pow_le_one' h₂ _)) le_rfl
+      _ = valuation k (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by rw [one_mul, one_mul]
+  have hsumAneg : Summable fun p : ℕ+ × ℕ+ ↦
+      ((p.1 : ℕ) : k) * ((u : k)⁻¹) ^ (p.1 : ℕ) * (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by
+    refine TateCurve.summable_of_valuation_le_pow hρ (fun p ↦ (p.1 : ℕ) * (p.2 : ℕ))
+      (fun N ↦ TateCurve.finite_pnat_mul_lt N) fun p ↦ ?_
+    simp only [map_mul, map_pow, map_inv₀]
+    have h1u : (1 : ValueGroupWithZero k) ≤ (valuation k (u : k))⁻¹ :=
+      (one_le_inv₀ (zero_lt_iff.mpr hvu)).mpr h₂
+    calc valuation k ((p.1 : ℕ) : k) * (valuation k (u : k))⁻¹ ^ (p.1 : ℕ) *
+          valuation k (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ))
+        ≤ 1 * (valuation k (u : k))⁻¹ ^ ((p.1 : ℕ) * (p.2 : ℕ)) *
+            valuation k (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ)) :=
+          mul_le_mul' (mul_le_mul' (TateCurve.valuation_natCast_le_one _)
+            (pow_le_pow_right' h1u (Nat.le_mul_of_pos_right _ p.2.pos))) le_rfl
+      _ = (valuation k (q : k) * (valuation k (u : k))⁻¹) ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by
+          rw [one_mul, mul_pow, mul_comm]
+  -- the two regrouped halves
+  obtain ⟨TA, hrowsA, hNA⟩ := TateCurve.hasSum_geom_rows (q : k) (u : k) (fun d ↦ d)
+    (fun x ↦ x / (1 - x) ^ 2) (fun x hx ↦ TateCurve.hasSum_geometric_deriv hx) hposlt hsumApos
+  obtain ⟨TC, hrowsC, hNC⟩ := TateCurve.hasSum_geom_rows (q : k) ((u : k)⁻¹) (fun d ↦ d)
+    (fun x ↦ x / (1 - x) ^ 2) (fun x hx ↦ TateCurve.hasSum_geometric_deriv hx) hneglt hsumAneg
+  have hNA' : HasSum (fun N : ℕ ↦
+      (∑ d ∈ N.divisors, ((d : ℕ) : k) * (u : k) ^ d) * (q : k) ^ N) TA := hNA
+  have hNC' : HasSum (fun N : ℕ ↦
+      (∑ d ∈ N.divisors, ((d : ℕ) : k) * ((u : k)⁻¹) ^ d) * (q : k) ^ N) TC := hNC
+  -- rows in the shape of the two-sided sum
+  have hcoe : ∀ n : ℕ, (q : k) ^ ((n : ℤ) + 1) = (q : k) ^ (n + 1) := by
+    intro n
+    rw [show ((n : ℤ) + 1) = ((n + 1 : ℕ) : ℤ) by push_cast; ring, zpow_natCast]
+  have hposrows : HasSum (fun n : ℕ ↦
+      (q : k) ^ ((n : ℤ) + 1) * (u : k) / (1 - (q : k) ^ ((n : ℤ) + 1) * (u : k)) ^ 2) TA := by
+    have heq : (fun n : ℕ ↦
+        (q : k) ^ ((n : ℤ) + 1) * (u : k) / (1 - (q : k) ^ ((n : ℤ) + 1) * (u : k)) ^ 2) =
+        fun n : ℕ ↦ (q : k) ^ (n + 1) * (u : k) / (1 - (q : k) ^ (n + 1) * (u : k)) ^ 2 := by
+      funext n
+      rw [hcoe n]
+    rw [heq]
+    exact hrowsA
+  have hnegrows : HasSum (fun n : ℕ ↦ (q : k) ^ (-((n : ℤ) + 1)) * (u : k) /
+      (1 - (q : k) ^ (-((n : ℤ) + 1)) * (u : k)) ^ 2) TC := by
+    have heq : (fun n : ℕ ↦ (q : k) ^ (-((n : ℤ) + 1)) * (u : k) /
+        (1 - (q : k) ^ (-((n : ℤ) + 1)) * (u : k)) ^ 2) =
+        fun n : ℕ ↦ (q : k) ^ (n + 1) * (u : k)⁻¹ /
+          (1 - (q : k) ^ (n + 1) * (u : k)⁻¹) ^ 2 := by
+      funext n
+      rw [zpow_neg, hcoe n,
+        TateCurve.div_one_sub_sq_inv (v := ((q : k) ^ (n + 1))⁻¹ * (u : k))
+          (mul_ne_zero (inv_ne_zero (pow_ne_zero _ hq0)) hu0),
+        mul_inv, inv_inv]
+    rw [heq]
+    exact hrowsC
+  have hzsum : HasSum (fun n : ℤ ↦ (q : k) ^ n * (u : k) / (1 - (q : k) ^ n * (u : k)) ^ 2)
+      (TA + (u : k) / (1 - (u : k)) ^ 2 + TC) := by
+    have h := HasSum.of_add_one_of_neg_add_one
+      (f := fun n : ℤ ↦ (q : k) ^ n * (u : k) / (1 - (q : k) ^ n * (u : k)) ^ 2)
+      hposrows hnegrows
+    simpa using h
+  -- the Lambert correction
+  have hσ : Summable fun N : ℕ ↦ (∑ d ∈ N.divisors, ((d : ℕ) : k)) * (q : k) ^ N := by
+    refine TateCurve.summable_of_valuation_le_pow hq (fun N ↦ N)
+      (fun N ↦ Set.finite_Iio N) fun N ↦ ?_
+    rw [map_mul, map_pow]
+    calc valuation k (∑ d ∈ N.divisors, ((d : ℕ) : k)) * valuation k (q : k) ^ N
+        ≤ 1 * valuation k (q : k) ^ N :=
+          mul_le_mul_left ((valuation k).map_sum_le
+            fun d _ ↦ TateCurve.valuation_natCast_le_one d) _
+      _ = valuation k (q : k) ^ N := one_mul _
+  have hlam : (∑' m : ℕ, ((m + 1 : ℕ) : k) * (q : k) ^ (m + 1) / (1 - (q : k) ^ (m + 1)))
+      = ∑' N : ℕ, (∑ d ∈ N.divisors, ((d : ℕ) : k)) * (q : k) ^ N := by
+    calc ∑' m : ℕ, ((m + 1 : ℕ) : k) * (q : k) ^ (m + 1) / (1 - (q : k) ^ (m + 1))
+        = ∑' m : ℕ, (((fun d ↦ (d : ℤ)) (m + 1) : ℤ) : k) * (q : k) ^ (m + 1) /
+            (1 - (q : k) ^ (m + 1)) := tsum_congr fun m ↦ by push_cast; ring
+      _ = ∑' N : ℕ, ((∑ d ∈ N.divisors, (d : ℤ) : ℤ) : k) * (q : k) ^ N :=
+          TateCurve.tsum_lambert (q : k) hq fun d ↦ (d : ℤ)
+      _ = ∑' N : ℕ, (∑ d ∈ N.divisors, ((d : ℕ) : k)) * (q : k) ^ N :=
+          tsum_congr fun N ↦ by push_cast; ring
+  -- assemble
+  have hcomb : (∑' N : ℕ, (∑ d ∈ N.divisors, ((d : ℕ) : k) * (u : k) ^ d) * (q : k) ^ N) +
+      (∑' N : ℕ, (∑ d ∈ N.divisors, ((d : ℕ) : k) * ((u : k)⁻¹) ^ d) * (q : k) ^ N) -
+      2 * ∑' N : ℕ, (∑ d ∈ N.divisors, ((d : ℕ) : k)) * (q : k) ^ N =
+      ∑' N : ℕ, (∑ d ∈ N.divisors, ((d : k) * (u : k) ^ d
+        + (d : k) * ((u : k)⁻¹) ^ d - 2 * (d : k))) * (q : k) ^ N := by
+    rw [← Summable.tsum_add hNA'.summable hNC'.summable,
+      show (2 : k) * ∑' N : ℕ, (∑ d ∈ N.divisors, ((d : ℕ) : k)) * (q : k) ^ N =
+        ∑' N : ℕ, 2 * ((∑ d ∈ N.divisors, ((d : ℕ) : k)) * (q : k) ^ N) from tsum_mul_left.symm,
+      ← Summable.tsum_sub (hNA'.summable.add hNC'.summable) (hσ.mul_left 2)]
+    refine tsum_congr fun N ↦ ?_
+    rw [← add_mul, ← Finset.sum_add_distrib, ← mul_assoc, Finset.mul_sum, ← sub_mul,
+      ← Finset.sum_sub_distrib]
+  simp only [tateX]
+  rw [hzsum.tsum_eq, hlam, ← hNA'.tsum_eq, ← hNC'.tsum_eq]
+  linear_combination hcomb
+
+/-- Silverman's `q`-expansion of the `y`-coordinate on the annulus `|q| < |u| ≤ 1`:
+`Y(u, q) = u²/(1-u)³ + ∑_{N ≥ 1} (∑_{d ∣ N} ((d 2)uᵈ - (d+1 2)u⁻ᵈ + d))·qᴺ`, with
+binomial-coefficient weights. The `n ≤ -1` half enters with a sign through the inversion
+antisymmetry `sq_div_one_sub_cube_inv`. -/
+theorem WeierstrassCurve.tateY_eq_annulus (q u : kˣ) (hq : valuation k (q : k) < 1)
+    (h₁ : valuation k (q : k) < valuation k (u : k)) (h₂ : valuation k (u : k) ≤ 1) :
+    tateY (u : k) (q : k) = (u : k) ^ 2 / (1 - (u : k)) ^ 3 +
+      ∑' N : ℕ, (∑ d ∈ N.divisors, (((d.choose 2 : ℕ) : k) * (u : k) ^ d
+        - (((d + 1).choose 2 : ℕ) : k) * ((u : k)⁻¹) ^ d + (d : k))) * (q : k) ^ N := by
+  have hq0 : (q : k) ≠ 0 := Units.ne_zero q
+  have hu0 : (u : k) ≠ 0 := Units.ne_zero u
+  have hvu : valuation k (u : k) ≠ 0 := (valuation k).ne_zero_iff.mpr hu0
+  have hρ : valuation k ((q : k) * (u : k)⁻¹) < 1 := by
+    rw [map_mul, map_inv₀, ← div_eq_mul_inv]
+    exact (div_lt_one₀ (zero_lt_iff.mpr hvu)).mpr h₁
+  have hposlt : ∀ n : ℕ, valuation k ((q : k) ^ (n + 1) * (u : k)) < 1 := by
+    intro n
+    rw [map_mul, map_pow]
+    calc valuation k (q : k) ^ (n + 1) * valuation k (u : k)
+        ≤ valuation k (q : k) ^ (n + 1) * 1 := mul_le_mul' le_rfl h₂
+      _ = valuation k (q : k) ^ (n + 1) := mul_one _
+      _ ≤ valuation k (q : k) ^ 1 := pow_le_pow_right_of_le_one' hq.le (by omega)
+      _ = valuation k (q : k) := pow_one _
+      _ < 1 := hq
+  have hneglt : ∀ n : ℕ, valuation k ((q : k) ^ (n + 1) * (u : k)⁻¹) < 1 := by
+    intro n
+    refine lt_of_le_of_lt ?_ hρ
+    rw [map_mul, map_mul, map_pow]
+    refine mul_le_mul' ?_ le_rfl
+    calc valuation k (q : k) ^ (n + 1) ≤ valuation k (q : k) ^ 1 :=
+          pow_le_pow_right_of_le_one' hq.le (by omega)
+      _ = valuation k (q : k) := pow_one _
+  have hsumYpos : Summable fun p : ℕ+ × ℕ+ ↦
+      (((p.1 : ℕ).choose 2 : ℕ) : k) * (u : k) ^ (p.1 : ℕ) *
+        (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by
+    refine TateCurve.summable_of_valuation_le_pow hq (fun p ↦ (p.1 : ℕ) * (p.2 : ℕ))
+      (fun N ↦ TateCurve.finite_pnat_mul_lt N) fun p ↦ ?_
+    rw [map_mul, map_mul, map_pow, map_pow]
+    calc valuation k ((((p.1 : ℕ).choose 2 : ℕ)) : k) * valuation k (u : k) ^ (p.1 : ℕ) *
+          valuation k (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ))
+        ≤ 1 * 1 * valuation k (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ)) :=
+          mul_le_mul' (mul_le_mul' (TateCurve.valuation_natCast_le_one _)
+            (pow_le_one' h₂ _)) le_rfl
+      _ = valuation k (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by rw [one_mul, one_mul]
+  have hsumYneg : Summable fun p : ℕ+ × ℕ+ ↦
+      ((((p.1 : ℕ) + 1).choose 2 : ℕ) : k) * ((u : k)⁻¹) ^ (p.1 : ℕ) *
+        (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by
+    refine TateCurve.summable_of_valuation_le_pow hρ (fun p ↦ (p.1 : ℕ) * (p.2 : ℕ))
+      (fun N ↦ TateCurve.finite_pnat_mul_lt N) fun p ↦ ?_
+    simp only [map_mul, map_pow, map_inv₀]
+    have h1u : (1 : ValueGroupWithZero k) ≤ (valuation k (u : k))⁻¹ :=
+      (one_le_inv₀ (zero_lt_iff.mpr hvu)).mpr h₂
+    calc valuation k (((((p.1 : ℕ) + 1).choose 2 : ℕ)) : k) *
+          (valuation k (u : k))⁻¹ ^ (p.1 : ℕ) *
+          valuation k (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ))
+        ≤ 1 * (valuation k (u : k))⁻¹ ^ ((p.1 : ℕ) * (p.2 : ℕ)) *
+            valuation k (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ)) :=
+          mul_le_mul' (mul_le_mul' (TateCurve.valuation_natCast_le_one _)
+            (pow_le_pow_right' h1u (Nat.le_mul_of_pos_right _ p.2.pos))) le_rfl
+      _ = (valuation k (q : k) * (valuation k (u : k))⁻¹) ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by
+          rw [one_mul, mul_pow, mul_comm]
+  obtain ⟨TA, hrowsA, hNA⟩ := TateCurve.hasSum_geom_rows (q : k) (u : k) (fun d ↦ d.choose 2)
+    (fun x ↦ x ^ 2 / (1 - x) ^ 3) (fun x hx ↦ TateCurve.hasSum_geometric_sq_div_cube hx)
+    hposlt hsumYpos
+  obtain ⟨TC, hrowsC, hNC⟩ := TateCurve.hasSum_geom_rows (q : k) ((u : k)⁻¹)
+    (fun d ↦ (d + 1).choose 2) (fun x ↦ x / (1 - x) ^ 3)
+    (fun x hx ↦ TateCurve.hasSum_geometric_div_cube hx) hneglt hsumYneg
+  have hNA' : HasSum (fun N : ℕ ↦
+      (∑ d ∈ N.divisors, ((d.choose 2 : ℕ) : k) * (u : k) ^ d) * (q : k) ^ N) TA := hNA
+  have hNC' : HasSum (fun N : ℕ ↦
+      (∑ d ∈ N.divisors, (((d + 1).choose 2 : ℕ) : k) * ((u : k)⁻¹) ^ d) * (q : k) ^ N) TC :=
+    hNC
+  have hcoe : ∀ n : ℕ, (q : k) ^ ((n : ℤ) + 1) = (q : k) ^ (n + 1) := by
+    intro n
+    rw [show ((n : ℤ) + 1) = ((n + 1 : ℕ) : ℤ) by push_cast; ring, zpow_natCast]
+  have hposrows : HasSum (fun n : ℕ ↦ ((q : k) ^ ((n : ℤ) + 1) * (u : k)) ^ 2 /
+      (1 - (q : k) ^ ((n : ℤ) + 1) * (u : k)) ^ 3) TA := by
+    have heq : (fun n : ℕ ↦ ((q : k) ^ ((n : ℤ) + 1) * (u : k)) ^ 2 /
+        (1 - (q : k) ^ ((n : ℤ) + 1) * (u : k)) ^ 3) =
+        fun n : ℕ ↦ ((q : k) ^ (n + 1) * (u : k)) ^ 2 /
+          (1 - (q : k) ^ (n + 1) * (u : k)) ^ 3 := by
+      funext n
+      rw [hcoe n]
+    rw [heq]
+    exact hrowsA
+  have hnegrows : HasSum (fun n : ℕ ↦ ((q : k) ^ (-((n : ℤ) + 1)) * (u : k)) ^ 2 /
+      (1 - (q : k) ^ (-((n : ℤ) + 1)) * (u : k)) ^ 3) (-TC) := by
+    have heq : (fun n : ℕ ↦ ((q : k) ^ (-((n : ℤ) + 1)) * (u : k)) ^ 2 /
+        (1 - (q : k) ^ (-((n : ℤ) + 1)) * (u : k)) ^ 3) =
+        fun n : ℕ ↦ -((q : k) ^ (n + 1) * (u : k)⁻¹ /
+          (1 - (q : k) ^ (n + 1) * (u : k)⁻¹) ^ 3) := by
+      funext n
+      rw [zpow_neg, hcoe n,
+        TateCurve.sq_div_one_sub_cube_inv (v := ((q : k) ^ (n + 1))⁻¹ * (u : k))
+          (mul_ne_zero (inv_ne_zero (pow_ne_zero _ hq0)) hu0),
+        mul_inv, inv_inv]
+    rw [heq]
+    exact hrowsC.neg
+  have hzsum : HasSum (fun n : ℤ ↦ ((q : k) ^ n * (u : k)) ^ 2 /
+      (1 - (q : k) ^ n * (u : k)) ^ 3)
+      (TA + (u : k) ^ 2 / (1 - (u : k)) ^ 3 + -TC) := by
+    have h := HasSum.of_add_one_of_neg_add_one
+      (f := fun n : ℤ ↦ ((q : k) ^ n * (u : k)) ^ 2 / (1 - (q : k) ^ n * (u : k)) ^ 3)
+      hposrows hnegrows
+    simpa using h
+  have hσ : Summable fun N : ℕ ↦ (∑ d ∈ N.divisors, ((d : ℕ) : k)) * (q : k) ^ N := by
+    refine TateCurve.summable_of_valuation_le_pow hq (fun N ↦ N)
+      (fun N ↦ Set.finite_Iio N) fun N ↦ ?_
+    rw [map_mul, map_pow]
+    calc valuation k (∑ d ∈ N.divisors, ((d : ℕ) : k)) * valuation k (q : k) ^ N
+        ≤ 1 * valuation k (q : k) ^ N :=
+          mul_le_mul_left ((valuation k).map_sum_le
+            fun d _ ↦ TateCurve.valuation_natCast_le_one d) _
+      _ = valuation k (q : k) ^ N := one_mul _
+  have hlam : (∑' m : ℕ, ((m + 1 : ℕ) : k) * (q : k) ^ (m + 1) / (1 - (q : k) ^ (m + 1)))
+      = ∑' N : ℕ, (∑ d ∈ N.divisors, ((d : ℕ) : k)) * (q : k) ^ N := by
+    calc ∑' m : ℕ, ((m + 1 : ℕ) : k) * (q : k) ^ (m + 1) / (1 - (q : k) ^ (m + 1))
+        = ∑' m : ℕ, (((fun d ↦ (d : ℤ)) (m + 1) : ℤ) : k) * (q : k) ^ (m + 1) /
+            (1 - (q : k) ^ (m + 1)) := tsum_congr fun m ↦ by push_cast; ring
+      _ = ∑' N : ℕ, ((∑ d ∈ N.divisors, (d : ℤ) : ℤ) : k) * (q : k) ^ N :=
+          TateCurve.tsum_lambert (q : k) hq fun d ↦ (d : ℤ)
+      _ = ∑' N : ℕ, (∑ d ∈ N.divisors, ((d : ℕ) : k)) * (q : k) ^ N :=
+          tsum_congr fun N ↦ by push_cast; ring
+  have hcomb : (∑' N : ℕ,
+      (∑ d ∈ N.divisors, ((d.choose 2 : ℕ) : k) * (u : k) ^ d) * (q : k) ^ N) -
+      (∑' N : ℕ,
+        (∑ d ∈ N.divisors, (((d + 1).choose 2 : ℕ) : k) * ((u : k)⁻¹) ^ d) * (q : k) ^ N) +
+      ∑' N : ℕ, (∑ d ∈ N.divisors, ((d : ℕ) : k)) * (q : k) ^ N =
+      ∑' N : ℕ, (∑ d ∈ N.divisors, (((d.choose 2 : ℕ) : k) * (u : k) ^ d
+        - (((d + 1).choose 2 : ℕ) : k) * ((u : k)⁻¹) ^ d + (d : k))) * (q : k) ^ N := by
+    rw [← Summable.tsum_sub hNA'.summable hNC'.summable,
+      ← Summable.tsum_add (hNA'.summable.sub hNC'.summable) hσ]
+    refine tsum_congr fun N ↦ ?_
+    rw [← sub_mul, ← Finset.sum_sub_distrib, ← add_mul, ← Finset.sum_add_distrib]
+  simp only [tateY]
+  rw [hzsum.tsum_eq, hlam, ← hNA'.tsum_eq, ← hNC'.tsum_eq]
+  linear_combination hcomb
 
 /-- The annulus case of Silverman, ATAEC V.1.1(a): for `|q| < |u| ≤ 1` and `u ≠ 1`, the
 pair `(X(u, q), Y(u, q))` satisfies the Weierstrass equation of the Tate curve. (In the
