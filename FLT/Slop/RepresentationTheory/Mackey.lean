@@ -1,4 +1,14 @@
-import Mathlib
+/-
+Copyright (c) 2026 Mathias Stout. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Mathias Stout
+-/
+module
+
+public import Mathlib.GroupTheory.DoubleCoset
+public import Mathlib.GroupTheory.Index
+public import Mathlib.RepresentationTheory.Induced
+public import Mathlib.Tactic.Group
 
 /-!
 # Mackey's restriction–induction formula — readable statement skeleton
@@ -55,8 +65,8 @@ choice of representatives `σ`, with no map named. `index_two` is proved from it
 | `twistedRep` | `twisted` | explicit, computable; no `hφ`, no `ofInjective` |
 | `twisted_rep` (sorried) | `twisted_apply` | now true by `rfl` |
 | `mackeyDirectSum` | `mackeySum` | no `letI` block, no section `σ` |
-| `universal_property` | `existsUnique_indLift`, `indV_mk_eq` | conjunction split; converse half restated on generators (it was the `F = id` case quantified over all `F`) |
-| `index_two_singleton` | `subsingleton_cosets_of_index_two`, `exists_mul_eq_of_index_two` | conjunction split |
+| `universal_property` | `existsUnique_indLift`, `indV_mk_eq` | split; converse on generators |
+| `index_two_singleton` | `subsingleton_cosets_of_index_two`, `exists_mul_eq_of_index_two` | split |
 | `double_coset_closure` | `mul_mem_doubleCoset`, `mul_inv_mem_doubleCoset` | conjunction split |
 | `L_action_cosets` | `exists_rightCosetAction` | action packaged as `L →* Equiv.Perm _` |
 | `G_action` | `ind_ext` | |
@@ -67,7 +77,7 @@ choice of representatives `σ`, with no map named. `index_two` is proved from it
 | `pi_def` | `existsUnique_pi` | no `letI`, no `(σ, hσ)` |
 | `piMap` | `pi` | value lemma `pi_mk` is proved, not sorried |
 | `pi_theta` / `theta_pi` | `pi_comp_theta` / `theta_comp_pi` | as `LinearMap` equalities |
-| `mackey` | `theta_intertwines` + `mackey` | final form: a `Representation.Equiv` with prescribed values (bijectivity conjunct subsumed) |
+| `mackey` | `theta_intertwines` + `mackey` | a `Representation.Equiv` with prescribed values |
 | `index_two`, `index_two_character` | same names | now both *proved*; `P = K ⊓ J` |
 
 Everywhere, the section `σ : H\G/L → G` with `hσ : ∀ D, ⟦σ D⟧ = D` is replaced by the
@@ -75,6 +85,8 @@ canonical representative `Quotient.out`, so those two arguments disappear from e
 signature — except in `mackey_equiv`, whose pen-and-paper statement deliberately
 quantifies over all representative systems (that generality is what `index_two` uses).
 -/
+
+@[expose] public section
 
 open Representation DirectSum
 
@@ -156,7 +168,7 @@ theorem indV_mk_eq (h : Γ) (g : Δ) (v : V) :
     IndV.mk φ τ (φ h * g) (τ h v) = IndV.mk φ τ g v := by
   have key := Coinvariants.mk_self_apply
     (ρ := Representation.tprod ((leftRegular k Δ).comp φ) τ) h
-    (Finsupp.single g (1 : k) ⊗ₜ[k] v)
+    (MonoidAlgebra.single g (1 : k) ⊗ₜ[k] v)
   simpa [Representation.tprod_apply, leftRegular, ofMulAction_single] using key
 
 /-- Universal property of `Ind_φ V` (was the first half of `universal_property`): a family
@@ -165,7 +177,8 @@ through `Ind_φ V`, via `F [g, v] = f g v`. -/
 theorem existsUnique_indLift (f : Δ → V →ₗ[k] W)
     (hf : ∀ (h : Γ) (g : Δ), f (φ h * g) ∘ₗ (τ h : V →ₗ[k] V) = f g) :
     ∃! F : IndV φ τ →ₗ[k] W, ∀ (g : Δ) (v : V), F (IndV.mk φ τ g v) = f g v := by
-  refine ⟨Coinvariants.lift _ (TensorProduct.lift (Finsupp.lift (V →ₗ[k] W) k Δ f)) ?_,
+  refine ⟨Coinvariants.lift _ (TensorProduct.lift (Finsupp.lift (V →ₗ[k] W) k Δ f ∘ₗ
+      (MonoidAlgebra.coeffLinearEquiv k).toLinearMap)) ?_,
     fun g v => ?_, fun F' hF' => ?_⟩
   · intro x
     ext g v
