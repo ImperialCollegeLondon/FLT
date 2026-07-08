@@ -146,12 +146,9 @@ theorem AdjoinRoot.isSeparable_of_separable {F : Type*} [Field F] {q : F[X]} [Fa
 if and only if `x` does. -/
 theorem AlgEquiv.apply_mem_range_algebraMap_iff {F A B : Type*} [CommSemiring F] [Semiring A]
     [Semiring B] [Algebra F A] [Algebra F B] (e : A ≃ₐ[F] B) {x : A} :
-    e x ∈ Set.range (algebraMap F B) ↔ x ∈ Set.range (algebraMap F A) := by
-  constructor
-  · rintro ⟨c, hc⟩
-    exact ⟨c, e.injective (by rw [e.commutes, hc])⟩
-  · rintro ⟨c, hc⟩
-    exact ⟨c, by rw [← hc, e.commutes]⟩
+    e x ∈ Set.range (algebraMap F B) ↔ x ∈ Set.range (algebraMap F A) :=
+  ⟨fun ⟨c, hc⟩ ↦ ⟨c, e.injective (by rw [e.commutes, hc])⟩,
+    fun ⟨c, hc⟩ ↦ ⟨c, by rw [← hc, e.commutes]⟩⟩
 
 /-- The minimal polynomial of `root q` has the same degree as the irreducible `q`. -/
 theorem AdjoinRoot.natDegree_minpoly_root {F : Type*} [Field F] {q : F[X]}
@@ -182,14 +179,8 @@ theorem AdjoinRoot.root_notMem_range_algebraMap {F : Type*} [Field F] {q : F[X]}
     [Fact (Irreducible q)] (hdeg : 2 ≤ q.natDegree) :
     AdjoinRoot.root q ∉ Set.range (algebraMap F (AdjoinRoot q)) := by
   rintro ⟨c, hc⟩
-  have hle : (minpoly F (AdjoinRoot.root q)).natDegree ≤ 1 := by
-    rw [← hc]
-    have h1 := natDegree_le_of_dvd
-      (minpoly.dvd F (algebraMap F (AdjoinRoot q) c)
-        (by simp only [map_sub, aeval_X, aeval_C, sub_self]))
-      (X_sub_C_ne_zero c)
-    rwa [natDegree_X_sub_C] at h1
-  rw [AdjoinRoot.natDegree_minpoly_root] at hle
+  have h := AdjoinRoot.natDegree_minpoly_root (q := q)
+  rw [← hc, minpoly.eq_X_sub_C, natDegree_X_sub_C] at h
   lia
 
 /-- The image of a principal ideal under a ring homomorphism is principal. -/
@@ -416,12 +407,12 @@ theorem exists_unramified_extension_of_residueField
       ((Ideal.quotientEquivAlgOfEq R (congrArg (fun q ↦ Ideal.span {q}) hP_map)).trans
         (hk'_equiv.restrictScalars R))
   exact ⟨L, inferInstance, inferInstance,
-    Module.Finite.of_basis (AdjoinRoot.powerBasis (Fact.out (p := Irreducible pK)).ne_zero).basis,
+    (AdjoinRoot.powerBasis (Fact.out (p := Irreducible pK)).ne_zero).finite,
     AdjoinRoot.isSeparable_of_separable
       (hP_monic.separable_map_algebraMap_of_separable_map_residue
         (by rw [hP_map]; exact hpbar_sep)),
     inferInstance, inferInstance, S, inferInstance, hSdom, hSdvr, inferInstance,
-    Module.Finite.of_basis (AdjoinRoot.powerBasis' hP_monic).basis, algSL, htower,
+    hP_monic.finite_adjoinRoot, algSL, htower,
     AdjoinRoot.isFractionRing_map hPdeg hmaxS
       (by rw [halg]; exact AdjoinRoot.map_comp_mk (algebraMap R K) hpK),
     hSlocalhom, hLrank, ⟨e.extendScalarsOfSurjective residue_surjective⟩⟩
