@@ -9,6 +9,7 @@ public import Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
 public import Mathlib.NumberTheory.LocalField.Basic
 public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
 public import FLT.KnownIn1980s.EllipticCurves.TateParameter
+public import FLT.KnownIn1980s.EllipticCurves.TateCurveBaseChange
 
 /-!
 
@@ -256,6 +257,80 @@ theorem WeierstrassCurve.exists_variableChange_tateCurve :
     ∃ C : VariableChange k, C • tateCurve E.q = E :=
   sorry
 
+open scoped ArithmeticFunction.sigma in
+/-- The Lambert series rearrangement `∑_{n≥1} n³qⁿ/(1-qⁿ) = ∑_{n≥1} σ₃(n)qⁿ` for
+`|q| < 1`: the defining series of `tateA₄` is the evaluation of the formal series
+`a₄(q) = -5s₃(q) ∈ ℤ⟦q⟧`. -/
+theorem WeierstrassCurve.tateA₄_eq_evalInt (q : k) (hq : valuation k q < 1) :
+    tateA₄ q = TateCurve.evalInt q TateCurve.a₄Formal := by
+  set c : ℕ → ℤ := fun d ↦ (d : ℤ) ^ 3 with hc
+  have h := TateCurve.tsum_lambert q hq c
+  have h1 : tateA₄ q = -5 * ∑' m : ℕ, ((c (m + 1) : ℤ) : k) *
+      q ^ (m + 1) / (1 - q ^ (m + 1)) := by
+    simp only [tateA₄]
+    congr 1
+    refine tsum_congr fun m ↦ ?_
+    simp only [hc]
+    push_cast
+    ring
+  have h2 : TateCurve.evalInt q TateCurve.a₄Formal =
+      -5 * ∑' N : ℕ, ((∑ d ∈ N.divisors, c d : ℤ) : k) * q ^ N := by
+    simp only [TateCurve.evalInt, TateCurve.coeff_a₄Formal]
+    rw [← tsum_mul_left]
+    refine tsum_congr fun N ↦ ?_
+    simp only [hc]
+    rw [ArithmeticFunction.sigma_apply]
+    push_cast
+    ring
+  rw [h1, h2, h]
+
+open scoped ArithmeticFunction.sigma in
+/-- The Lambert series rearrangement for `tateA₆`, as for `tateA₄_eq_evalInt`; the
+bookkeeping of the exact division by `12` uses `12 ∣ 5d³ + 7d⁵` termwise. -/
+theorem WeierstrassCurve.tateA₆_eq_evalInt (q : k) (hq : valuation k q < 1) :
+    tateA₆ q = TateCurve.evalInt q TateCurve.a₆Formal := by
+  have h12 : ∀ d : ℤ, (12 : ℤ) ∣ 5 * d ^ 3 + 7 * d ^ 5 := by
+    intro d
+    have hz : ((5 * d ^ 3 + 7 * d ^ 5 : ℤ) : ZMod 12) = 0 := by
+      push_cast
+      generalize (d : ZMod 12) = r
+      revert r
+      decide
+    exact_mod_cast (ZMod.intCast_zmod_eq_zero_iff_dvd _ 12).mp hz
+  set c : ℕ → ℤ := fun d ↦ -((5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5) / 12) with hc
+  have h := TateCurve.tsum_lambert q hq c
+  have h1 : tateA₆ q = ∑' m : ℕ, ((c (m + 1) : ℤ) : k) * q ^ (m + 1) /
+      (1 - q ^ (m + 1)) := by
+    simp only [tateA₆]
+    refine tsum_congr fun m ↦ ?_
+    simp only [hc]
+    push_cast
+    ring
+  have h2 : TateCurve.evalInt q TateCurve.a₆Formal = ∑' N : ℕ,
+      ((∑ d ∈ N.divisors, c d : ℤ) : k) * q ^ N := by
+    simp only [TateCurve.evalInt, TateCurve.coeff_a₆Formal]
+    refine tsum_congr fun N ↦ ?_
+    -- the divisor sum commutes with the exact division by `12`
+    have key : ∑ d ∈ N.divisors, c d = -((5 * (σ 3 N : ℤ) + 7 * (σ 5 N : ℤ)) / 12) := by
+      simp only [hc]
+      have hσ : ∑ d ∈ N.divisors, (5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5)
+          = 5 * (σ 3 N : ℤ) + 7 * (σ 5 N : ℤ) := by
+        rw [Finset.sum_add_distrib, ← Finset.mul_sum, ← Finset.mul_sum,
+          ArithmeticFunction.sigma_apply, ArithmeticFunction.sigma_apply]
+        push_cast
+        ring
+      have hsum : (12 : ℤ) ∣ 5 * (σ 3 N : ℤ) + 7 * (σ 5 N : ℤ) := by
+        rw [← hσ]
+        exact Finset.dvd_sum fun d _ ↦ h12 d
+      have hterm : ∀ d ∈ N.divisors, -((5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5) / 12) * 12
+          = -(5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5) := fun d _ ↦ by
+        rw [neg_mul, Int.ediv_mul_cancel (h12 d)]
+      apply mul_right_cancel₀ (b := (12 : ℤ)) (by norm_num)
+      rw [Finset.sum_mul, Finset.sum_congr rfl hterm, neg_mul, Int.ediv_mul_cancel hsum,
+        ← hσ, Finset.sum_neg_distrib]
+    rw [key]
+  rw [h1, h2, TateCurve.tsum_lambert q hq c]
+
 /-! ### Functoriality
 
 Now let `l` be a second nonarchimedean local field and let `k → l` be a morphism of fields
@@ -275,13 +350,34 @@ variable {l : Type*} [Field l] [ValuativeRel l] [TopologicalSpace l]
 instance : (E.baseChange l).IsElliptic :=
   inferInstanceAs (E.map (algebraMap k l)).IsElliptic
 
--- The construction of the Tate curve commutes on the nose with any valuative morphism:
--- its coefficients are power series in `q` with *integer* coefficients, and a valuative
--- morphism is continuous, so preserves the sums. The same is true of the uniformisation
--- `tateCurveEquiv` (a statement we defer, as it needs transport along this equality).
-theorem WeierstrassCurve.tateCurve_baseChange (q : k) :
-    (tateCurve q)⁄l = tateCurve (algebraMap k l q) :=
-  sorry
+/-- The construction of the Tate curve commutes on the nose with any valuative morphism:
+its coefficients are power series in `q` with *integer* coefficients, and the partial
+sums converge at matching rates on both sides (`TateCurve.evalInt_map`). The same is true
+of the uniformisation `tateCurveEquiv` (a statement we defer, as it needs transport along
+this equality).
+
+On the hypothesis `|q| < 1`: the coefficient series `tateA₄`, `tateA₆` are `tsum`s, which
+take *junk values* outside the open unit disc (the `tsum` of a non-summable family is
+`0`, and terms with vanishing denominators `1 - qⁿ = 0` are the junk `x/0 = 0`). Without
+the hypothesis this lemma would be a statement about the alignment of junk values across
+two different fields: for `|q| > 1` it would hold by accident — each term of `tateA₄` has
+size `|(n+1)³|`, which does not tend to `0`, so both sides are non-summable and both junk
+to `0` — but for `|q| = 1` summability hinges on how well `qⁿ` approximates `1`, a
+Diophantine condition on `q`, and transferring (non-)summability along `k → l` would
+further require the image of `ValuativeExtension.mapValueGroupWithZero` to be cofinal in
+the value group of `l` (true for local fields, by finiteness of ramification, but yet
+another argument). None of this buys anything: every consumer feeds this lemma a Tate
+parameter, which lies strictly inside the disc (`valuation_q_lt_one`). So the hypothesis
+is free in practice, and keeps the statement the honest identity of convergent series
+that it is in Silverman. -/
+theorem WeierstrassCurve.tateCurve_baseChange (q : k) (hq : valuation k q < 1) :
+    (tateCurve q)⁄l = tateCurve (algebraMap k l q) := by
+  have hq' : valuation l (algebraMap k l q) < 1 := TateCurve.valuation_algebraMap_lt_one hq
+  have h4 : algebraMap k l (tateA₄ q) = tateA₄ (algebraMap k l q) := by
+    rw [tateA₄_eq_evalInt q hq, tateA₄_eq_evalInt _ hq', TateCurve.evalInt_map q hq]
+  have h6 : algebraMap k l (tateA₆ q) = tateA₆ (algebraMap k l q) := by
+    rw [tateA₆_eq_evalInt q hq, tateA₆_eq_evalInt _ hq', TateCurve.evalInt_map q hq]
+  ext <;> simp [WeierstrassCurve.baseChange, tateCurve, h4, h6]
 
 -- Claude says that the base change of E to l is still given by a minimal Weierstrass equation.
 -- This uses the multiplicative reduction hypothesis (which makes `c₄` a unit): minimality by
@@ -295,9 +391,20 @@ instance : (E.baseChange l).IsMinimal 𝒪[l] :=
 instance : (E.baseChange l).HasSplitMultiplicativeReduction 𝒪[l] :=
   sorry
 
+/-- The Tate parameter series commutes with valuative extensions: it is the evaluation of
+an integral power series at `j⁻¹`, so this is a direct instance of `evalInt_map`. -/
+theorem WeierstrassCurve.tateParameter_map {j : k} (hj : 1 < valuation k j) :
+    tateParameter (algebraMap k l j) = algebraMap k l (tateParameter j) := by
+  have hjinv : valuation k j⁻¹ < 1 := by
+    simpa [map_inv₀] using inv_lt_one_of_one_lt₀ hj
+  simp_rw [WeierstrassCurve.tateParameter_eq, TateCurve.evalInt_map j⁻¹ hjinv, map_inv₀]
+
 -- The Tate parameter pushes forward under base change.
-theorem WeierstrassCurve.q_baseChange : (E.baseChange l).q = algebraMap k l E.q :=
-  sorry
+theorem WeierstrassCurve.q_baseChange : (E.baseChange l).q = algebraMap k l E.q := by
+  rw [show (E.baseChange l).q = tateParameter (E.baseChange l).j from rfl,
+    show E.q = tateParameter E.j from rfl,
+    show (E.baseChange l).j = algebraMap k l E.j from E.map_j (algebraMap k l),
+    tateParameter_map E.one_lt_valuation_j]
 
 -- The uniformisations of `E` and of its base change fit into a commutative diagram, but only
 -- up to a sign `ε` which cannot in general be removed, whatever choices are made in

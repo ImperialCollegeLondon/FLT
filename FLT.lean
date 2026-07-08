@@ -75,6 +75,7 @@ public import FLT.KnownIn1980s.EllipticCurves.Flat
 public import FLT.KnownIn1980s.EllipticCurves.GoodReduction
 public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists
 public import FLT.KnownIn1980s.EllipticCurves.TateCurve
+public import FLT.KnownIn1980s.EllipticCurves.TateCurveBaseChange
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstruction
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstructionExperiment
 public import FLT.KnownIn1980s.EllipticCurves.TateParameter
