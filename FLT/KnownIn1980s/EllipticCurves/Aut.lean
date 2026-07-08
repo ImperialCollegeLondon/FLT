@@ -6,8 +6,8 @@ Authors: Kevin Buzzard, Claude
 module
 
 public import Mathlib.AlgebraicGeometry.EllipticCurve.VariableChange
-public import Mathlib.GroupTheory.SpecificGroups.Cyclic
-public import Mathlib.Data.ZMod.Basic
+
+import Mathlib.Algebra.Group.TypeTags.Finite
 
 /-!
 
@@ -264,3 +264,5 @@ def autGroupMulEquiv [DecidableEq K] [E.IsElliptic] (hj₀ : E.j ≠ 0) (hj₁�
       (E.mem_autGroup.mp C.2)).imp Subtype.ext Subtype.ext
 
 end WeierstrassCurve
+
+end

@@ -220,3 +220,5 @@ def Point.equivOfEq {V V' : WeierstrassCurve F} (h : V = V') :
   subst h; rfl
 
 end WeierstrassCurve.Affine
+
+end

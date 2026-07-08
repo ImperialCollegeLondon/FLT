@@ -5,12 +5,11 @@ Authors: Kevin Buzzard, Claude
 -/
 module
 
-public import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
-public import Mathlib.RingTheory.Norm.Transitivity
-public import Mathlib.RingTheory.Trace.Basic
-public import Mathlib.FieldTheory.PrimitiveElement
 public import FLT.KnownIn1980s.EllipticCurves.Aut
 public import FLT.KnownIn1980s.EllipticCurves.VariableChangeEquiv
+public import Mathlib.RingTheory.Trace.Basic
+
+import Mathlib.RingTheory.Norm.Transitivity
 
 /-!
 
@@ -1141,3 +1140,5 @@ theorem exists_quadraticTwistPointEquiv_baseChange_eq_iff [DecidableEq K] [Decid
 end PointEquiv
 
 end WeierstrassCurve
+
+end

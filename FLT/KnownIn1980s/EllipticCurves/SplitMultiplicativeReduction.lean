@@ -6,16 +6,14 @@ Authors: Kevin Buzzard, Claude
 module
 
 public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists
-public import FLT.KnownIn1980s.EllipticCurves.LiftSeparableExtension
-public import Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
 public import Mathlib.Algebra.QuadraticDiscriminant
-public import Mathlib.RingTheory.Flat.TorsionFree
-public import Mathlib.RingTheory.Localization.NormTrace
-public import Mathlib.RingTheory.DedekindDomain.IntegralClosure
-public import Mathlib.LinearAlgebra.Charpoly.ToMatrix
-public import Mathlib.LinearAlgebra.Matrix.Charpoly.Coeff
-public import Mathlib.RingTheory.LocalRing.Quotient
-public import Mathlib.RingTheory.Trace.Quotient
+public import Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
+
+import FLT.KnownIn1980s.EllipticCurves.LiftSeparableExtension
+import Mathlib.LinearAlgebra.Charpoly.ToMatrix
+import Mathlib.RingTheory.Flat.TorsionFree
+import Mathlib.RingTheory.LocalRing.Quotient
+import Mathlib.RingTheory.Localization.NormTrace
 
 /-!
 # Multiplicative reduction becomes split after a quadratic twist
@@ -1109,3 +1107,5 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
 end Reduction
 
 end WeierstrassCurve
+
+end

@@ -5,14 +5,12 @@ Authors: Michael Stoll, Claude
 -/
 module
 
-public import Mathlib.RingTheory.AdjoinRoot
-public import Mathlib.Algebra.Polynomial.Eval.Irreducible
-public import Mathlib.RingTheory.Polynomial.GaussLemma
-public import Mathlib.RingTheory.DiscreteValuationRing.TFAE
-public import Mathlib.RingTheory.LocalRing.ResidueField.Basic
-public import Mathlib.FieldTheory.PrimitiveElement
 public import Mathlib.FieldTheory.SeparableDegree
-public import Mathlib.LinearAlgebra.Dimension.StrongRankCondition
+public import Mathlib.RingTheory.DiscreteValuationRing.TFAE
+
+import Mathlib.Algebra.Polynomial.Eval.Irreducible
+import Mathlib.FieldTheory.PrimitiveElement
+import Mathlib.RingTheory.Polynomial.GaussLemma
 
 /-!
 # Unramified lifts of separable residue field extensions
@@ -416,3 +414,5 @@ theorem exists_unramified_extension_of_residueField
     AdjoinRoot.isFractionRing_map hPdeg hmaxS
       (by rw [halg]; exact AdjoinRoot.map_comp_mk (algebraMap R K) hpK),
     hSlocalhom, hLrank, ⟨e.extendScalarsOfSurjective residue_surjective⟩⟩
+
+end
