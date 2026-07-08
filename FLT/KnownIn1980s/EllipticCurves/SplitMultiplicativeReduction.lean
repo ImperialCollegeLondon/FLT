@@ -131,7 +131,7 @@ theorem splits_quadratic_iff_exists_root {k : Type*} [Field k] {a b c : k} (ha :
     (C a * X ^ 2 + C b * X + C c).Splits ↔ ∃ x, a * x ^ 2 + b * x + c = 0 := by
   set p := C a * X ^ 2 + C b * X + C c with hp
   have hdeg : p.natDegree = 2 := natDegree_quadratic ha
-  have hp0 : p ≠ 0 := fun h ↦ by rw [h, natDegree_zero] at hdeg; exact two_ne_zero hdeg.symm
+  have hp0 : p ≠ 0 := fun h ↦ by simp [h] at hdeg
   constructor
   · intro hs
     obtain ⟨x, hx⟩ := hs.exists_eval_eq_zero (by simp [degree_eq_natDegree hp0, hdeg])
@@ -223,6 +223,23 @@ lemma aeval_root_nodePoly_map {A : Type*} [CommRing A] {B : Type*} [CommRing B] 
   simpa only [map_add, map_sub, map_mul, map_pow, Polynomial.aeval_C, Polynomial.aeval_X]
     using h.symm
 
+/-- The reduced node polynomial, presented as a quadratic with an additive constant term — the
+form consumed by the quadratic separability and splitting criteria. -/
+lemma nodePoly_map_eq_quadratic {A : Type*} [CommRing A] {B : Type*} [CommRing B] (φ : A →+* B)
+    (W : WeierstrassCurve A) :
+    W.nodePoly.map φ = .C (φ W.c₄) * .X ^ 2 + .C (φ (W.a₁ * W.c₄)) * .X
+      + .C (-φ (54 * W.b₆ - 3 * W.b₂ * W.b₄ + W.a₂ * W.c₄)) := by
+  rw [nodePoly_map, map_neg, sub_eq_add_neg]
+
+/-- The image of the discriminant identity `splitPolynomial_discrim` under a ring homomorphism,
+in the shape produced by the quadratic criteria applied to `nodePoly_map_eq_quadratic`. -/
+lemma map_splitPolynomial_discrim {A : Type*} [CommRing A] {B : Type*} [CommRing B] (φ : A →+* B)
+    (W : WeierstrassCurve A) :
+    φ (W.a₁ * W.c₄) ^ 2 - 4 * φ W.c₄ * (-φ (54 * W.b₆ - 3 * W.b₂ * W.b₄ + W.a₂ * W.c₄))
+      = φ (-(W.c₄ * W.c₆)) := by
+  rw [mul_neg, sub_neg_eq_add, ← map_pow, ← map_ofNat φ 4, ← map_mul, ← map_mul, ← map_add]
+  exact congrArg φ W.splitPolynomial_discrim
+
 /-- Under a change of variables `C = (u, r, s, t)`, the node polynomial transforms by the affine
 substitution `T ↦ u T + s` and the unit scalar `u⁻⁶` — reflecting that the tangent slopes `λ`
 transform as `λ ↦ (λ - s)/u`. In particular its splitting field is unchanged. -/
@@ -280,18 +297,8 @@ reduction into a split one after twisting by the right square class. -/
 lemma nodePoly_map_splits_iff_isSquare {A : Type*} [CommRing A] {k : Type*} [Field k]
     [NeZero (2 : k)] (φ : A →+* k) (W : WeierstrassCurve A) (hc₄ : φ W.c₄ ≠ 0) :
     (W.nodePoly.map φ).Splits ↔ IsSquare (φ (-(W.c₄ * W.c₆))) := by
-  have hform : W.nodePoly.map φ = Polynomial.C (φ W.c₄) * Polynomial.X ^ 2
-      + Polynomial.C (φ (W.a₁ * W.c₄)) * Polynomial.X
-      + Polynomial.C (-φ (54 * W.b₆ - 3 * W.b₂ * W.b₄ + W.a₂ * W.c₄)) := by
-    simp only [nodePoly, Polynomial.map_sub, Polynomial.map_add, Polynomial.map_mul,
-      Polynomial.map_pow, Polynomial.map_X, Polynomial.map_C, map_neg]
-    ring
-  have key : φ (W.a₁ * W.c₄) ^ 2
-      - 4 * φ W.c₄ * (-φ (54 * W.b₆ - 3 * W.b₂ * W.b₄ + W.a₂ * W.c₄)) = φ (-(W.c₄ * W.c₆)) := by
-    rw [mul_neg, sub_neg_eq_add, ← map_pow, ← map_ofNat φ 4, ← map_mul, ← map_mul, ← map_add]
-    refine congrArg φ ?_
-    simp only [c₄, c₆, b₂, b₄, b₆]; ring
-  rw [hform, Polynomial.splits_quadratic_iff hc₄, discrim, key]
+  rw [nodePoly_map_eq_quadratic, Polynomial.splits_quadratic_iff hc₄, discrim,
+    map_splitPolynomial_discrim]
 
 open Polynomial in
 /-- **Split criterion (residue characteristic 2).** Over a field `k` of characteristic `2`, where
@@ -304,23 +311,15 @@ lemma nodePoly_map_splits_iff_of_two_eq_zero {A : Type*} [CommRing A] {k : Type*
     (hc₆ : φ W.c₆ ≠ 0) :
     (W.nodePoly.map φ).Splits ↔ ∃ z, φ (W.a₁ * W.c₄) ^ 2 * (z ^ 2 + z)
       = φ W.c₄ * (-φ (54 * W.b₆ - 3 * W.b₂ * W.b₄ + W.a₂ * W.c₄)) := by
-  have hform : W.nodePoly.map φ = Polynomial.C (φ W.c₄) * Polynomial.X ^ 2
-      + Polynomial.C (φ (W.a₁ * W.c₄)) * Polynomial.X
-      + Polynomial.C (-φ (54 * W.b₆ - 3 * W.b₂ * W.b₄ + W.a₂ * W.c₄)) := by
-    simp only [nodePoly, Polynomial.map_sub, Polynomial.map_add, Polynomial.map_mul,
-      Polynomial.map_pow, Polynomial.map_X, Polynomial.map_C, map_neg]
-    ring
   have hb : φ (W.a₁ * W.c₄) ≠ 0 := by
     have h4 : (4 : k) = 0 := by linear_combination (2 : k) * h2
-    have hAk : φ (W.a₁ * W.c₄) ^ 2
-        + 4 * (φ W.c₄ * φ (54 * W.b₆ - 3 * W.b₂ * W.b₄ + W.a₂ * W.c₄)) = -(φ W.c₄ * φ W.c₆) := by
-      rw [← map_pow, ← map_ofNat φ 4, ← map_mul, ← map_mul, ← map_add, ← map_mul, ← map_neg]
-      congr 1
-      simp only [c₄, c₆, b₂, b₄, b₆]; ring
+    have hAk := map_splitPolynomial_discrim φ W
     intro h0
-    rw [h0, zero_pow two_ne_zero, zero_add, h4, zero_mul] at hAk
-    exact (neg_ne_zero.mpr (mul_ne_zero hc₄ hc₆)) hAk.symm
-  rw [hform, Polynomial.splits_quadratic_iff_of_two_eq_zero h2 hc₄ hb]
+    refine neg_ne_zero.mpr (mul_ne_zero hc₄ hc₆) ?_
+    rw [← map_mul, ← map_neg]
+    linear_combination -hAk + φ (W.a₁ * W.c₄) * h0
+      + φ W.c₄ * φ (54 * W.b₆ - 3 * W.b₂ * W.b₄ + W.a₂ * W.c₄) * h4
+  rw [nodePoly_map_eq_quadratic, Polynomial.splits_quadratic_iff_of_two_eq_zero h2 hc₄ hb]
 
 open Polynomial in
 /-- **Twisting flips the square class (residue characteristic ≠ 2).** Combining the split criterion
@@ -451,8 +450,7 @@ lemma natDegree_nodePoly_map [E.HasMultiplicativeReduction R] :
     ((E.integralModel R).nodePoly.map (algebraMap R (ResidueField R))).natDegree = 2 := by
   have ha : algebraMap R (ResidueField R) ((E.integralModel R).c₄) ≠ 0 := by
     rw [ResidueField.algebraMap_eq]; exact residue_integralModel_c₄_ne_zero E R
-  simp only [nodePoly, Polynomial.map_add, Polynomial.map_mul, Polynomial.map_pow,
-    Polynomial.map_X, Polynomial.map_C, sub_eq_add_neg, ← Polynomial.C_neg]
+  rw [nodePoly_map_eq_quadratic]
   exact Polynomial.natDegree_quadratic ha
 
 open IsLocalRing in
@@ -489,25 +487,12 @@ discriminant is `-c₄ c₆` (`splitPolynomial_discrim`), a unit, so the quadrat
 criterion `Polynomial.separable_quadratic_iff` applies. -/
 lemma separable_nodePoly_map [E.HasMultiplicativeReduction R] :
     ((E.integralModel R).nodePoly.map (algebraMap R (ResidueField R))).Separable := by
-  set φ := algebraMap R (ResidueField R) with hφ
-  set I := E.integralModel R with hI
-  have ha : φ I.c₄ ≠ 0 := by
-    rw [hφ, ResidueField.algebraMap_eq]; exact residue_integralModel_c₄_ne_zero E R
-  -- Present the reduced node polynomial as a quadratic `C c₄ · X² + C (a₁ c₄) · X + C (-D)`.
-  have hform : I.nodePoly.map φ = Polynomial.C (φ I.c₄) * Polynomial.X ^ 2
-      + Polynomial.C (φ (I.a₁ * I.c₄)) * Polynomial.X
-      + Polynomial.C (-φ (54 * I.b₆ - 3 * I.b₂ * I.b₄ + I.a₂ * I.c₄)) := by
-    simp only [nodePoly, Polynomial.map_sub, Polynomial.map_add, Polynomial.map_mul,
-      Polynomial.map_pow, Polynomial.map_X, Polynomial.map_C, map_neg]
-    ring
-  rw [hform, Polynomial.separable_quadratic_iff ha]
+  have ha : algebraMap R (ResidueField R) (E.integralModel R).c₄ ≠ 0 := by
+    rw [ResidueField.algebraMap_eq]; exact residue_integralModel_c₄_ne_zero E R
   -- Its discriminant is `-c₄ c₆` (`splitPolynomial_discrim`), a unit of the residue field.
-  have key : φ (I.a₁ * I.c₄) ^ 2 - 4 * φ I.c₄ * (-φ (54 * I.b₆ - 3 * I.b₂ * I.b₄ + I.a₂ * I.c₄))
-      = φ (-(I.c₄ * I.c₆)) := by
-    rw [mul_neg, sub_neg_eq_add, ← map_pow, ← map_ofNat φ 4, ← map_mul, ← map_mul, ← map_add]
-    refine congrArg φ ?_
-    simp only [c₄, c₆, b₂, b₄, b₆]; ring
-  rw [key, map_neg, map_mul, neg_ne_zero, mul_ne_zero_iff, hφ, ResidueField.algebraMap_eq]
+  rw [nodePoly_map_eq_quadratic, Polynomial.separable_quadratic_iff ha,
+    map_splitPolynomial_discrim, map_neg, map_mul, neg_ne_zero, mul_ne_zero_iff,
+    ResidueField.algebraMap_eq]
   exact ⟨residue_integralModel_c₄_ne_zero E R, residue_integralModel_c₆_ne_zero E R⟩
 
 open IsDiscreteValuationRing IsDedekindDomain.HeightOneSpectrum in
