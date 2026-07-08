@@ -174,15 +174,6 @@ noncomputable def evalInt (q : k) (F : ℤ⟦X⟧) : k := ∑' n : ℕ, ((coeff 
 theorem evalInt_X (q : k) : evalInt q (X : ℤ⟦X⟧) = q := by
   simp [evalInt, coeff_X]
 
-@[simp]
-theorem evalInt_C (q : k) (m : ℤ) : evalInt q (C m) = m := by
-  rw [evalInt, tsum_eq_single 0 fun n hn ↦ by rw [coeff_C, if_neg hn]; simp, coeff_C]
-  simp
-
-@[simp]
-theorem evalInt_one (q : k) : evalInt q (1 : ℤ⟦X⟧) = 1 := by
-  rw [← map_one (C : ℤ →+* ℤ⟦X⟧), evalInt_C, Int.cast_one]
-
 section
 
 variable [IsTopologicalRing k] [T2Space k]
