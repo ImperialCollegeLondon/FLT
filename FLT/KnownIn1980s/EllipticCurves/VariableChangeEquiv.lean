@@ -111,17 +111,12 @@ lemma variableChange_equation (x y : F) :
   rw [equation_iff', equation_iff']
   simp only [variableChange_a₁, variableChange_a₂, variableChange_a₃, variableChange_a₄,
     variableChange_a₆, Units.val_inv_eq_inv_val]
-  constructor
-  · intro h
-    field_simp
-    linear_combination h
-  · intro h
-    field_simp at h
-    linear_combination h
+  field_simp
+  refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩ <;> linear_combination h
 
 /-! ### The induced isomorphism of point groups -/
 
-variable [DecidableEq F] [W.IsElliptic]
+variable [W.IsElliptic]
 
 /-- The underlying map `(C • W).Point → W.Point` of the change of variables, sending `0` to `0` and
 `(x, y)` to `(u²x + r, u³y + u²sx + t)`. -/
@@ -133,16 +128,48 @@ noncomputable def Point.mapVariableChangeFun :
       (equation_iff_nonsingular.mp
         ((variableChange_equation W C x y).mpr (equation_iff_nonsingular.mpr h)))
 
-omit [DecidableEq F] in
 @[simp] lemma Point.mapVariableChangeFun_zero :
     Point.mapVariableChangeFun W C 0 = 0 := rfl
 
-omit [DecidableEq F] in
 lemma Point.mapVariableChangeFun_some {x y : F} (h : (C • W).toAffine.Nonsingular x y) :
     Point.mapVariableChangeFun W C (.some x y h)
       = .some ((C.u : F) ^ 2 * x + C.r) ((C.u : F) ^ 3 * y + (C.u : F) ^ 2 * C.s * x + C.t)
           (equation_iff_nonsingular.mp
             ((variableChange_equation W C x y).mpr (equation_iff_nonsingular.mpr h))) := rfl
+
+lemma Point.some_eq_some (V : WeierstrassCurve F) {x₁ x₂ y₁ y₂ : F} (hx : x₁ = x₂) (hy : y₁ = y₂)
+    {h₁ : V.toAffine.Nonsingular x₁ y₁} {h₂ : V.toAffine.Nonsingular x₂ y₂} :
+    (Point.some x₁ y₁ h₁ : V.toAffine.Point) = Point.some x₂ y₂ h₂ := by
+  subst hx; subst hy; rfl
+
+lemma Point.mapVariableChangeFun_injective :
+    Function.Injective (Point.mapVariableChangeFun W C) := by
+  have hu : (C.u : F) ≠ 0 := C.u.ne_zero
+  rintro (_ | ⟨x₁, y₁, h₁⟩) (_ | ⟨x₂, y₂, h₂⟩) h
+  · rfl
+  · simp [Point.mapVariableChangeFun] at h
+  · simp [Point.mapVariableChangeFun] at h
+  · rw [Point.mapVariableChangeFun_some, Point.mapVariableChangeFun_some] at h
+    injection h with hX hY
+    have hx : x₁ = x₂ := mul_left_cancel₀ (pow_ne_zero 2 hu) (by linear_combination hX)
+    exact Point.some_eq_some (C • W) hx
+      (mul_left_cancel₀ (pow_ne_zero 3 hu) (by linear_combination hY - (C.u : F) ^ 2 * C.s * hx))
+
+lemma Point.mapVariableChangeFun_surjective :
+    Function.Surjective (Point.mapVariableChangeFun W C) := by
+  have hu : (C.u : F) ≠ 0 := C.u.ne_zero
+  rintro (_ | ⟨X, Y, h⟩)
+  · exact ⟨0, rfl⟩
+  · have hX : (C.u : F) ^ 2 * ((C.u : F)⁻¹ ^ 2 * (X - C.r)) + C.r = X := by field_simp; ring
+    have hY : (C.u : F) ^ 3 * ((C.u : F)⁻¹ ^ 3 * (Y - C.s * (X - C.r) - C.t))
+        + (C.u : F) ^ 2 * C.s * ((C.u : F)⁻¹ ^ 2 * (X - C.r)) + C.t = Y := by field_simp; ring
+    refine ⟨.some ((C.u : F)⁻¹ ^ 2 * (X - C.r)) ((C.u : F)⁻¹ ^ 3 * (Y - C.s * (X - C.r) - C.t))
+      (equation_iff_nonsingular.mp ((variableChange_equation W C _ _).mp
+        (by rw [hX, hY]; exact equation_iff_nonsingular.mpr h))), ?_⟩
+    rw [Point.mapVariableChangeFun_some]
+    exact Point.some_eq_some W hX hY
+
+variable [DecidableEq F]
 
 /-- The group homomorphism `(C • W).Point →+ W.Point` induced by the admissible change of variables
 `(x, y) ↦ (u²x + r, u³y + u²sx + t)`. -/
@@ -172,44 +199,10 @@ noncomputable def Point.mapVariableChange : (C • W).toAffine.Point →+ W.toAf
       rw [Point.add_some hxy, Point.mapVariableChangeFun_some, Point.add_some hxy']
       simp only [variableChange_slope W C e₁ e₂ hxy, variableChange_addX, variableChange_addY]
 
-omit [DecidableEq F] [W.IsElliptic] in
-lemma Point.some_eq_some (V : WeierstrassCurve F) {x₁ x₂ y₁ y₂ : F} (hx : x₁ = x₂) (hy : y₁ = y₂)
-    {h₁ : V.toAffine.Nonsingular x₁ y₁} {h₂ : V.toAffine.Nonsingular x₂ y₂} :
-    (Point.some x₁ y₁ h₁ : V.toAffine.Point) = Point.some x₂ y₂ h₂ := by
-  subst hx; subst hy; rfl
-
-omit [DecidableEq F] in
-lemma Point.mapVariableChangeFun_injective :
-    Function.Injective (Point.mapVariableChangeFun W C) := by
-  have hu : (C.u : F) ≠ 0 := C.u.ne_zero
-  rintro (_ | ⟨x₁, y₁, h₁⟩) (_ | ⟨x₂, y₂, h₂⟩) h
-  · rfl
-  · simp [Point.mapVariableChangeFun] at h
-  · simp [Point.mapVariableChangeFun] at h
-  · rw [Point.mapVariableChangeFun_some, Point.mapVariableChangeFun_some] at h
-    injection h with hX hY
-    have hx : x₁ = x₂ := mul_left_cancel₀ (pow_ne_zero 2 hu) (by linear_combination hX)
-    exact Point.some_eq_some (C • W) hx
-      (mul_left_cancel₀ (pow_ne_zero 3 hu) (by linear_combination hY - (C.u : F) ^ 2 * C.s * hx))
-
-omit [DecidableEq F] in
-lemma Point.mapVariableChangeFun_surjective :
-    Function.Surjective (Point.mapVariableChangeFun W C) := by
-  have hu : (C.u : F) ≠ 0 := C.u.ne_zero
-  rintro (_ | ⟨X, Y, h⟩)
-  · exact ⟨0, rfl⟩
-  · have hX : (C.u : F) ^ 2 * ((C.u : F)⁻¹ ^ 2 * (X - C.r)) + C.r = X := by field_simp; ring
-    have hY : (C.u : F) ^ 3 * ((C.u : F)⁻¹ ^ 3 * (Y - C.s * (X - C.r) - C.t))
-        + (C.u : F) ^ 2 * C.s * ((C.u : F)⁻¹ ^ 2 * (X - C.r)) + C.t = Y := by field_simp; ring
-    refine ⟨.some ((C.u : F)⁻¹ ^ 2 * (X - C.r)) ((C.u : F)⁻¹ ^ 3 * (Y - C.s * (X - C.r) - C.t))
-      (equation_iff_nonsingular.mp ((variableChange_equation W C _ _).mp
-        (by rw [hX, hY]; exact equation_iff_nonsingular.mpr h))), ?_⟩
-    rw [Point.mapVariableChangeFun_some]
-    exact Point.some_eq_some W hX hY
-
 /-- The group isomorphism `(C • W).Point ≃+ W.Point` induced by the admissible change of
 variables `(x, y) ↦ (u²x + r, u³y + u²sx + t)`. -/
-noncomputable def pointEquivVariableChange : (C • W).toAffine.Point ≃+ W.toAffine.Point :=
+noncomputable def pointEquivVariableChange :
+    (C • W).toAffine.Point ≃+ W.toAffine.Point :=
   AddEquiv.ofBijective (Point.mapVariableChange W C)
     ⟨Point.mapVariableChangeFun_injective W C, Point.mapVariableChangeFun_surjective W C⟩
 
