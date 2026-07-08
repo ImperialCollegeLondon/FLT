@@ -150,9 +150,8 @@ theorem splits_quadratic_iff_of_two_eq_zero {k : Type*} [Field k] (h2 : (2 : k) 
 end Polynomial
 
 variable {R : Type u} [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
-variable {K : Type u} [Field K] [Algebra R K] [IsFractionRing R K]
+variable {K : Type u} [Field K] [Algebra R K]
 
-omit [IsFractionRing R K] in
 /-- A monic quadratic over a discrete valuation ring `R` whose reduction to the residue field is
 separable stays separable over the fraction field `K`: the discriminant `c₁² - 4 c₀` has nonzero
 residue (`separable_quadratic_iff`), hence is a unit of the local ring `R`
@@ -247,6 +246,8 @@ theorem AdjoinRoot.isDiscreteValuationRing_of_irreducible_map_residue
     ((IsDiscreteValuationRing.TFAE (AdjoinRoot P) hSnotfield).out 4 0).mp hSprin
   exact ⟨hmS_max, inferInstance,
     ((local_hom_TFAE (algebraMap R (AdjoinRoot P))).out 2 0).mp (le_of_eq hmaxS.symm)⟩
+
+variable [IsFractionRing R K]
 
 open IsLocalRing in
 /-- `L = K[X]/(P·K) = Frac(S)` for `S = R[X]/(P)` a discrete valuation ring: `algebraMap S L` is

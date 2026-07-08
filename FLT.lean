@@ -75,6 +75,7 @@ public import FLT.HenselianLocalRing.Stuff
 public import FLT.KnownIn1980s.EllipticCurves.Aut
 public import FLT.KnownIn1980s.EllipticCurves.Flat
 public import FLT.KnownIn1980s.EllipticCurves.GoodReduction
+public import FLT.KnownIn1980s.EllipticCurves.LiftSeparableExtension
 public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists
 public import FLT.KnownIn1980s.EllipticCurves.TateCurve
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstruction
