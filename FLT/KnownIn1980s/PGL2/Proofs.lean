@@ -6,7 +6,7 @@ Authors: Duxing Yang
 module
 
 public import FLT.KnownIn1980s.PGL2.Defs
-public import FLT.Slop.PGL2.FiniteSubgroups.DicksonClassification
+import FLT.Slop.PGL2.FiniteSubgroups.DicksonClassification
 
 /-!
 # Proofs for the public PGL2 classification statements
