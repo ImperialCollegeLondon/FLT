@@ -7,7 +7,7 @@ module
 
 public import FLT.KnownIn1980s.EllipticCurves.TateParameter
 
-import Mathlib.NumberTheory.TsumDivisorsAntidiagonal
+import FLT.Mathlib.NumberTheory.TsumDivisorsAntidiagonal
 import Mathlib.Topology.Algebra.InfiniteSum.Nonarchimedean
 
 /-!
@@ -91,40 +91,12 @@ end Evaluation
 variable {k : Type*} [Field k] [ValuativeRel k] [TopologicalSpace k]
   [IsNonarchimedeanLocalField k]
 
-/-- The convergence criterion for series over a nonarchimedean local field: if each term
-of `f` is bounded by `|q|^(e i)` for an exponent function `e` with finite sublevel sets,
-then `f` is summable — its terms tend to zero cofinitely, which suffices by completeness
-and the nonarchimedean property (no absolute convergence is needed — contrast the
-archimedean case). -/
-theorem summable_of_valuation_le_pow {ι : Type*} {q : k} (hq : valuation k q < 1)
-    {f : ι → k} (e : ι → ℕ) (he : ∀ N, {i | e i < N}.Finite)
-    (hf : ∀ i, valuation k (f i) ≤ valuation k q ^ e i) : Summable f := by
-  -- `Summable` only sees the topology, but the completeness criterion below is stated for
-  -- uniform spaces: equip `k` with its canonical uniformity
-  letI : UniformSpace k := IsTopologicalAddGroup.rightUniformSpace k
-  haveI : IsUniformAddGroup k := isUniformAddGroup_of_addCommGroup
-  haveI : NonarchimedeanRing k := by
-    convert! ValuativeRel.nonarchimedeanRing k
-    exact Valuation.toTopologicalSpace_eq _
-  apply NonarchimedeanAddGroup.summable_of_tendsto_cofinite_zero
-  rw [(IsValuativeTopology.hasBasis_nhds (0 : k)).tendsto_right_iff]
-  intro γ _
-  obtain ⟨N, hN⟩ := exists_pow_valuation_lt q hq γ
-  rw [Filter.eventually_cofinite]
-  refine (he N).subset fun i hi ↦ ?_
-  simp only [Set.mem_setOf_eq, sub_zero] at hi
-  exact lt_of_not_ge fun hge ↦
-    hi (lt_of_le_of_lt ((hf i).trans (pow_le_pow_right_of_le_one' hq.le hge)) hN)
+-- The nonarchimedean convergence criterion `TateCurve.summable_of_valuation_le_pow` used
+-- throughout this section lives in `FLT.KnownIn1980s.EllipticCurves.TateParameter`
+-- (imported above), next to its specialisation `summable_evalInt`.
 
-/-- Powers of an element of the open unit disc tend to zero. -/
-theorem tendsto_pow_nhds_zero {x : k} (hx : valuation k x < 1) :
-    Filter.Tendsto (fun n : ℕ ↦ x ^ n) Filter.atTop (𝓝 0) := by
-  rw [(IsValuativeTopology.hasBasis_nhds (0 : k)).tendsto_right_iff]
-  intro γ _
-  obtain ⟨N, hN⟩ := exists_pow_valuation_lt x hx γ
-  filter_upwards [Filter.eventually_ge_atTop N] with n hn
-  simp only [sub_zero, map_pow]
-  exact lt_of_le_of_lt (pow_le_pow_right_of_le_one' hx.le hn) hN
+-- `TateCurve.tendsto_pow_nhds_zero` also lives in `TateParameter` (imported above),
+-- next to the summability criterion.
 
 /-- The geometric series over a nonarchimedean local field: for `|x| < 1`,
 `x + x² + x³ + ⋯ = x/(1 - x)`. (Summability is by the nonarchimedean criterion — the
@@ -158,9 +130,10 @@ theorem hasSum_geometric_succ {x : k} (hx : valuation k x < 1) :
 /-- The Lambert series rearrangement over a nonarchimedean local field: for any integer
 coefficients `c` and `|q| < 1`,
 `∑_{m≥1} c(m)qᵐ/(1 - qᵐ) = ∑_{N≥1} (∑_{d ∣ N} c(d))qᴺ`.
-Each `qᵐ/(1-qᵐ)` expands as the geometric series `∑_{j≥1} q^{mj}`, and the resulting
-double series — summable since its terms tend to zero nonarchimedeanly — is regrouped
-along the fibres of `(m, j) ↦ mj`, which are exactly the divisor pairs of `N`. -/
+This is the valuative instantiation of the general `tsum_lambert_of_summable`
+(`FLT.Mathlib.NumberTheory.TsumDivisorsAntidiagonal`): the geometric row expansions come
+from `hasSum_geometric_succ`, and the double series is summable since its terms tend to
+zero nonarchimedeanly (`summable_of_valuation_le_pow`). -/
 theorem tsum_lambert (q : k) (hq : valuation k q < 1) (c : ℕ → ℤ) :
     ∑' m : ℕ, ((c (m + 1) : ℤ) : k) * q ^ (m + 1) / (1 - q ^ (m + 1)) =
       ∑' N : ℕ, ((∑ d ∈ N.divisors, c d : ℤ) : k) * q ^ N := by
@@ -172,13 +145,11 @@ theorem tsum_lambert (q : k) (hq : valuation k q < 1) (c : ℕ → ℤ) :
       _ = valuation k q := pow_one _
       _ < 1 := hq
   -- each row of the double series is a geometric series
-  have hgeo : ∀ n : ℕ+, HasSum (fun j : ℕ ↦ ((c n : ℤ) : k) * q ^ ((n : ℕ) * (j + 1)))
-      (((c n : ℤ) : k) * q ^ (n : ℕ) / (1 - q ^ (n : ℕ))) := fun n ↦ by
-    have h := (hasSum_geometric_succ (hqpow n)).mul_left ((c n : ℤ) : k)
-    rw [mul_div_assoc]
-    simpa only [← pow_mul] using h
+  have hgeo : ∀ m : ℕ+, HasSum (fun j : ℕ ↦ q ^ ((m : ℕ) * (j + 1)))
+      (q ^ (m : ℕ) / (1 - q ^ (m : ℕ))) := fun m ↦ by
+    simpa only [← pow_mul] using hasSum_geometric_succ (hqpow m)
   -- the double series is summable, its terms tending to zero nonarchimedeanly
-  obtain ⟨S, hS⟩ : Summable fun p : ℕ+ × ℕ+ ↦ ((c p.1 : ℤ) : k) * q ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by
+  have hsum : Summable fun p : ℕ+ × ℕ+ ↦ ((c p.1 : ℤ) : k) * q ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by
     refine summable_of_valuation_le_pow hq (fun p ↦ (p.1 : ℕ) * (p.2 : ℕ)) (fun N ↦ ?_) fun p ↦ ?_
     · refine (((Set.finite_Iio N).preimage PNat.coe_injective.injOn).prod
         ((Set.finite_Iio N).preimage PNat.coe_injective.injOn)).subset fun p hp ↦ ?_
@@ -189,43 +160,31 @@ theorem tsum_lambert (q : k) (hq : valuation k q < 1) (c : ℕ → ℤ) :
     · rw [map_mul, map_pow]
       simpa using mul_le_mul_left (valuation_intCast_le_one _)
         (valuation k q ^ ((p.1 : ℕ) * (p.2 : ℕ)))
-  -- summing the rows first gives the left-hand side
-  have hrows : HasSum (fun n : ℕ+ ↦ ((c n : ℤ) : k) * q ^ (n : ℕ) / (1 - q ^ (n : ℕ))) S :=
-    hS.prod_fiberwise fun n ↦ Equiv.pnatEquivNat.symm.hasSum_iff.mp (hgeo n)
-  -- summing along the fibres of `(m, j) ↦ mj` gives the right-hand side
-  have hsigma : HasSum ((fun p : ℕ+ × ℕ+ ↦ ((c p.1 : ℤ) : k) * q ^ ((p.1 : ℕ) * (p.2 : ℕ))) ∘
-      ⇑sigmaAntidiagonalEquivProd) S :=
-    sigmaAntidiagonalEquivProd.hasSum_iff.mpr hS
-  have hfib : ∀ N : ℕ+, HasSum (fun x : (Nat.divisorsAntidiagonal (N : ℕ)) ↦
-      ((fun p : ℕ+ × ℕ+ ↦ ((c p.1 : ℤ) : k) * q ^ ((p.1 : ℕ) * (p.2 : ℕ))) ∘
-        ⇑sigmaAntidiagonalEquivProd) ⟨N, x⟩)
-      (((∑ d ∈ (N : ℕ).divisors, c d : ℤ) : k) * q ^ (N : ℕ)) := by
-    intro N
-    have hterm : ∀ x : (Nat.divisorsAntidiagonal (N : ℕ)),
-        ((fun p : ℕ+ × ℕ+ ↦ ((c p.1 : ℤ) : k) * q ^ ((p.1 : ℕ) * (p.2 : ℕ))) ∘
-          ⇑sigmaAntidiagonalEquivProd) ⟨N, x⟩ = ((c (x : ℕ × ℕ).1 : ℤ) : k) * q ^ (N : ℕ) := by
-      intro x
-      have hx := (Nat.mem_divisorsAntidiagonal.mp x.2).1
-      simp only [Function.comp_apply, sigmaAntidiagonalEquivProd, Equiv.coe_fn_mk,
-        divisorsAntidiagonalFactors, PNat.mk_coe]
-      rw [hx]
-    convert hasSum_fintype _ using 1
-    · symm
-      rw [Finset.univ_eq_attach, Finset.sum_congr rfl fun x _ ↦ hterm x,
-        Finset.sum_attach (Nat.divisorsAntidiagonal (N : ℕ))
-          (fun y ↦ ((c y.1 : ℤ) : k) * q ^ (N : ℕ)),
-        ← Finset.sum_mul, Nat.sum_divisorsAntidiagonal (fun d _ ↦ ((c d : ℤ) : k)),
-        ← Int.cast_sum]
-  have hcolsPNat : HasSum
-      (fun N : ℕ+ ↦ ((∑ d ∈ (N : ℕ).divisors, c d : ℤ) : k) * q ^ (N : ℕ)) S :=
-    hsigma.sigma hfib
-  have hcols : HasSum (fun N : ℕ ↦ ((∑ d ∈ N.divisors, c d : ℤ) : k) * q ^ N) S := by
-    refine (PNat.coe_injective.hasSum_iff fun x hx ↦ ?_).mp hcolsPNat
-    cases x with
-    | zero => simp
-    | succ n => exact absurd ⟨n.succPNat, rfl⟩ hx
-  rw [← tsum_pnat_eq_tsum_succ (f := fun n ↦ ((c n : ℤ) : k) * q ^ n / (1 - q ^ n)),
-    hrows.tsum_eq, hcols.tsum_eq]
+  calc ∑' m : ℕ, ((c (m + 1) : ℤ) : k) * q ^ (m + 1) / (1 - q ^ (m + 1))
+      = ∑' m : ℕ+, ((c m : ℤ) : k) * q ^ (m : ℕ) / (1 - q ^ (m : ℕ)) :=
+        (tsum_pnat_eq_tsum_succ (f := fun n ↦ ((c n : ℤ) : k) * q ^ n / (1 - q ^ n))).symm
+    _ = ∑' N : ℕ+, (∑ d ∈ (N : ℕ).divisors, ((c d : ℤ) : k)) * q ^ (N : ℕ) :=
+        tsum_lambert_of_summable q (fun d ↦ ((c d : ℤ) : k)) hgeo hsum
+    _ = ∑' N : ℕ+, ((∑ d ∈ (N : ℕ).divisors, c d : ℤ) : k) * q ^ (N : ℕ) :=
+        tsum_congr fun N ↦ by push_cast; ring
+    _ = ∑' N : ℕ, ((∑ d ∈ N.divisors, c d : ℤ) : k) * q ^ N := by
+        refine PNat.coe_injective.tsum_eq
+          (f := fun N : ℕ ↦ ((∑ d ∈ N.divisors, c d : ℤ) : k) * q ^ N) fun x hx ↦ ?_
+        cases x with
+        | zero => simp at hx
+        | succ n => exact ⟨n.succPNat, rfl⟩
+
+/-- Bridge form of the Lambert rearrangement: if the coefficients of `F ∈ ℤ⟦X⟧` are the
+divisor sums `Fₙ = ∑_{d ∣ n} c(d)`, then the Lambert series of `c` *is* the evaluation of
+`F` on the open unit disc. This is the form in which `tsum_lambert` is consumed: it turns
+the defining series of the Tate curve coefficients (`tateA₄`, `tateA₆`) into `evalInt`s in
+one step. -/
+theorem tsum_lambert_eq_evalInt (q : k) (hq : valuation k q < 1) (c : ℕ → ℤ) {F : ℤ⟦X⟧}
+    (hF : ∀ n, PowerSeries.coeff n F = ∑ d ∈ n.divisors, c d) :
+    ∑' m : ℕ, ((c (m + 1) : ℤ) : k) * q ^ (m + 1) / (1 - q ^ (m + 1)) = evalInt q F := by
+  rw [tsum_lambert q hq c]
+  simp only [evalInt]
+  exact tsum_congr fun N ↦ by rw [hF N]
 
 /-! ### The quantitative tail bound and base change of evaluations -/
 

@@ -164,29 +164,18 @@ valuation less than `1`: the discriminant of the integral model lies in the maxi
 theorem WeierstrassCurve.valuation_Δ_lt_one (E : WeierstrassCurve k)
     [E.HasMultiplicativeReduction 𝒪[k]] :
     valuation k E.Δ < 1 := by
-  have hint := Valuation.integer.integers (valuation k)
   have hbad := HasMultiplicativeReduction.badReduction (R := 𝒪[k]) (W := E)
   rw [← integralModel_Δ_eq 𝒪[k] E] at hbad ⊢
-  have hmem : (integralModel 𝒪[k] E).Δ ∈ IsLocalRing.maximalIdeal 𝒪[k] :=
-    (IsDedekindDomain.HeightOneSpectrum.valuation_lt_one_iff_mem _ _).mp hbad
-  have hne : ¬IsUnit (integralModel 𝒪[k] E).Δ :=
-    mem_nonunits_iff.mp ((IsLocalRing.mem_maximalIdeal _).mp hmem)
-  exact lt_of_le_of_ne (hint.map_le_one _)
-    fun h ↦ hne (hint.isUnit_iff_valuation_eq_one.mpr h)
+  exact adicValuation_lt_one_iff.mp hbad
 
 /-- An elliptic curve over `k` with multiplicative reduction has `c₄` of valuation exactly
 `1`: `c₄` of the integral model is a unit of `𝒪[k]`. -/
 theorem WeierstrassCurve.valuation_c₄_eq_one (E : WeierstrassCurve k)
     [E.HasMultiplicativeReduction 𝒪[k]] :
     valuation k E.c₄ = 1 := by
-  have hint := Valuation.integer.integers (valuation k)
   have hmul := HasMultiplicativeReduction.multiplicativeReduction (R := 𝒪[k]) (W := E)
   rw [← integralModel_c₄_eq 𝒪[k] E] at hmul ⊢
-  have hunit : IsUnit (integralModel 𝒪[k] E).c₄ := by
-    by_contra h
-    exact ((IsDedekindDomain.HeightOneSpectrum.valuation_eq_one_iff_notMem _).mp hmul)
-      ((IsLocalRing.mem_maximalIdeal _).mpr (mem_nonunits_iff.mpr h))
-  exact hint.isUnit_iff_valuation_eq_one.mp hunit
+  exact adicValuation_eq_one_iff.mp hmul
 
 omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
 /-- The discriminant of an elliptic curve has nonzero valuation. -/
@@ -263,26 +252,16 @@ open scoped ArithmeticFunction.sigma in
 `a₄(q) = -5s₃(q) ∈ ℤ⟦q⟧`. -/
 theorem WeierstrassCurve.tateA₄_eq_evalInt (q : k) (hq : valuation k q < 1) :
     tateA₄ q = TateCurve.evalInt q TateCurve.a₄Formal := by
-  set c : ℕ → ℤ := fun d ↦ (d : ℤ) ^ 3 with hc
-  have h := TateCurve.tsum_lambert q hq c
-  have h1 : tateA₄ q = -5 * ∑' m : ℕ, ((c (m + 1) : ℤ) : k) *
-      q ^ (m + 1) / (1 - q ^ (m + 1)) := by
-    simp only [tateA₄]
-    congr 1
-    refine tsum_congr fun m ↦ ?_
-    simp only [hc]
+  have hF : ∀ n, PowerSeries.coeff n TateCurve.a₄Formal
+      = ∑ d ∈ n.divisors, -5 * (d : ℤ) ^ 3 := by
+    intro n
+    rw [TateCurve.coeff_a₄Formal, ArithmeticFunction.sigma_apply]
     push_cast
-    ring
-  have h2 : TateCurve.evalInt q TateCurve.a₄Formal =
-      -5 * ∑' N : ℕ, ((∑ d ∈ N.divisors, c d : ℤ) : k) * q ^ N := by
-    simp only [TateCurve.evalInt, TateCurve.coeff_a₄Formal]
-    rw [← tsum_mul_left]
-    refine tsum_congr fun N ↦ ?_
-    simp only [hc]
-    rw [ArithmeticFunction.sigma_apply]
-    push_cast
-    ring
-  rw [h1, h2, h]
+    rw [Finset.mul_sum]
+  rw [← TateCurve.tsum_lambert_eq_evalInt q hq _ hF]
+  simp only [tateA₄]
+  rw [← tsum_mul_left]
+  exact tsum_congr fun m ↦ by push_cast; ring
 
 open scoped ArithmeticFunction.sigma in
 /-- The Lambert series rearrangement for `tateA₆`, as for `tateA₄_eq_evalInt`; the
@@ -298,38 +277,34 @@ theorem WeierstrassCurve.tateA₆_eq_evalInt (q : k) (hq : valuation k q < 1) :
       decide
     exact_mod_cast (ZMod.intCast_zmod_eq_zero_iff_dvd _ 12).mp hz
   set c : ℕ → ℤ := fun d ↦ -((5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5) / 12) with hc
-  have h := TateCurve.tsum_lambert q hq c
-  have h1 : tateA₆ q = ∑' m : ℕ, ((c (m + 1) : ℤ) : k) * q ^ (m + 1) /
-      (1 - q ^ (m + 1)) := by
-    simp only [tateA₆]
-    refine tsum_congr fun m ↦ ?_
+  -- the coefficients of `a₆Formal` are the divisor sums of `c`: the divisor sum commutes
+  -- with the exact division by `12`
+  have hF : ∀ N, PowerSeries.coeff N TateCurve.a₆Formal = ∑ d ∈ N.divisors, c d := by
+    intro N
+    rw [TateCurve.coeff_a₆Formal]
+    symm
     simp only [hc]
-    push_cast
-    ring
-  have h2 : TateCurve.evalInt q TateCurve.a₆Formal = ∑' N : ℕ,
-      ((∑ d ∈ N.divisors, c d : ℤ) : k) * q ^ N := by
-    simp only [TateCurve.evalInt, TateCurve.coeff_a₆Formal]
-    refine tsum_congr fun N ↦ ?_
-    -- the divisor sum commutes with the exact division by `12`
-    have key : ∑ d ∈ N.divisors, c d = -((5 * (σ 3 N : ℤ) + 7 * (σ 5 N : ℤ)) / 12) := by
-      simp only [hc]
-      have hσ : ∑ d ∈ N.divisors, (5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5)
-          = 5 * (σ 3 N : ℤ) + 7 * (σ 5 N : ℤ) := by
-        rw [Finset.sum_add_distrib, ← Finset.mul_sum, ← Finset.mul_sum,
-          ArithmeticFunction.sigma_apply, ArithmeticFunction.sigma_apply]
-        push_cast
-        ring
-      have hsum : (12 : ℤ) ∣ 5 * (σ 3 N : ℤ) + 7 * (σ 5 N : ℤ) := by
-        rw [← hσ]
-        exact Finset.dvd_sum fun d _ ↦ h12 d
-      have hterm : ∀ d ∈ N.divisors, -((5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5) / 12) * 12
-          = -(5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5) := fun d _ ↦ by
-        rw [neg_mul, Int.ediv_mul_cancel (h12 d)]
-      apply mul_right_cancel₀ (b := (12 : ℤ)) (by norm_num)
-      rw [Finset.sum_mul, Finset.sum_congr rfl hterm, neg_mul, Int.ediv_mul_cancel hsum,
-        ← hσ, Finset.sum_neg_distrib]
-    rw [key]
-  rw [h1, h2, TateCurve.tsum_lambert q hq c]
+    have hσ : ∑ d ∈ N.divisors, (5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5)
+        = 5 * (σ 3 N : ℤ) + 7 * (σ 5 N : ℤ) := by
+      rw [Finset.sum_add_distrib, ← Finset.mul_sum, ← Finset.mul_sum,
+        ArithmeticFunction.sigma_apply, ArithmeticFunction.sigma_apply]
+      push_cast
+      ring
+    have hsum : (12 : ℤ) ∣ 5 * (σ 3 N : ℤ) + 7 * (σ 5 N : ℤ) := by
+      rw [← hσ]
+      exact Finset.dvd_sum fun d _ ↦ h12 d
+    have hterm : ∀ d ∈ N.divisors, -((5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5) / 12) * 12
+        = -(5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5) := fun d _ ↦ by
+      rw [neg_mul, Int.ediv_mul_cancel (h12 d)]
+    apply mul_right_cancel₀ (b := (12 : ℤ)) (by norm_num)
+    rw [Finset.sum_mul, Finset.sum_congr rfl hterm, neg_mul, Int.ediv_mul_cancel hsum,
+      ← hσ, Finset.sum_neg_distrib]
+  rw [← TateCurve.tsum_lambert_eq_evalInt q hq c hF]
+  simp only [tateA₆]
+  refine tsum_congr fun m ↦ ?_
+  simp only [hc]
+  push_cast
+  ring
 
 /-! ### Functoriality
 
