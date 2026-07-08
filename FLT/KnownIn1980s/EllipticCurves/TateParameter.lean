@@ -196,9 +196,9 @@ theorem summable_evalInt (q : k) (hq : valuation k q < 1) (F : ℤ⟦X⟧) :
     Summable fun n ↦ ((PowerSeries.coeff n F : ℤ) : k) * q ^ n := by
   -- `Summable` only sees the topology, but the completeness criterion below is stated for
   -- uniform spaces: equip `k` with its canonical uniformity
-  letI : UniformSpace k := IsTopologicalAddGroup.rightUniformSpace k
-  haveI : IsUniformAddGroup k := isUniformAddGroup_of_addCommGroup
-  haveI : NonarchimedeanRing k := by
+  let : UniformSpace k := IsTopologicalAddGroup.rightUniformSpace k
+  have : IsUniformAddGroup k := isUniformAddGroup_of_addCommGroup
+  have : NonarchimedeanRing k := by
     convert! ValuativeRel.nonarchimedeanRing k
     exact Valuation.toTopologicalSpace_eq _
   -- in a complete nonarchimedean group, it suffices that the terms tend to zero
