@@ -153,41 +153,62 @@ open scoped WeierstrassCurve.Affine -- `(E⁄K).Point` notation for the group of
 
 namespace Polynomial
 
+/-- The derivative of the quadratic `a X² + b X + c` is `2 a X + b`. -/
+theorem derivative_quadratic {R : Type*} [CommSemiring R] (a b c : R) :
+    derivative (C a * X ^ 2 + C b * X + C c) = 2 * C a * X + C b := by
+  simp only [derivative_add, derivative_mul, derivative_C, derivative_X_pow, derivative_X,
+    zero_mul, zero_add, add_zero, mul_one, Nat.cast_ofNat, map_ofNat]
+  ring
+
+/-- The Bézout-type identity `(P')² - 4 a · P = C (b² - 4 a c)` for the quadratic
+`P = a X² + b X + c`: the discriminant is an explicit combination of `P` and its derivative. -/
+theorem sq_derivative_quadratic_sub_mul {R : Type*} [CommRing R] (a b c : R) :
+    derivative (C a * X ^ 2 + C b * X + C c) ^ 2
+      - 4 * C a * (C a * X ^ 2 + C b * X + C c) = C (b ^ 2 - 4 * a * c) := by
+  rw [derivative_quadratic]
+  simp only [map_sub, map_mul, map_pow, map_ofNat]
+  ring
+
+/-- A polynomial of degree at most `2` over a field splits as soon as it has a root: the root
+splits off a linear factor and the cofactor is linear. -/
+theorem Splits.of_natDegree_le_two_of_isRoot {k : Type*} [Field k] {p : k[X]}
+    (hdeg : p.natDegree ≤ 2) {x : k} (hx : p.IsRoot x) : p.Splits := by
+  rcases eq_or_ne p 0 with rfl | hp0
+  · exact .zero
+  obtain ⟨q, hq⟩ := dvd_iff_isRoot.mpr hx
+  have hq0 : q ≠ 0 := fun h => hp0 (by rw [hq, h, mul_zero])
+  have hqdeg : q.natDegree ≤ 1 := by
+    rw [hq, natDegree_mul (X_sub_C_ne_zero x) hq0, natDegree_X_sub_C] at hdeg
+    lia
+  rw [hq]
+  exact (Splits.of_natDegree_le_one (natDegree_X_sub_C x).le).mul (.of_natDegree_le_one hqdeg)
+
 /-- A quadratic polynomial `a X² + b X + c` (with `a ≠ 0`) over a field is separable exactly when
-its discriminant `b² - 4 a c` is nonzero. The `←` direction holds in every characteristic and is a
-Bézout identity: `(P')² - 4 a · P = C (b² - 4 a c)`, so a nonzero (hence invertible) discriminant
+its discriminant `b² - 4 a c` is nonzero. The `←` direction holds in every characteristic: by the
+Bézout identity `sq_derivative_quadratic_sub_mul`, a nonzero (hence invertible) discriminant
 exhibits `P` and `P'` as coprime. The `→` direction argues that if the discriminant vanishes then
 `P ∣ (P')²`, forcing the coprimality witness `P` to be a unit, contradicting `deg P = 2`. -/
 theorem separable_quadratic_iff {k : Type*} [Field k] {a b c : k} (ha : a ≠ 0) :
     (C a * X ^ 2 + C b * X + C c).Separable ↔ b ^ 2 - 4 * a * c ≠ 0 := by
   set P := C a * X ^ 2 + C b * X + C c with hP
-  have hDexp : derivative P = 2 * C a * X + C b := by
-    rw [hP]
-    simp only [derivative_add, derivative_mul, derivative_C, derivative_X_pow, derivative_X,
-      zero_mul, zero_add, add_zero, mul_one, Nat.cast_ofNat, map_ofNat]
-    ring
-  have hid : (derivative P) ^ 2 - 4 * C a * P = C (b ^ 2 - 4 * a * c) := by
-    rw [hDexp, hP]
-    simp only [map_sub, map_mul, map_pow, map_ofNat]
-    ring
+  have hid : derivative P ^ 2 - 4 * C a * P = C (b ^ 2 - 4 * a * c) :=
+    sq_derivative_quadratic_sub_mul a b c
   constructor
   · intro hsep hdisc
     rw [hdisc, map_zero] at hid
-    have hdvd : P ∣ (derivative P) ^ 2 := ⟨4 * C a, by linear_combination hid⟩
-    have hunit : IsUnit P :=
-      ((separable_def P).mp hsep).pow_right.isUnit_of_dvd' dvd_rfl hdvd
-    exact not_isUnit_of_natDegree_pos P (by rw [hP, natDegree_quadratic ha]; norm_num) hunit
+    have hdvd : P ∣ derivative P ^ 2 := ⟨4 * C a, by linear_combination hid⟩
+    exact not_isUnit_of_natDegree_pos P (by rw [hP, natDegree_quadratic ha]; norm_num)
+      (((separable_def P).mp hsep).pow_right.isUnit_of_dvd' dvd_rfl hdvd)
   · intro hdisc
     rw [separable_def]
     have hdinv : C (b ^ 2 - 4 * a * c)⁻¹ * C (b ^ 2 - 4 * a * c) = 1 := by
       rw [← C_mul, inv_mul_cancel₀ hdisc, C_1]
-    refine ⟨-(C (b ^ 2 - 4 * a * c)⁻¹ * 4 * C a),
-      C (b ^ 2 - 4 * a * c)⁻¹ * derivative P, ?_⟩
-    linear_combination C (b ^ 2 - 4 * a * c)⁻¹ * hid + hdinv
+    exact ⟨-(C (b ^ 2 - 4 * a * c)⁻¹ * 4 * C a), C (b ^ 2 - 4 * a * c)⁻¹ * derivative P,
+      by linear_combination C (b ^ 2 - 4 * a * c)⁻¹ * hid + hdinv⟩
 
-/-- A quadratic `a X² + b X + c` (`a ≠ 0`) over a field splits exactly when it has a root: a root
-splits off a linear factor, leaving a linear cofactor which also splits. This is the
-characteristic-free core of the split criterion. -/
+/-- A quadratic `a X² + b X + c` (`a ≠ 0`) over a field splits exactly when it has a root
+(`Splits.of_natDegree_le_two_of_isRoot`). This is the characteristic-free core of the split
+criterion. -/
 theorem splits_quadratic_iff_exists_root {k : Type*} [Field k] {a b c : k} (ha : a ≠ 0) :
     (C a * X ^ 2 + C b * X + C c).Splits ↔ ∃ x, a * x ^ 2 + b * x + c = 0 := by
   set p := C a * X ^ 2 + C b * X + C c with hp
@@ -200,19 +221,10 @@ theorem splits_quadratic_iff_exists_root {k : Type*} [Field k] {a b c : k} (ha :
     simp only [eval_add, eval_mul, eval_C, eval_pow, eval_X] at hx
     exact ⟨x, hx⟩
   · rintro ⟨x, hx⟩
-    have hroot : p.IsRoot x := by
-      rw [hp, IsRoot]
-      simp only [eval_add, eval_mul, eval_C, eval_pow, eval_X]
-      linear_combination hx
-    obtain ⟨q, hq⟩ := dvd_iff_isRoot.mpr hroot
-    have hq0 : q ≠ 0 := fun h => hp0 (by rw [hq, h, mul_zero])
-    have hqdeg : q.natDegree = 1 := by
-      have h2 := hdeg
-      rw [hq, natDegree_mul (X_sub_C_ne_zero x) hq0, natDegree_X_sub_C] at h2
-      omega
-    rw [hq]
-    exact (Splits.of_natDegree_le_one (natDegree_X_sub_C x).le).mul
-      (Splits.of_natDegree_le_one hqdeg.le)
+    refine Splits.of_natDegree_le_two_of_isRoot hdeg.le (x := x) ?_
+    rw [hp, IsRoot]
+    simp only [eval_add, eval_mul, eval_C, eval_pow, eval_X]
+    linear_combination hx
 
 /-- Over a field of characteristic `≠ 2`, a quadratic `a X² + b X + c` (with `a ≠ 0`) *splits*
 exactly when its discriminant `b² - 4 a c` is a square: it splits iff it has a root
