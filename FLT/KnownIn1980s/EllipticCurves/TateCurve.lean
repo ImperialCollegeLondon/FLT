@@ -376,7 +376,7 @@ theorem WeierstrassCurve.tateParameter_map {j : k} (hj : 1 < valuation k j) :
     simpa [map_inv₀] using inv_lt_one_of_one_lt₀ hj
   simp_rw [WeierstrassCurve.tateParameter_eq, TateCurve.evalInt_map j⁻¹ hjinv, map_inv₀]
 
--- The Tate parameter pushes forward under base change.
+omit [E.IsMinimal 𝒪[k]] in
 theorem WeierstrassCurve.q_baseChange : (E.baseChange l).q = algebraMap k l E.q := by
   rw [show (E.baseChange l).q = tateParameter (E.baseChange l).j from rfl,
     show E.q = tateParameter E.j from rfl,
