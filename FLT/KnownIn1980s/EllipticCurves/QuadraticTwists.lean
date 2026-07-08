@@ -11,7 +11,8 @@ public import Mathlib.RingTheory.Flat.TorsionFree
 public import Mathlib.RingTheory.Norm.Transitivity
 public import FLT.KnownIn1980s.EllipticCurves.Aut
 public import FLT.KnownIn1980s.EllipticCurves.VariableChangeEquiv
-public import FLT.KnownIn1980s.EllipticCurves.UnramifiedQuadraticExtension
+public import FLT.KnownIn1980s.EllipticCurves.LiftSeparableExtension
+public import Mathlib.Algebra.QuadraticDiscriminant
 public import Mathlib.RingTheory.Localization.NormTrace
 public import Mathlib.RingTheory.DedekindDomain.IntegralClosure
 public import Mathlib.LinearAlgebra.Charpoly.ToMatrix
@@ -147,6 +148,109 @@ of `E`, and the reduction-theoretic statements — are `sorry`ed targets.
 @[expose] public section
 
 open scoped WeierstrassCurve.Affine -- `(E⁄K).Point` notation for the group of `K`-points
+
+/-! ### Quadratic polynomials: separability and splitting criteria -/
+
+namespace Polynomial
+
+/-- A quadratic polynomial `a X² + b X + c` (with `a ≠ 0`) over a field is separable exactly when
+its discriminant `b² - 4 a c` is nonzero. The `←` direction holds in every characteristic and is a
+Bézout identity: `(P')² - 4 a · P = C (b² - 4 a c)`, so a nonzero (hence invertible) discriminant
+exhibits `P` and `P'` as coprime. The `→` direction argues that if the discriminant vanishes then
+`P ∣ (P')²`, forcing the coprimality witness `P` to be a unit, contradicting `deg P = 2`. -/
+theorem separable_quadratic_iff {k : Type*} [Field k] {a b c : k} (ha : a ≠ 0) :
+    (C a * X ^ 2 + C b * X + C c).Separable ↔ b ^ 2 - 4 * a * c ≠ 0 := by
+  set P := C a * X ^ 2 + C b * X + C c with hP
+  have hDexp : derivative P = 2 * C a * X + C b := by
+    rw [hP]
+    simp only [derivative_add, derivative_mul, derivative_C, derivative_X_pow, derivative_X,
+      zero_mul, zero_add, add_zero, mul_one, Nat.cast_ofNat, map_ofNat]
+    ring
+  have hid : (derivative P) ^ 2 - 4 * C a * P = C (b ^ 2 - 4 * a * c) := by
+    rw [hDexp, hP]
+    simp only [map_sub, map_mul, map_pow, map_ofNat]
+    ring
+  constructor
+  · intro hsep hdisc
+    rw [hdisc, map_zero] at hid
+    have hdvd : P ∣ (derivative P) ^ 2 := ⟨4 * C a, by linear_combination hid⟩
+    have hunit : IsUnit P :=
+      ((separable_def P).mp hsep).pow_right.isUnit_of_dvd' dvd_rfl hdvd
+    exact not_isUnit_of_natDegree_pos P (by rw [hP, natDegree_quadratic ha]; norm_num) hunit
+  · intro hdisc
+    rw [separable_def]
+    have hdinv : C (b ^ 2 - 4 * a * c)⁻¹ * C (b ^ 2 - 4 * a * c) = 1 := by
+      rw [← C_mul, inv_mul_cancel₀ hdisc, C_1]
+    refine ⟨-(C (b ^ 2 - 4 * a * c)⁻¹ * 4 * C a),
+      C (b ^ 2 - 4 * a * c)⁻¹ * derivative P, ?_⟩
+    linear_combination C (b ^ 2 - 4 * a * c)⁻¹ * hid + hdinv
+
+/-- A quadratic `a X² + b X + c` (`a ≠ 0`) over a field splits exactly when it has a root: a root
+splits off a linear factor, leaving a linear cofactor which also splits. This is the
+characteristic-free core of the split criterion. -/
+theorem splits_quadratic_iff_exists_root {k : Type*} [Field k] {a b c : k} (ha : a ≠ 0) :
+    (C a * X ^ 2 + C b * X + C c).Splits ↔ ∃ x, a * x ^ 2 + b * x + c = 0 := by
+  set p := C a * X ^ 2 + C b * X + C c with hp
+  have hdeg : p.natDegree = 2 := natDegree_quadratic ha
+  have hp0 : p ≠ 0 := fun h => by rw [h, natDegree_zero] at hdeg; exact two_ne_zero hdeg.symm
+  constructor
+  · intro hs
+    obtain ⟨x, hx⟩ := hs.exists_eval_eq_zero (by simp [degree_eq_natDegree hp0, hdeg])
+    rw [hp] at hx
+    simp only [eval_add, eval_mul, eval_C, eval_pow, eval_X] at hx
+    exact ⟨x, hx⟩
+  · rintro ⟨x, hx⟩
+    have hroot : p.IsRoot x := by
+      rw [hp, IsRoot]
+      simp only [eval_add, eval_mul, eval_C, eval_pow, eval_X]
+      linear_combination hx
+    obtain ⟨q, hq⟩ := dvd_iff_isRoot.mpr hroot
+    have hq0 : q ≠ 0 := fun h => hp0 (by rw [hq, h, mul_zero])
+    have hqdeg : q.natDegree = 1 := by
+      have h2 := hdeg
+      rw [hq, natDegree_mul (X_sub_C_ne_zero x) hq0, natDegree_X_sub_C] at h2
+      omega
+    rw [hq]
+    exact (Splits.of_natDegree_le_one (natDegree_X_sub_C x).le).mul
+      (Splits.of_natDegree_le_one hqdeg.le)
+
+/-- Over a field of characteristic `≠ 2`, a quadratic `a X² + b X + c` (with `a ≠ 0`) *splits*
+exactly when its discriminant `b² - 4 a c` is a square: it splits iff it has a root
+(`splits_quadratic_iff_exists_root`), and completing the square
+(`discrim_eq_sq_of_quadratic_eq_zero` / `exists_quadratic_eq_zero`) matches roots with square roots
+of the discriminant. This is the split-multiplicative-reduction criterion; compare
+`separable_quadratic_iff` (separable ↔ discriminant nonzero). -/
+theorem splits_quadratic_iff {k : Type*} [Field k] [NeZero (2 : k)] {a b c : k} (ha : a ≠ 0) :
+    (C a * X ^ 2 + C b * X + C c).Splits ↔ IsSquare (discrim a b c) := by
+  rw [splits_quadratic_iff_exists_root ha]
+  constructor
+  · rintro ⟨x, hx⟩
+    exact ⟨2 * a * x + b, by rw [discrim_eq_sq_of_quadratic_eq_zero (a := a) (b := b) (c := c)
+      (x := x) (by linear_combination hx)]; ring⟩
+  · rintro ⟨s, hs⟩
+    obtain ⟨x, hx⟩ := exists_quadratic_eq_zero ha ⟨s, by rw [hs]⟩
+    exact ⟨x, by linear_combination hx⟩
+
+/-- Over a field of characteristic `2`, a *separable* quadratic `a X² + b X + c` (`a, b ≠ 0`)
+splits exactly when its Artin–Schreier invariant `a c / b²` lies in the image of `z ↦ z² + z`,
+written division-free as `∃ z, b² (z² + z) = a c`. (Substitute `z = a x / b` in a root `x`.) In
+residue characteristic `2` this replaces the square-class criterion `splits_quadratic_iff`, since
+there `b² - 4 a c = b²`, so separability already forces `b ≠ 0`. -/
+theorem splits_quadratic_iff_of_two_eq_zero {k : Type*} [Field k] (h2 : (2 : k) = 0)
+    {a b c : k} (ha : a ≠ 0) (hb : b ≠ 0) :
+    (C a * X ^ 2 + C b * X + C c).Splits ↔ ∃ z, b ^ 2 * (z ^ 2 + z) = a * c := by
+  rw [splits_quadratic_iff_exists_root ha]
+  constructor
+  · rintro ⟨x, hx⟩
+    refine ⟨a * x / b, ?_⟩
+    field_simp
+    linear_combination hx - c * h2
+  · rintro ⟨z, hz⟩
+    refine ⟨b * z / a, ?_⟩
+    field_simp
+    linear_combination hz + a * c * h2
+
+end Polynomial
 
 /-! ### Separable quadratic extensions and their quadratic characters
 
@@ -1714,9 +1818,9 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
   have : Fact (Irreducible P) := ⟨hirr⟩
   have hPne : P ≠ 0 := hirr.ne_zero
   -- Its root field `k' = k[X]/(P)` is therefore a separable quadratic extension of `k`.
-  have : Algebra.IsQuadraticExtension (ResidueField R) (AdjoinRoot P) := ⟨by
-    rw [PowerBasis.finrank (AdjoinRoot.powerBasis hPne), AdjoinRoot.powerBasis_dim]
-    exact natDegree_nodePoly_map E R⟩
+  have hk'rank : Module.finrank (ResidueField R) (AdjoinRoot P) = 2 :=
+    AdjoinRoot.finrank_eq_natDegree.trans (natDegree_nodePoly_map E R)
+  have : FiniteDimensional (ResidueField R) (AdjoinRoot P) := .of_finrank_eq_succ hk'rank
   have hroot_sep : IsSeparable (ResidueField R) (AdjoinRoot.root P) := by
     simp only [IsSeparable, AdjoinRoot.minpoly_root hPne]
     exact (separable_nodePoly_map E R).mul_unit (Polynomial.isUnit_C.mpr
@@ -1729,17 +1833,16 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
     exact (IntermediateField.isSeparable_adjoin_simple_iff_isSeparable _ _).mpr hroot_sep
   have : Algebra.IsSeparable (ResidueField R) (AdjoinRoot P) :=
     AlgEquiv.Algebra.isSeparable IntermediateField.topEquiv
-  -- Lift `k'` to the unramified quadratic extension `L/K` (`UnramifiedQuadraticExtension`).
-  obtain ⟨L, _, _, _, _, _, _, S, _, _, _, _, _, _, _, _, _, ⟨resIso⟩⟩ :=
-    exists_unramified_quadraticExtension_of_residueField (R := R) (K := K) (AdjoinRoot P)
+  -- Lift `k'` to the unramified quadratic extension `L/K` (`LiftSeparableExtension`).
+  obtain ⟨L, _, _, _, _, _, _, S, _, _, _, _, _, _, _, _, _, hLrank, ⟨resIso⟩⟩ :=
+    exists_unramified_extension_of_residueField (R := R) (K := K) (AdjoinRoot P)
+  have : Algebra.IsQuadraticExtension K L := ⟨hLrank.trans hk'rank⟩
   refine ⟨L, ‹Field L›, ‹Algebra K L›, ‹Algebra.IsQuadraticExtension K L›,
     ‹Algebra.IsSeparable K L›, ?_⟩
   -- `S = 𝒪_L` is the integral closure of `R` in `L` (now that `Frac S = L` is proved), so `L` is
   -- the base-change localization of `S`, and `R`-trace/norm are compatible with `K`-trace/norm.
   have : Algebra.IsIntegral R S := Algebra.IsIntegral.of_finite R S
   have : IsIntegralClosure S R L := IsIntegralClosure.of_isIntegrallyClosed S R L
-  have : FiniteDimensional K L :=
-    .of_finrank_eq_succ (Algebra.IsQuadraticExtension.finrank_eq_two K L)
   have : IsLocalization (Algebra.algebraMapSubmonoid S (nonZeroDivisors R)) L :=
     IsIntegralClosure.isLocalization_of_isSeparable R K L S
   have : Module.IsTorsionFree R L := Module.IsTorsionFree.trans_faithfulSMul R K L

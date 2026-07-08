@@ -81,7 +81,6 @@ public import FLT.KnownIn1980s.EllipticCurves.TateCurve
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstruction
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstructionExperiment
 public import FLT.KnownIn1980s.EllipticCurves.Torsion
-public import FLT.KnownIn1980s.EllipticCurves.UnramifiedQuadraticExtension
 public import FLT.KnownIn1980s.EllipticCurves.VariableChangeEquiv
 public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
 public import FLT.Mathlib.Algebra.Algebra.Bilinear
