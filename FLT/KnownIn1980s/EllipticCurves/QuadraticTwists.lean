@@ -699,6 +699,9 @@ theorem not_exists_smul_quadraticTwist_eq (hj₀ : E.j ≠ 0) (hj₁₇₂₈ : 
     rw [hψ]; exact VariableChange.map_baseChange (C := CK * C₀⁻¹) σ.toAlgHom
   -- `c₄, c₆` of `Eᴸ` are nonzero, so `Aut(Eᴸ) = {±1}`.
   have inj := FaithfulSMul.algebraMap_injective K L
+  have hΔL : (E.baseChange L).Δ ≠ 0 := by
+    simp only [baseChange, map_Δ]
+    exact (map_ne_zero_iff _ inj).mpr E.isUnit_Δ.ne_zero
   have hc4L : (E.baseChange L).c₄ ≠ 0 := by
     simp only [baseChange, map_c₄]
     exact (map_ne_zero_iff _ inj).mpr fun h => hj₀ (E.j_eq_zero h)
@@ -718,7 +721,7 @@ theorem not_exists_smul_quadraticTwist_eq (hj₀ : E.j ≠ 0) (hj₁₇₂₈ : 
     · rw [hcase]; exact map_one (VariableChange.mapHom σ.toAlgHom.toRingHom)
     · rw [hcase]; exact E.negVariableChange_baseChange_map L σ
   -- Applying `σ` to `ψ = a · C₁` forces `[-1] = 1`, a contradiction.
-  refine (E.baseChange L).negVariableChange_ne_one hc4L ?_
+  refine (E.baseChange L).negVariableChange_ne_one hΔL ?_
   have hchain : a * ((E.baseChange L).negVariableChange * C₁) = a * C₁ :=
     calc a * ((E.baseChange L).negVariableChange * C₁)
         = a.map σ.toAlgHom.toRingHom * C₁.map σ.toAlgHom.toRingHom := by rw [hamap, hcoc]
