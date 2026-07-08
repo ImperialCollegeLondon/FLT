@@ -273,7 +273,57 @@ field extensions it just means `[L:K] = 2`; we add separability as a further hyp
 section QuadraticCharacter
 
 variable (K L : Type*) [Field K] [Field L] [Algebra K L]
-  [Algebra.IsQuadraticExtension K L] [Algebra.IsSeparable K L]
+  [Algebra.IsQuadraticExtension K L]
+
+/-- A quadratic extension contains an element not in the base field. (Used to choose a
+generator of `L/K` in the definition of the quadratic twist below.) -/
+theorem Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap :
+    ∃ θ : L, θ ∉ Set.range (algebraMap K L) := by
+  by_contra! h
+  have hbot : (⊥ : Subalgebra K L) = ⊤ :=
+    Algebra.eq_top_iff.mpr fun x ↦ Algebra.mem_bot.mpr (h x)
+  have h1 := Subalgebra.bot_eq_top_iff_finrank_eq_one.mp hbot
+  have h2 := Algebra.IsQuadraticExtension.finrank_eq_two K L
+  omega
+
+/-- Any element of a quadratic extension `L/K` is a `K`-linear combination of `1` and a given
+generator `θ`, and the `θ`-coefficient is nonzero if the element also lies outside `K`. -/
+theorem Algebra.IsQuadraticExtension.exists_eq_algebraMap_add_algebraMap_mul {θ θ' : L}
+    (hθ : θ ∉ Set.range (algebraMap K L)) (hθ' : θ' ∉ Set.range (algebraMap K L)) :
+    ∃ a b : K, a ≠ 0 ∧ θ' = algebraMap K L b + algebraMap K L a * θ := by
+  have hθ0 : θ ≠ 0 := fun h ↦ hθ ⟨0, by rw [map_zero, h]⟩
+  have hli : LinearIndependent K ![(1 : L), θ] := by
+    rw [linearIndependent_fin2]
+    simp only [Matrix.cons_val_one, Matrix.cons_val_zero]
+    refine ⟨hθ0, fun c hc ↦ ?_⟩
+    rcases eq_or_ne c 0 with rfl | hc0
+    · rw [zero_smul] at hc
+      exact one_ne_zero hc.symm
+    · refine hθ ⟨c⁻¹, ?_⟩
+      rw [map_inv₀]
+      rw [Algebra.smul_def] at hc
+      exact (eq_inv_of_mul_eq_one_right hc).symm
+  have hmem : θ' ∈ Submodule.span K (Set.range ![(1 : L), θ]) := by
+    rw [hli.span_eq_top_of_card_eq_finrank
+      (by rw [Fintype.card_fin]; exact (finrank_eq_two K L).symm)]
+    trivial
+  rw [Matrix.range_cons_cons_empty, Submodule.mem_span_pair] at hmem
+  obtain ⟨c, d, hcd⟩ := hmem
+  refine ⟨d, c, fun hd ↦ hθ' ⟨c, ?_⟩, ?_⟩
+  · rw [← hcd, hd, zero_smul, add_zero, Algebra.algebraMap_eq_smul_one]
+  · rw [← hcd, Algebra.smul_def, Algebra.smul_def, mul_one]
+
+-- Let `M` be a field extension of `L`, for example `L` itself or a separable closure of `K`.
+variable (M : Type*) [Field M] [Algebra K M] [Algebra L M] [IsScalarTower K L M]
+
+/-- For a normal subextension `K ⊆ L ⊆ M`, a `K`-automorphism `σ` of `M` fixes `L` pointwise
+if and only if its restriction to `L` (`AlgEquiv.restrictNormal`) is the identity. -/
+theorem forall_apply_algebraMap_iff_restrictNormal_eq_one (σ : M ≃ₐ[K] M) :
+    (∀ x : L, σ (algebraMap L M x) = algebraMap L M x) ↔ σ.restrictNormal L = 1 := by
+  simp only [AlgEquiv.ext_iff, AlgEquiv.one_apply, ← AlgEquiv.restrictNormal_commutes]
+  exact forall_congr' fun x => (FaithfulSMul.algebraMap_injective L M).eq_iff
+
+variable [Algebra.IsSeparable K L]
 
 -- Note that mathlib already knows the basic facts about this situation: `L/K` is
 -- finite (`Module.Finite` from `Algebra.IsQuadraticExtension`), normal
@@ -298,18 +348,6 @@ theorem Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq {σ : L ≃ₐ[K] L} 
   rcases eq_or_ne φ 1 with h1 | h1
   · exact Or.inl h1
   · exact Or.inr (((Nat.card_eq_two_iff' 1).mp (card_algEquiv K L)).unique h1 hσ)
-
-omit [Algebra.IsSeparable K L] in
-/-- A quadratic extension contains an element not in the base field. (Used to choose a
-generator of `L/K` in the definition of the quadratic twist below.) -/
-theorem Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap :
-    ∃ θ : L, θ ∉ Set.range (algebraMap K L) := by
-  by_contra! h
-  have hbot : (⊥ : Subalgebra K L) = ⊤ :=
-    Algebra.eq_top_iff.mpr fun x ↦ Algebra.mem_bot.mpr (h x)
-  have h1 := Subalgebra.bot_eq_top_iff_finrank_eq_one.mp hbot
-  have h2 := Algebra.IsQuadraticExtension.finrank_eq_two K L
-  omega
 
 open Classical in
 /-- The automorphism group of a separable quadratic extension consists of the identity and one
@@ -365,46 +403,6 @@ theorem Algebra.IsQuadraticExtension.discrim_ne_zero {θ : L}
     linear_combination h2
   exact algEquiv_apply_ne K L hσ hθ
     (sub_eq_zero.mp (pow_eq_zero_iff (two_ne_zero) |>.mp h1)).symm
-
-omit [Algebra.IsSeparable K L] in
-/-- Any element of a quadratic extension `L/K` is a `K`-linear combination of `1` and a given
-generator `θ`, and the `θ`-coefficient is nonzero if the element also lies outside `K`. -/
-theorem Algebra.IsQuadraticExtension.exists_eq_algebraMap_add_algebraMap_mul {θ θ' : L}
-    (hθ : θ ∉ Set.range (algebraMap K L)) (hθ' : θ' ∉ Set.range (algebraMap K L)) :
-    ∃ a b : K, a ≠ 0 ∧ θ' = algebraMap K L b + algebraMap K L a * θ := by
-  have hθ0 : θ ≠ 0 := fun h ↦ hθ ⟨0, by rw [map_zero, h]⟩
-  have hli : LinearIndependent K ![(1 : L), θ] := by
-    rw [linearIndependent_fin2]
-    simp only [Matrix.cons_val_one, Matrix.cons_val_zero]
-    refine ⟨hθ0, fun c hc ↦ ?_⟩
-    rcases eq_or_ne c 0 with rfl | hc0
-    · rw [zero_smul] at hc
-      exact one_ne_zero hc.symm
-    · refine hθ ⟨c⁻¹, ?_⟩
-      rw [map_inv₀]
-      rw [Algebra.smul_def] at hc
-      exact (eq_inv_of_mul_eq_one_right hc).symm
-  have hmem : θ' ∈ Submodule.span K (Set.range ![(1 : L), θ]) := by
-    rw [hli.span_eq_top_of_card_eq_finrank
-      (by rw [Fintype.card_fin]; exact (finrank_eq_two K L).symm)]
-    trivial
-  rw [Matrix.range_cons_cons_empty, Submodule.mem_span_pair] at hmem
-  obtain ⟨c, d, hcd⟩ := hmem
-  refine ⟨d, c, fun hd ↦ hθ' ⟨c, ?_⟩, ?_⟩
-  · rw [← hcd, hd, zero_smul, add_zero, Algebra.algebraMap_eq_smul_one]
-  · rw [← hcd, Algebra.smul_def, Algebra.smul_def, mul_one]
-
--- Let `M` be a field extension of `L`, for example `L` itself or a separable closure of `K`.
-variable (M : Type*) [Field M] [Algebra K M] [Algebra L M] [IsScalarTower K L M]
-
-omit [Algebra.IsSeparable K L] in
-/-- For a normal subextension `K ⊆ L ⊆ M`, a `K`-automorphism `σ` of `M` fixes `L` pointwise
-if and only if its restriction to `L` (`AlgEquiv.restrictNormal`) is the identity. -/
-theorem forall_apply_algebraMap_iff_restrictNormal_eq_one (σ : M ≃ₐ[K] M) :
-    (∀ x : L, σ (algebraMap L M x) = algebraMap L M x) ↔ σ.restrictNormal L = 1 := by
-  simp only [AlgEquiv.ext_iff, AlgEquiv.one_apply, ← AlgEquiv.restrictNormal_commutes]
-  exact forall_congr' fun x => (FaithfulSMul.algebraMap_injective L M).eq_iff
-
 open Classical in
 /-- The quadratic character of `Aut(M/K)` attached to a separable quadratic subextension
 `K ⊆ L ⊆ M`: it sends `σ` to `1` if `σ` fixes `L` pointwise, and to `-1` otherwise.
@@ -538,6 +536,28 @@ theorem quadraticTwistOf_map {B : Type*} [CommRing B] (f : A →+* B) :
       WeierstrassCurve.map_a₃, WeierstrassCurve.map_a₄, WeierstrassCurve.map_a₆, map_mul, map_sub,
       map_pow, map_ofNat]
 
+/-- The discriminant of the node's tangent polynomial `c₄ T² + a₁ c₄ T - (54 b₆ - 3 b₂ b₄ + a₂ c₄)`
+(the quadratic controlling split multiplicative reduction) equals `-c₄ c₆`. Hence the tangent
+directions at the node are rational over the residue field exactly when `-c₄ c₆` is a square there;
+twisting by `(t, n)` multiplies `-c₄ c₆` by `(t² - 4n)⁵ = (t² - 4n)⁴ · (t² - 4n)`, i.e. by the
+twisting parameter up to a square (see `c₄_quadraticTwistOf`, `c₆_quadraticTwistOf`). -/
+theorem splitPolynomial_discrim :
+    (E.a₁ * E.c₄) ^ 2 + 4 * E.c₄ * (54 * E.b₆ - 3 * E.b₂ * E.b₄ + E.a₂ * E.c₄)
+      = -(E.c₄ * E.c₆) := by
+  simp only [c₄, c₆, b₂, b₄, b₆]; ring
+
+/-- The node-polynomial constant `κ = 54 b₆ - 3 b₂ b₄ + a₂ c₄` of the quadratic twist by `(t, n)`
+in terms of that of `E`: `κ_W = D³ κ - D² n a₁² c₄` where `D = t² - 4n`. -/
+theorem kappa_quadraticTwistOf :
+    54 * (E.quadraticTwistOf t n).b₆
+      - 3 * (E.quadraticTwistOf t n).b₂ * (E.quadraticTwistOf t n).b₄
+      + (E.quadraticTwistOf t n).a₂ * (E.quadraticTwistOf t n).c₄
+      = (t ^ 2 - 4 * n) ^ 3 * (54 * E.b₆ - 3 * E.b₂ * E.b₄ + E.a₂ * E.c₄)
+        - (t ^ 2 - 4 * n) ^ 2 * n * E.a₁ ^ 2 * E.c₄ := by
+  rw [b₆_quadraticTwistOf, b₂_quadraticTwistOf, b₄_quadraticTwistOf, c₄_quadraticTwistOf,
+    show (E.quadraticTwistOf t n).a₂ = (t ^ 2 - 4 * n) * E.a₂ - n * E.a₁ ^ 2 from rfl]
+  ring
+
 end QuadraticTwistOfRing
 
 variable {K : Type u} [Field K]
@@ -548,16 +568,6 @@ variable (E : WeierstrassCurve K)
 
 variable (t n : K)
 
-
-/-- The discriminant of the node's tangent polynomial `c₄ T² + a₁ c₄ T - (54 b₆ - 3 b₂ b₄ + a₂ c₄)`
-(the quadratic controlling split multiplicative reduction) equals `-c₄ c₆`. Hence the tangent
-directions at the node are rational over the residue field exactly when `-c₄ c₆` is a square there;
-twisting by `(t, n)` multiplies `-c₄ c₆` by `(t² - 4n)⁵ = (t² - 4n)⁴ · (t² - 4n)`, i.e. by the
-twisting parameter up to a square (see `c₄_quadraticTwistOf`, `c₆_quadraticTwistOf`). -/
-theorem splitPolynomial_discrim :
-    (E.a₁ * E.c₄) ^ 2 + 4 * E.c₄ * (54 * E.b₆ - 3 * E.b₂ * E.b₄ + E.a₂ * E.c₄)
-      = -(E.c₄ * E.c₆) := by
-  simp only [c₄, c₆, b₂, b₄, b₆]; ring
 
 theorem isElliptic_quadraticTwistOf [E.IsElliptic] (hD : t ^ 2 - 4 * n ≠ 0) :
     (E.quadraticTwistOf t n).IsElliptic := by
@@ -654,18 +664,35 @@ noncomputable def quadraticTwist (E : WeierstrassCurve K) (L : Type*) [Field L] 
   E.quadraticTwistBy (Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap K L).choose
 
 -- Let `E/K` be an elliptic curve and let `L/K` be a separable quadratic extension.
-variable (E : WeierstrassCurve K) [E.IsElliptic]
+variable (E : WeierstrassCurve K)
 variable (L : Type*) [Field L] [Algebra K L]
-  [Algebra.IsQuadraticExtension K L] [Algebra.IsSeparable K L]
 
-/-- The quadratic twist of an elliptic curve is an elliptic curve: the twisted model has
-discriminant `D⁶·Δ(E)`, and `D ≠ 0` by separability
-(`Algebra.IsQuadraticExtension.discrim_ne_zero`). -/
-instance : (E.quadraticTwist L).IsElliptic :=
-  E.isElliptic_quadraticTwistBy
-    (Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap K L).choose_spec
+/-- The automorphism `[-1]` of `E` over `L` is defined over `K`, hence fixed by the Galois action:
+its components `-1, 0, -a₁, -a₃` all lie in `K`. -/
+lemma negVariableChange_baseChange_map (σ : L ≃ₐ[K] L) :
+    (E.baseChange L).negVariableChange.map σ.toAlgHom.toRingHom
+      = (E.baseChange L).negVariableChange := by
+  refine VariableChange.ext ?_ ?_ ?_ ?_
+  · refine Units.ext ?_
+    simp [VariableChange.map, negVariableChange]
+  · simp [VariableChange.map, negVariableChange]
+  · simp [VariableChange.map, negVariableChange, map_neg, map_a₁, baseChange, AlgEquiv.commutes]
+  · simp [VariableChange.map, negVariableChange, map_neg, map_a₃, baseChange, AlgEquiv.commutes]
 
-omit [E.IsElliptic] in
+section
+
+-- Let `M` be a field extension of `L`, for example `L` itself or a separable closure of `K`.
+variable (M : Type*) [Field M] [Algebra K M] [Algebra L M] [IsScalarTower K L M]
+
+lemma baseChange_map_algebraMap (V : WeierstrassCurve K) :
+    (V.baseChange L).map (algebraMap L M) = V.baseChange M := by
+  simp only [WeierstrassCurve.baseChange]
+  rw [map_map, ← IsScalarTower.algebraMap_eq K L M]
+
+end
+
+variable [Algebra.IsQuadraticExtension K L] [Algebra.IsSeparable K L]
+
 /-- The quadratic twist of `E` by `L/K` is isomorphic over `K` to the twist by any given
 generator `θ ∈ L ∖ K`: the arbitrary choice made in its definition is harmless. -/
 theorem exists_smul_quadraticTwist_eq_quadraticTwistBy {θ : L}
@@ -674,7 +701,6 @@ theorem exists_smul_quadraticTwist_eq_quadraticTwistBy {θ : L}
   E.exists_smul_quadraticTwistBy_eq
     (Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap K L).choose_spec hθ
 
-omit [E.IsElliptic] in
 /-- The quadratic twist becomes isomorphic to `E` after base change to `L`. (Over a field,
 isomorphisms of Weierstrass curves are exactly the admissible changes of variables
 `WeierstrassCurve.VariableChange`, acting via `•`.) The point-level consequences of this
@@ -712,13 +738,6 @@ theorem exists_smul_quadraticTwist_baseChange_eq :
     map_variableChange (W := E.quadraticTwist L) (C := C₀) (φ := algebraMap K L)
   rw [mul_smul, hbase, hC₀, hC₁]
 
-/-- Twisting does not change the `j`-invariant, since the curves become isomorphic over `L`. -/
-theorem j_quadraticTwist : (E.quadraticTwist L).j = E.j :=
-  E.j_quadraticTwistOf _ _ (E.isElliptic_quadraticTwistOf _ _
-    (Algebra.IsQuadraticExtension.discrim_ne_zero K L
-      (Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap K L).choose_spec))
-
-omit [E.IsElliptic] in
 /-- Twisting twice by the same quadratic extension gives back `E`, up to `K`-isomorphism.
 (Both twists are taken with respect to the same chosen generator of `L/K`, which is harmless
 by `exists_smul_quadraticTwist_eq_quadraticTwistBy`.) -/
@@ -732,7 +751,6 @@ theorem exists_smul_quadraticTwist_quadraticTwist_eq :
   rw [hC] at h2
   exact h2
 
-omit [E.IsElliptic] in
 /-- The explicit `L`-isomorphism `Eᴸ ≅ E` from `exists_smul_quadraticTwist_baseChange_eq`, taken
 for the twist by a generator `θ`, is **anti-equivariant** for the Galois action: its conjugate by
 the nontrivial `σ ∈ Gal(L/K)` differs from it by the automorphism `[-1]` of `E`. This nontrivial
@@ -775,18 +793,134 @@ theorem exists_smul_baseChange_and_map_eq {θ : L} (hθ : θ ∉ Set.range (alge
         map_neg, map_mul, map_pow, map_sub, map_a₃, baseChange, σ.commutes, hσσ]
       ring
 
-omit [E.IsElliptic] [Algebra.IsQuadraticExtension K L] [Algebra.IsSeparable K L] in
-/-- The automorphism `[-1]` of `E` over `L` is defined over `K`, hence fixed by the Galois action:
-its components `-1, 0, -a₁, -a₃` all lie in `K`. -/
-lemma negVariableChange_baseChange_map (σ : L ≃ₐ[K] L) :
-    (E.baseChange L).negVariableChange.map σ.toAlgHom.toRingHom
-      = (E.baseChange L).negVariableChange := by
-  refine VariableChange.ext ?_ ?_ ?_ ?_
-  · refine Units.ext ?_
-    simp [VariableChange.map, negVariableChange]
-  · simp [VariableChange.map, negVariableChange]
-  · simp [VariableChange.map, negVariableChange, map_neg, map_a₁, baseChange, AlgEquiv.commutes]
-  · simp [VariableChange.map, negVariableChange, map_neg, map_a₃, baseChange, AlgEquiv.commutes]
+/-- **Galois descent for changes of variables.** A change of variables over `L` fixed by the
+nontrivial `σ ∈ Gal(L/K)` has all its coefficients in `K`, so it is the base change of a change of
+variables over `K`. -/
+lemma exists_baseChange_eq_of_map_eq {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1) {C : VariableChange L}
+    (hCinv : C.map σ.toAlgHom.toRingHom = C) : ∃ CK : VariableChange K, CK.baseChange L = C := by
+  have hap : ⇑σ.toAlgHom.toRingHom = ⇑σ := rfl
+  have mem : ∀ x : L, σ x = x → x ∈ Set.range (algebraMap K L) := fun x hx => by
+    rw [IsGalois.mem_range_algebraMap_iff_fixed]
+    intro φ
+    rcases Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq K L hσ φ with rfl | rfl
+    · exact AlgEquiv.one_apply x
+    · exact hx
+  have hu : σ (C.u : L) = (C.u : L) := by
+    have := congrArg (fun D => (D.u : L)) hCinv
+    simpa [VariableChange.map, Units.coe_map, hap] using this
+  have hr : σ C.r = C.r := by
+    have := congrArg VariableChange.r hCinv; simpa [VariableChange.map, hap] using this
+  have hs : σ C.s = C.s := by
+    have := congrArg VariableChange.s hCinv; simpa [VariableChange.map, hap] using this
+  have ht : σ C.t = C.t := by
+    have := congrArg VariableChange.t hCinv; simpa [VariableChange.map, hap] using this
+  obtain ⟨uK, huK⟩ := mem _ hu
+  obtain ⟨rK, hrK⟩ := mem _ hr
+  obtain ⟨sK, hsK⟩ := mem _ hs
+  obtain ⟨tK, htK⟩ := mem _ ht
+  have huK' : uK ≠ 0 := by rintro rfl; rw [map_zero] at huK; exact C.u.ne_zero huK.symm
+  refine ⟨⟨Units.mk0 uK huK', rK, sK, tK⟩, ?_⟩
+  refine VariableChange.ext ?_ hrK hsK htK
+  refine Units.ext ?_
+  simp only [VariableChange.baseChange, VariableChange.map, Units.coe_map, Units.val_mk0,
+    MonoidHom.coe_coe]
+  exact huK
+
+/-- The classical formula for the quadratic twist away from characteristic 2. Suppose
+`char K ≠ 2`, so that after completing the square we may assume `E` has the form
+`y² = x³ + a₂x² + a₄x + a₆`, and suppose `L = K(α)` where `α² = d` is a nonsquare in `K` (every
+separable quadratic extension arises this way when `char K ≠ 2`). Then the quadratic twist of
+`E` by `L` is `y² = x³ + da₂x² + d²a₄x + d³a₆`, up to `K`-isomorphism. -/
+theorem quadraticTwist_of_two_ne_zero (h2 : (2 : K) ≠ 0) (ha₁ : E.a₁ = 0) (ha₃ : E.a₃ = 0)
+    {d : K} (hd : ¬IsSquare d) {α : L} (hα : α ^ 2 = algebraMap K L d) :
+    ∃ C : VariableChange K, C • E.quadraticTwist L =
+      { a₁ := 0, a₂ := d * E.a₂, a₃ := 0, a₄ := d ^ 2 * E.a₄, a₆ := d ^ 3 * E.a₆ } := by
+  -- `α` generates `L/K`: were `α = algebraMap K L c`, then `d = c²` would be a square.
+  have hαK : α ∉ Set.range (algebraMap K L) := by
+    rintro ⟨c, rfl⟩
+    refine hd ⟨c, FaithfulSMul.algebraMap_injective K L ?_⟩
+    rw [map_mul, ← sq]
+    exact hα.symm
+  obtain ⟨σ, hσ⟩ := Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L
+  have hσα : σ α ≠ α := Algebra.IsQuadraticExtension.algEquiv_apply_ne K L hσ hαK
+  -- The conjugate of `α` is `-α`, so `θ = α` has trace `0` and norm `-d`.
+  have hσαα : σ α = -α := by
+    have hσ2 : (σ α) ^ 2 = α ^ 2 := by rw [← map_pow, hα, AlgEquiv.commutes]
+    have h1 : (σ α - α) * (σ α + α) = 0 := by linear_combination hσ2
+    rcases mul_eq_zero.mp h1 with h | h
+    · exact absurd (sub_eq_zero.mp h) hσα
+    · exact eq_neg_of_add_eq_zero_left h
+  have htr : Algebra.trace K L α = 0 := by
+    apply FaithfulSMul.algebraMap_injective K L
+    rw [Algebra.IsQuadraticExtension.algebraMap_trace_eq_add K L hσ, hσαα, map_zero, add_neg_cancel]
+  have hnm : Algebra.norm K α = -d := by
+    apply FaithfulSMul.algebraMap_injective K L
+    rw [Algebra.IsQuadraticExtension.algebraMap_norm_eq_mul K L hσ, hσαα, map_neg, ← hα]
+    ring
+  -- So `E.quadraticTwistBy α = E.quadraticTwistOf 0 (-d)`; a final scaling by `u = 2` removes
+  -- the powers of `4` and yields the classical model.
+  obtain ⟨C, hC⟩ := E.exists_smul_quadraticTwist_eq_quadraticTwistBy L hαK
+  unfold quadraticTwistBy at hC
+  rw [htr, hnm] at hC
+  refine ⟨⟨Units.mk0 2 h2, 0, 0, 0⟩ * C, ?_⟩
+  rw [mul_smul, hC, variableChange_def]
+  ext <;>
+    simp only [quadraticTwistOf, ha₁, ha₃, Units.val_inv_eq_inv_val, Units.val_mk0] <;>
+    field_simp <;> ring
+
+/-- A choice of change of variables over `L` carrying `E` to its quadratic twist `Eᴸ`. Using the
+explicit isomorphism of `exists_smul_baseChange_and_map_eq` (rather than an arbitrary one) ensures
+its Galois cocycle is exactly `[-1]` (`quadraticTwistVarChange_map`), unconditionally in `j`. -/
+noncomputable def quadraticTwistVarChange : VariableChange L :=
+  (E.exists_smul_baseChange_and_map_eq L
+    (Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap K L).choose_spec
+    (Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L).choose_spec).choose⁻¹
+
+lemma quadraticTwistVarChange_smul :
+    (E.quadraticTwistVarChange L) • E.baseChange L = (E.quadraticTwist L).baseChange L := by
+  have h := (E.exists_smul_baseChange_and_map_eq L
+    (Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap K L).choose_spec
+    (Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L).choose_spec).choose_spec.1
+  unfold quadraticTwistVarChange
+  rw [inv_smul_eq_iff]
+  exact h.symm
+
+/-- **The defining cocycle of the quadratic twist.** The nontrivial `σ ∈ Gal(L/K)` conjugates the
+change of variables `quadraticTwistVarChange` (carrying `E` to `Eᴸ`) by the automorphism `[-1]` of
+`E`. This is the datum expressing that `Eᴸ` is the descent of `E` along the twisted Galois action
+`σ ↦ (-1) ∘ σ`, and it holds for every `j`. -/
+lemma quadraticTwistVarChange_map {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1) :
+    (E.quadraticTwistVarChange L).map σ.toAlgHom.toRingHom
+      = (E.quadraticTwistVarChange L) * (E.baseChange L).negVariableChange := by
+  set σ₀ := (Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L).choose with hσ₀def
+  have hσ₀ : σ₀ ≠ 1 := (Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L).choose_spec
+  obtain rfl : σ = σ₀ :=
+    (Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq K L hσ₀ σ).resolve_left hσ
+  have hcoc := (E.exists_smul_baseChange_and_map_eq L
+    (Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap K L).choose_spec
+    (Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L).choose_spec).choose_spec.2
+  have hinv : ∀ C : VariableChange L,
+      C⁻¹.map σ₀.toAlgHom.toRingHom = (C.map σ₀.toAlgHom.toRingHom)⁻¹ :=
+    fun C => map_inv (VariableChange.mapHom _) C
+  unfold quadraticTwistVarChange
+  rw [hinv, hcoc, mul_inv_rev, (E.baseChange L).negVariableChange_inv]
+
+section
+
+variable [E.IsElliptic]
+
+/-- The quadratic twist of an elliptic curve is an elliptic curve: the twisted model has
+discriminant `D⁶·Δ(E)`, and `D ≠ 0` by separability
+(`Algebra.IsQuadraticExtension.discrim_ne_zero`). -/
+instance : (E.quadraticTwist L).IsElliptic :=
+  E.isElliptic_quadraticTwistBy
+    (Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap K L).choose_spec
+
+/-- Twisting does not change the `j`-invariant, since the curves become isomorphic over `L`. -/
+theorem j_quadraticTwist : (E.quadraticTwist L).j = E.j :=
+  E.j_quadraticTwistOf _ _ (E.isElliptic_quadraticTwistOf _ _
+    (Algebra.IsQuadraticExtension.discrim_ne_zero K L
+      (Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap K L).choose_spec))
 
 /-- If `j(E) ∉ {0, 1728}` (so that the only automorphisms of `E` are `±1`) then the quadratic
 twist is *not* isomorphic to `E` over `K`: twisting by `L/K` is a nontrivial operation. This can
@@ -848,40 +982,6 @@ theorem not_exists_smul_quadraticTwist_eq (hj₀ : E.j ≠ 0) (hj₁₇₂₈ : 
       _ = a * C₁ := haC.symm
   have : (E.baseChange L).negVariableChange * C₁ = C₁ := mul_left_cancel hchain
   exact mul_right_cancel (this.trans (one_mul C₁).symm)
-
-omit [E.IsElliptic] in
-/-- **Galois descent for changes of variables.** A change of variables over `L` fixed by the
-nontrivial `σ ∈ Gal(L/K)` has all its coefficients in `K`, so it is the base change of a change of
-variables over `K`. -/
-lemma exists_baseChange_eq_of_map_eq {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1) {C : VariableChange L}
-    (hCinv : C.map σ.toAlgHom.toRingHom = C) : ∃ CK : VariableChange K, CK.baseChange L = C := by
-  have hap : ⇑σ.toAlgHom.toRingHom = ⇑σ := rfl
-  have mem : ∀ x : L, σ x = x → x ∈ Set.range (algebraMap K L) := fun x hx => by
-    rw [IsGalois.mem_range_algebraMap_iff_fixed]
-    intro φ
-    rcases Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq K L hσ φ with rfl | rfl
-    · exact AlgEquiv.one_apply x
-    · exact hx
-  have hu : σ (C.u : L) = (C.u : L) := by
-    have := congrArg (fun D => (D.u : L)) hCinv
-    simpa [VariableChange.map, Units.coe_map, hap] using this
-  have hr : σ C.r = C.r := by
-    have := congrArg VariableChange.r hCinv; simpa [VariableChange.map, hap] using this
-  have hs : σ C.s = C.s := by
-    have := congrArg VariableChange.s hCinv; simpa [VariableChange.map, hap] using this
-  have ht : σ C.t = C.t := by
-    have := congrArg VariableChange.t hCinv; simpa [VariableChange.map, hap] using this
-  obtain ⟨uK, huK⟩ := mem _ hu
-  obtain ⟨rK, hrK⟩ := mem _ hr
-  obtain ⟨sK, hsK⟩ := mem _ hs
-  obtain ⟨tK, htK⟩ := mem _ ht
-  have huK' : uK ≠ 0 := by rintro rfl; rw [map_zero] at huK; exact C.u.ne_zero huK.symm
-  refine ⟨⟨Units.mk0 uK huK', rK, sK, tK⟩, ?_⟩
-  refine VariableChange.ext ?_ hrK hsK htK
-  refine Units.ext ?_
-  simp only [VariableChange.baseChange, VariableChange.map, Units.coe_map, Units.val_mk0,
-    MonoidHom.coe_coe]
-  exact huK
 
 /-- Classification of the forms of `E` split by `L/K`, for `j(E) ∉ {0, 1728}`: an elliptic curve
 over `K` which becomes isomorphic to `E` over `L` is isomorphic over `K` either to `E` or to its
@@ -963,104 +1063,15 @@ theorem exists_smul_eq_or_exists_smul_eq_quadraticTwist (hj₀ : E.j ≠ 0) (hj�
     refine ⟨C₀⁻¹ * χK, ?_⟩
     rw [mul_smul, hE'Tby, ← hC₀, inv_smul_smul]
 
-omit [E.IsElliptic] in
-/-- The classical formula for the quadratic twist away from characteristic 2. Suppose
-`char K ≠ 2`, so that after completing the square we may assume `E` has the form
-`y² = x³ + a₂x² + a₄x + a₆`, and suppose `L = K(α)` where `α² = d` is a nonsquare in `K` (every
-separable quadratic extension arises this way when `char K ≠ 2`). Then the quadratic twist of
-`E` by `L` is `y² = x³ + da₂x² + d²a₄x + d³a₆`, up to `K`-isomorphism. -/
-theorem quadraticTwist_of_two_ne_zero (h2 : (2 : K) ≠ 0) (ha₁ : E.a₁ = 0) (ha₃ : E.a₃ = 0)
-    {d : K} (hd : ¬IsSquare d) {α : L} (hα : α ^ 2 = algebraMap K L d) :
-    ∃ C : VariableChange K, C • E.quadraticTwist L =
-      { a₁ := 0, a₂ := d * E.a₂, a₃ := 0, a₄ := d ^ 2 * E.a₄, a₆ := d ^ 3 * E.a₆ } := by
-  -- `α` generates `L/K`: were `α = algebraMap K L c`, then `d = c²` would be a square.
-  have hαK : α ∉ Set.range (algebraMap K L) := by
-    rintro ⟨c, rfl⟩
-    refine hd ⟨c, FaithfulSMul.algebraMap_injective K L ?_⟩
-    rw [map_mul, ← sq]
-    exact hα.symm
-  obtain ⟨σ, hσ⟩ := Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L
-  have hσα : σ α ≠ α := Algebra.IsQuadraticExtension.algEquiv_apply_ne K L hσ hαK
-  -- The conjugate of `α` is `-α`, so `θ = α` has trace `0` and norm `-d`.
-  have hσαα : σ α = -α := by
-    have hσ2 : (σ α) ^ 2 = α ^ 2 := by rw [← map_pow, hα, AlgEquiv.commutes]
-    have h1 : (σ α - α) * (σ α + α) = 0 := by linear_combination hσ2
-    rcases mul_eq_zero.mp h1 with h | h
-    · exact absurd (sub_eq_zero.mp h) hσα
-    · exact eq_neg_of_add_eq_zero_left h
-  have htr : Algebra.trace K L α = 0 := by
-    apply FaithfulSMul.algebraMap_injective K L
-    rw [Algebra.IsQuadraticExtension.algebraMap_trace_eq_add K L hσ, hσαα, map_zero, add_neg_cancel]
-  have hnm : Algebra.norm K α = -d := by
-    apply FaithfulSMul.algebraMap_injective K L
-    rw [Algebra.IsQuadraticExtension.algebraMap_norm_eq_mul K L hσ, hσαα, map_neg, ← hα]
-    ring
-  -- So `E.quadraticTwistBy α = E.quadraticTwistOf 0 (-d)`; a final scaling by `u = 2` removes
-  -- the powers of `4` and yields the classical model.
-  obtain ⟨C, hC⟩ := E.exists_smul_quadraticTwist_eq_quadraticTwistBy L hαK
-  unfold quadraticTwistBy at hC
-  rw [htr, hnm] at hC
-  refine ⟨⟨Units.mk0 2 h2, 0, 0, 0⟩ * C, ?_⟩
-  rw [mul_smul, hC, variableChange_def]
-  ext <;>
-    simp only [quadraticTwistOf, ha₁, ha₃, Units.val_inv_eq_inv_val, Units.val_mk0] <;>
-    field_simp <;> ring
-
-omit [E.IsElliptic] in
-/-- A choice of change of variables over `L` carrying `E` to its quadratic twist `Eᴸ`. Using the
-explicit isomorphism of `exists_smul_baseChange_and_map_eq` (rather than an arbitrary one) ensures
-its Galois cocycle is exactly `[-1]` (`quadraticTwistVarChange_map`), unconditionally in `j`. -/
-noncomputable def quadraticTwistVarChange : VariableChange L :=
-  (E.exists_smul_baseChange_and_map_eq L
-    (Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap K L).choose_spec
-    (Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L).choose_spec).choose⁻¹
-
-omit [E.IsElliptic] in
-lemma quadraticTwistVarChange_smul :
-    (E.quadraticTwistVarChange L) • E.baseChange L = (E.quadraticTwist L).baseChange L := by
-  have h := (E.exists_smul_baseChange_and_map_eq L
-    (Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap K L).choose_spec
-    (Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L).choose_spec).choose_spec.1
-  unfold quadraticTwistVarChange
-  rw [inv_smul_eq_iff]
-  exact h.symm
-
-omit [E.IsElliptic] in
-/-- **The defining cocycle of the quadratic twist.** The nontrivial `σ ∈ Gal(L/K)` conjugates the
-change of variables `quadraticTwistVarChange` (carrying `E` to `Eᴸ`) by the automorphism `[-1]` of
-`E`. This is the datum expressing that `Eᴸ` is the descent of `E` along the twisted Galois action
-`σ ↦ (-1) ∘ σ`, and it holds for every `j`. -/
-lemma quadraticTwistVarChange_map {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1) :
-    (E.quadraticTwistVarChange L).map σ.toAlgHom.toRingHom
-      = (E.quadraticTwistVarChange L) * (E.baseChange L).negVariableChange := by
-  set σ₀ := (Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L).choose with hσ₀def
-  have hσ₀ : σ₀ ≠ 1 := (Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L).choose_spec
-  obtain rfl : σ = σ₀ :=
-    (Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq K L hσ₀ σ).resolve_left hσ
-  have hcoc := (E.exists_smul_baseChange_and_map_eq L
-    (Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap K L).choose_spec
-    (Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L).choose_spec).choose_spec.2
-  have hinv : ∀ C : VariableChange L,
-      C⁻¹.map σ₀.toAlgHom.toRingHom = (C.map σ₀.toAlgHom.toRingHom)⁻¹ :=
-    fun C => map_inv (VariableChange.mapHom _) C
-  unfold quadraticTwistVarChange
-  rw [hinv, hcoc, mul_inv_rev, (E.baseChange L).negVariableChange_inv]
+end
 
 /-! ### The isomorphism on points and its Galois anti-equivariance -/
 
 section PointEquiv
 
 -- Let `M` be a field extension of `L`, for example `L` itself or a separable closure of `K`.
--- `DecidableEq` is needed for the group structure on points.
-variable (M : Type*) [Field M] [Algebra K M] [Algebra L M] [IsScalarTower K L M] [DecidableEq M]
+variable (M : Type*) [Field M] [Algebra K M] [Algebra L M] [IsScalarTower K L M]
 
-omit [Algebra.IsQuadraticExtension K L] [Algebra.IsSeparable K L] [DecidableEq M] in
-lemma baseChange_map_algebraMap (V : WeierstrassCurve K) :
-    (V.baseChange L).map (algebraMap L M) = V.baseChange M := by
-  simp only [WeierstrassCurve.baseChange]
-  rw [map_map, ← IsScalarTower.algebraMap_eq K L M]
-
-omit [E.IsElliptic] [DecidableEq M] in
 lemma quadraticTwistVarChange_smul_baseChange :
     (E.quadraticTwistVarChange L).baseChange M • E.baseChange M
       = (E.quadraticTwist L).baseChange M := by
@@ -1068,6 +1079,37 @@ lemma quadraticTwistVarChange_smul_baseChange :
     (φ := algebraMap L M)
   rw [quadraticTwistVarChange_smul, baseChange_map_algebraMap, baseChange_map_algebraMap] at h
   exact h
+
+/-- The `M`-level form of the twist's defining cocycle: any `σ ∈ Aut(M/K)` not fixing `L`
+pointwise (i.e. with `χ(σ) = -1`) conjugates the base change to `M` of `quadraticTwistVarChange`
+by the automorphism `[-1]` of `E`. This is the base change of `quadraticTwistVarChange_map`. -/
+lemma quadraticTwistVarChange_baseChange_map {σ : M ≃ₐ[K] M}
+    (hσ : ¬ ∀ x : L, σ (algebraMap L M x) = algebraMap L M x) :
+    ((E.quadraticTwistVarChange L).baseChange M).map σ.toAlgHom.toRingHom
+      = (E.quadraticTwistVarChange L).baseChange M * (E.baseChange M).negVariableChange := by
+  obtain ⟨σ₀, hσ₀⟩ := Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L
+  have hres : σ.restrictNormal L = σ₀ :=
+    (Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq K L hσ₀ _).resolve_left
+      (fun h => hσ ((forall_apply_algebraMap_iff_restrictNormal_eq_one K L M σ).mpr h))
+  have hcomp : σ.toAlgHom.toRingHom.comp (algebraMap L M)
+      = (algebraMap L M).comp σ₀.toAlgHom.toRingHom := by
+    ext l
+    have h := (AlgEquiv.restrictNormal_commutes σ L l).symm
+    rw [hres] at h
+    simpa using h
+  have e1 : ((E.quadraticTwistVarChange L).baseChange M).map σ.toAlgHom.toRingHom
+      = (E.quadraticTwistVarChange L).map (σ.toAlgHom.toRingHom.comp (algebraMap L M)) :=
+    (E.quadraticTwistVarChange L).map_map (algebraMap L M) σ.toAlgHom.toRingHom
+  have e2 : ((E.quadraticTwistVarChange L) * (E.baseChange L).negVariableChange).map
+        (algebraMap L M)
+      = (E.quadraticTwistVarChange L).baseChange M
+        * (E.baseChange L).negVariableChange.map (algebraMap L M) :=
+    map_mul (VariableChange.mapHom (algebraMap L M)) _ _
+  rw [e1, hcomp, ← VariableChange.map_map, E.quadraticTwistVarChange_map L hσ₀, e2,
+    negVariableChange_map, baseChange_map_algebraMap]
+
+-- `DecidableEq` is needed for the group structure on points.
+variable [E.IsElliptic] [DecidableEq M]
 
 /-- The isomorphism `Eᴸ(M) ≅ E(M)` on `M`-points, for any field `M` in a tower `K ⊆ L ⊆ M`:
 the base change to `M` of a choice of isomorphism between `Eᴸ` and `E` over `L`. It is natural
@@ -1109,35 +1151,6 @@ theorem quadraticTwistPointEquiv_map {N : Type*} [Field N] [Algebra K N] [Algebr
     refine Affine.Point.some_eq_some (E.baseChange N) ?_ ?_
     · simp only [map_add, map_mul, map_pow, hu, hr]
     · simp only [map_add, map_mul, map_pow, hu, hs, ht]
-
-omit [E.IsElliptic] [DecidableEq M] in
-/-- The `M`-level form of the twist's defining cocycle: any `σ ∈ Aut(M/K)` not fixing `L`
-pointwise (i.e. with `χ(σ) = -1`) conjugates the base change to `M` of `quadraticTwistVarChange`
-by the automorphism `[-1]` of `E`. This is the base change of `quadraticTwistVarChange_map`. -/
-lemma quadraticTwistVarChange_baseChange_map {σ : M ≃ₐ[K] M}
-    (hσ : ¬ ∀ x : L, σ (algebraMap L M x) = algebraMap L M x) :
-    ((E.quadraticTwistVarChange L).baseChange M).map σ.toAlgHom.toRingHom
-      = (E.quadraticTwistVarChange L).baseChange M * (E.baseChange M).negVariableChange := by
-  obtain ⟨σ₀, hσ₀⟩ := Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L
-  have hres : σ.restrictNormal L = σ₀ :=
-    (Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq K L hσ₀ _).resolve_left
-      (fun h => hσ ((forall_apply_algebraMap_iff_restrictNormal_eq_one K L M σ).mpr h))
-  have hcomp : σ.toAlgHom.toRingHom.comp (algebraMap L M)
-      = (algebraMap L M).comp σ₀.toAlgHom.toRingHom := by
-    ext l
-    have h := (AlgEquiv.restrictNormal_commutes σ L l).symm
-    rw [hres] at h
-    simpa using h
-  have e1 : ((E.quadraticTwistVarChange L).baseChange M).map σ.toAlgHom.toRingHom
-      = (E.quadraticTwistVarChange L).map (σ.toAlgHom.toRingHom.comp (algebraMap L M)) :=
-    (E.quadraticTwistVarChange L).map_map (algebraMap L M) σ.toAlgHom.toRingHom
-  have e2 : ((E.quadraticTwistVarChange L) * (E.baseChange L).negVariableChange).map
-        (algebraMap L M)
-      = (E.quadraticTwistVarChange L).baseChange M
-        * (E.baseChange L).negVariableChange.map (algebraMap L M) :=
-    map_mul (VariableChange.mapHom (algebraMap L M)) _ _
-  rw [e1, hcomp, ← VariableChange.map_map, E.quadraticTwistVarChange_map L hσ₀, e2,
-    negVariableChange_map, baseChange_map_algebraMap]
 
 /-- The **anti-equivariance** underlying `quadraticTwistPointEquiv_galois`: if `σ ∈ Aut(M/K)` does
 not fix `L` pointwise (`χ(σ) = -1`), then transporting its action through `Eᴸ(M) ≅ E(M)` gives
@@ -1270,15 +1283,35 @@ end PointEquiv
 section Reduction
 
 -- Let `R` be a discrete valuation ring with fraction field `K` (for example the ring of
--- integers of a nonarchimedean local field).
-variable (R : Type u) [CommRing R] [IsDomain R] [IsDiscreteValuationRing R]
-  [Algebra R K] [IsFractionRing R K]
+-- integers of a nonarchimedean local field). The instances are introduced in stages, as needed.
+variable (R : Type u) [CommRing R] [Algebra R K]
 
 /-- The **node polynomial** `c₄ T² + a₁ c₄ T - (54 b₆ - 3 b₂ b₄ + a₂ c₄)`, whose roots are the
 slopes of the two tangent directions at the node of a multiplicative reduction; its splitting over
 the residue field governs whether the reduction is split (see `HasSplitMultiplicativeReduction`). -/
 noncomputable def nodePoly {A : Type*} [CommRing A] (W : WeierstrassCurve A) : Polynomial A :=
   .C W.c₄ * .X ^ 2 + .C (W.a₁ * W.c₄) * .X - .C (54 * W.b₆ - 3 * W.b₂ * W.b₄ + W.a₂ * W.c₄)
+
+/-- The node polynomial base-changed along a ring homomorphism. -/
+lemma nodePoly_map {A : Type*} [CommRing A] {B : Type*} [CommRing B] (φ : A →+* B)
+    (W : WeierstrassCurve A) :
+    W.nodePoly.map φ = .C (φ W.c₄) * .X ^ 2 + .C (φ (W.a₁ * W.c₄)) * .X
+      - .C (φ (54 * W.b₆ - 3 * W.b₂ * W.b₄ + W.a₂ * W.c₄)) := by
+  simp only [nodePoly, Polynomial.map_sub, Polynomial.map_add, Polynomial.map_mul,
+    Polynomial.map_pow, Polynomial.map_C, Polynomial.map_X]
+
+/-- The root of the (base-changed) node polynomial satisfies its defining quadratic relation. -/
+lemma aeval_root_nodePoly_map {A : Type*} [CommRing A] {B : Type*} [CommRing B] (φ : A →+* B)
+    (W : WeierstrassCurve A) :
+    algebraMap B (AdjoinRoot (W.nodePoly.map φ)) (φ W.c₄) * AdjoinRoot.root (W.nodePoly.map φ) ^ 2
+      + algebraMap B (AdjoinRoot (W.nodePoly.map φ)) (φ (W.a₁ * W.c₄))
+        * AdjoinRoot.root (W.nodePoly.map φ)
+      - algebraMap B (AdjoinRoot (W.nodePoly.map φ))
+        (φ (54 * W.b₆ - 3 * W.b₂ * W.b₄ + W.a₂ * W.c₄)) = 0 := by
+  have h := congrArg (Polynomial.aeval (AdjoinRoot.root (W.nodePoly.map φ))) (nodePoly_map φ W)
+  rw [AdjoinRoot.aeval_eq, AdjoinRoot.mk_self] at h
+  simpa only [map_add, map_sub, map_mul, map_pow, Polynomial.aeval_C, Polynomial.aeval_X]
+    using h.symm
 
 /-- Under a change of variables `C = (u, r, s, t)`, the node polynomial transforms by the affine
 substitution `T ↦ u T + s` and the unit scalar `u⁻⁶` — reflecting that the tangent slopes `λ`
@@ -1403,18 +1436,6 @@ lemma nodePoly_quadraticTwistOf_map_splits_iff {A : Type*} [CommRing A] {k : Typ
     map_mul, map_pow,
     key _ _ (show φ ((t ^ 2 - 4 * n) ^ 2) ≠ 0 by rw [map_pow]; exact pow_ne_zero 2 hD)]
 
-omit [IsDomain R] [IsDiscreteValuationRing R] in
-/-- The integral model of the base change to `K` of an integral Weierstrass curve `W` over `R` is
-`W` itself (integral models are unique, as `R → K` is injective). -/
-lemma integralModel_baseChange (W : WeierstrassCurve R) [IsIntegral R (W⁄K)] :
-    integralModel R (W⁄K) = W := by
-  ext <;> apply IsFractionRing.injective R K <;>
-    simp only [integralModel_a₁_eq, integralModel_a₂_eq, integralModel_a₃_eq, integralModel_a₄_eq,
-      integralModel_a₆_eq, WeierstrassCurve.baseChange, WeierstrassCurve.map_a₁,
-      WeierstrassCurve.map_a₂, WeierstrassCurve.map_a₃, WeierstrassCurve.map_a₄,
-      WeierstrassCurve.map_a₆]
-
-omit [IsDomain R] [IsDiscreteValuationRing R] [E.IsElliptic] [IsFractionRing R K] in
 /-- The `R`-model twist base-changes to the twist over `K`: for `E` integral over `R`, twisting its
 integral model by `t, n : R` and base-changing to `K` equals twisting `E` by the images
 `(algebraMap R K t, algebraMap R K n)`. Together with the coefficient laws this is the bridge from
@@ -1425,6 +1446,21 @@ theorem baseChange_integralModel_quadraticTwistOf [IsIntegral R E] (t n : R) :
   change ((E.integralModel R).quadraticTwistOf t n).map (algebraMap R K) = _
   rw [quadraticTwistOf_map, show (E.integralModel R).map (algebraMap R K) = E
     from baseChange_integralModel_eq R E]
+
+variable [IsFractionRing R K]
+
+/-- The integral model of the base change to `K` of an integral Weierstrass curve `W` over `R` is
+`W` itself (integral models are unique, as `R → K` is injective). -/
+lemma integralModel_baseChange (W : WeierstrassCurve R) [IsIntegral R (W⁄K)] :
+    integralModel R (W⁄K) = W := by
+  ext <;> apply IsFractionRing.injective R K <;>
+    simp only [integralModel_a₁_eq, integralModel_a₂_eq, integralModel_a₃_eq, integralModel_a₄_eq,
+      integralModel_a₆_eq, WeierstrassCurve.baseChange, WeierstrassCurve.map_a₁,
+      WeierstrassCurve.map_a₂, WeierstrassCurve.map_a₃, WeierstrassCurve.map_a₄,
+      WeierstrassCurve.map_a₆]
+
+-- From here on, `R` is a discrete valuation ring.
+variable [IsDomain R] [IsDiscreteValuationRing R]
 
 /-- **Split multiplicative reduction is a change-of-variables invariant.** If `W` (over `R`) gives a
 curve with split multiplicative reduction over `K`, then so does any `R`-change of variables `C • W`
@@ -1442,7 +1478,6 @@ theorem HasSplitMultiplicativeReduction.baseChange_smul {W : WeierstrassCurve R}
   exact (nodePoly_map_splits_smul_iff (algebraMap R (IsLocalRing.ResidueField R)) W C).mpr hspl
 
 open IsLocalRing IsDedekindDomain.HeightOneSpectrum in
-omit [E.IsElliptic] in
 /-- Multiplicative reduction forces `c₄` of the integral model to be a unit: its residue is nonzero
 (`valuation c₄ = 1` means `c₄ ∉ maximalIdeal`). -/
 lemma residue_integralModel_c₄_ne_zero [E.HasMultiplicativeReduction R] :
@@ -1453,7 +1488,6 @@ lemma residue_integralModel_c₄_ne_zero [E.HasMultiplicativeReduction R] :
   exact hval
 
 open IsLocalRing IsDedekindDomain.HeightOneSpectrum in
-omit [E.IsElliptic] in
 /-- Multiplicative reduction (bad reduction) means the discriminant of the integral model has zero
 residue. -/
 lemma residue_integralModel_Δ_eq_zero [E.HasMultiplicativeReduction R] :
@@ -1464,7 +1498,6 @@ lemma residue_integralModel_Δ_eq_zero [E.HasMultiplicativeReduction R] :
   exact hval
 
 open IsLocalRing in
-omit [E.IsElliptic] in
 /-- Multiplicative reduction forces `c₆` of the integral model to be a unit too: from
 `1728 Δ = c₄³ - c₆²` and `Δ ≡ 0`, `c₆² ≡ c₄³ ≢ 0`. -/
 lemma residue_integralModel_c₆_ne_zero [E.HasMultiplicativeReduction R] :
@@ -1480,7 +1513,6 @@ lemma residue_integralModel_c₆_ne_zero [E.HasMultiplicativeReduction R] :
   exact (pow_eq_zero_iff (by norm_num)).mp key.symm
 
 open IsLocalRing in
-omit [E.IsElliptic] in
 /-- Nonsplit multiplicative reduction means precisely that the node polynomial of the integral
 model does not split over the residue field. -/
 lemma not_splits_nodePoly_of_not_hasSplit [E.HasMultiplicativeReduction R]
@@ -1489,7 +1521,6 @@ lemma not_splits_nodePoly_of_not_hasSplit [E.HasMultiplicativeReduction R]
   fun hspl => h { ‹E.HasMultiplicativeReduction R› with splitMultiplicativeReduction := hspl }
 
 open IsLocalRing in
-omit [E.IsElliptic] in
 /-- The node polynomial over the residue field is a genuine quadratic (leading coefficient `c₄` is a
 unit). -/
 lemma natDegree_nodePoly_map [E.HasMultiplicativeReduction R] :
@@ -1501,7 +1532,6 @@ lemma natDegree_nodePoly_map [E.HasMultiplicativeReduction R] :
   exact Polynomial.natDegree_quadratic ha
 
 open IsLocalRing in
-omit [E.IsElliptic] in
 /-- For nonsplit multiplicative reduction, the node polynomial is irreducible over the residue
 field: it is a quadratic that does not split, so (over a field) it has no linear factors. -/
 lemma irreducible_nodePoly_map [E.HasMultiplicativeReduction R]
@@ -1530,7 +1560,6 @@ lemma irreducible_nodePoly_map [E.HasMultiplicativeReduction R]
     (Polynomial.Splits.of_natDegree_le_one (by omega)))
 
 open IsLocalRing in
-omit [E.IsElliptic] in
 /-- For multiplicative reduction the node polynomial is separable over the residue field: its
 discriminant is `-c₄ c₆` (`splitPolynomial_discrim`), a unit, so the quadratic-separability
 criterion `Polynomial.separable_quadratic_iff` applies. -/
@@ -1583,7 +1612,6 @@ theorem isMinimal_of_valuation_c₄_eq_one (W : WeierstrassCurve K) [hint : IsIn
   exact mul_le_of_le_one_left zero_le (pow_le_one₀ zero_le hy1)
 
 open IsLocalRing IsDedekindDomain.HeightOneSpectrum in
-omit [E.IsElliptic] in
 /-- **The twist by a unit discriminant keeps multiplicative reduction.** If `E` has multiplicative
 reduction and `D = t² - 4n` is a unit of `R` (residue `≠ 0`), then the base change of the `R`-model
 twist `(E.integralModel R).quadraticTwistOf t n` again has multiplicative reduction: its
@@ -1651,66 +1679,97 @@ theorem sq_sub_trace_mul_self_add_norm {A B : Type*} [CommRing A] [Nontrivial A]
   simpa only [map_add, map_sub, map_mul, map_pow, Polynomial.aeval_X, Polynomial.aeval_C]
     using hCH
 
-open IsDedekindDomain.HeightOneSpectrum IsDiscreteValuationRing IsLocalRing in
-/-- **Split multiplicative reduction is an isomorphism invariant of minimal models.** If two minimal
-Weierstrass models `W₁`, `W₂` over `K` are related by a change of variables (`D • W₁ = W₂`) with
-`W₁.Δ ≠ 0`, and `W₁` has split multiplicative reduction, then so does `W₂`.
+/-- An element satisfying a monic quadratic relation with coefficients in `A` is integral. -/
+theorem isIntegral_of_sq_add_mul_add_eq_zero {A B : Type*} [CommRing A] [CommRing B] [Algebra A B]
+    {x : B} (a b : A) (h : x ^ 2 + algebraMap A B a * x + algebraMap A B b = 0) :
+    _root_.IsIntegral A x := by
+  refine ⟨Polynomial.X ^ 2 + (Polynomial.C a * Polynomial.X + Polynomial.C b), ?_, ?_⟩
+  · apply Polynomial.monic_X_pow_add
+    compute_degree!
+  · rw [← Polynomial.aeval_def]
+    simp only [map_add, map_mul, map_pow, Polynomial.aeval_X, Polynomial.aeval_C]
+    linear_combination h
 
-This is a form of Silverman VII.1.3(b) (uniqueness of minimal models over a discrete valuation
-ring): the change `D` has `u ∈ Rˣ` — from the invariance of `valuation Δ` under the two minimal
-models — and `r, s, t ∈ R` (obtained by integrality: they are roots of monic polynomials with
-`R`-coefficients coming from the change-of-variables formulas for the `b`-invariants and
-`a`-invariants); then the node polynomial's splitting transfers by
-`nodePoly_map_splits_smul_iff`. -/
-theorem HasSplitMultiplicativeReduction.of_isMinimal_smul {W₁ W₂ : WeierstrassCurve K}
-    [hm₁ : IsMinimal R W₁] [hm₂ : IsMinimal R W₂] (D : VariableChange K) (hD : D • W₁ = W₂)
-    (hΔ₁ : W₁.Δ ≠ 0) (h₁ : W₁.HasSplitMultiplicativeReduction R) :
-    W₂.HasSplitMultiplicativeReduction R := by
-  set v := valuation K (maximalIdeal R) with hv
-  -- Both models are minimal, hence `valuation Δ` agrees, forcing `valuation D.u = 1`.
-  have hΔeq : v W₂.Δ = v W₁.Δ := by
-    rw [← valuation_Δ_aux_eq_of_isIntegral R W₂, ← valuation_Δ_aux_eq_of_isIntegral R W₁]
-    refine le_antisymm (Subtype.coe_le_coe.mpr ?_) (Subtype.coe_le_coe.mpr ?_)
-    · have hsub : valuation_Δ_aux R (D • W₁) ≤ valuation_Δ_aux R ((1 : VariableChange K) • W₁) := by
-        rcases le_total (valuation_Δ_aux R ((1 : VariableChange K) • W₁))
-          (valuation_Δ_aux R (D • W₁)) with h | h
-        · exact hm₁.val_Δ_maximal.2 (show IsIntegral R (D • W₁) by rw [hD]; infer_instance) h
-        · exact h
-      rwa [hD, one_smul] at hsub
-    · have hW₁eq : W₁ = D⁻¹ • W₂ := by rw [← hD, inv_smul_smul]
-      have hsub : valuation_Δ_aux R (D⁻¹ • W₂) ≤ valuation_Δ_aux R ((1 : VariableChange K) • W₂) :=
-        by
-        rcases le_total (valuation_Δ_aux R ((1 : VariableChange K) • W₂))
-          (valuation_Δ_aux R (D⁻¹ • W₂)) with h | h
-        · exact hm₂.val_Δ_maximal.2 (show IsIntegral R (D⁻¹ • W₂) by rw [← hW₁eq]; infer_instance) h
-        · exact h
-      rwa [← hW₁eq, one_smul] at hsub
-  have hΔ0 : v W₁.Δ ≠ 0 := (Valuation.ne_zero_iff v).mpr hΔ₁
-  have hvu : v ↑D.u = 1 := by
-    have h12 : v ↑D.u ^ 12 = 1 := by
-      have key : v W₁.Δ = (v ↑D.u)⁻¹ ^ 12 * v W₁.Δ := by
-        conv_lhs => rw [← hΔeq, ← hD, variableChange_Δ]
-        rw [map_mul, map_pow, Units.val_inv_eq_inv_val, map_inv₀]
-      have h1 : (v ↑D.u)⁻¹ ^ 12 = 1 :=
-        mul_right_cancel₀ hΔ0 (key.symm.trans (one_mul _).symm)
-      rw [inv_pow] at h1
-      exact inv_eq_one.mp h1
-    rcases eq_or_ne (v ↑D.u) 1 with h | h
-    · exact h
-    · exact absurd h12 (by
-        rcases lt_or_gt_of_ne h with hl | hl
-        · exact ne_of_lt (pow_lt_one₀ zero_le hl (by norm_num))
-        · exact ne_of_gt (one_lt_pow₀ hl (by norm_num)))
-  -- `D.u` is the image of a unit `u₀ : Rˣ`.
-  obtain ⟨u₀, hu₀⟩ := associated_of_valuation_eq (A := R) (K := K) (↑D.u : K) 1
-    (by rw [map_one]; exact hvu)
-  have hau : algebraMap R K ↑u₀⁻¹ = ↑D.u := by
-    have h1 : algebraMap R K ↑u₀ * ↑D.u = 1 := by rw [← Algebra.smul_def]; exact hu₀
-    have h2 : algebraMap R K ↑u₀ * algebraMap R K ↑u₀⁻¹ = 1 := by
-      rw [← map_mul, ← Units.val_mul, mul_inv_cancel, Units.val_one, map_one]
-    exact mul_left_cancel₀ (left_ne_zero_of_mul_eq_one h1) (h2.trans h1.symm)
-  -- Step 2: `D.r ∈ R` via a monic quartic from the `b`-invariant change-of-variables formulas.
+/-- An element satisfying a monic quartic relation (with no cubic term) with coefficients in `A`
+is integral. -/
+theorem isIntegral_of_pow_four_add_eq_zero {A B : Type*} [CommRing A] [CommRing B] [Algebra A B]
+    {x : B} (a b c : A)
+    (h : x ^ 4 + algebraMap A B a * x ^ 2 + algebraMap A B b * x + algebraMap A B c = 0) :
+    _root_.IsIntegral A x := by
+  refine ⟨Polynomial.X ^ 4 + (Polynomial.C a * Polynomial.X ^ 2 + Polynomial.C b * Polynomial.X
+    + Polynomial.C c), ?_, ?_⟩
+  · apply Polynomial.monic_X_pow_add
+    compute_degree!
+  · rw [← Polynomial.aeval_def]
+    simp only [map_add, map_mul, map_pow, Polynomial.aeval_X, Polynomial.aeval_C]
+    linear_combination h
+
+/-- For a minimal Weierstrass model `W`, no integral change of variables increases the valuation
+of the discriminant. -/
+theorem valuation_Δ_aux_smul_le {W : WeierstrassCurve K} [hm : IsMinimal R W]
+    (D : VariableChange K) (hint : IsIntegral R (D • W)) :
+    valuation_Δ_aux R (D • W) ≤ valuation_Δ_aux R ((1 : VariableChange K) • W) := by
+  rcases le_total (valuation_Δ_aux R ((1 : VariableChange K) • W)) (valuation_Δ_aux R (D • W))
+    with h | h
+  · exact hm.val_Δ_maximal.2 hint h
+  · exact h
+
+open IsDedekindDomain.HeightOneSpectrum IsDiscreteValuationRing IsLocalRing in
+/-- Two minimal Weierstrass models related by a change of variables have the same valuation of
+the discriminant. -/
+theorem valuation_Δ_eq_of_isMinimal_smul {W₁ W₂ : WeierstrassCurve K} [IsMinimal R W₁]
+    [IsMinimal R W₂] (D : VariableChange K) (hD : D • W₁ = W₂) :
+    valuation K (maximalIdeal R) W₂.Δ = valuation K (maximalIdeal R) W₁.Δ := by
+  rw [← valuation_Δ_aux_eq_of_isIntegral R W₂, ← valuation_Δ_aux_eq_of_isIntegral R W₁]
+  refine le_antisymm (Subtype.coe_le_coe.mpr ?_) (Subtype.coe_le_coe.mpr ?_)
+  · have hsub := valuation_Δ_aux_smul_le R D
+      (show IsIntegral R (D • W₁) by rw [hD]; infer_instance)
+    rwa [hD, one_smul] at hsub
+  · have hW₁eq : W₁ = D⁻¹ • W₂ := by rw [← hD, inv_smul_smul]
+    have hsub := valuation_Δ_aux_smul_le R D⁻¹
+      (show IsIntegral R (D⁻¹ • W₂) by rw [← hW₁eq]; infer_instance)
+    rwa [← hW₁eq, one_smul] at hsub
+
+open IsDedekindDomain.HeightOneSpectrum IsDiscreteValuationRing IsLocalRing in
+/-- An element of the fraction field of a discrete valuation ring with valuation `1` is the image
+of a unit. -/
+theorem exists_algebraMap_unit_eq_of_valuation_eq_one {x : K}
+    (hx : valuation K (maximalIdeal R) x = 1) : ∃ u : Rˣ, algebraMap R K ↑u = x := by
+  obtain ⟨u₀, hu₀⟩ := associated_of_valuation_eq (A := R) (K := K) x 1 (by rw [map_one]; exact hx)
+  have h1 : algebraMap R K ↑u₀ * x = 1 := by rw [← Algebra.smul_def]; exact hu₀
+  have h2 : algebraMap R K ↑u₀ * algebraMap R K ↑u₀⁻¹ = 1 := by
+    rw [← map_mul, ← Units.val_mul, mul_inv_cancel, Units.val_one, map_one]
+  exact ⟨u₀⁻¹, mul_left_cancel₀ (left_ne_zero_of_mul_eq_one h1) (h2.trans h1.symm)⟩
+
+open IsDedekindDomain.HeightOneSpectrum IsDiscreteValuationRing IsLocalRing in
+/-- The scaling factor of a change of variables between two minimal models of a curve with
+nonzero discriminant has valuation `1`: the valuations of the discriminants agree and differ by
+a factor `v(u)⁻¹²`. -/
+theorem valuation_u_eq_one_of_isMinimal_smul {W₁ W₂ : WeierstrassCurve K} [IsMinimal R W₁]
+    [IsMinimal R W₂] (D : VariableChange K) (hD : D • W₁ = W₂) (hΔ₁ : W₁.Δ ≠ 0) :
+    valuation K (maximalIdeal R) ↑D.u = 1 := by
+  have hΔ0 : valuation K (maximalIdeal R) W₁.Δ ≠ 0 := (Valuation.ne_zero_iff _).mpr hΔ₁
+  have h12 : valuation K (maximalIdeal R) ↑D.u ^ 12 = 1 := by
+    have key : valuation K (maximalIdeal R) W₁.Δ
+        = (valuation K (maximalIdeal R) ↑D.u)⁻¹ ^ 12 * valuation K (maximalIdeal R) W₁.Δ := by
+      conv_lhs => rw [← valuation_Δ_eq_of_isMinimal_smul R D hD, ← hD, variableChange_Δ]
+      rw [map_mul, map_pow, Units.val_inv_eq_inv_val, map_inv₀]
+    have h1 : (valuation K (maximalIdeal R) ↑D.u)⁻¹ ^ 12 = 1 :=
+      mul_right_cancel₀ hΔ0 (key.symm.trans (one_mul _).symm)
+    rw [inv_pow] at h1
+    exact inv_eq_one.mp h1
+  exact (pow_eq_one_iff_of_nonneg zero_le (by norm_num)).mp h12
+
+/-- A change of variables `D` relating two integral Weierstrass models whose scaling factor `D.u`
+is the image of a unit of `R` is itself defined over `R`: `r`, `s`, `t` are integral over `R` —
+roots of monic polynomials obtained from the change-of-variables formulas for the
+`b₆`/`b₈`/`a₂`/`a₆`-invariants — hence lie in `R` since `R` is integrally closed. -/
+theorem exists_variableChange_baseChange_eq_of_smul_eq {W₁ W₂ : WeierstrassCurve K}
+    [IsIntegral R W₁] [IsIntegral R W₂] (D : VariableChange K) (hD : D • W₁ = W₂) (u₀ : Rˣ)
+    (hau : algebraMap R K ↑u₀ = ↑D.u) : ∃ C₀ : VariableChange R, C₀.baseChange K = D := by
   have hune : (↑D.u : K) ≠ 0 := D.u.ne_zero
+  -- `D.r ∈ R`: a root of the monic quartic `X⁴ - b₄ X² + (-2b₆ - u⁶b₆')X + (u⁸b₈' - b₈)` obtained
+  -- as `r·P₃ - P₄` from the `b₆`- and `b₈`-relations.
   have hb₆ : (↑D.u : K) ^ 6 * W₂.b₆
       = W₁.b₆ + 2 * D.r * W₁.b₄ + D.r ^ 2 * W₁.b₂ + 4 * D.r ^ 3 := by
     rw [← hD, variableChange_b₆]
@@ -1721,71 +1780,68 @@ theorem HasSplitMultiplicativeReduction.of_isMinimal_smul {W₁ W₂ : Weierstra
     rw [← hD, variableChange_b₈]
     simp only [Units.val_inv_eq_inv_val]
     field_simp
-  -- `D.r` is a root of the monic quartic `X⁴ - b₄ X² + (-2b₆ - u⁶b₆')X + (u⁸b₈' - b₈)`
-  -- obtained as `r·P₃ - P₄` from the `b₆`- and `b₈`-relations; hence integral over `R`, so in `R`.
-  have hr_int : _root_.IsIntegral R D.r := by
-    refine ⟨Polynomial.X ^ 4 + (Polynomial.C (-(W₁.integralModel R).b₄) * Polynomial.X ^ 2
-      + Polynomial.C (-(2 * (W₁.integralModel R).b₆) - (↑u₀⁻¹ : R) ^ 6 * (W₂.integralModel R).b₆)
-        * Polynomial.X
-      + Polynomial.C ((↑u₀⁻¹ : R) ^ 8 * (W₂.integralModel R).b₈ - (W₁.integralModel R).b₈)),
-      ?_, ?_⟩
-    · apply Polynomial.monic_X_pow_add
-      compute_degree!
-    · rw [← Polynomial.aeval_def]
-      simp only [map_add, map_sub, map_mul, map_pow, map_neg, map_ofNat, Polynomial.aeval_X,
-        Polynomial.aeval_C]
-      rw [integralModel_b₄_eq R W₁, integralModel_b₆_eq R W₁, integralModel_b₈_eq R W₁,
-        integralModel_b₆_eq R W₂, integralModel_b₈_eq R W₂, hau]
-      linear_combination hb₈ - D.r * hb₆
-  obtain ⟨rR, hrR⟩ := IsIntegrallyClosed.isIntegral_iff.mp hr_int
-  -- `D.s ∈ R` via the monic quadratic `X² + a₁ X + (u²·a₂' - a₂ - 3r)` from the `a₂`-relation.
+  obtain ⟨rR, hrR⟩ := IsIntegrallyClosed.isIntegral_iff.mp
+    (isIntegral_of_pow_four_add_eq_zero (x := D.r) (-(W₁.integralModel R).b₄)
+      (-(2 * (W₁.integralModel R).b₆) - (↑u₀ : R) ^ 6 * (W₂.integralModel R).b₆)
+      ((↑u₀ : R) ^ 8 * (W₂.integralModel R).b₈ - (W₁.integralModel R).b₈) (by
+        simp only [map_sub, map_neg, map_mul, map_pow, map_ofNat]
+        rw [integralModel_b₄_eq R W₁, integralModel_b₆_eq R W₁, integralModel_b₈_eq R W₁,
+          integralModel_b₆_eq R W₂, integralModel_b₈_eq R W₂, hau]
+        linear_combination hb₈ - D.r * hb₆))
+  -- `D.s ∈ R`: a root of the monic quadratic `X² + a₁ X + (u²·a₂' - a₂ - 3r)`.
   have ha₂ : (↑D.u : K) ^ 2 * W₂.a₂ = W₁.a₂ - D.s * W₁.a₁ + 3 * D.r - D.s ^ 2 := by
     rw [← hD, variableChange_a₂]
     simp only [Units.val_inv_eq_inv_val]
     field_simp
-  have hs_int : _root_.IsIntegral R D.s := by
-    refine ⟨Polynomial.X ^ 2 + (Polynomial.C (W₁.integralModel R).a₁ * Polynomial.X
-      + Polynomial.C ((↑u₀⁻¹ : R) ^ 2 * (W₂.integralModel R).a₂ - (W₁.integralModel R).a₂
-        - 3 * rR)), ?_, ?_⟩
-    · apply Polynomial.monic_X_pow_add
-      compute_degree!
-    · rw [← Polynomial.aeval_def]
-      simp only [map_add, map_sub, map_mul, map_pow, map_ofNat, Polynomial.aeval_X,
-        Polynomial.aeval_C]
-      rw [integralModel_a₁_eq R W₁, integralModel_a₂_eq R W₁, integralModel_a₂_eq R W₂, hau, hrR]
-      linear_combination ha₂
-  obtain ⟨sR, hsR⟩ := IsIntegrallyClosed.isIntegral_iff.mp hs_int
-  -- `D.t ∈ R` via the monic quadratic `X² + (a₃ + r·a₁) X + (u⁶·a₆' - a₆ - r·a₄ - r²·a₂ - r³)`.
+  obtain ⟨sR, hsR⟩ := IsIntegrallyClosed.isIntegral_iff.mp
+    (isIntegral_of_sq_add_mul_add_eq_zero (x := D.s) (W₁.integralModel R).a₁
+      ((↑u₀ : R) ^ 2 * (W₂.integralModel R).a₂ - (W₁.integralModel R).a₂ - 3 * rR) (by
+        simp only [map_sub, map_mul, map_pow, map_ofNat]
+        rw [integralModel_a₁_eq R W₁, integralModel_a₂_eq R W₁, integralModel_a₂_eq R W₂, hau, hrR]
+        linear_combination ha₂))
+  -- `D.t ∈ R`: a root of the monic quadratic
+  -- `X² + (a₃ + r·a₁) X + (u⁶·a₆' - a₆ - r·a₄ - r²·a₂ - r³)`.
   have ha₆ : (↑D.u : K) ^ 6 * W₂.a₆ = W₁.a₆ + D.r * W₁.a₄ + D.r ^ 2 * W₁.a₂ + D.r ^ 3
       - D.t * W₁.a₃ - D.t ^ 2 - D.r * D.t * W₁.a₁ := by
     rw [← hD, variableChange_a₆]
     simp only [Units.val_inv_eq_inv_val]
     field_simp
-  have ht_int : _root_.IsIntegral R D.t := by
-    refine ⟨Polynomial.X ^ 2 + (Polynomial.C ((W₁.integralModel R).a₃
-        + rR * (W₁.integralModel R).a₁) * Polynomial.X
-      + Polynomial.C (-((W₁.integralModel R).a₆ + rR * (W₁.integralModel R).a₄
-        + rR ^ 2 * (W₁.integralModel R).a₂ + rR ^ 3) + (↑u₀⁻¹ : R) ^ 6 * (W₂.integralModel R).a₆)),
-      ?_, ?_⟩
-    · apply Polynomial.monic_X_pow_add
-      compute_degree!
-    · rw [← Polynomial.aeval_def]
-      simp only [map_add, map_mul, map_pow, map_neg, Polynomial.aeval_X, Polynomial.aeval_C]
-      rw [integralModel_a₁_eq R W₁, integralModel_a₂_eq R W₁, integralModel_a₃_eq R W₁,
-        integralModel_a₄_eq R W₁, integralModel_a₆_eq R W₁, integralModel_a₆_eq R W₂, hau, hrR]
-      linear_combination ha₆
-  obtain ⟨tR, htR⟩ := IsIntegrallyClosed.isIntegral_iff.mp ht_int
-  -- Step 3: `D` descends to `C₀ : VariableChange R`, so `W₂` is the base change of an `R`-change of
-  -- `W₁`'s integral model; split multiplicativity then transfers by `baseChange_smul`.
-  set C₀ : VariableChange R := ⟨u₀⁻¹, rR, sR, tR⟩ with hC₀def
-  have hDC₀ : C₀.baseChange K = D := VariableChange.ext (Units.ext hau) hrR hsR htR
+  obtain ⟨tR, htR⟩ := IsIntegrallyClosed.isIntegral_iff.mp
+    (isIntegral_of_sq_add_mul_add_eq_zero (x := D.t)
+      ((W₁.integralModel R).a₃ + rR * (W₁.integralModel R).a₁)
+      (-((W₁.integralModel R).a₆ + rR * (W₁.integralModel R).a₄
+        + rR ^ 2 * (W₁.integralModel R).a₂ + rR ^ 3) + (↑u₀ : R) ^ 6 * (W₂.integralModel R).a₆) (by
+        simp only [map_add, map_neg, map_mul, map_pow]
+        rw [integralModel_a₁_eq R W₁, integralModel_a₂_eq R W₁, integralModel_a₃_eq R W₁,
+          integralModel_a₄_eq R W₁, integralModel_a₆_eq R W₁, integralModel_a₆_eq R W₂, hau, hrR]
+        linear_combination ha₆))
+  exact ⟨⟨u₀, rR, sR, tR⟩, VariableChange.ext (Units.ext hau) hrR hsR htR⟩
+
+open IsDedekindDomain.HeightOneSpectrum IsDiscreteValuationRing IsLocalRing in
+/-- **Split multiplicative reduction is an isomorphism invariant of minimal models.** If two minimal
+Weierstrass models `W₁`, `W₂` over `K` are related by a change of variables (`D • W₁ = W₂`) with
+`W₁.Δ ≠ 0`, and `W₁` has split multiplicative reduction, then so does `W₂`.
+
+This is a form of Silverman VII.1.3(b) (uniqueness of minimal models over a discrete valuation
+ring): the change `D` has `u ∈ Rˣ` (`valuation_u_eq_one_of_isMinimal_smul`), so it is defined over
+`R` (`exists_variableChange_baseChange_eq_of_smul_eq`); then the node polynomial's splitting
+transfers by `nodePoly_map_splits_smul_iff`. -/
+theorem HasSplitMultiplicativeReduction.of_isMinimal_smul {W₁ W₂ : WeierstrassCurve K}
+    [IsMinimal R W₁] [IsMinimal R W₂] (D : VariableChange K) (hD : D • W₁ = W₂)
+    (hΔ₁ : W₁.Δ ≠ 0) (h₁ : W₁.HasSplitMultiplicativeReduction R) :
+    W₂.HasSplitMultiplicativeReduction R := by
+  -- `D.u` is the image of a unit of `R`, so `D` descends to `C₀ : VariableChange R`.
+  have hvu := valuation_u_eq_one_of_isMinimal_smul R D hD hΔ₁
+  obtain ⟨u₀, hau⟩ := exists_algebraMap_unit_eq_of_valuation_eq_one R hvu
+  obtain ⟨C₀, hDC₀⟩ := exists_variableChange_baseChange_eq_of_smul_eq R D hD u₀ hau
   have hW₂eq : (C₀ • W₁.integralModel R)⁄K = W₂ := by
     rw [show ((C₀ • W₁.integralModel R)⁄K)
         = (C₀ • W₁.integralModel R).map (algebraMap R K) from rfl, ← map_variableChange,
       show C₀.map (algebraMap R K) = D from hDC₀,
       show (W₁.integralModel R).map (algebraMap R K) = W₁ from baseChange_integralModel_eq R W₁, hD]
-  -- `W₂` has multiplicative reduction (`D.u` a unit scales `c₄`/`Δ` by units), then transfer.
-  have hc₄eq : v W₂.c₄ = v W₁.c₄ := by
+  -- `W₂` has multiplicative reduction: `v(D.u) = 1` fixes the valuations of `Δ` and `c₄`.
+  have hΔeq := valuation_Δ_eq_of_isMinimal_smul R D hD
+  have hc₄eq : valuation K (maximalIdeal R) W₂.c₄ = valuation K (maximalIdeal R) W₁.c₄ := by
     rw [← hD, variableChange_c₄, map_mul]
     simp only [Units.val_inv_eq_inv_val, map_pow, map_inv₀, hvu, inv_one, one_pow, one_mul]
   have hmult₂ : W₂.HasMultiplicativeReduction R :=
@@ -1800,6 +1856,152 @@ theorem HasSplitMultiplicativeReduction.of_isMinimal_smul {W₁ W₂ : Weierstra
   rw [hint₂]
   exact (nodePoly_map_splits_smul_iff (algebraMap R (ResidueField R)) (W₁.integralModel R) C₀).mpr
     h₁.splitMultiplicativeReduction
+
+open IsLocalRing in
+/-- If the residue of an integral element `θ` of `S` does not come from the residue field of `R`,
+then `θ` does not come from `K` either: an element of `K` integral over the integrally closed `R`
+lies in `R`, and residues are compatible. -/
+theorem notMem_range_algebraMap_of_residue_notMem {S : Type u} [CommRing S] [IsLocalRing S]
+    [Algebra R S] [Algebra.IsIntegral R S] [IsLocalHom (algebraMap R S)] {L : Type u} [Field L]
+    [Algebra K L] [Algebra R L] [Algebra S L] [IsScalarTower R S L] [IsScalarTower R K L]
+    [IsFractionRing S L] {θ : S}
+    (hθ : residue S θ ∉ Set.range (algebraMap (ResidueField R) (ResidueField S))) :
+    algebraMap S L θ ∉ Set.range (algebraMap K L) := by
+  rintro ⟨a, ha⟩
+  have haint : _root_.IsIntegral R a := by
+    have h1 : _root_.IsIntegral R (algebraMap S L θ) :=
+      _root_.IsIntegral.map (IsScalarTower.toAlgHom R S L) (Algebra.IsIntegral.isIntegral θ)
+    rw [← ha] at h1
+    exact (isIntegral_algHom_iff (IsScalarTower.toAlgHom R K L)
+      (FaithfulSMul.algebraMap_injective K L)).mp h1
+  obtain ⟨r, hr⟩ := IsIntegrallyClosed.isIntegral_iff.mp haint
+  refine hθ ⟨residue R r, ?_⟩
+  rw [show algebraMap (ResidueField R) (ResidueField S) (residue R r)
+    = residue S (algebraMap R S r) by simp only [← ResidueField.algebraMap_residue]]
+  congr 1
+  apply IsFractionRing.injective S L
+  rw [← ha, ← hr, ← IsScalarTower.algebraMap_apply R S L, ← IsScalarTower.algebraMap_apply R K L]
+
+open IsLocalRing in
+/-- The key identity `φc₄ · φ(t'² - 4n') = -φc₆` of the twisting datum `(t', n')`: if its residues
+satisfy the trace and norm relations cut out by the node polynomial
+(`κ = 54 b₆ - 3 b₂ b₄ + a₂ c₄`), then the discriminant identity `splitPolynomial_discrim` turns
+them into this identity. -/
+theorem residue_c₄_mul_residue_eq_neg_c₆ [E.HasMultiplicativeReduction R] (t' n' : R)
+    (hA : residue R (E.integralModel R).c₄ * residue R t'
+      + residue R ((E.integralModel R).a₁ * (E.integralModel R).c₄) = 0)
+    (hB : residue R (E.integralModel R).c₄ * residue R n'
+      + residue R (54 * (E.integralModel R).b₆
+        - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
+        + (E.integralModel R).a₂ * (E.integralModel R).c₄) = 0) :
+    residue R (E.integralModel R).c₄ * residue R (t' ^ 2 - 4 * n')
+      = -residue R (E.integralModel R).c₆ := by
+  set c₄' := (E.integralModel R).c₄ with hc₄'
+  set κ' := 54 * (E.integralModel R).b₆ - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
+    + (E.integralModel R).a₂ * c₄' with hκ'
+  simp only [map_mul] at hA
+  have hRid : ((E.integralModel R).a₁ * c₄') ^ 2 + 4 * c₄' * κ'
+      = -(c₄' * (E.integralModel R).c₆) := by
+    rw [hκ', hc₄']
+    exact splitPolynomial_discrim (E.integralModel R)
+  have hdisc := congrArg (residue R) hRid
+  simp only [map_add, map_mul, map_pow, map_neg, map_ofNat] at hdisc
+  apply mul_left_cancel₀ (residue_integralModel_c₄_ne_zero E R)
+  simp only [map_sub, map_mul, map_pow, map_ofNat]
+  linear_combination hdisc
+    + (residue R c₄' * residue R t' - residue R (E.integralModel R).a₁ * residue R c₄') * hA
+    - 4 * residue R c₄' * hB
+
+open IsLocalRing in
+/-- If the residues of `(t', n')` satisfy the trace and norm relations cut out by the node
+polynomial, then the node polynomial of the quadratic twist of the integral model by `(t', n')`
+splits over the residue field: the key identity `φc₄ · φ(t'² - 4n') = -φc₆`
+(`residue_c₄_mul_residue_eq_neg_c₆`) reduces this to a square-class computation for residue
+characteristic `≠ 2`, and to an Artin–Schreier computation with `z = 0` for residue
+characteristic `2`. -/
+theorem nodePoly_quadraticTwistOf_map_splits_of_residue
+    [E.HasMultiplicativeReduction R] (t' n' : R)
+    (hA : residue R (E.integralModel R).c₄ * residue R t'
+      + residue R ((E.integralModel R).a₁ * (E.integralModel R).c₄) = 0)
+    (hB : residue R (E.integralModel R).c₄ * residue R n'
+      + residue R (54 * (E.integralModel R).b₆
+        - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
+        + (E.integralModel R).a₂ * (E.integralModel R).c₄) = 0) :
+    Polynomial.Splits (((E.integralModel R).quadraticTwistOf t' n').nodePoly.map
+      (algebraMap R (ResidueField R))) := by
+  -- `D = t'²-4n'` has nonzero residue (`hkey`: `φc₄·φD = -φc₆ ≠ 0`).
+  have hkey := residue_c₄_mul_residue_eq_neg_c₆ E R t' n' hA hB
+  have hDne : residue R (t' ^ 2 - 4 * n') ≠ 0 := fun h0 =>
+    residue_integralModel_c₆_ne_zero E R (neg_eq_zero.mp (by rw [← hkey, h0, mul_zero]))
+  set c₄' := (E.integralModel R).c₄ with hc₄'
+  set κ' := 54 * (E.integralModel R).b₆ - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
+    + (E.integralModel R).a₂ * c₄' with hκ'
+  simp only [map_mul] at hA
+  rw [hc₄'] at hkey
+  have hc₄0 : residue R (E.integralModel R).c₄ ≠ 0 := residue_integralModel_c₄_ne_zero E R
+  have hc₄map : algebraMap R (ResidueField R) (E.integralModel R).c₄ ≠ 0 := by
+    rw [ResidueField.algebraMap_eq]; exact hc₄0
+  rcases ne_or_eq (2 : ResidueField R) 0 with h2 | h2
+  · -- Residue characteristic `≠ 2`: split ↔ `IsSquare (φ((t'²-4n')·-(c₄c₆)))`, which `hkey` shows
+    -- equals `IsSquare (φc₆²)`.
+    haveI : NeZero (2 : ResidueField R) := ⟨h2⟩
+    rw [nodePoly_quadraticTwistOf_map_splits_iff (algebraMap R (ResidueField R))
+      (E.integralModel R) t' n' hc₄map (by rw [ResidueField.algebraMap_eq]; exact hDne)]
+    refine ⟨residue R (E.integralModel R).c₆, ?_⟩
+    apply mul_left_cancel₀ hc₄0
+    rw [ResidueField.algebraMap_eq]
+    simp only [map_mul, map_neg]
+    linear_combination
+      (-(residue R (E.integralModel R).c₄ * residue R (E.integralModel R).c₆)) * hkey
+  · -- Residue characteristic 2: the Artin–Schreier split condition
+    -- (`nodePoly_map_splits_iff_of_two_eq_zero`) holds with `z = 0`, because `φ κ_W = 0`. Indeed
+    -- `κ_W = D³κ - D²·n·a₁²·c₄` (`kappa_quadraticTwistOf`), and `φκ = -φc₄·φn` (`hB`),
+    -- `φa₁ = -φt'` (`hA`), `φD = φt'²` (as `4 = 0`), so
+    -- `φκ_W = -φD²·φc₄·φn·(φD + φa₁²) = -φD²·φc₄·φn·(2·φt'²) = 0`.
+    set D := t' ^ 2 - 4 * n' with hDdef
+    have h4 : (4 : ResidueField R) = 0 := by
+      rw [show (4 : ResidueField R) = 2 * 2 by norm_num, h2, mul_zero]
+    have hDmap : algebraMap R (ResidueField R) D ≠ 0 := by
+      rw [ResidueField.algebraMap_eq]; exact hDne
+    have hDt : residue R D = residue R t' ^ 2 := by
+      rw [hDdef, map_sub, map_mul, map_pow, map_ofNat, h4, zero_mul, sub_zero]
+    have hWc₄ : algebraMap R (ResidueField R)
+        ((E.integralModel R).quadraticTwistOf t' n').c₄ ≠ 0 := by
+      rw [c₄_quadraticTwistOf, ← hDdef, map_mul, map_pow]
+      exact mul_ne_zero (pow_ne_zero 2 hDmap) hc₄map
+    have hWc₆ : algebraMap R (ResidueField R)
+        ((E.integralModel R).quadraticTwistOf t' n').c₆ ≠ 0 := by
+      rw [c₆_quadraticTwistOf, ← hDdef, map_mul, map_pow]
+      exact mul_ne_zero (pow_ne_zero 3 hDmap)
+        (by rw [ResidueField.algebraMap_eq]; exact residue_integralModel_c₆_ne_zero E R)
+    have hta : residue R (E.integralModel R).a₁ = -residue R t' := by
+      rcases mul_eq_zero.mp (show residue R c₄'
+          * (residue R t' + residue R (E.integralModel R).a₁) = 0 by linear_combination hA)
+        with hz | hz
+      · exact absurd hz hc₄0
+      · linear_combination hz
+    have hκW_eq : 54 * ((E.integralModel R).quadraticTwistOf t' n').b₆
+        - 3 * ((E.integralModel R).quadraticTwistOf t' n').b₂
+            * ((E.integralModel R).quadraticTwistOf t' n').b₄
+        + ((E.integralModel R).quadraticTwistOf t' n').a₂
+            * ((E.integralModel R).quadraticTwistOf t' n').c₄
+        = D ^ 3 * κ' - D ^ 2 * n' * (E.integralModel R).a₁ ^ 2 * c₄' := by
+      rw [hDdef, hκ', hc₄']
+      exact kappa_quadraticTwistOf (E.integralModel R) t' n'
+    have hWc₄eq : ((E.integralModel R).quadraticTwistOf t' n').c₄ = D ^ 2 * c₄' := by
+      rw [c₄_quadraticTwistOf, ← hDdef, hc₄']
+    have hκW0 : algebraMap R (ResidueField R)
+        (D ^ 3 * κ' - D ^ 2 * n' * (E.integralModel R).a₁ ^ 2 * c₄') = 0 := by
+      simp only [map_sub, map_mul, map_pow, ResidueField.algebraMap_eq, hDt, hta]
+      linear_combination (residue R t') ^ 6 * hB
+        - (residue R t') ^ 6 * residue R n' * residue R c₄' * h2
+    rw [nodePoly_map_splits_iff_of_two_eq_zero h2 (algebraMap R (ResidueField R))
+      ((E.integralModel R).quadraticTwistOf t' n') hWc₄ hWc₆]
+    refine ⟨0, ?_⟩
+    rw [hκW_eq, hWc₄eq, show (0 : ResidueField R) ^ 2 + 0 = 0 from by ring, mul_zero, hκW0,
+      neg_zero, mul_zero]
+
+variable [E.IsElliptic]
 
 open IsLocalRing in
 /-- If `E` has multiplicative reduction which is not split, then `E` has a quadratic twist with
@@ -1824,27 +2026,17 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
   classical
   -- The node polynomial reduced to the residue field `k`; nonsplitness makes it irreducible
   -- (`irreducible_nodePoly_map`), and multiplicative reduction makes it separable
-  -- (`separable_nodePoly_map`).
+  -- (`separable_nodePoly_map`). Its root field `k' = k[X]/(P)` is therefore a separable
+  -- quadratic extension of `k`.
   set P := (E.integralModel R).nodePoly.map (algebraMap R (ResidueField R)) with hP
   have hirr : Irreducible P := irreducible_nodePoly_map E R h
   have : Fact (Irreducible P) := ⟨hirr⟩
-  have hPne : P ≠ 0 := hirr.ne_zero
-  -- Its root field `k' = k[X]/(P)` is therefore a separable quadratic extension of `k`.
+  have hPdeg2 : P.natDegree = 2 := natDegree_nodePoly_map E R
   have hk'rank : Module.finrank (ResidueField R) (AdjoinRoot P) = 2 :=
-    AdjoinRoot.finrank_eq_natDegree.trans (natDegree_nodePoly_map E R)
+    AdjoinRoot.finrank_eq_natDegree.trans hPdeg2
   have : FiniteDimensional (ResidueField R) (AdjoinRoot P) := .of_finrank_eq_succ hk'rank
-  have hroot_sep : IsSeparable (ResidueField R) (AdjoinRoot.root P) := by
-    simp only [IsSeparable, AdjoinRoot.minpoly_root hPne]
-    exact (separable_nodePoly_map E R).mul_unit (Polynomial.isUnit_C.mpr
-      (isUnit_iff_ne_zero.mpr (inv_ne_zero (Polynomial.leadingCoeff_ne_zero.mpr hPne))))
-  have htop : IntermediateField.adjoin (ResidueField R) {AdjoinRoot.root P} = ⊤ :=
-    IntermediateField.adjoin_eq_top_of_algebra (hS := AdjoinRoot.adjoinRoot_eq_top)
-  have : Algebra.IsSeparable (ResidueField R)
-      (⊤ : IntermediateField (ResidueField R) (AdjoinRoot P)) := by
-    rw [← htop]
-    exact (IntermediateField.isSeparable_adjoin_simple_iff_isSeparable _ _).mpr hroot_sep
   have : Algebra.IsSeparable (ResidueField R) (AdjoinRoot P) :=
-    AlgEquiv.Algebra.isSeparable IntermediateField.topEquiv
+    AdjoinRoot.isSeparable_of_separable (separable_nodePoly_map E R)
   -- Lift `k'` to the unramified quadratic extension `L/K` (`LiftSeparableExtension`).
   obtain ⟨L, _, _, _, _, _, _, S, _, _, _, _, _, _, _, _, _, hLrank, ⟨resIso⟩⟩ :=
     exists_unramified_extension_of_residueField (R := R) (K := K) (AdjoinRoot P)
@@ -1875,7 +2067,8 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
     simp only [map_sub, map_add, map_mul, map_pow, map_zero, hθ'res, resIso.apply_symm_apply,
       ← htower, resIso.commutes] at h0
     exact h0
-  -- `root P` also satisfies its own defining polynomial `P = C(φc₄)X² + C(φ(a₁c₄))X - C(φκ)`.
+  -- `root P` also satisfies its own defining polynomial `P = C(φc₄)X² + C(φ(a₁c₄))X - C(φκ)`
+  -- (`aeval_root_nodePoly_map`).
   have hρ2 : algebraMap (ResidueField R) (AdjoinRoot P)
           (algebraMap R (ResidueField R) (E.integralModel R).c₄) * (AdjoinRoot.root P) ^ 2
         + algebraMap (ResidueField R) (AdjoinRoot P)
@@ -1883,108 +2076,31 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
           * (AdjoinRoot.root P)
         - algebraMap (ResidueField R) (AdjoinRoot P) (algebraMap R (ResidueField R)
           (54 * (E.integralModel R).b₆ - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
-            + (E.integralModel R).a₂ * (E.integralModel R).c₄)) = 0 := by
-    have hform : P = Polynomial.C (algebraMap R (ResidueField R) (E.integralModel R).c₄)
-          * Polynomial.X ^ 2
-        + Polynomial.C (algebraMap R (ResidueField R)
-            ((E.integralModel R).a₁ * (E.integralModel R).c₄)) * Polynomial.X
-        - Polynomial.C (algebraMap R (ResidueField R) (54 * (E.integralModel R).b₆
-            - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
-            + (E.integralModel R).a₂ * (E.integralModel R).c₄)) := by
-      rw [hP]
-      simp only [nodePoly, Polynomial.map_sub, Polynomial.map_add, Polynomial.map_mul,
-        Polynomial.map_pow, Polynomial.map_C, Polynomial.map_X]
-    have hval : (Polynomial.aeval (AdjoinRoot.root P)) P = 0 := by
-      rw [AdjoinRoot.aeval_eq, AdjoinRoot.mk_self]
-    have hval2 := (congrArg (Polynomial.aeval (AdjoinRoot.root P)) hform).symm.trans hval
-    simpa only [map_add, map_sub, map_mul, map_pow, Polynomial.aeval_C, Polynomial.aeval_X]
-      using hval2
-  -- `1` and `root P` are linearly independent over `k` (the minimal polynomial has degree 2), so a
-  -- degree-`≤ 1` relation `a·root P + b = 0` forces `a = b = 0`.
-  have hmindeg : (minpoly (ResidueField R) (AdjoinRoot.root P)).natDegree = 2 := by
-    rw [AdjoinRoot.minpoly_root hPne,
-      Polynomial.natDegree_mul hPne (Polynomial.C_ne_zero.mpr
-        (inv_ne_zero (Polynomial.leadingCoeff_ne_zero.mpr hPne))), Polynomial.natDegree_C, add_zero]
-    exact natDegree_nodePoly_map E R
-  have hlin : ∀ a b : ResidueField R, algebraMap (ResidueField R) (AdjoinRoot P) a
-      * (AdjoinRoot.root P) + algebraMap (ResidueField R) (AdjoinRoot P) b = 0 → a = 0 ∧ b = 0 := by
-    intro a b hab
-    have hpoly : (Polynomial.aeval (AdjoinRoot.root P))
-        (Polynomial.C a * Polynomial.X + Polynomial.C b) = 0 := by
-      simpa only [map_add, map_mul, Polynomial.aeval_C, Polynomial.aeval_X] using hab
-    have h0 : Polynomial.C a * Polynomial.X + Polynomial.C b = 0 := by
-      by_contra h0
-      have hle := Polynomial.natDegree_le_of_dvd
-        (minpoly.dvd (ResidueField R) (AdjoinRoot.root P) hpoly) h0
-      rw [hmindeg] at hle
-      exact absurd (hle.trans (Polynomial.natDegree_linear_le)) (by norm_num)
-    refine ⟨?_, ?_⟩
-    · simpa using congrArg (fun p => Polynomial.coeff p 1) h0
-    · simpa using congrArg (fun p => Polynomial.coeff p 0) h0
-  -- Eliminate `root P ^ 2` between `hρ1` and `hρ2`; linear independence gives the scalar relations
+            + (E.integralModel R).a₂ * (E.integralModel R).c₄)) = 0 :=
+    aeval_root_nodePoly_map (algebraMap R (ResidueField R)) (E.integralModel R)
+  -- Eliminate `root P ^ 2` between `hρ1` and `hρ2`; linear independence of `1` and `root P`
+  -- (`AdjoinRoot.eq_zero_of_mul_root_add_eq_zero`) gives the scalar relations
   -- `φc₄·φt = -φ(a₁c₄)` and `φc₄·φn = -φκ` in `k` (φ = residue).
   set c₄' := (E.integralModel R).c₄ with hc₄'
   set κ' := 54 * (E.integralModel R).b₆ - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
     + (E.integralModel R).a₂ * c₄' with hκ'
   set t' := Algebra.trace R S θ' with ht'
   set n' := Algebra.norm R θ' with hn'
-  obtain ⟨hA, hB⟩ := hlin
-    (residue R c₄' * residue R t' + residue R ((E.integralModel R).a₁ * c₄'))
-    (-(residue R c₄' * residue R n' + residue R κ')) (by
+  obtain ⟨hA, hB⟩ := AdjoinRoot.eq_zero_of_mul_root_add_eq_zero hPdeg2.ge
+    (a := residue R c₄' * residue R t' + residue R ((E.integralModel R).a₁ * c₄'))
+    (b := -(residue R c₄' * residue R n' + residue R κ')) (by
     simp only [IsLocalRing.ResidueField.algebraMap_eq, map_add, map_mul, map_neg] at hρ2 ⊢
     linear_combination hρ2
       - algebraMap (ResidueField R) (AdjoinRoot P) (residue R c₄') * hρ1)
-  -- The disc identity `(a₁c₄)² + 4c₄κ = -(c₄c₆)` (over `R`, mapped to `k`), and `c₄` a unit, turn
-  -- `hA, hB` into the key identity `φc₄ · φ(t²-4n) = -φc₆`.
-  have hc₄0 : residue R c₄' ≠ 0 := residue_integralModel_c₄_ne_zero E R
-  simp only [map_mul] at hA
   rw [neg_eq_zero] at hB
-  have hkey : residue R c₄' * residue R (t' ^ 2 - 4 * n')
-      = -residue R (E.integralModel R).c₆ := by
-    have hRid : ((E.integralModel R).a₁ * c₄') ^ 2 + 4 * c₄' * κ'
-        = -(c₄' * (E.integralModel R).c₆) := by
-      rw [hκ', hc₄']
-      simp only [WeierstrassCurve.c₄, WeierstrassCurve.c₆, WeierstrassCurve.b₂,
-        WeierstrassCurve.b₄, WeierstrassCurve.b₆]
-      ring
-    have hdisc := congrArg (residue R) hRid
-    simp only [map_add, map_mul, map_pow, map_neg, map_ofNat] at hdisc
-    apply mul_left_cancel₀ hc₄0
-    simp only [map_sub, map_mul, map_pow, map_ofNat]
-    linear_combination hdisc
-      + (residue R c₄' * residue R t' - residue R (E.integralModel R).a₁ * residue R c₄') * hA
-      - 4 * residue R c₄' * hB
   -- `root P ∉ k` (its minimal polynomial has degree 2), so `θ'̄ = resIso⁻¹(root P) ∉ k` and, since
   -- `R` is integrally closed, `algebraMap S L θ' ∉ K` — the twist by `θ'` is nontrivial.
-  have hrootnk : AdjoinRoot.root P ∉ Set.range (algebraMap (ResidueField R) (AdjoinRoot P)) := by
-    rintro ⟨c, hc⟩
-    have hle : (minpoly (ResidueField R) (AdjoinRoot.root P)).natDegree ≤ 1 := by
-      rw [← hc]
-      have h2 : (minpoly (ResidueField R) (algebraMap (ResidueField R) (AdjoinRoot P) c)).natDegree
-          ≤ (Polynomial.X - Polynomial.C c).natDegree := by
-        refine Polynomial.natDegree_le_of_dvd ?_ (Polynomial.X_sub_C_ne_zero c)
-        apply minpoly.dvd
-        simp only [map_sub, Polynomial.aeval_X, Polynomial.aeval_C, sub_self]
-      rwa [Polynomial.natDegree_X_sub_C] at h2
-    rw [hmindeg] at hle; omega
-  have hθ'nk : residue S θ' ∉ Set.range (algebraMap (ResidueField R) (ResidueField S)) := by
-    rw [hθ'res]
-    rintro ⟨c, hc⟩
-    exact hrootnk ⟨c, by rw [← resIso.commutes c, hc, resIso.apply_symm_apply]⟩
-  have hθ' : algebraMap S L θ' ∉ Set.range (algebraMap K L) := by
-    rintro ⟨a, ha⟩
-    have haint : _root_.IsIntegral R a := by
-      have h1 : _root_.IsIntegral R (algebraMap S L θ') :=
-        _root_.IsIntegral.map (IsScalarTower.toAlgHom R S L) (Algebra.IsIntegral.isIntegral θ')
-      rw [← ha] at h1
-      exact (isIntegral_algHom_iff (IsScalarTower.toAlgHom R K L)
-        (FaithfulSMul.algebraMap_injective K L)).mp h1
-    obtain ⟨r, hr⟩ := IsIntegrallyClosed.isIntegral_iff.mp haint
-    refine hθ'nk ⟨residue R r, ?_⟩
-    rw [htower]
-    congr 1
-    apply IsFractionRing.injective S L
-    rw [← ha, ← hr, ← IsScalarTower.algebraMap_apply R S L, ← IsScalarTower.algebraMap_apply R K L]
+  have hθ' : algebraMap S L θ' ∉ Set.range (algebraMap K L) :=
+    notMem_range_algebraMap_of_residue_notMem R (by
+      rw [hθ'res]
+      rintro ⟨c, hc⟩
+      exact AdjoinRoot.root_notMem_range_algebraMap hPdeg2.ge
+        ⟨c, by rw [← resIso.commutes c, hc, resIso.apply_symm_apply]⟩)
   -- Trace/norm land in `K`, giving the connection to the `R`-model `W = quadraticTwistOf t' n'`.
   have htr : Algebra.trace K L (algebraMap S L θ') = algebraMap R K t' :=
     Algebra.trace_localization R (nonZeroDivisors R) θ'
@@ -1992,86 +2108,23 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
     Algebra.norm_localization R (nonZeroDivisors R) θ'
   obtain ⟨C, hC⟩ := E.exists_smul_quadraticTwist_eq_quadraticTwistBy L hθ'
   rw [quadraticTwistBy, htr, hnr, ← baseChange_integralModel_quadraticTwistOf E R t' n'] at hC
-  -- `D = t'²-4n'` is a unit (`hkey`: `φc₄·φD = -φc₆ ≠ 0`), so `W⁄K` has multiplicative reduction.
-  have hDne : residue R (t' ^ 2 - 4 * n') ≠ 0 := fun h =>
-    residue_integralModel_c₆_ne_zero E R (neg_eq_zero.mp (by rw [← hkey, h, mul_zero]))
+  -- `D = t'²-4n'` is a unit (`residue_c₄_mul_residue_eq_neg_c₆`: `φc₄·φD = -φc₆ ≠ 0`), so `W⁄K`
+  -- has multiplicative reduction; the relations `hA`, `hB` make it split
+  -- (`nodePoly_quadraticTwistOf_map_splits_of_residue`).
+  have hkey := residue_c₄_mul_residue_eq_neg_c₆ E R t' n' hA hB
+  have hDne : residue R (t' ^ 2 - 4 * n') ≠ 0 := fun h0 =>
+    residue_integralModel_c₆_ne_zero E R (neg_eq_zero.mp (by rw [← hkey, h0, mul_zero]))
   have hWmult := hasMultiplicativeReduction_baseChange_quadraticTwistOf E R t' n' hDne
-  rw [hc₄'] at hkey
-  -- The node polynomial of `W⁄K` splits: over `k` of char `≠ 2` this is
-  -- `IsSquare (φ((t'²-4n')·-(c₄c₆)))`, which `hkey` shows equals `IsSquare (φc₆²)`.
   have hWsplit :
       (((E.integralModel R).quadraticTwistOf t' n')⁄K).HasSplitMultiplicativeReduction R := by
-    have hc₄0 : residue R (E.integralModel R).c₄ ≠ 0 := residue_integralModel_c₄_ne_zero E R
-    have hc₄map : algebraMap R (ResidueField R) (E.integralModel R).c₄ ≠ 0 := by
-      rw [ResidueField.algebraMap_eq]; exact hc₄0
     refine { hWmult with splitMultiplicativeReduction := ?_ }
     rw [show (((E.integralModel R).quadraticTwistOf t' n')⁄K).integralModel R
       = (E.integralModel R).quadraticTwistOf t' n' from integralModel_baseChange R _]
-    change Polynomial.Splits (((E.integralModel R).quadraticTwistOf t' n').nodePoly.map
-      (algebraMap R (ResidueField R)))
-    rcases ne_or_eq (2 : ResidueField R) 0 with h2 | h2
-    · haveI : NeZero (2 : ResidueField R) := ⟨h2⟩
-      rw [nodePoly_quadraticTwistOf_map_splits_iff (algebraMap R (ResidueField R))
-        (E.integralModel R) t' n' hc₄map (by rw [ResidueField.algebraMap_eq]; exact hDne)]
-      refine ⟨residue R (E.integralModel R).c₆, ?_⟩
-      apply mul_left_cancel₀ hc₄0
-      rw [ResidueField.algebraMap_eq]
-      simp only [map_mul, map_neg]
-      linear_combination
-        (-(residue R (E.integralModel R).c₄ * residue R (E.integralModel R).c₆)) * hkey
-    · -- Residue characteristic 2: the Artin–Schreier split condition
-      -- (`nodePoly_map_splits_iff_of_two_eq_zero`) holds with `z = 0`, because `φ κ_W = 0`. Indeed
-      -- `κ_W = D³κ - D²·n·a₁²·c₄`, and `φκ = -φc₄·φn` (`hB`), `φa₁ = -φt'` (`hA`), `φD = φt'²`
-      -- (as `4 = 0`), so `φκ_W = -φD²·φc₄·φn·(φD + φa₁²) = -φD²·φc₄·φn·(2·φt'²) = 0`.
-      set D := t' ^ 2 - 4 * n' with hDdef
-      have h4 : (4 : ResidueField R) = 0 := by
-        rw [show (4 : ResidueField R) = 2 * 2 by norm_num, h2, mul_zero]
-      have hDmap : algebraMap R (ResidueField R) D ≠ 0 := by
-        rw [ResidueField.algebraMap_eq]; exact hDne
-      have hDt : residue R D = residue R t' ^ 2 := by
-        rw [hDdef, map_sub, map_mul, map_pow, map_ofNat, h4, zero_mul, sub_zero]
-      have hWc₄ : algebraMap R (ResidueField R)
-          ((E.integralModel R).quadraticTwistOf t' n').c₄ ≠ 0 := by
-        rw [c₄_quadraticTwistOf, ← hDdef, map_mul, map_pow]
-        exact mul_ne_zero (pow_ne_zero 2 hDmap) hc₄map
-      have hWc₆ : algebraMap R (ResidueField R)
-          ((E.integralModel R).quadraticTwistOf t' n').c₆ ≠ 0 := by
-        rw [c₆_quadraticTwistOf, ← hDdef, map_mul, map_pow]
-        exact mul_ne_zero (pow_ne_zero 3 hDmap)
-          (by rw [ResidueField.algebraMap_eq]; exact residue_integralModel_c₆_ne_zero E R)
-      have hta : residue R (E.integralModel R).a₁ = -residue R t' := by
-        rcases mul_eq_zero.mp (show residue R c₄'
-            * (residue R t' + residue R (E.integralModel R).a₁) = 0 by linear_combination hA)
-          with hz | hz
-        · exact absurd hz hc₄0
-        · linear_combination hz
-      have hκW_eq : 54 * ((E.integralModel R).quadraticTwistOf t' n').b₆
-          - 3 * ((E.integralModel R).quadraticTwistOf t' n').b₂
-              * ((E.integralModel R).quadraticTwistOf t' n').b₄
-          + ((E.integralModel R).quadraticTwistOf t' n').a₂
-              * ((E.integralModel R).quadraticTwistOf t' n').c₄
-          = D ^ 3 * κ' - D ^ 2 * n' * (E.integralModel R).a₁ ^ 2 * c₄' := by
-        rw [b₆_quadraticTwistOf, b₂_quadraticTwistOf, b₄_quadraticTwistOf, c₄_quadraticTwistOf,
-          show ((E.integralModel R).quadraticTwistOf t' n').a₂
-            = (t' ^ 2 - 4 * n') * (E.integralModel R).a₂ - n' * (E.integralModel R).a₁ ^ 2 from rfl,
-          ← hDdef, hκ', hc₄']
-        ring
-      have hWc₄eq : ((E.integralModel R).quadraticTwistOf t' n').c₄ = D ^ 2 * c₄' := by
-        rw [c₄_quadraticTwistOf, ← hDdef, hc₄']
-      have hκW0 : algebraMap R (ResidueField R)
-          (D ^ 3 * κ' - D ^ 2 * n' * (E.integralModel R).a₁ ^ 2 * c₄') = 0 := by
-        simp only [map_sub, map_mul, map_pow, ResidueField.algebraMap_eq, hDt, hta]
-        linear_combination (residue R t') ^ 6 * hB
-          - (residue R t') ^ 6 * residue R n' * residue R c₄' * h2
-      rw [nodePoly_map_splits_iff_of_two_eq_zero h2 (algebraMap R (ResidueField R))
-        ((E.integralModel R).quadraticTwistOf t' n') hWc₄ hWc₆]
-      refine ⟨0, ?_⟩
-      rw [hκW_eq, hWc₄eq, show (0 : ResidueField R) ^ 2 + 0 = 0 from by ring, mul_zero, hκW0,
-        neg_zero, mul_zero]
-  -- `hWsplit : (W⁄K).HasSplitMultiplicativeReduction R` with `W⁄K` minimal (via
-  -- `isMinimal_of_valuation_c₄_eq_one`) and `hC : C • E.quadraticTwist L = W⁄K`. Transferring split
-  -- multiplicativity transfers to the chosen minimal model `(E.quadraticTwist L).minimal R`, which
-  -- is another minimal model of `E.quadraticTwist L` (`of_isMinimal_smul`).
+    exact nodePoly_quadraticTwistOf_map_splits_of_residue E R t' n' hA hB
+  -- `hWsplit : (W⁄K).HasSplitMultiplicativeReduction R` with `W⁄K` minimal and
+  -- `hC : C • E.quadraticTwist L = W⁄K`. Split multiplicativity transfers to the chosen minimal
+  -- model `(E.quadraticTwist L).minimal R`, which is another minimal model of
+  -- `E.quadraticTwist L` (`of_isMinimal_smul`).
   have : IsMinimal R (((E.integralModel R).quadraticTwistOf t' n')⁄K) := hWmult.toIsMinimal
   have hD : (((E.quadraticTwist L).exists_isMinimal R).choose * C⁻¹)
       • (((E.integralModel R).quadraticTwistOf t' n')⁄K) = (E.quadraticTwist L).minimal R := by

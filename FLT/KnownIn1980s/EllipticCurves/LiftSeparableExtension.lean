@@ -142,6 +142,45 @@ theorem AdjoinRoot.isSeparable_of_separable {F : Type*} [Field F] {q : F[X]} [Fa
   .of_isSeparable_of_adjoin_eq_top (AdjoinRoot.isSeparable_root hq)
     (IntermediateField.adjoin_eq_top_of_algebra (hS := AdjoinRoot.adjoinRoot_eq_top))
 
+/-- The minimal polynomial of `root q` has the same degree as the irreducible `q`. -/
+theorem AdjoinRoot.natDegree_minpoly_root {F : Type*} [Field F] {q : F[X]}
+    [Fact (Irreducible q)] : (minpoly F (AdjoinRoot.root q)).natDegree = q.natDegree := by
+  have hq0 : q ≠ 0 := (Fact.out (p := Irreducible q)).ne_zero
+  rw [AdjoinRoot.minpoly_root hq0, natDegree_mul hq0
+    (C_ne_zero.mpr (inv_ne_zero (leadingCoeff_ne_zero.mpr hq0))), natDegree_C, add_zero]
+
+/-- In `F[X]/(q)` with `q` irreducible of degree at least `2`, the elements `1` and `root q` are
+linearly independent over `F`: a linear relation `a · root q + b = 0` forces `a = b = 0`. -/
+theorem AdjoinRoot.eq_zero_of_mul_root_add_eq_zero {F : Type*} [Field F] {q : F[X]}
+    [Fact (Irreducible q)] (hdeg : 2 ≤ q.natDegree) {a b : F}
+    (hab : algebraMap F (AdjoinRoot q) a * AdjoinRoot.root q
+      + algebraMap F (AdjoinRoot q) b = 0) : a = 0 ∧ b = 0 := by
+  have hpoly : Polynomial.aeval (AdjoinRoot.root q) (C a * X + C b) = 0 := by
+    simpa only [map_add, map_mul, aeval_C, aeval_X] using hab
+  have h0 : C a * X + C b = 0 := by
+    by_contra h0
+    have hle := natDegree_le_of_dvd (minpoly.dvd F (AdjoinRoot.root q) hpoly) h0
+    rw [AdjoinRoot.natDegree_minpoly_root] at hle
+    exact absurd (hle.trans natDegree_linear_le) (by lia)
+  exact ⟨by simpa using congrArg (fun p => coeff p 1) h0,
+    by simpa using congrArg (fun p => coeff p 0) h0⟩
+
+/-- The root of an irreducible polynomial of degree at least `2` does not lie in the base
+field. -/
+theorem AdjoinRoot.root_notMem_range_algebraMap {F : Type*} [Field F] {q : F[X]}
+    [Fact (Irreducible q)] (hdeg : 2 ≤ q.natDegree) :
+    AdjoinRoot.root q ∉ Set.range (algebraMap F (AdjoinRoot q)) := by
+  rintro ⟨c, hc⟩
+  have hle : (minpoly F (AdjoinRoot.root q)).natDegree ≤ 1 := by
+    rw [← hc]
+    have h1 := natDegree_le_of_dvd
+      (minpoly.dvd F (algebraMap F (AdjoinRoot q) c)
+        (by simp only [map_sub, aeval_X, aeval_C, sub_self]))
+      (X_sub_C_ne_zero c)
+    rwa [natDegree_X_sub_C] at h1
+  rw [AdjoinRoot.natDegree_minpoly_root] at hle
+  lia
+
 /-- The image of a principal ideal under a ring homomorphism is principal. -/
 theorem Ideal.IsPrincipal.map_ringHom {A B : Type*} [CommRing A] [CommRing B] (f : A →+* B)
     {I : Ideal A} (hI : I.IsPrincipal) : (I.map f).IsPrincipal := by
