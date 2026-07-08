@@ -51,10 +51,10 @@ theorem Polynomial.exists_monic_dvd_dvd_derivative_of_not_separable {k : Type*} 
     ∃ q : k[X], q.Monic ∧ 0 < q.natDegree ∧ q ∣ p ∧ q ∣ derivative p := by
   classical
   rw [separable_def, ← EuclideanDomain.gcd_isUnit_iff] at hns
-  have hg0 : EuclideanDomain.gcd p (derivative p) ≠ 0 := fun h =>
+  have hg0 : EuclideanDomain.gcd p (derivative p) ≠ 0 := fun h ↦
     hp (zero_dvd_iff.mp (h ▸ EuclideanDomain.gcd_dvd_left p (derivative p)))
   exact ⟨normalize (EuclideanDomain.gcd p (derivative p)), monic_normalize hg0,
-    (monic_normalize hg0).natDegree_pos.mpr fun h => hns (normalize_eq_one.mp h),
+    (monic_normalize hg0).natDegree_pos.mpr fun h ↦ hns (normalize_eq_one.mp h),
     normalize_dvd_iff.mpr (EuclideanDomain.gcd_dvd_left _ _),
     normalize_dvd_iff.mpr (EuclideanDomain.gcd_dvd_right _ _)⟩
 
@@ -97,7 +97,7 @@ theorem AdjoinRoot.map_comp_mk {A B : Type*} [CommRing A] [CommRing B] (f : A �
     {q : B[X]} (h : q = p.map f) :
     (AdjoinRoot.map f p q h.dvd).comp (AdjoinRoot.mk p)
       = (AdjoinRoot.mk q).comp (Polynomial.mapRingHom f) := by
-  refine Polynomial.ringHom_ext (fun a => ?_) ?_
+  refine Polynomial.ringHom_ext (fun a ↦ ?_) ?_
   · rw [RingHom.comp_apply, RingHom.comp_apply, AdjoinRoot.mk_C, AdjoinRoot.map_of,
       Polynomial.coe_mapRingHom, Polynomial.map_C, AdjoinRoot.mk_C]
   · rw [RingHom.comp_apply, RingHom.comp_apply, ← AdjoinRoot.root, AdjoinRoot.map_root,
@@ -173,8 +173,8 @@ theorem AdjoinRoot.eq_zero_of_mul_root_add_eq_zero {F : Type*} [Field F] {q : F[
     have hle := natDegree_le_of_dvd (minpoly.dvd F (AdjoinRoot.root q) hpoly) h0
     rw [AdjoinRoot.natDegree_minpoly_root] at hle
     exact absurd (hle.trans natDegree_linear_le) (by lia)
-  exact ⟨by simpa using congrArg (fun p => coeff p 1) h0,
-    by simpa using congrArg (fun p => coeff p 0) h0⟩
+  exact ⟨by simpa using congrArg (fun p ↦ coeff p 1) h0,
+    by simpa using congrArg (fun p ↦ coeff p 0) h0⟩
 
 /-- The root of an irreducible polynomial of degree at least `2` does not lie in the base
 field. -/
@@ -204,7 +204,7 @@ integrality, hence contains `𝔪_R · S`, hence equals it. -/
 theorem IsLocalRing.of_isMaximal_map_maximalIdeal {R S : Type*} [CommRing R] [IsLocalRing R]
     [CommRing S] [Algebra R S] [Algebra.IsIntegral R S]
     (hmax : ((maximalIdeal R).map (algebraMap R S)).IsMaximal) : IsLocalRing S :=
-  of_unique_max_ideal ⟨(maximalIdeal R).map (algebraMap R S), hmax, fun M hM => by
+  of_unique_max_ideal ⟨(maximalIdeal R).map (algebraMap R S), hmax, fun M hM ↦ by
     have hc : (M.comap (algebraMap R S)).IsMaximal :=
       Ideal.isMaximal_comap_of_isIntegral_of_isMaximal M
     have hle : (maximalIdeal R).map (algebraMap R S) ≤ M := by
@@ -253,7 +253,7 @@ theorem AdjoinRoot.isDiscreteValuationRing_of_irreducible_map_residue
     (IsLocalRing.eq_maximalIdeal hmS_max).symm
   have hinj : Function.Injective (algebraMap R (AdjoinRoot P)) := by
     rw [AdjoinRoot.algebraMap_eq]; exact AdjoinRoot.of.injective_of_degree_ne_zero hP0
-  have hSnotfield : ¬ IsField (AdjoinRoot P) := fun hf => IsDiscreteValuationRing.not_a_field R
+  have hSnotfield : ¬ IsField (AdjoinRoot P) := fun hf ↦ IsDiscreteValuationRing.not_a_field R
     ((Ideal.map_eq_bot_iff_of_injective hinj).mp
       (hmaxS ▸ IsLocalRing.isField_iff_maximalIdeal_eq.mp hf))
   have : IsDiscreteValuationRing (AdjoinRoot P) :=
@@ -314,18 +314,18 @@ theorem AdjoinRoot.isFractionRing_map {P : R[X]} (hP0 : P.degree ≠ 0)
     rw [IsScalarTower.algebraMap_eq R K L]
     exact (algebraMap K L).injective.comp (IsFractionRing.injective R K)
   have hSL_inj : Function.Injective (algebraMap S L) :=
-    IsDiscreteValuationRing.injective_of_not_maximalIdeal_le_ker _ fun hle => by
+    IsDiscreteValuationRing.injective_of_not_maximalIdeal_le_ker _ fun hle ↦ by
       obtain ⟨ϖ, hϖmem, hϖ0⟩ :=
         Submodule.exists_mem_ne_zero_of_ne_bot (IsDiscreteValuationRing.not_a_field R)
       have hmem := hle (hmaxS.symm ▸ Ideal.mem_map_of_mem (algebraMap R S) hϖmem)
       rw [RingHom.mem_ker, ← IsScalarTower.algebraMap_apply R S L] at hmem
       exact hϖ0 (hRL_inj (by rw [hmem, map_zero]))
-  refine (_root_.isLocalization_iff (nonZeroDivisors S) L).mpr ⟨fun y => ?_, fun z => ?_,
-    fun {x y} h => ⟨1, by rw [hSL_inj h]⟩⟩
-  · exact isUnit_iff_ne_zero.mpr fun h =>
+  refine (_root_.isLocalization_iff (nonZeroDivisors S) L).mpr ⟨fun y ↦ ?_, fun z ↦ ?_,
+    fun {x y} h ↦ ⟨1, by rw [hSL_inj h]⟩⟩
+  · exact isUnit_iff_ne_zero.mpr fun h ↦
       nonZeroDivisors.ne_zero y.2 (hSL_inj (by rw [h, map_zero]))
   · obtain ⟨b, hbmem, x, hx⟩ := AdjoinRoot.exists_nonZeroDivisor_mul_eq_algebraMap hmap z
-    refine ⟨⟨x, ⟨algebraMap R S b, mem_nonZeroDivisors_of_ne_zero fun h =>
+    refine ⟨⟨x, ⟨algebraMap R S b, mem_nonZeroDivisors_of_ne_zero fun h ↦
       nonZeroDivisors.ne_zero hbmem (hinj (by rw [h, map_zero]))⟩⟩, ?_⟩
     rwa [← IsScalarTower.algebraMap_apply R S L]
 
@@ -404,16 +404,16 @@ theorem exists_unramified_extension_of_residueField
   let algSL : Algebra S L := (AdjoinRoot.map (algebraMap R K) P pK hpK.dvd).toAlgebra
   have halg : algebraMap S L = AdjoinRoot.map (algebraMap R K) P pK hpK.dvd :=
     RingHom.algebraMap_toAlgebra _
-  have htower : IsScalarTower R S L := IsScalarTower.of_algebraMap_eq fun r => by
+  have htower : IsScalarTower R S L := IsScalarTower.of_algebraMap_eq fun r ↦ by
     rw [halg, AdjoinRoot.algebraMap_eq (f := P), AdjoinRoot.map_of, AdjoinRoot.algebraMap_eq']
     rfl
   -- Residue field: `S/𝔪_S ≅ k[X]/(pbar) ≅ k'`, as `R`-algebra equivalences, then lift the base
   -- ring to `ResidueField R` (`extendScalarsOfSurjective`).
   let _ : Algebra R k' := ((algebraMap (ResidueField R) k').comp (residue R)).toAlgebra
-  have : IsScalarTower R (ResidueField R) k' := .of_algebraMap_eq fun _ => rfl
+  have : IsScalarTower R (ResidueField R) k' := .of_algebraMap_eq fun _ ↦ rfl
   have e : ResidueField S ≃ₐ[R] k' :=
     (AdjoinRoot.residueFieldEquiv hmaxS).trans
-      ((Ideal.quotientEquivAlgOfEq R (congrArg (fun q => Ideal.span {q}) hP_map)).trans
+      ((Ideal.quotientEquivAlgOfEq R (congrArg (fun q ↦ Ideal.span {q}) hP_map)).trans
         (hk'_equiv.restrictScalars R))
   exact ⟨L, inferInstance, inferInstance,
     Module.Finite.of_basis (AdjoinRoot.powerBasis (Fact.out (p := Irreducible pK)).ne_zero).basis,

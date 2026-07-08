@@ -94,7 +94,7 @@ theorem Splits.of_natDegree_le_two_of_isRoot {k : Type*} [Field k] {p : k[X]}
   rcases eq_or_ne p 0 with rfl | hp0
   · exact .zero
   obtain ⟨q, hq⟩ := dvd_iff_isRoot.mpr hx
-  have hq0 : q ≠ 0 := fun h => hp0 (by rw [hq, h, mul_zero])
+  have hq0 : q ≠ 0 := fun h ↦ hp0 (by rw [hq, h, mul_zero])
   have hqdeg : q.natDegree ≤ 1 := by
     rw [hq, natDegree_mul (X_sub_C_ne_zero x) hq0, natDegree_X_sub_C] at hdeg
     lia
@@ -131,7 +131,7 @@ theorem splits_quadratic_iff_exists_root {k : Type*} [Field k] {a b c : k} (ha :
     (C a * X ^ 2 + C b * X + C c).Splits ↔ ∃ x, a * x ^ 2 + b * x + c = 0 := by
   set p := C a * X ^ 2 + C b * X + C c with hp
   have hdeg : p.natDegree = 2 := natDegree_quadratic ha
-  have hp0 : p ≠ 0 := fun h => by rw [h, natDegree_zero] at hdeg; exact two_ne_zero hdeg.symm
+  have hp0 : p ≠ 0 := fun h ↦ by rw [h, natDegree_zero] at hdeg; exact two_ne_zero hdeg.symm
   constructor
   · intro hs
     obtain ⟨x, hx⟩ := hs.exists_eval_eq_zero (by simp [degree_eq_natDegree hp0, hdeg])
@@ -334,9 +334,9 @@ lemma nodePoly_quadraticTwistOf_map_splits_iff {A : Type*} [CommRing A] {k : Typ
     (hD : φ (t ^ 2 - 4 * n) ≠ 0) :
     ((W.quadraticTwistOf t n).nodePoly.map φ).Splits
       ↔ IsSquare (φ ((t ^ 2 - 4 * n) * -(W.c₄ * W.c₆))) := by
-  have key : ∀ s y : k, s ≠ 0 → (IsSquare (s ^ 2 * y) ↔ IsSquare y) := fun s y hs =>
-    ⟨fun ⟨w, hw⟩ => ⟨w / s, by field_simp; linear_combination hw⟩,
-      fun ⟨w, hw⟩ => ⟨s * w, by rw [hw]; ring⟩⟩
+  have key : ∀ s y : k, s ≠ 0 → (IsSquare (s ^ 2 * y) ↔ IsSquare y) := fun s y hs ↦
+    ⟨fun ⟨w, hw⟩ ↦ ⟨w / s, by field_simp; linear_combination hw⟩,
+      fun ⟨w, hw⟩ ↦ ⟨s * w, by rw [hw]; ring⟩⟩
   have hc₄' : φ (W.quadraticTwistOf t n).c₄ ≠ 0 := by
     rw [c₄_quadraticTwistOf, map_mul, map_pow]; exact mul_ne_zero (pow_ne_zero 2 hD) hc₄
   rw [nodePoly_map_splits_iff_isSquare φ (W.quadraticTwistOf t n) hc₄',
@@ -376,7 +376,7 @@ variable [IsDomain R]
 theorem Δ_baseChange_quadraticTwistOf_ne_zero [E.IsElliptic] [IsIntegral R E] (t' n' : R)
     (hD : t' ^ 2 - 4 * n' ≠ 0) :
     ((((E.integralModel R).quadraticTwistOf t' n'))⁄K).Δ ≠ 0 := by
-  have hΔint : (E.integralModel R).Δ ≠ 0 := fun h0 =>
+  have hΔint : (E.integralModel R).Δ ≠ 0 := fun h0 ↦
     E.isUnit_Δ.ne_zero (by rw [← integralModel_Δ_eq R E, h0, map_zero])
   rw [show ((((E.integralModel R).quadraticTwistOf t' n'))⁄K).Δ
     = algebraMap R K ((E.integralModel R).quadraticTwistOf t' n').Δ from map_Δ _ _,
@@ -442,7 +442,7 @@ model does not split over the residue field. -/
 lemma not_splits_nodePoly_of_not_hasSplit [E.HasMultiplicativeReduction R]
     (h : ¬ E.HasSplitMultiplicativeReduction R) :
     ¬ ((E.integralModel R).nodePoly.map (algebraMap R (ResidueField R))).Splits :=
-  fun hspl => h { ‹E.HasMultiplicativeReduction R› with splitMultiplicativeReduction := hspl }
+  fun hspl ↦ h { ‹E.HasMultiplicativeReduction R› with splitMultiplicativeReduction := hspl }
 
 open IsLocalRing in
 /-- The node polynomial over the residue field is a genuine quadratic (leading coefficient `c₄` is a
@@ -470,18 +470,18 @@ lemma irreducible_nodePoly_map [E.HasMultiplicativeReduction R]
     by_contra hc
     refine hau (Polynomial.isUnit_iff_degree_eq_zero.mpr ?_)
     rw [Polynomial.degree_eq_natDegree ha0, Nat.le_zero.mp (Nat.not_lt.mp hc), Nat.cast_zero]
-  have hP0 : P ≠ 0 := fun h0 => by simp [h0] at hdeg
-  refine ⟨Polynomial.not_isUnit_of_natDegree_pos P (by rw [hdeg]; norm_num), fun a b hab => ?_⟩
+  have hP0 : P ≠ 0 := fun h0 ↦ by simp [h0] at hdeg
+  refine ⟨Polynomial.not_isUnit_of_natDegree_pos P (by rw [hdeg]; norm_num), fun a b hab ↦ ?_⟩
   by_contra hcon
   rw [not_or] at hcon
   obtain ⟨hna, hnb⟩ := hcon
-  have ha0 : a ≠ 0 := fun h0 => hP0 (by rw [hab, h0, zero_mul])
-  have hb0 : b ≠ 0 := fun h0 => hP0 (by rw [hab, h0, mul_zero])
+  have ha0 : a ≠ 0 := fun h0 ↦ hP0 (by rw [hab, h0, zero_mul])
+  have hb0 : b ≠ 0 := fun h0 ↦ hP0 (by rw [hab, h0, mul_zero])
   have hsum : a.natDegree + b.natDegree = 2 := by rw [← hdeg, hab, Polynomial.natDegree_mul ha0 hb0]
   have hda := hpos a ha0 hna
   have hdb := hpos b hb0 hnb
-  exact hns (hab ▸ (Polynomial.Splits.of_natDegree_le_one (by omega)).mul
-    (Polynomial.Splits.of_natDegree_le_one (by omega)))
+  exact hns (hab ▸ (Polynomial.Splits.of_natDegree_le_one (by lia)).mul
+    (Polynomial.Splits.of_natDegree_le_one (by lia)))
 
 open IsLocalRing in
 /-- For multiplicative reduction the node polynomial is separable over the residue field: its
@@ -518,7 +518,7 @@ contradicting integrality), so `valuation (C • W).Δ = valuation C.u⁻¹² ·
 W.Δ`. This is the tool that shows the twist `W` we build is minimal without minimising by hand. -/
 theorem isMinimal_of_valuation_c₄_eq_one (W : WeierstrassCurve K) [hint : IsIntegral R W]
     (hc₄ : valuation K (maximalIdeal R) W.c₄ = 1) : IsMinimal R W := by
-  refine ⟨⟨by simpa using hint, fun C hC _ => ?_⟩⟩
+  refine ⟨⟨by simpa using hint, fun C hC _ ↦ ?_⟩⟩
   have hCi : IsIntegral R (C • W) := hC
   simp only [← Subtype.coe_le_coe, one_smul, valuation_Δ_aux_eq_of_isIntegral R (C • W),
     valuation_Δ_aux_eq_of_isIntegral R W]
@@ -556,7 +556,7 @@ theorem hasMultiplicativeReduction_baseChange_quadraticTwistOf [E.HasMultiplicat
   have hc₄val : valuation K (IsDiscreteValuationRing.maximalIdeal R) (W⁄K).c₄ = 1 := by
     rw [show (W⁄K).c₄ = algebraMap R K W.c₄ from map_c₄ W (algebraMap R K)]
     exact (IsDiscreteValuationRing.maximalIdeal R).valuation_eq_one_iff_notMem.mpr
-      fun hmem => hc₄res ((residue_eq_zero_iff W.c₄).mpr hmem)
+      fun hmem ↦ hc₄res ((residue_eq_zero_iff W.c₄).mpr hmem)
   have hΔval : valuation K (IsDiscreteValuationRing.maximalIdeal R) (W⁄K).Δ < 1 := by
     rw [show (W⁄K).Δ = algebraMap R K W.Δ from map_Δ W (algebraMap R K)]
     exact ((IsDiscreteValuationRing.maximalIdeal R).valuation_lt_one_iff_mem W.Δ).mpr
@@ -615,9 +615,9 @@ theorem sq_sub_trace_mul_self_add_norm_residue {S : Type u} [CommRing S] [IsLoca
       - algebraMap (ResidueField R) k' (residue R (Algebra.trace R S θ)) * resIso (residue S θ)
       + algebraMap (ResidueField R) k' (residue R (Algebra.norm R θ)) = 0 := by
   have htower : ∀ r : R, algebraMap (ResidueField R) (ResidueField S) (residue R r)
-      = residue S (algebraMap R S r) := fun r => by
+      = residue S (algebraMap R S r) := fun r ↦ by
     simp only [← ResidueField.algebraMap_residue]
-  have h0 := congrArg (fun x => resIso (residue S x)) (sq_sub_trace_mul_self_add_norm hSrank θ)
+  have h0 := congrArg (fun x ↦ resIso (residue S x)) (sq_sub_trace_mul_self_add_norm hSrank θ)
   simp only [map_sub, map_add, map_mul, map_pow, map_zero, ← htower, resIso.commutes] at h0
   exact h0
 
@@ -919,7 +919,7 @@ theorem nodePoly_quadraticTwistOf_map_splits_of_residue_of_two_eq_zero
       (algebraMap R (ResidueField R))) := by
   -- `D = t'²-4n'` has nonzero residue (`residue_c₄_mul_residue_eq_neg_c₆`: `φc₄·φD = -φc₆ ≠ 0`).
   have hkey := residue_c₄_mul_residue_eq_neg_c₆ E R t' n' hA hB
-  have hDne : residue R (t' ^ 2 - 4 * n') ≠ 0 := fun h0 =>
+  have hDne : residue R (t' ^ 2 - 4 * n') ≠ 0 := fun h0 ↦
     residue_integralModel_c₆_ne_zero E R (neg_eq_zero.mp (by rw [← hkey, h0, mul_zero]))
   set c₄' := (E.integralModel R).c₄ with hc₄'
   set κ' := 54 * (E.integralModel R).b₆ - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
@@ -992,7 +992,7 @@ theorem nodePoly_quadraticTwistOf_map_splits_of_residue
   · -- Residue characteristic `≠ 2`: split ↔ `IsSquare (φ((t'²-4n')·-(c₄c₆)))`, which `hkey` shows
     -- equals `IsSquare (φc₆²)`.
     have hkey := residue_c₄_mul_residue_eq_neg_c₆ E R t' n' hA hB
-    have hDne : residue R (t' ^ 2 - 4 * n') ≠ 0 := fun h0 =>
+    have hDne : residue R (t' ^ 2 - 4 * n') ≠ 0 := fun h0 ↦
       residue_integralModel_c₆_ne_zero E R (neg_eq_zero.mp (by rw [← hkey, h0, mul_zero]))
     have hc₄0 : residue R (E.integralModel R).c₄ ≠ 0 := residue_integralModel_c₄_ne_zero E R
     have : NeZero (2 : ResidueField R) := ⟨h2⟩
@@ -1092,7 +1092,7 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
   have hθ' : algebraMap S L θ' ∉ Set.range (algebraMap K L) :=
     notMem_range_algebraMap_of_residue_notMem R (by
       rw [hθ'res]
-      exact fun hmem => AdjoinRoot.root_notMem_range_algebraMap hPdeg2.ge
+      exact fun hmem ↦ AdjoinRoot.root_notMem_range_algebraMap hPdeg2.ge
         (resIso.symm.apply_mem_range_algebraMap_iff.mp hmem))
   -- Trace/norm land in `K`, giving the connection to the `R`-model `W = quadraticTwistOf t' n'`.
   have htr : Algebra.trace K L (algebraMap S L θ') = algebraMap R K t' :=
@@ -1105,7 +1105,7 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
   -- has multiplicative reduction; the relations `hA`, `hB` make it split
   -- (`nodePoly_quadraticTwistOf_map_splits_of_residue`).
   have hkey := residue_c₄_mul_residue_eq_neg_c₆ E R t' n' hA hB
-  have hDne : residue R (t' ^ 2 - 4 * n') ≠ 0 := fun h0 =>
+  have hDne : residue R (t' ^ 2 - 4 * n') ≠ 0 := fun h0 ↦
     residue_integralModel_c₆_ne_zero E R (neg_eq_zero.mp (by rw [← hkey, h0, mul_zero]))
   have hWmult := hasMultiplicativeReduction_baseChange_quadraticTwistOf E R t' n' hDne
   have hWsplit := hasSplitMultiplicativeReduction_quadraticTwistOf_of_residue E R t' n' hA hB
@@ -1118,7 +1118,7 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
       • (((E.integralModel R).quadraticTwistOf t' n')⁄K) = (E.quadraticTwist L).minimal R := by
     rw [mul_smul, ← hC, inv_smul_smul]; rfl
   have hΔ₁ : (((E.integralModel R).quadraticTwistOf t' n')⁄K).Δ ≠ 0 :=
-    Δ_baseChange_quadraticTwistOf_ne_zero E R t' n' fun h0 => hDne (by rw [h0, map_zero])
+    Δ_baseChange_quadraticTwistOf_ne_zero E R t' n' fun h0 ↦ hDne (by rw [h0, map_zero])
   exact HasSplitMultiplicativeReduction.of_isMinimal_smul R _ hD hΔ₁ hWsplit
 
 end Reduction

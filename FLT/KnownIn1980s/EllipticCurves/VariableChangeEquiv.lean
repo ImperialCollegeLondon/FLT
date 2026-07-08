@@ -78,7 +78,7 @@ lemma variableChange_slope [DecidableEq F] {x₁ x₂ y₁ y₂ : F}
       = (C.u : F) * (C • W).toAffine.slope x₁ x₂ y₁ y₂ + C.s := by
   have hu : (C.u : F) ≠ 0 := C.u.ne_zero
   by_cases hx : x₁ = x₂
-  · have hy : y₁ ≠ (C • W).toAffine.negY x₂ y₂ := fun h => hxy ⟨hx, h⟩
+  · have hy : y₁ ≠ (C • W).toAffine.negY x₂ y₂ := fun h ↦ hxy ⟨hx, h⟩
     obtain rfl := hx
     obtain rfl := Y_eq_of_Y_ne h₁ h₂ rfl hy
     have hΦy : (C.u : F) ^ 3 * y₁ + (C.u : F) ^ 2 * C.s * x₁ + C.t

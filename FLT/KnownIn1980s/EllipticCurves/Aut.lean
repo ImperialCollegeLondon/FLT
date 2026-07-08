@@ -53,7 +53,7 @@ isomorphism sending `g` to `Multiplicative.ofAdd 1`. The generator `g` and the e
 taken as explicit data (rather than a bare `Nat.card G = 2`) so the isomorphism is computable. -/
 def mulEquivMultiplicativeZModTwo {G : Type*} [Group G] [DecidableEq G] (g : G) (hg : g ≠ 1)
     (key : ∀ x : G, x = 1 ∨ x = g) : G ≃* Multiplicative (ZMod 2) :=
-  have hgg : g * g = 1 := (key (g * g)).resolve_right fun h => hg (mul_eq_right.mp h)
+  have hgg : g * g = 1 := (key (g * g)).resolve_right fun h ↦ hg (mul_eq_right.mp h)
   have keyM : ∀ x : Multiplicative (ZMod 2), x = 1 ∨ x = Multiplicative.ofAdd 1 := by decide
   have hM1 : (Multiplicative.ofAdd 1 : Multiplicative (ZMod 2)) ≠ 1 := by decide
   have hMM : (Multiplicative.ofAdd 1 : Multiplicative (ZMod 2)) * Multiplicative.ofAdd 1 = 1 := by
@@ -243,7 +243,7 @@ theorem eq_one_or_eq_negVariableChange_of_smul_eq_of_c₄_ne_zero (hc4 : E.c₄ 
 theorem eq_one_or_eq_negVariableChange_of_smul_eq [E.IsElliptic] (hj₀ : E.j ≠ 0)
     (hj₁₇₂₈ : E.j ≠ 1728) {C : VariableChange K} (hC : C • E = E) :
     C = 1 ∨ C = E.negVariableChange :=
-  E.eq_one_or_eq_negVariableChange_of_smul_eq_of_c₄_ne_zero (fun h => hj₀ (E.j_eq_zero h))
+  E.eq_one_or_eq_negVariableChange_of_smul_eq_of_c₄_ne_zero (fun h ↦ hj₀ (E.j_eq_zero h))
     (E.c₆_ne_zero_of_j_ne_1728 hj₁₇₂₈) hC
 
 /-! ### The automorphism group -/
@@ -258,7 +258,7 @@ lemma mem_autGroup {C : VariableChange K} : C ∈ E.autGroup ↔ C • E = E := 
 /-- Two admissible changes of variables agree iff their four coefficients do; this makes equality
 of changes of variables decidable over a field with decidable equality. -/
 instance {R : Type*} [CommRing R] [DecidableEq R] : DecidableEq (VariableChange R) :=
-  fun _ _ => decidable_of_iff _ VariableChange.ext_iff.symm
+  fun _ _ ↦ decidable_of_iff _ VariableChange.ext_iff.symm
 
 open MulAction in
 /-- **`Aut(E) ≅ ℤ/2` for `j(E) ∉ {0, 1728}`.** The automorphism group of `E` is `{±1}`, so it is
@@ -268,8 +268,8 @@ isomorphism sends `negVariableChange E` to `Multiplicative.ofAdd 1`. -/
 def autGroupMulEquiv [DecidableEq K] [E.IsElliptic] (hj₀ : E.j ≠ 0) (hj₁₇₂₈ : E.j ≠ 1728) :
     E.autGroup ≃* Multiplicative (ZMod 2) :=
   mulEquivMultiplicativeZModTwo ⟨E.negVariableChange, E.negVariableChange_smul_self⟩
-    (fun h => E.negVariableChange_ne_one E.isUnit_Δ.ne_zero (congrArg Subtype.val h))
-    fun C => by
+    (fun h ↦ E.negVariableChange_ne_one E.isUnit_Δ.ne_zero (congrArg Subtype.val h))
+    fun C ↦ by
       have hC := E.mem_autGroup.mp C.2
       rcases E.eq_one_or_eq_negVariableChange_of_smul_eq hj₀ hj₁₇₂₈ hC with h | h
       · exact Or.inl (Subtype.ext h)
