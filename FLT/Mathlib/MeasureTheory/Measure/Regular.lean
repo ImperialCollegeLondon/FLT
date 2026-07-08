@@ -35,7 +35,7 @@ lemma outerRegular_comap
     obtain ⟨U, hUA, Uopen, hμU⟩ :=
       OuterRegular.outerRegular (hφ.measurableEmbedding.measurableSet_image' hA) r hr
     use φ ⁻¹' U
-    refine ⟨by rwa [Superset, ← Set.image_subset_iff], Uopen.preimage hφ.continuous, ?_⟩
+    refine ⟨Set.image_subset_iff.mp hUA, Uopen.preimage hφ.continuous, ?_⟩
     rw [MeasurableEmbedding.comap_apply hφ.measurableEmbedding]
     apply lt_of_le_of_lt (measure_mono (Set.image_preimage_subset _ _)) hμU
 
