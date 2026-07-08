@@ -17,7 +17,7 @@ warn.sorry = false
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
-rev = "9ef14c7b82f8a45f8dfc03dace26d6bb25023bac"
+rev = "1c3e8f34a897e543dae130ad26f2a91aa23ee2cb"
 
 [[require]]
 name = "checkdecls"
