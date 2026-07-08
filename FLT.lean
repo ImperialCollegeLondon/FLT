@@ -199,6 +199,14 @@ public import FLT.Patching.Utils.TopologicallyFG
 public import FLT.Patching.VanishingFilter
 public import FLT.Proof
 public import FLT.QuaternionAlgebra.NumberField
+public import FLT.Slop.CyclotomicAbsIrred.Assumed
+public import FLT.Slop.CyclotomicAbsIrred.CliffordTheory
+public import FLT.Slop.CyclotomicAbsIrred.ComplexConjugation
+public import FLT.Slop.CyclotomicAbsIrred.FlatCharacter
+public import FLT.Slop.CyclotomicAbsIrred.InvolutionFixedSpace
+public import FLT.Slop.CyclotomicAbsIrred.Main
+public import FLT.Slop.CyclotomicAbsIrred.ModCyclotomicCharacter
+public import FLT.Slop.CyclotomicAbsIrred.TwoLines
 public import FLT.Slop.DimensionTheorem
 public import FLT.Slop.DimensionTheorem.Defs
 public import FLT.Slop.DimensionTheorem.DimEqDelta
