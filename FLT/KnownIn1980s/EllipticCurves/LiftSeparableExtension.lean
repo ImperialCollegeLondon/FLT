@@ -142,6 +142,17 @@ theorem AdjoinRoot.isSeparable_of_separable {F : Type*} [Field F] {q : F[X]} [Fa
   .of_isSeparable_of_adjoin_eq_top (AdjoinRoot.isSeparable_root hq)
     (IntermediateField.adjoin_eq_top_of_algebra (hS := AdjoinRoot.adjoinRoot_eq_top))
 
+/-- An algebra isomorphism identifies the images of the base ring: `e x` lies in the image of `F`
+if and only if `x` does. -/
+theorem AlgEquiv.apply_mem_range_algebraMap_iff {F A B : Type*} [CommSemiring F] [Semiring A]
+    [Semiring B] [Algebra F A] [Algebra F B] (e : A ≃ₐ[F] B) {x : A} :
+    e x ∈ Set.range (algebraMap F B) ↔ x ∈ Set.range (algebraMap F A) := by
+  constructor
+  · rintro ⟨c, hc⟩
+    exact ⟨c, e.injective (by rw [e.commutes, hc])⟩
+  · rintro ⟨c, hc⟩
+    exact ⟨c, by rw [← hc, e.commutes]⟩
+
 /-- The minimal polynomial of `root q` has the same degree as the irreducible `q`. -/
 theorem AdjoinRoot.natDegree_minpoly_root {F : Type*} [Field F] {q : F[X]}
     [Fact (Irreducible q)] : (minpoly F (AdjoinRoot.root q)).natDegree = q.natDegree := by

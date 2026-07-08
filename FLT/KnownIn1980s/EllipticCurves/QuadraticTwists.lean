@@ -1459,8 +1459,22 @@ lemma integralModel_baseChange (W : WeierstrassCurve R) [IsIntegral R (W⁄K)] :
       WeierstrassCurve.map_a₂, WeierstrassCurve.map_a₃, WeierstrassCurve.map_a₄,
       WeierstrassCurve.map_a₆]
 
+variable [IsDomain R]
+
+/-- The base change of the twisted integral model has nonzero discriminant: its `Δ` is
+`(t'² - 4n')⁶ · Δ` (`Δ_quadraticTwistOf`), and both factors are nonzero. -/
+theorem Δ_baseChange_quadraticTwistOf_ne_zero [E.IsElliptic] [IsIntegral R E] (t' n' : R)
+    (hD : t' ^ 2 - 4 * n' ≠ 0) :
+    ((((E.integralModel R).quadraticTwistOf t' n'))⁄K).Δ ≠ 0 := by
+  have hΔint : (E.integralModel R).Δ ≠ 0 := fun h0 =>
+    E.isUnit_Δ.ne_zero (by rw [← integralModel_Δ_eq R E, h0, map_zero])
+  rw [show ((((E.integralModel R).quadraticTwistOf t' n'))⁄K).Δ
+    = algebraMap R K ((E.integralModel R).quadraticTwistOf t' n').Δ from map_Δ _ _,
+    Δ_quadraticTwistOf, Ne, map_eq_zero_iff _ (IsFractionRing.injective R K), mul_eq_zero]
+  exact not_or.mpr ⟨pow_ne_zero 6 hD, hΔint⟩
+
 -- From here on, `R` is a discrete valuation ring.
-variable [IsDomain R] [IsDiscreteValuationRing R]
+variable [IsDiscreteValuationRing R]
 
 /-- **Split multiplicative reduction is a change-of-variables invariant.** If `W` (over `R`) gives a
 curve with split multiplicative reduction over `K`, then so does any `R`-change of variables `C • W`
@@ -1651,7 +1665,7 @@ theorem norm_quotient_mk {A B : Type*} [CommRing A] [CommRing B] [Algebra A B] [
         (Ideal.Quotient.mk (Ideal.map (algebraMap A B) (maximalIdeal A)) x)
       = Ideal.Quotient.mk (maximalIdeal A) (Algebra.norm A x) := by
   classical
-  letI : Field (A ⧸ maximalIdeal A) := Ideal.Quotient.field _
+  let _ : Field (A ⧸ maximalIdeal A) := Ideal.Quotient.field _
   let b : Module.Basis (Module.Free.ChooseBasisIndex A B) A B := Module.Free.chooseBasis A B
   rw [Algebra.norm_eq_matrix_det (basisQuotient b), Algebra.norm_eq_matrix_det b, RingHom.map_det]
   congr 1
@@ -1678,6 +1692,24 @@ theorem sq_sub_trace_mul_self_add_norm {A B : Type*} [CommRing A] [Nontrivial A]
   rw [hcp] at hCH
   simpa only [map_add, map_sub, map_mul, map_pow, Polynomial.aeval_X, Polynomial.aeval_C]
     using hCH
+
+open IsLocalRing in
+/-- Transport of the rank-2 Cayley–Hamilton identity `θ² - t·θ + n = 0` (`t`, `n` the trace and
+norm of `θ`, `sq_sub_trace_mul_self_add_norm`) through an isomorphism of residue fields: the image
+of the residue of `θ` satisfies the corresponding relation in the residues of `t` and `n`. -/
+theorem sq_sub_trace_mul_self_add_norm_residue {S : Type u} [CommRing S] [IsLocalRing S]
+    [Algebra R S] [IsLocalHom (algebraMap R S)] [Module.Free R S] [Module.Finite R S]
+    (hSrank : Module.finrank R S = 2) {k' : Type u} [CommRing k']
+    [Algebra (ResidueField R) k'] (resIso : ResidueField S ≃ₐ[ResidueField R] k') (θ : S) :
+    resIso (residue S θ) ^ 2
+      - algebraMap (ResidueField R) k' (residue R (Algebra.trace R S θ)) * resIso (residue S θ)
+      + algebraMap (ResidueField R) k' (residue R (Algebra.norm R θ)) = 0 := by
+  have htower : ∀ r : R, algebraMap (ResidueField R) (ResidueField S) (residue R r)
+      = residue S (algebraMap R S r) := fun r => by
+    simp only [← ResidueField.algebraMap_residue]
+  have h0 := congrArg (fun x => resIso (residue S x)) (sq_sub_trace_mul_self_add_norm hSrank θ)
+  simp only [map_sub, map_add, map_mul, map_pow, map_zero, ← htower, resIso.commutes] at h0
+  exact h0
 
 /-- An element satisfying a monic quadratic relation with coefficients in `A` is integral. -/
 theorem isIntegral_of_sq_add_mul_add_eq_zero {A B : Type*} [CommRing A] [CommRing B] [Algebra A B]
@@ -1883,6 +1915,53 @@ theorem notMem_range_algebraMap_of_residue_notMem {S : Type u} [CommRing S] [IsL
   rw [← ha, ← hr, ← IsScalarTower.algebraMap_apply R S L, ← IsScalarTower.algebraMap_apply R K L]
 
 open IsLocalRing in
+/-- If the root of the reduced node polynomial `P̄` (assumed irreducible) satisfies a monic
+quadratic relation `X² - t·X + n` over the residue field, then comparing with the defining
+relation of `P̄` (`aeval_root_nodePoly_map`) and using the linear independence of `1` and the root
+(`AdjoinRoot.eq_zero_of_mul_root_add_eq_zero`) yields the relations `φc₄·t + φ(a₁c₄) = 0` and
+`φc₄·n + φκ = 0` (φ = residue, `κ = 54b₆ - 3b₂b₄ + a₂c₄`). -/
+theorem nodePoly_map_root_relations [E.HasMultiplicativeReduction R]
+    (hirr : Irreducible ((E.integralModel R).nodePoly.map (algebraMap R (ResidueField R))))
+    {t n : ResidueField R}
+    (hρ : AdjoinRoot.root ((E.integralModel R).nodePoly.map (algebraMap R (ResidueField R))) ^ 2
+        - algebraMap (ResidueField R)
+            (AdjoinRoot ((E.integralModel R).nodePoly.map (algebraMap R (ResidueField R)))) t
+          * AdjoinRoot.root ((E.integralModel R).nodePoly.map (algebraMap R (ResidueField R)))
+        + algebraMap (ResidueField R)
+            (AdjoinRoot ((E.integralModel R).nodePoly.map (algebraMap R (ResidueField R)))) n
+        = 0) :
+    residue R (E.integralModel R).c₄ * t
+        + residue R ((E.integralModel R).a₁ * (E.integralModel R).c₄) = 0
+      ∧ residue R (E.integralModel R).c₄ * n
+        + residue R (54 * (E.integralModel R).b₆
+          - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
+          + (E.integralModel R).a₂ * (E.integralModel R).c₄) = 0 := by
+  set P := (E.integralModel R).nodePoly.map (algebraMap R (ResidueField R)) with hP
+  have : Fact (Irreducible P) := ⟨hirr⟩
+  have hPdeg2 : P.natDegree = 2 := natDegree_nodePoly_map E R
+  have hρ2 : algebraMap (ResidueField R) (AdjoinRoot P)
+          (algebraMap R (ResidueField R) (E.integralModel R).c₄) * (AdjoinRoot.root P) ^ 2
+        + algebraMap (ResidueField R) (AdjoinRoot P)
+          (algebraMap R (ResidueField R) ((E.integralModel R).a₁ * (E.integralModel R).c₄))
+          * (AdjoinRoot.root P)
+        - algebraMap (ResidueField R) (AdjoinRoot P) (algebraMap R (ResidueField R)
+          (54 * (E.integralModel R).b₆ - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
+            + (E.integralModel R).a₂ * (E.integralModel R).c₄)) = 0 :=
+    aeval_root_nodePoly_map (algebraMap R (ResidueField R)) (E.integralModel R)
+  obtain ⟨hA, hB⟩ := AdjoinRoot.eq_zero_of_mul_root_add_eq_zero hPdeg2.ge
+    (a := residue R (E.integralModel R).c₄ * t
+      + residue R ((E.integralModel R).a₁ * (E.integralModel R).c₄))
+    (b := -(residue R (E.integralModel R).c₄ * n
+      + residue R (54 * (E.integralModel R).b₆
+        - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
+        + (E.integralModel R).a₂ * (E.integralModel R).c₄))) (by
+    simp only [IsLocalRing.ResidueField.algebraMap_eq, map_add, map_mul, map_neg] at hρ2 ⊢
+    linear_combination hρ2
+      - algebraMap (ResidueField R) (AdjoinRoot P) (residue R (E.integralModel R).c₄) * hρ)
+  rw [neg_eq_zero] at hB
+  exact ⟨hA, hB⟩
+
+open IsLocalRing in
 /-- The key identity `φc₄ · φ(t'² - 4n') = -φc₆` of the twisting datum `(t', n')`: if its residues
 satisfy the trace and norm relations cut out by the node polynomial
 (`κ = 54 b₆ - 3 b₂ b₄ + a₂ c₄`), then the discriminant identity `splitPolynomial_discrim` turns
@@ -1913,12 +1992,82 @@ theorem residue_c₄_mul_residue_eq_neg_c₆ [E.HasMultiplicativeReduction R] (t
     - 4 * residue R c₄' * hB
 
 open IsLocalRing in
+/-- The residue characteristic `2` case of `nodePoly_quadraticTwistOf_map_splits_of_residue`:
+the Artin–Schreier split condition (`nodePoly_map_splits_iff_of_two_eq_zero`) holds with `z = 0`,
+because `φ κ_W = 0`. Indeed `κ_W = D³κ - D²·n·a₁²·c₄` (`kappa_quadraticTwistOf`), and
+`φκ = -φc₄·φn` (`hB`), `φa₁ = -φt'` (`hA`), `φD = φt'²` (as `4 = 0`), so
+`φκ_W = -φD²·φc₄·φn·(φD + φa₁²) = -φD²·φc₄·φn·(2·φt'²) = 0`. -/
+theorem nodePoly_quadraticTwistOf_map_splits_of_residue_of_two_eq_zero
+    [E.HasMultiplicativeReduction R] (t' n' : R) (h2 : (2 : ResidueField R) = 0)
+    (hA : residue R (E.integralModel R).c₄ * residue R t'
+      + residue R ((E.integralModel R).a₁ * (E.integralModel R).c₄) = 0)
+    (hB : residue R (E.integralModel R).c₄ * residue R n'
+      + residue R (54 * (E.integralModel R).b₆
+        - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
+        + (E.integralModel R).a₂ * (E.integralModel R).c₄) = 0) :
+    Polynomial.Splits (((E.integralModel R).quadraticTwistOf t' n').nodePoly.map
+      (algebraMap R (ResidueField R))) := by
+  -- `D = t'²-4n'` has nonzero residue (`residue_c₄_mul_residue_eq_neg_c₆`: `φc₄·φD = -φc₆ ≠ 0`).
+  have hkey := residue_c₄_mul_residue_eq_neg_c₆ E R t' n' hA hB
+  have hDne : residue R (t' ^ 2 - 4 * n') ≠ 0 := fun h0 =>
+    residue_integralModel_c₆_ne_zero E R (neg_eq_zero.mp (by rw [← hkey, h0, mul_zero]))
+  set c₄' := (E.integralModel R).c₄ with hc₄'
+  set κ' := 54 * (E.integralModel R).b₆ - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
+    + (E.integralModel R).a₂ * c₄' with hκ'
+  simp only [map_mul] at hA
+  have hc₄0 : residue R (E.integralModel R).c₄ ≠ 0 := residue_integralModel_c₄_ne_zero E R
+  have hc₄map : algebraMap R (ResidueField R) (E.integralModel R).c₄ ≠ 0 := by
+    rw [ResidueField.algebraMap_eq]; exact hc₄0
+  set D := t' ^ 2 - 4 * n' with hDdef
+  have h4 : (4 : ResidueField R) = 0 := by
+    rw [show (4 : ResidueField R) = 2 * 2 by norm_num, h2, mul_zero]
+  have hDmap : algebraMap R (ResidueField R) D ≠ 0 := by
+    rw [ResidueField.algebraMap_eq]; exact hDne
+  have hDt : residue R D = residue R t' ^ 2 := by
+    rw [hDdef, map_sub, map_mul, map_pow, map_ofNat, h4, zero_mul, sub_zero]
+  have hWc₄ : algebraMap R (ResidueField R)
+      ((E.integralModel R).quadraticTwistOf t' n').c₄ ≠ 0 := by
+    rw [c₄_quadraticTwistOf, ← hDdef, map_mul, map_pow]
+    exact mul_ne_zero (pow_ne_zero 2 hDmap) hc₄map
+  have hWc₆ : algebraMap R (ResidueField R)
+      ((E.integralModel R).quadraticTwistOf t' n').c₆ ≠ 0 := by
+    rw [c₆_quadraticTwistOf, ← hDdef, map_mul, map_pow]
+    exact mul_ne_zero (pow_ne_zero 3 hDmap)
+      (by rw [ResidueField.algebraMap_eq]; exact residue_integralModel_c₆_ne_zero E R)
+  have hta : residue R (E.integralModel R).a₁ = -residue R t' := by
+    rcases mul_eq_zero.mp (show residue R c₄'
+        * (residue R t' + residue R (E.integralModel R).a₁) = 0 by linear_combination hA)
+      with hz | hz
+    · exact absurd hz hc₄0
+    · linear_combination hz
+  have hκW_eq : 54 * ((E.integralModel R).quadraticTwistOf t' n').b₆
+      - 3 * ((E.integralModel R).quadraticTwistOf t' n').b₂
+          * ((E.integralModel R).quadraticTwistOf t' n').b₄
+      + ((E.integralModel R).quadraticTwistOf t' n').a₂
+          * ((E.integralModel R).quadraticTwistOf t' n').c₄
+      = D ^ 3 * κ' - D ^ 2 * n' * (E.integralModel R).a₁ ^ 2 * c₄' := by
+    rw [hDdef, hκ', hc₄']
+    exact kappa_quadraticTwistOf (E.integralModel R) t' n'
+  have hWc₄eq : ((E.integralModel R).quadraticTwistOf t' n').c₄ = D ^ 2 * c₄' := by
+    rw [c₄_quadraticTwistOf, ← hDdef, hc₄']
+  have hκW0 : algebraMap R (ResidueField R)
+      (D ^ 3 * κ' - D ^ 2 * n' * (E.integralModel R).a₁ ^ 2 * c₄') = 0 := by
+    simp only [map_sub, map_mul, map_pow, ResidueField.algebraMap_eq, hDt, hta]
+    linear_combination (residue R t') ^ 6 * hB
+      - (residue R t') ^ 6 * residue R n' * residue R c₄' * h2
+  rw [nodePoly_map_splits_iff_of_two_eq_zero h2 (algebraMap R (ResidueField R))
+    ((E.integralModel R).quadraticTwistOf t' n') hWc₄ hWc₆]
+  refine ⟨0, ?_⟩
+  rw [hκW_eq, hWc₄eq, show (0 : ResidueField R) ^ 2 + 0 = 0 from by ring, mul_zero, hκW0,
+    neg_zero, mul_zero]
+
+open IsLocalRing in
 /-- If the residues of `(t', n')` satisfy the trace and norm relations cut out by the node
 polynomial, then the node polynomial of the quadratic twist of the integral model by `(t', n')`
 splits over the residue field: the key identity `φc₄ · φ(t'² - 4n') = -φc₆`
 (`residue_c₄_mul_residue_eq_neg_c₆`) reduces this to a square-class computation for residue
-characteristic `≠ 2`, and to an Artin–Schreier computation with `z = 0` for residue
-characteristic `2`. -/
+characteristic `≠ 2`, and to an Artin–Schreier computation for residue characteristic `2`
+(`nodePoly_quadraticTwistOf_map_splits_of_residue_of_two_eq_zero`). -/
 theorem nodePoly_quadraticTwistOf_map_splits_of_residue
     [E.HasMultiplicativeReduction R] (t' n' : R)
     (hA : residue R (E.integralModel R).c₄ * residue R t'
@@ -1929,77 +2078,43 @@ theorem nodePoly_quadraticTwistOf_map_splits_of_residue
         + (E.integralModel R).a₂ * (E.integralModel R).c₄) = 0) :
     Polynomial.Splits (((E.integralModel R).quadraticTwistOf t' n').nodePoly.map
       (algebraMap R (ResidueField R))) := by
-  -- `D = t'²-4n'` has nonzero residue (`hkey`: `φc₄·φD = -φc₆ ≠ 0`).
-  have hkey := residue_c₄_mul_residue_eq_neg_c₆ E R t' n' hA hB
-  have hDne : residue R (t' ^ 2 - 4 * n') ≠ 0 := fun h0 =>
-    residue_integralModel_c₆_ne_zero E R (neg_eq_zero.mp (by rw [← hkey, h0, mul_zero]))
-  set c₄' := (E.integralModel R).c₄ with hc₄'
-  set κ' := 54 * (E.integralModel R).b₆ - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
-    + (E.integralModel R).a₂ * c₄' with hκ'
-  simp only [map_mul] at hA
-  rw [hc₄'] at hkey
-  have hc₄0 : residue R (E.integralModel R).c₄ ≠ 0 := residue_integralModel_c₄_ne_zero E R
-  have hc₄map : algebraMap R (ResidueField R) (E.integralModel R).c₄ ≠ 0 := by
-    rw [ResidueField.algebraMap_eq]; exact hc₄0
   rcases ne_or_eq (2 : ResidueField R) 0 with h2 | h2
   · -- Residue characteristic `≠ 2`: split ↔ `IsSquare (φ((t'²-4n')·-(c₄c₆)))`, which `hkey` shows
     -- equals `IsSquare (φc₆²)`.
-    haveI : NeZero (2 : ResidueField R) := ⟨h2⟩
+    have hkey := residue_c₄_mul_residue_eq_neg_c₆ E R t' n' hA hB
+    have hDne : residue R (t' ^ 2 - 4 * n') ≠ 0 := fun h0 =>
+      residue_integralModel_c₆_ne_zero E R (neg_eq_zero.mp (by rw [← hkey, h0, mul_zero]))
+    have hc₄0 : residue R (E.integralModel R).c₄ ≠ 0 := residue_integralModel_c₄_ne_zero E R
+    have : NeZero (2 : ResidueField R) := ⟨h2⟩
     rw [nodePoly_quadraticTwistOf_map_splits_iff (algebraMap R (ResidueField R))
-      (E.integralModel R) t' n' hc₄map (by rw [ResidueField.algebraMap_eq]; exact hDne)]
+      (E.integralModel R) t' n' (by rw [ResidueField.algebraMap_eq]; exact hc₄0)
+      (by rw [ResidueField.algebraMap_eq]; exact hDne)]
     refine ⟨residue R (E.integralModel R).c₆, ?_⟩
     apply mul_left_cancel₀ hc₄0
     rw [ResidueField.algebraMap_eq]
     simp only [map_mul, map_neg]
     linear_combination
       (-(residue R (E.integralModel R).c₄ * residue R (E.integralModel R).c₆)) * hkey
-  · -- Residue characteristic 2: the Artin–Schreier split condition
-    -- (`nodePoly_map_splits_iff_of_two_eq_zero`) holds with `z = 0`, because `φ κ_W = 0`. Indeed
-    -- `κ_W = D³κ - D²·n·a₁²·c₄` (`kappa_quadraticTwistOf`), and `φκ = -φc₄·φn` (`hB`),
-    -- `φa₁ = -φt'` (`hA`), `φD = φt'²` (as `4 = 0`), so
-    -- `φκ_W = -φD²·φc₄·φn·(φD + φa₁²) = -φD²·φc₄·φn·(2·φt'²) = 0`.
-    set D := t' ^ 2 - 4 * n' with hDdef
-    have h4 : (4 : ResidueField R) = 0 := by
-      rw [show (4 : ResidueField R) = 2 * 2 by norm_num, h2, mul_zero]
-    have hDmap : algebraMap R (ResidueField R) D ≠ 0 := by
-      rw [ResidueField.algebraMap_eq]; exact hDne
-    have hDt : residue R D = residue R t' ^ 2 := by
-      rw [hDdef, map_sub, map_mul, map_pow, map_ofNat, h4, zero_mul, sub_zero]
-    have hWc₄ : algebraMap R (ResidueField R)
-        ((E.integralModel R).quadraticTwistOf t' n').c₄ ≠ 0 := by
-      rw [c₄_quadraticTwistOf, ← hDdef, map_mul, map_pow]
-      exact mul_ne_zero (pow_ne_zero 2 hDmap) hc₄map
-    have hWc₆ : algebraMap R (ResidueField R)
-        ((E.integralModel R).quadraticTwistOf t' n').c₆ ≠ 0 := by
-      rw [c₆_quadraticTwistOf, ← hDdef, map_mul, map_pow]
-      exact mul_ne_zero (pow_ne_zero 3 hDmap)
-        (by rw [ResidueField.algebraMap_eq]; exact residue_integralModel_c₆_ne_zero E R)
-    have hta : residue R (E.integralModel R).a₁ = -residue R t' := by
-      rcases mul_eq_zero.mp (show residue R c₄'
-          * (residue R t' + residue R (E.integralModel R).a₁) = 0 by linear_combination hA)
-        with hz | hz
-      · exact absurd hz hc₄0
-      · linear_combination hz
-    have hκW_eq : 54 * ((E.integralModel R).quadraticTwistOf t' n').b₆
-        - 3 * ((E.integralModel R).quadraticTwistOf t' n').b₂
-            * ((E.integralModel R).quadraticTwistOf t' n').b₄
-        + ((E.integralModel R).quadraticTwistOf t' n').a₂
-            * ((E.integralModel R).quadraticTwistOf t' n').c₄
-        = D ^ 3 * κ' - D ^ 2 * n' * (E.integralModel R).a₁ ^ 2 * c₄' := by
-      rw [hDdef, hκ', hc₄']
-      exact kappa_quadraticTwistOf (E.integralModel R) t' n'
-    have hWc₄eq : ((E.integralModel R).quadraticTwistOf t' n').c₄ = D ^ 2 * c₄' := by
-      rw [c₄_quadraticTwistOf, ← hDdef, hc₄']
-    have hκW0 : algebraMap R (ResidueField R)
-        (D ^ 3 * κ' - D ^ 2 * n' * (E.integralModel R).a₁ ^ 2 * c₄') = 0 := by
-      simp only [map_sub, map_mul, map_pow, ResidueField.algebraMap_eq, hDt, hta]
-      linear_combination (residue R t') ^ 6 * hB
-        - (residue R t') ^ 6 * residue R n' * residue R c₄' * h2
-    rw [nodePoly_map_splits_iff_of_two_eq_zero h2 (algebraMap R (ResidueField R))
-      ((E.integralModel R).quadraticTwistOf t' n') hWc₄ hWc₆]
-    refine ⟨0, ?_⟩
-    rw [hκW_eq, hWc₄eq, show (0 : ResidueField R) ^ 2 + 0 = 0 from by ring, mul_zero, hκW0,
-      neg_zero, mul_zero]
+  · exact nodePoly_quadraticTwistOf_map_splits_of_residue_of_two_eq_zero E R t' n' h2 hA hB
+
+open IsLocalRing in
+/-- Packaging `nodePoly_quadraticTwistOf_map_splits_of_residue`: if the base change of the twisted
+integral model has multiplicative reduction and the residues of `(t', n')` satisfy the trace and
+norm relations, then the reduction is *split* multiplicative. -/
+theorem hasSplitMultiplicativeReduction_quadraticTwistOf_of_residue
+    [E.HasMultiplicativeReduction R] (t' n' : R)
+    [hW : (((E.integralModel R).quadraticTwistOf t' n')⁄K).HasMultiplicativeReduction R]
+    (hA : residue R (E.integralModel R).c₄ * residue R t'
+      + residue R ((E.integralModel R).a₁ * (E.integralModel R).c₄) = 0)
+    (hB : residue R (E.integralModel R).c₄ * residue R n'
+      + residue R (54 * (E.integralModel R).b₆
+        - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
+        + (E.integralModel R).a₂ * (E.integralModel R).c₄) = 0) :
+    (((E.integralModel R).quadraticTwistOf t' n')⁄K).HasSplitMultiplicativeReduction R := by
+  refine { hW with splitMultiplicativeReduction := ?_ }
+  rw [show (((E.integralModel R).quadraticTwistOf t' n')⁄K).integralModel R
+    = (E.integralModel R).quadraticTwistOf t' n' from integralModel_baseChange R _]
+  exact nodePoly_quadraticTwistOf_map_splits_of_residue E R t' n' hA hB
 
 variable [E.IsElliptic]
 
@@ -2053,54 +2168,22 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
   have : Module.Free R S := IsIntegralClosure.module_free R K L S
   have hSrank : Module.finrank R S = 2 :=
     (IsIntegralClosure.rank R K L S).trans (Algebra.IsQuadraticExtension.finrank_eq_two K L)
-  have htower : ∀ r : R, algebraMap (ResidueField R) (ResidueField S) (residue R r)
-      = residue S (algebraMap R S r) := fun r => by
-    simp only [← ResidueField.algebraMap_residue]
   obtain ⟨θ', hθ'res⟩ := IsLocalRing.residue_surjective (resIso.symm (AdjoinRoot.root P))
-  have hCH' : θ' ^ 2 - algebraMap R S (Algebra.trace R S θ') * θ'
-      + algebraMap R S (Algebra.norm R θ') = 0 := sq_sub_trace_mul_self_add_norm hSrank θ'
-  have hρ1 : (AdjoinRoot.root P) ^ 2
-        - algebraMap (ResidueField R) (AdjoinRoot P) (residue R (Algebra.trace R S θ'))
-          * (AdjoinRoot.root P)
-        + algebraMap (ResidueField R) (AdjoinRoot P) (residue R (Algebra.norm R θ')) = 0 := by
-    have h0 := congrArg (fun x => resIso (residue S x)) hCH'
-    simp only [map_sub, map_add, map_mul, map_pow, map_zero, hθ'res, resIso.apply_symm_apply,
-      ← htower, resIso.commutes] at h0
-    exact h0
-  -- `root P` also satisfies its own defining polynomial `P = C(φc₄)X² + C(φ(a₁c₄))X - C(φκ)`
-  -- (`aeval_root_nodePoly_map`).
-  have hρ2 : algebraMap (ResidueField R) (AdjoinRoot P)
-          (algebraMap R (ResidueField R) (E.integralModel R).c₄) * (AdjoinRoot.root P) ^ 2
-        + algebraMap (ResidueField R) (AdjoinRoot P)
-          (algebraMap R (ResidueField R) ((E.integralModel R).a₁ * (E.integralModel R).c₄))
-          * (AdjoinRoot.root P)
-        - algebraMap (ResidueField R) (AdjoinRoot P) (algebraMap R (ResidueField R)
-          (54 * (E.integralModel R).b₆ - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
-            + (E.integralModel R).a₂ * (E.integralModel R).c₄)) = 0 :=
-    aeval_root_nodePoly_map (algebraMap R (ResidueField R)) (E.integralModel R)
-  -- Eliminate `root P ^ 2` between `hρ1` and `hρ2`; linear independence of `1` and `root P`
-  -- (`AdjoinRoot.eq_zero_of_mul_root_add_eq_zero`) gives the scalar relations
-  -- `φc₄·φt = -φ(a₁c₄)` and `φc₄·φn = -φκ` in `k` (φ = residue).
-  set c₄' := (E.integralModel R).c₄ with hc₄'
-  set κ' := 54 * (E.integralModel R).b₆ - 3 * (E.integralModel R).b₂ * (E.integralModel R).b₄
-    + (E.integralModel R).a₂ * c₄' with hκ'
+  -- Via `resIso`, `root P` satisfies the Cayley–Hamilton relation `X² - φ(t')·X + φ(n')` of `θ'`
+  -- (`sq_sub_trace_mul_self_add_norm_residue`); comparing with the defining relation of `P` gives
+  -- the residue relations `φc₄·φt' = -φ(a₁c₄)` and `φc₄·φn' = -φκ` (`nodePoly_map_root_relations`).
+  have hρ1 := sq_sub_trace_mul_self_add_norm_residue R hSrank resIso θ'
+  rw [hθ'res, resIso.apply_symm_apply] at hρ1
+  obtain ⟨hA, hB⟩ := nodePoly_map_root_relations E R hirr hρ1
   set t' := Algebra.trace R S θ' with ht'
   set n' := Algebra.norm R θ' with hn'
-  obtain ⟨hA, hB⟩ := AdjoinRoot.eq_zero_of_mul_root_add_eq_zero hPdeg2.ge
-    (a := residue R c₄' * residue R t' + residue R ((E.integralModel R).a₁ * c₄'))
-    (b := -(residue R c₄' * residue R n' + residue R κ')) (by
-    simp only [IsLocalRing.ResidueField.algebraMap_eq, map_add, map_mul, map_neg] at hρ2 ⊢
-    linear_combination hρ2
-      - algebraMap (ResidueField R) (AdjoinRoot P) (residue R c₄') * hρ1)
-  rw [neg_eq_zero] at hB
   -- `root P ∉ k` (its minimal polynomial has degree 2), so `θ'̄ = resIso⁻¹(root P) ∉ k` and, since
   -- `R` is integrally closed, `algebraMap S L θ' ∉ K` — the twist by `θ'` is nontrivial.
   have hθ' : algebraMap S L θ' ∉ Set.range (algebraMap K L) :=
     notMem_range_algebraMap_of_residue_notMem R (by
       rw [hθ'res]
-      rintro ⟨c, hc⟩
-      exact AdjoinRoot.root_notMem_range_algebraMap hPdeg2.ge
-        ⟨c, by rw [← resIso.commutes c, hc, resIso.apply_symm_apply]⟩)
+      exact fun hmem => AdjoinRoot.root_notMem_range_algebraMap hPdeg2.ge
+        (resIso.symm.apply_mem_range_algebraMap_iff.mp hmem))
   -- Trace/norm land in `K`, giving the connection to the `R`-model `W = quadraticTwistOf t' n'`.
   have htr : Algebra.trace K L (algebraMap S L θ') = algebraMap R K t' :=
     Algebra.trace_localization R (nonZeroDivisors R) θ'
@@ -2115,12 +2198,7 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
   have hDne : residue R (t' ^ 2 - 4 * n') ≠ 0 := fun h0 =>
     residue_integralModel_c₆_ne_zero E R (neg_eq_zero.mp (by rw [← hkey, h0, mul_zero]))
   have hWmult := hasMultiplicativeReduction_baseChange_quadraticTwistOf E R t' n' hDne
-  have hWsplit :
-      (((E.integralModel R).quadraticTwistOf t' n')⁄K).HasSplitMultiplicativeReduction R := by
-    refine { hWmult with splitMultiplicativeReduction := ?_ }
-    rw [show (((E.integralModel R).quadraticTwistOf t' n')⁄K).integralModel R
-      = (E.integralModel R).quadraticTwistOf t' n' from integralModel_baseChange R _]
-    exact nodePoly_quadraticTwistOf_map_splits_of_residue E R t' n' hA hB
+  have hWsplit := hasSplitMultiplicativeReduction_quadraticTwistOf_of_residue E R t' n' hA hB
   -- `hWsplit : (W⁄K).HasSplitMultiplicativeReduction R` with `W⁄K` minimal and
   -- `hC : C • E.quadraticTwist L = W⁄K`. Split multiplicativity transfers to the chosen minimal
   -- model `(E.quadraticTwist L).minimal R`, which is another minimal model of
@@ -2129,14 +2207,8 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
   have hD : (((E.quadraticTwist L).exists_isMinimal R).choose * C⁻¹)
       • (((E.integralModel R).quadraticTwistOf t' n')⁄K) = (E.quadraticTwist L).minimal R := by
     rw [mul_smul, ← hC, inv_smul_smul]; rfl
-  have hΔ₁ : (((E.integralModel R).quadraticTwistOf t' n')⁄K).Δ ≠ 0 := by
-    have hDnz : t' ^ 2 - 4 * n' ≠ 0 := fun h => hDne (by rw [h, map_zero])
-    have hΔint : (E.integralModel R).Δ ≠ 0 := fun h =>
-      E.isUnit_Δ.ne_zero (by rw [← integralModel_Δ_eq R E, h, map_zero])
-    rw [show (((E.integralModel R).quadraticTwistOf t' n')⁄K).Δ
-      = algebraMap R K ((E.integralModel R).quadraticTwistOf t' n').Δ from map_Δ _ _,
-      Δ_quadraticTwistOf, Ne, map_eq_zero_iff _ (IsFractionRing.injective R K), mul_eq_zero]
-    exact not_or.mpr ⟨pow_ne_zero 6 hDnz, hΔint⟩
+  have hΔ₁ : (((E.integralModel R).quadraticTwistOf t' n')⁄K).Δ ≠ 0 :=
+    Δ_baseChange_quadraticTwistOf_ne_zero E R t' n' fun h0 => hDne (by rw [h0, map_zero])
   exact HasSplitMultiplicativeReduction.of_isMinimal_smul R _ hD hΔ₁ hWsplit
 
 end Reduction
