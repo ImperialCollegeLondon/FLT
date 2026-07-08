@@ -43,15 +43,13 @@ lemma variableChange_negY (x y : F) :
         ((C.u : F) ^ 3 * y + (C.u : F) ^ 2 * C.s * x + C.t)
       = (C.u : F) ^ 3 * (C • W).toAffine.negY x y + (C.u : F) ^ 2 * C.s * x + C.t := by
   simp only [negY, variableChange_a₁, variableChange_a₃, Units.val_inv_eq_inv_val]
-  field_simp
-  ring
+  field
 
 lemma variableChange_addX (x₁ x₂ ℓ : F) :
     W.toAffine.addX ((C.u : F) ^ 2 * x₁ + C.r) ((C.u : F) ^ 2 * x₂ + C.r) ((C.u : F) * ℓ + C.s)
       = (C.u : F) ^ 2 * (C • W).toAffine.addX x₁ x₂ ℓ + C.r := by
   simp only [addX, variableChange_a₁, variableChange_a₂, Units.val_inv_eq_inv_val]
-  field_simp
-  ring
+  field
 
 lemma variableChange_negAddY (x₁ x₂ y₁ ℓ : F) :
     W.toAffine.negAddY ((C.u : F) ^ 2 * x₁ + C.r) ((C.u : F) ^ 2 * x₂ + C.r)
@@ -59,8 +57,7 @@ lemma variableChange_negAddY (x₁ x₂ y₁ ℓ : F) :
       = (C.u : F) ^ 3 * (C • W).toAffine.negAddY x₁ x₂ y₁ ℓ
         + (C.u : F) ^ 2 * C.s * (C • W).toAffine.addX x₁ x₂ ℓ + C.t := by
   simp only [negAddY, addX, variableChange_a₁, variableChange_a₂, Units.val_inv_eq_inv_val]
-  field_simp
-  ring
+  field
 
 lemma variableChange_addY (x₁ x₂ y₁ ℓ : F) :
     W.toAffine.addY ((C.u : F) ^ 2 * x₁ + C.r) ((C.u : F) ^ 2 * x₂ + C.r)
@@ -92,14 +89,14 @@ lemma variableChange_slope [DecidableEq F] {x₁ x₂ y₁ y₂ : F}
       div_eq_div_iff (sub_ne_zero.mpr hΦy) (sub_ne_zero.mpr hy)]
     simp only [negY, variableChange_a₁, variableChange_a₂, variableChange_a₃, variableChange_a₄,
       Units.val_inv_eq_inv_val]
-    field_simp
-    ring
+    field
   · have hΦx : (C.u : F) ^ 2 * x₁ + C.r ≠ (C.u : F) ^ 2 * x₂ + C.r := by
       simp only [ne_eq, add_left_inj, mul_right_inj' (pow_ne_zero 2 hu)]
       exact hx
     rw [W.toAffine.slope_of_X_ne hΦx, (C • W).toAffine.slope_of_X_ne hx]
-    field_simp [sub_ne_zero.mpr hΦx, sub_ne_zero.mpr hx]
-    ring
+    have h1 := sub_ne_zero.mpr hΦx
+    have h2 := sub_ne_zero.mpr hx
+    field
 
 /-- A point `(x, y)` lies on `C • W` if and only if `(u²x + r, u³y + u²sx + t)` lies on `W`: the
 change of variables scales the Weierstrass polynomial by `u⁶`. -/
@@ -160,9 +157,9 @@ lemma Point.mapVariableChangeFun_surjective :
   have hu : (C.u : F) ≠ 0 := C.u.ne_zero
   rintro (_ | ⟨X, Y, h⟩)
   · exact ⟨0, rfl⟩
-  · have hX : (C.u : F) ^ 2 * ((C.u : F)⁻¹ ^ 2 * (X - C.r)) + C.r = X := by field_simp; ring
+  · have hX : (C.u : F) ^ 2 * ((C.u : F)⁻¹ ^ 2 * (X - C.r)) + C.r = X := by field
     have hY : (C.u : F) ^ 3 * ((C.u : F)⁻¹ ^ 3 * (Y - C.s * (X - C.r) - C.t))
-        + (C.u : F) ^ 2 * C.s * ((C.u : F)⁻¹ ^ 2 * (X - C.r)) + C.t = Y := by field_simp; ring
+        + (C.u : F) ^ 2 * C.s * ((C.u : F)⁻¹ ^ 2 * (X - C.r)) + C.t = Y := by field
     refine ⟨.some ((C.u : F)⁻¹ ^ 2 * (X - C.r)) ((C.u : F)⁻¹ ^ 3 * (Y - C.s * (X - C.r) - C.t))
       (equation_iff_nonsingular.mp ((variableChange_equation W C _ _).mp
         (by rw [hX, hY]; exact equation_iff_nonsingular.mpr h))), ?_⟩
