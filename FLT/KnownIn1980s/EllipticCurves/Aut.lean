@@ -111,11 +111,8 @@ makes the partial derivative `∂/∂y = 2y + a₁x + a₃` vanish identically, 
 lemma a₁_ne_zero_or_a₃_ne_zero_of_two_eq_zero (hΔ : E.Δ ≠ 0) (h2 : (2 : K) = 0) :
     E.a₁ ≠ 0 ∨ E.a₃ ≠ 0 := by
   by_contra h
-  simp only [not_or, not_not] at h
-  obtain ⟨ha1, ha3⟩ := h
-  apply hΔ
-  rw [Δ, b₈, b₆, b₄, b₂, ha1, ha3]
-  grobner
+  rw [not_or, not_not, not_not] at h
+  exact hΔ (by rw [Δ, b₈, b₆, b₄, b₂, h.1, h.2]; grobner)
 
 /-- The negation automorphism is nontrivial for a curve with `Δ ≠ 0`: in characteristic `≠ 2` it
 has `u = -1 ≠ 1`, and in characteristic `2` it has `(s, t) = (-a₁, -a₃) ≠ (0, 0)`, since a curve
@@ -124,16 +121,15 @@ lemma negVariableChange_ne_one (hΔ : E.Δ ≠ 0) : E.negVariableChange ≠ 1 :=
   intro h
   rcases eq_or_ne (2 : K) 0 with h2 | h2
   · have ha1 : E.a₁ = 0 := by
-      have hs : E.negVariableChange.s = (1 : VariableChange K).s := by rw [h]
-      simpa [negVariableChange, VariableChange.one_def, neg_eq_zero] using hs
+      simpa [negVariableChange, VariableChange.one_def, neg_eq_zero]
+        using congrArg VariableChange.s h
     have ha3 : E.a₃ = 0 := by
-      have ht : E.negVariableChange.t = (1 : VariableChange K).t := by rw [h]
-      simpa [negVariableChange, VariableChange.one_def, neg_eq_zero] using ht
+      simpa [negVariableChange, VariableChange.one_def, neg_eq_zero]
+        using congrArg VariableChange.t h
     grind [a₁_ne_zero_or_a₃_ne_zero_of_two_eq_zero]
-  · apply h2
-    have hu : E.negVariableChange.u = (1 : VariableChange K).u := by rw [h]
-    rw [negVariableChange_u, VariableChange.one_def] at hu
-    have hv : (-1 : K) = 1 := by simpa using congrArg Units.val hu
+  · refine h2 ?_
+    have hv : (-1 : K) = 1 := by
+      simpa [VariableChange.one_def] using congrArg (fun C : VariableChange K ↦ (C.u : K)) h
     linear_combination -hv
 
 /-- An automorphism `C` of `E` with `C.u = 1` has no `x`-translation: `C.r = 0`. Splitting on
@@ -141,11 +137,10 @@ whether `6 = 0`, this uses `c₄ ≠ 0` in characteristic `2` or `3` and `c₆ �
 lemma r_eq_zero_of_u_eq_one (hc6 : E.c₆ ≠ 0) {C : VariableChange K}
     (hu : C.u = 1) (hCE : C • E = E) : C.r = 0 := by
   have eb4 := congrArg WeierstrassCurve.b₄ hCE
-  rw [variableChange_b₄, hu, inv_one, Units.val_one, one_pow, one_mul] at eb4
   have eb6 := congrArg WeierstrassCurve.b₆ hCE
-  rw [variableChange_b₆, hu, inv_one, Units.val_one, one_pow, one_mul] at eb6
   have eb8 := congrArg WeierstrassCurve.b₈ hCE
-  rw [variableChange_b₈, hu, inv_one, Units.val_one, one_pow, one_mul] at eb8
+  simp only [variableChange_b₄, variableChange_b₆, variableChange_b₈, hu, inv_one, Units.val_one,
+    one_pow, one_mul] at eb4 eb6 eb8
   rw [c₆] at hc6
   grobner
 
@@ -157,11 +152,9 @@ lemma eq_one_or_eq_negVariableChange_of_u_eq_one (hc4 : E.c₄ ≠ 0) (hc6 : E.c
     {C : VariableChange K} (hu : C.u = 1) (hCE : C • E = E) :
     C = 1 ∨ C = E.negVariableChange := by
   have hr : C.r = 0 := E.r_eq_zero_of_u_eq_one hc6 hu hCE
-  obtain ⟨e1, e2, e3, e4, _⟩ := WeierstrassCurve.ext_iff.mp hCE
-  rw [variableChange_a₁, hu, inv_one, Units.val_one, one_mul] at e1
-  rw [variableChange_a₂, hu, inv_one, Units.val_one, one_pow, one_mul] at e2
-  rw [variableChange_a₃, hu, inv_one, Units.val_one, one_pow, one_mul] at e3
-  rw [variableChange_a₄, hu, inv_one, Units.val_one, one_pow, one_mul] at e4
+  obtain ⟨e1, e2, e3, e4, -⟩ := WeierstrassCurve.ext_iff.mp hCE
+  simp only [variableChange_a₁, variableChange_a₂, variableChange_a₃, variableChange_a₄, hu,
+    inv_one, Units.val_one, one_pow, one_mul] at e1 e2 e3 e4
   rcases eq_or_ne (2 : K) 0 with h2 | h2
   · -- characteristic `2`: `a₁ ≠ 0` (else `c₄ = a₁⁴ = 0`); the `a₂`, `a₄` laws force `(s, t)` to be
     -- `(0, 0)` or `(-a₁, -a₃)`, the latter being `negVariableChange` since `-1 = 1`.
@@ -202,9 +195,7 @@ lemma u_eq_one_or_eq_neg_one (hc4 : E.c₄ ≠ 0) (hc6 : E.c₆ ≠ 0) {C : Vari
     have h1 : ((C.u : K)⁻¹) ^ 6 = 1 := mul_right_cancel₀ hc6 (h.trans (one_mul E.c₆).symm)
     rwa [inv_pow, inv_eq_one] at h1
   have hu2 : (C.u : K) * (C.u : K) = 1 := by
-    have h64 : (C.u : K) ^ 6 = (C.u : K) ^ 4 * ((C.u : K) * (C.u : K)) := by ring
-    rw [hu6, hu4, one_mul] at h64
-    exact h64.symm
+    linear_combination hu6 - (C.u : K) ^ 2 * hu4
   rcases mul_self_eq_one_iff.mp hu2 with h | h
   · exact Or.inl (Units.val_eq_one.mp h)
   · exact Or.inr (Units.ext (by rw [Units.val_neg, Units.val_one]; exact h))
@@ -228,8 +219,8 @@ theorem eq_one_or_eq_negVariableChange_of_smul_eq_of_c₄_ne_zero (hc4 : E.c₄ 
   · exact E.eq_one_or_eq_negVariableChange_of_u_eq_one hc4 hc6 hu hC
   · -- Reduce `u = -1` to `u = 1` by composing with the involution `negVariableChange E`.
     have hDu : (E.negVariableChange * C).u = 1 := by
-      have hmul : (E.negVariableChange * C).u = E.negVariableChange.u * C.u := rfl
-      rw [hmul, negVariableChange_u, hu, neg_one_mul, neg_neg]
+      rw [show (E.negVariableChange * C).u = E.negVariableChange.u * C.u from rfl,
+        negVariableChange_u, hu, neg_one_mul, neg_neg]
     have hDE : (E.negVariableChange * C) • E = E := by
       rw [mul_smul, hC, negVariableChange_smul_self]
     have hCeq : C = E.negVariableChange * (E.negVariableChange * C) := by
@@ -269,10 +260,7 @@ def autGroupMulEquiv [DecidableEq K] [E.IsElliptic] (hj₀ : E.j ≠ 0) (hj₁�
     E.autGroup ≃* Multiplicative (ZMod 2) :=
   mulEquivMultiplicativeZModTwo ⟨E.negVariableChange, E.negVariableChange_smul_self⟩
     (fun h ↦ E.negVariableChange_ne_one E.isUnit_Δ.ne_zero (congrArg Subtype.val h))
-    fun C ↦ by
-      have hC := E.mem_autGroup.mp C.2
-      rcases E.eq_one_or_eq_negVariableChange_of_smul_eq hj₀ hj₁₇₂₈ hC with h | h
-      · exact Or.inl (Subtype.ext h)
-      · exact Or.inr (Subtype.ext h)
+    fun C ↦ (E.eq_one_or_eq_negVariableChange_of_smul_eq hj₀ hj₁₇₂₈
+      (E.mem_autGroup.mp C.2)).imp Subtype.ext Subtype.ext
 
 end WeierstrassCurve
