@@ -25,8 +25,7 @@ namespace Polynomial
 /-- The derivative of the quadratic `a X² + b X + c` is `2 a X + b`. -/
 theorem derivative_quadratic {R : Type*} [CommSemiring R] (a b c : R) :
     derivative (C a * X ^ 2 + C b * X + C c) = 2 * C a * X + C b := by
-  simp only [derivative_add, derivative_mul, derivative_C, derivative_X_pow, derivative_X,
-    zero_mul, zero_add, add_zero, mul_one, Nat.cast_ofNat, map_ofNat]
+  simp
   ring
 
 /-- The Bézout-type identity `(P')² - 4 a · P = C (b² - 4 a c)` for the quadratic
