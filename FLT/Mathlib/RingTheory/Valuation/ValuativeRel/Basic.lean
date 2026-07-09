@@ -92,3 +92,39 @@ theorem adicValuation_eq_one_iff {x : (valuation K).integer} :
 end AdicValuation
 
 end ValuativeRel
+
+namespace ValuativeExtension
+
+open ValuativeRel
+
+/-! ### Transfer of the valuation along a valuative extension
+
+A valuative extension `A → B` preserves `≤ 1`, `< 1` and `= 1` of the valuation: the
+induced map of value groups `mapValueGroupWithZero` is a strictly monotone
+monoid-with-zero homomorphism sending `valuation A x` to `valuation B (algebraMap A B x)`.
+Equivalently, `algebraMap A B` maps the ring of integers `𝒪[A]` into `𝒪[B]`, its maximal
+ideal into that of `𝒪[B]`, and units to units.
+-/
+
+variable {A B : Type*} [CommRing A] [Ring B] [ValuativeRel A] [ValuativeRel B]
+  [Algebra A B] [ValuativeExtension A B]
+
+/-- A valuative extension maps the closed unit disc into the closed unit disc; in other
+words, `algebraMap A B` maps the ring of integers `𝒪[A]` into `𝒪[B]`. -/
+theorem valuation_algebraMap_le_one {x : A} (hx : valuation A x ≤ 1) :
+    valuation B (algebraMap A B x) ≤ 1 := by
+  simpa using (mapValueGroupWithZero_strictMono (A := A) (B := B)).monotone hx
+
+/-- A valuative extension maps the open unit disc into the open unit disc; in other
+words, `algebraMap A B` maps the maximal ideal of `𝒪[A]` into that of `𝒪[B]`. -/
+theorem valuation_algebraMap_lt_one {x : A} (hx : valuation A x < 1) :
+    valuation B (algebraMap A B x) < 1 := by
+  simpa using mapValueGroupWithZero_strictMono (A := A) (B := B) hx
+
+/-- A valuative extension maps the unit circle into the unit circle; in other words,
+`algebraMap A B` maps units of `𝒪[A]` to units of `𝒪[B]`. -/
+theorem valuation_algebraMap_eq_one {x : A} (hx : valuation A x = 1) :
+    valuation B (algebraMap A B x) = 1 := by
+  rw [← mapValueGroupWithZero_valuation (B := B) x, hx, map_one]
+
+end ValuativeExtension

@@ -10,6 +10,7 @@ public import Mathlib.NumberTheory.LocalField.Basic
 public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
 public import FLT.KnownIn1980s.EllipticCurves.TateParameter
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveBaseChange
+public import FLT.KnownIn1980s.EllipticCurves.ReductionBaseChange
 
 /-!
 
@@ -356,17 +357,18 @@ theorem WeierstrassCurve.tateCurve_baseChange (q : k) (hq : valuation k q < 1) :
     rw [tateA₆_eq_evalInt q hq, tateA₆_eq_evalInt _ hq', TateCurve.evalInt_map q hq]
   ext <;> simp [WeierstrassCurve.baseChange, tateCurve, h4, h6]
 
--- Claude says that the base change of E to l is still given by a minimal Weierstrass equation.
--- This uses the multiplicative reduction hypothesis (which makes `c₄` a unit): minimality by
--- itself is not preserved by ramified base change — `y² = x³ + p` is minimal over `ℚ_p` but not
--- over `ℚ_p(p^{1/6})`.
+-- The base change of `E` to `l` is still given by a minimal Weierstrass equation. This uses the
+-- multiplicative reduction hypothesis (which makes `c₄` a unit): minimality by itself is not
+-- preserved by ramified base change — `y² = x³ + p` is minimal over `ℚ_p` but not over
+-- `ℚ_p(p^{1/6})`. See `WeierstrassCurve.isMinimal_baseChange` in `ReductionBaseChange`.
 instance : (E.baseChange l).IsMinimal 𝒪[l] :=
-  sorry
+  E.isMinimal_baseChange
 
--- and it still has split multiplicative reduction. (The `IsMinimal` instance argument of
--- `HasSplitMultiplicativeReduction` is found from the preceding instance.)
+-- and it still has split multiplicative reduction, via
+-- `WeierstrassCurve.hasSplitMultiplicativeReduction_baseChange` in `ReductionBaseChange`
+-- (from which the preceding `IsMinimal` also follows by class-parent projection).
 instance : (E.baseChange l).HasSplitMultiplicativeReduction 𝒪[l] :=
-  sorry
+  E.hasSplitMultiplicativeReduction_baseChange
 
 /-- The Tate parameter series commutes with valuative extensions: it is the evaluation of
 an integral power series at `j⁻¹`, so this is a direct instance of `evalInt_map`. -/
