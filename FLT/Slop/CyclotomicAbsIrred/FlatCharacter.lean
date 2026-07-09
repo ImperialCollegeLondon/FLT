@@ -91,7 +91,13 @@ noncomputable abbrev localRingOfIntegers : Type :=
 `K/ℚ_ℓ`, with values in an algebraically closed field `𝕂` of characteristic `ℓ`, is **flat**
 if it is continuous (has open kernel) and the associated one-dimensional representation
 `𝕂(ψ)` is a subquotient of `A(ℚ̄_ℓ) ⊗ 𝕂` for a finite flat group scheme `A` over `𝒪_K`
-killed by `ℓ`.  See the module docstring for a discussion of the encoding. -/
+killed by `ℓ`.  See the module docstring for a discussion of the encoding.
+
+The instances `[CharP 𝕂 ℓ]` and `[IsAlgClosed 𝕂]` are not used in the body, but they are
+part of the intended setting of the definition, which is the interface for the assumed
+statements S1 and S2 (`FLT.Slop.CyclotomicAbsIrred.Assumed`); dropping them here would make
+those `sorry`ed statements assert more than the literature supports. -/
+@[nolint unusedArguments]
 def IsFlatCharacter (𝕂 : Type) [Field 𝕂] [CharP 𝕂 ℓ] [IsAlgClosed 𝕂]
     (ψ : K.fixingSubgroup →* 𝕂ˣ) : Prop :=
   IsOpen (ψ.ker : Set K.fixingSubgroup) ∧
