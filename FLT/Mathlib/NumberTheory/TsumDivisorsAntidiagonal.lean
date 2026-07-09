@@ -97,8 +97,7 @@ theorem tsum_lambert_of_summable (r : 𝕜) (c : ℕ → 𝕜)
     simpa only [mul_div_assoc] using (hgeo m).mul_left (c m)
   have hfib (N : ℕ+) : HasSum (fun x : (Nat.divisorsAntidiagonal (N : ℕ)) ↦
       ((fun p : ℕ+ × ℕ+ ↦ c p.1 * r ^ ((p.1 : ℕ) * (p.2 : ℕ))) ∘
-        ⇑sigmaAntidiagonalEquivProd) ⟨N, x⟩)
-      ((∑ d ∈ (N : ℕ).divisors, c d) * r ^ (N : ℕ)) := by
+      ⇑sigmaAntidiagonalEquivProd) ⟨N, x⟩) ((∑ d ∈ (N : ℕ).divisors, c d) * r ^ (N : ℕ)) := by
     have hterm : ∀ x, ((fun p ↦ c p.1 * r ^ ((p.1 : ℕ) * (p.2 : ℕ))) ∘ ⇑sigmaAntidiagonalEquivProd)
         ⟨N, x⟩ = c (x : ℕ × ℕ).1 * r ^ (N : ℕ) :=
       fun x ↦ by simp only [Function.comp_apply, sigmaAntidiagonalEquivProd, Equiv.coe_fn_mk,
@@ -137,24 +136,17 @@ theorem isTopologicallyNilpotent_iff_tendsto_geomSum (r : 𝕜) :
       have h1 : Filter.Tendsto (fun n : ℕ ↦ (1 : 𝕜) ^ n) Filter.atTop (nhds 0) := hr
       simp only [one_pow] at h1
       exact one_ne_zero (tendsto_nhds_unique tendsto_const_nhds h1)
-    have hr1' : r - 1 ≠ 0 := sub_ne_zero.mpr hr1
-    have h1r : (1 : 𝕜) - r ≠ 0 := sub_ne_zero.mpr (Ne.symm hr1)
-    have hpsum : (fun N ↦ ∑ n ∈ Finset.range N, r ^ n) = fun N ↦ (r ^ N - 1) / (r - 1) :=
-      funext fun N ↦ geom_sum_eq hr1 N
-    rw [hpsum]
+    rw [funext fun N ↦ geom_sum_eq hr1 N]
     have hlim : Filter.Tendsto (fun N ↦ (r ^ N - 1) / (r - 1)) Filter.atTop
-        (nhds (((0 : 𝕜) - 1) / (r - 1))) := (hr.sub_const 1).div_const _
+      (nhds (((0 : 𝕜) - 1) / (r - 1))) := (hr.sub_const 1).div_const _
     have hval : ((0 : 𝕜) - 1) / (r - 1) = (1 - r)⁻¹ := by
-      rw [zero_sub]; field_simp; ring
+      grind
     rwa [hval] at hlim
   · intro h
-    have hshift : Filter.Tendsto (fun N ↦ ∑ n ∈ Finset.range (N + 1), r ^ n) Filter.atTop
-        (nhds (1 - r)⁻¹) := h.comp (Filter.tendsto_add_atTop_nat 1)
-    have hdiff := hshift.sub h
-    rw [sub_self] at hdiff
+    have hdiff := (h.comp (Filter.tendsto_add_atTop_nat 1)).sub h
     have hstep : (fun N ↦ (∑ n ∈ Finset.range (N + 1), r ^ n) - ∑ n ∈ Finset.range N, r ^ n)
         = fun N ↦ r ^ N := funext fun N ↦ by rw [Finset.sum_range_succ]; ring
-    rw [hstep] at hdiff
+    simp_rw [sub_self, Function.comp_apply, hstep] at hdiff
     exact hdiff
 
 /- **The completeness-based companion.** Over a *complete* Hausdorff uniform field, the per-row
@@ -178,44 +170,38 @@ theorem tsum_lambert_of_summable_of_isTopologicallyNilpotent (r : 𝕜) (c : ℕ
     (hsum : Summable fun p : ℕ+ × ℕ+ ↦ c p.1 * r ^ ((p.1 : ℕ) * (p.2 : ℕ))) :
     ∑' m : ℕ+, c m * r ^ (m : ℕ) / (1 - r ^ (m : ℕ)) =
       ∑' N : ℕ+, (∑ d ∈ (N : ℕ).divisors, c d) * r ^ (N : ℕ) := by
-  have hsummable := hsum
-  obtain ⟨S, hS⟩ := hsum
-  have hrow (m : ℕ+) : HasSum (fun j ↦ c m * r ^ ((m : ℕ) * (j + 1)))
-      (c m * r ^ (m : ℕ) / (1 - r ^ (m : ℕ))) := by
-    have hrowsum : Summable (fun j : ℕ ↦ c (m : ℕ) * r ^ ((m : ℕ) * (j + 1))) := by
-      have hinj : Function.Injective (fun j : ℕ ↦ (m, j.succPNat)) :=
-        fun a b h ↦ Nat.succPNat_injective (Prod.ext_iff.1 h).2
-      simpa only [Function.comp_def, Nat.succPNat_coe, Nat.succ_eq_add_one] using
-        hsummable.comp_injective hinj
-    rw [hrowsum.hasSum_iff_tendsto_nat]
-    have htn' : Filter.Tendsto (fun k : ℕ ↦ r ^ k) Filter.atTop (nhds 0) := htn
-    have htnm : IsTopologicallyNilpotent (r ^ (m : ℕ)) := by
-      have hmul : Filter.Tendsto (fun n : ℕ ↦ (m : ℕ) * n) Filter.atTop Filter.atTop :=
-        Filter.tendsto_atTop_mono (fun n ↦ Nat.le_mul_of_pos_left n m.pos) Filter.tendsto_id
-      change Filter.Tendsto (fun n : ℕ ↦ (r ^ (m : ℕ)) ^ n) Filter.atTop (nhds 0)
-      simpa only [Function.comp_def, pow_mul] using htn'.comp hmul
-    have hfac : ∀ N : ℕ, ∑ j ∈ Finset.range N, c (m : ℕ) * r ^ ((m : ℕ) * (j + 1))
-        = c (m : ℕ) * r ^ (m : ℕ) * ∑ j ∈ Finset.range N, (r ^ (m : ℕ)) ^ j := fun N ↦ by
-      rw [Finset.mul_sum]
-      exact Finset.sum_congr rfl fun j _ ↦ by rw [pow_mul, pow_succ]; ring
-    simp only [hfac]
-    simpa only [div_eq_mul_inv] using
-      ((isTopologicallyNilpotent_iff_tendsto_geomSum (r ^ (m : ℕ))).mp htnm).const_mul
-        (c (m : ℕ) * r ^ (m : ℕ))
-  have hfib (N : ℕ+) : HasSum (fun x : (Nat.divisorsAntidiagonal (N : ℕ)) ↦
-      ((fun p : ℕ+ × ℕ+ ↦ c p.1 * r ^ ((p.1 : ℕ) * (p.2 : ℕ))) ∘
-        ⇑sigmaAntidiagonalEquivProd) ⟨N, x⟩)
-      ((∑ d ∈ (N : ℕ).divisors, c d) * r ^ (N : ℕ)) := by
-    have hterm : ∀ x, ((fun p ↦ c p.1 * r ^ ((p.1 : ℕ) * (p.2 : ℕ))) ∘ ⇑sigmaAntidiagonalEquivProd)
-        ⟨N, x⟩ = c (x : ℕ × ℕ).1 * r ^ (N : ℕ) :=
-      fun x ↦ by simp only [Function.comp_apply, sigmaAntidiagonalEquivProd, Equiv.coe_fn_mk,
-        divisorsAntidiagonalFactors, PNat.mk_coe, (Nat.mem_divisorsAntidiagonal.mp x.2).1]
-    convert hasSum_fintype _ using 1
-    · rw [Finset.univ_eq_attach, Finset.sum_congr rfl fun x _ ↦ hterm x,
+  suffices ∀ m :  ℕ+, HasSum (fun j ↦ c m * r ^ ((m : ℕ) * (j + 1)))
+      (c m * r ^ (m : ℕ) / (1 - r ^ (m : ℕ))) by
+    have hfib (N : ℕ+) : HasSum (fun x : (Nat.divisorsAntidiagonal (N : ℕ)) ↦
+        ((fun p : ℕ+ × ℕ+ ↦ c p.1 * r ^ ((p.1 : ℕ) * (p.2 : ℕ))) ∘
+        ⇑sigmaAntidiagonalEquivProd) ⟨N, x⟩) ((∑ d ∈ (N : ℕ).divisors, c d) * r ^ (N : ℕ)) := by
+      have hterm : ∀ x, ((fun p ↦ c p.1 * r ^ ((p.1 : ℕ) * (p.2 : ℕ))) ∘
+          ⇑sigmaAntidiagonalEquivProd) ⟨N, x⟩ = c (x : ℕ × ℕ).1 * r ^ (N : ℕ) :=
+        fun x ↦ by simp only [Function.comp_apply, sigmaAntidiagonalEquivProd, Equiv.coe_fn_mk,
+          divisorsAntidiagonalFactors, PNat.mk_coe, (Nat.mem_divisorsAntidiagonal.mp x.2).1]
+      convert hasSum_fintype _ using 1
+      rw [Finset.univ_eq_attach, Finset.sum_congr rfl fun x _ ↦ hterm x,
         Finset.sum_attach (Nat.divisorsAntidiagonal N) (fun y ↦ c y.1 * r ^ (N : ℕ)),
         ← Finset.sum_mul, Nat.sum_divisorsAntidiagonal (fun d _ ↦ c d)]
-  rw [(hS.prod_fiberwise fun m ↦ Equiv.pnatEquivNat.symm.hasSum_iff.mp ((hrow) m)).tsum_eq,
-    ((sigmaAntidiagonalEquivProd.hasSum_iff.mpr hS).sigma hfib).tsum_eq]
+    obtain ⟨_, hS⟩ := hsum
+    rw [(hS.prod_fiberwise fun m ↦ Equiv.pnatEquivNat.symm.hasSum_iff.mp (this m)).tsum_eq,
+      ((sigmaAntidiagonalEquivProd.hasSum_iff.mpr hS).sigma hfib).tsum_eq]
+  intro m
+  have : Summable (fun j : ℕ ↦ c (m : ℕ) * r ^ ((m : ℕ) * (j + 1))) := by
+    suffices Function.Injective (fun j : ℕ ↦ (m, j.succPNat)) by
+      simpa only [Function.comp_def, Nat.succPNat_coe, Nat.succ_eq_add_one] using
+        hsum.comp_injective this
+    exact fun a b h ↦ Nat.succPNat_injective (Prod.ext_iff.1 h).2
+  have htnm : IsTopologicallyNilpotent (r ^ (m : ℕ)) := by
+    change Filter.Tendsto (fun n : ℕ ↦ (r ^ (m : ℕ)) ^ n) Filter.atTop (nhds 0)
+    simpa only [Function.comp_def, pow_mul] using htn.comp
+      (Filter.tendsto_atTop_mono (fun n ↦ Nat.le_mul_of_pos_left n m.pos) Filter.tendsto_id)
+  have hfac : ∀ N : ℕ, ∑ j ∈ Finset.range N, c (m : ℕ) * r ^ ((m : ℕ) * (j + 1))
+      = c (m : ℕ) * r ^ (m : ℕ) * ∑ j ∈ Finset.range N, (r ^ (m : ℕ)) ^ j := fun N ↦ by
+    simpa [Finset.mul_sum] using Finset.sum_congr rfl fun j _ ↦ by rw [pow_mul, pow_succ]; ring
+  simpa only [this.hasSum_iff_tendsto_nat, hfac, div_eq_mul_inv] using
+    ((isTopologicallyNilpotent_iff_tendsto_geomSum (r ^ (m : ℕ))).mp htnm).const_mul
+    (c (m : ℕ) * r ^ (m : ℕ))
 
 end Complete
 
