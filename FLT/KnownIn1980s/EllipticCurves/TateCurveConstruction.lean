@@ -134,8 +134,7 @@ local notation "u" => (RatFunc.X : RatFunc ℚ)
 /-- The power series `sₖ = ∑_{n ≥ 1} σₖ(n)qⁿ ∈ ℚ(u)⟦q⟧` (where `σₖ(n)` is the sum of
 the `k`th powers of the positive divisors of `n`). Up to a normalising constant, these
 are the `q`-expansions of the Eisenstein series of weight `k + 1`. -/
-def s (k : ℕ) : (RatFunc ℚ)⟦X⟧ :=
-  .mk fun n ↦ (σ k n : RatFunc ℚ)
+def s (k : ℕ) : (RatFunc ℚ)⟦X⟧ := .mk fun n ↦ (σ k n : RatFunc ℚ)
 
 /-- The coefficient `a₄ = -5s₃ = -5q - 45q² - ⋯` of the Tate curve
 `y² + xy = x³ + a₄x + a₆`. -/
@@ -151,17 +150,14 @@ def a₆ : (RatFunc ℚ)⟦X⟧ := (12 : RatFunc ℚ)⁻¹ • -(5 * s 3 + 7 * s
 `X(u,q) = u/(1-u)² + ∑_{n ≥ 1} (∑_{d ∣ n} d(uᵈ + u⁻ᵈ - 2)) qⁿ ∈ ℚ(u)⟦q⟧`,
 the `x`-coordinate of the uniformisation `kˣ/qᶻ ≃ E_q(k)` of the Tate curve. -/
 def X : (RatFunc ℚ)⟦X⟧ :=
-  .C (u / (1 - u) ^ 2) +
-    .mk fun n ↦ ∑ d ∈ n.divisors, d * (u ^ d + u⁻¹ ^ d - 2)
+  .C (u / (1 - u) ^ 2) + .mk fun n ↦ ∑ d ∈ n.divisors, d * (u ^ d + u⁻¹ ^ d - 2)
 
 /-- The power series
 `Y(u,q) = u²/(1-u)³ + ∑_{n ≥ 1} (∑_{d ∣ n} ((d choose 2)uᵈ - (d+1 choose 2)u⁻ᵈ + d)) qⁿ`
 in `ℚ(u)⟦q⟧`, the `y`-coordinate of the uniformisation `kˣ/qᶻ ≃ E_q(k)` of the
 Tate curve. -/
-def Y : (RatFunc ℚ)⟦X⟧ :=
-  .C (u ^ 2 / (1 - u) ^ 3) +
-    .mk fun n ↦ ∑ d ∈ n.divisors,
-      (d.choose 2 * u ^ d - (d + 1).choose 2 * u⁻¹ ^ d + d)
+def Y : (RatFunc ℚ)⟦X⟧ := .C (u ^ 2 / (1 - u) ^ 3) + .mk fun n ↦ ∑ d ∈ n.divisors,
+  (d.choose 2 * u ^ d - (d + 1).choose 2 * u⁻¹ ^ d + d)
 
 end
 
@@ -175,52 +171,40 @@ def e (z : ℂ) : ℂ := Complex.exp (2 * (Real.pi : ℂ) * I * z)
 lemma e_ne_zero (w : ℂ) : e w ≠ 0 := Complex.exp_ne_zero _
 
 lemma e_add (z w : ℂ) : e (z + w) = e z * e w := by
-  simp_rw [e, ← Complex.exp_add]
-  congr 1
-  ring
+  simp only [e, ← Complex.exp_add]
+  ring_nf
 
 lemma e_neg (w : ℂ) : e (-w) = (e w)⁻¹ := by
-  simp_rw [e, ← Complex.exp_neg]
-  congr 1
-  ring
+  simp only [e, ← Complex.exp_neg]
+  ring_nf
 
 lemma e_intMul (n : ℤ) (w : ℂ) : e (n * w) = e w ^ n := by
-  rw [e, e, ← Complex.exp_int_mul]
-  congr 1
-  ring
+  simp only [e, ← Complex.exp_int_mul]
+  ring_nf
 
 lemma e_sub_intCast_mul (z τ : ℂ) (n : ℤ) : e (z - n * τ) = e τ ^ (-n) * e z := by
-  rw [sub_eq_add_neg, e_add, show -((n : ℂ) * τ) = ((-n : ℤ) : ℂ) * τ by push_cast; ring,
-    e_intMul, mul_comm]
+  rw [sub_eq_add_neg, e_add, mul_comm, ← neg_mul, ← Int.cast_neg, e_intMul]
 
 lemma e_intCast_mul_natAbs {n : ℤ} (hn : 0 ≤ n) (τ : ℂ) :
     e ((n : ℂ) * τ) = e τ ^ n.natAbs := by
-  rw [show ((n : ℂ)) = ((n.natAbs : ℤ) : ℂ) by rw [Int.natAbs_of_nonneg hn], e_intMul,
-    zpow_natCast]
+  nth_rw 1 [← Int.natAbs_of_nonneg hn, e_intMul, zpow_natCast]
 
 lemma e_neg_intCast_mul_natAbs {n : ℤ} (hn : n ≤ 0) (τ : ℂ) :
     e (-((n : ℂ) * τ)) = e τ ^ n.natAbs := by
-  rw [show -((n : ℂ) * τ) = ((n.natAbs : ℤ) : ℂ) * τ by
-      rw [Int.ofNat_natAbs_of_nonpos hn]; push_cast; ring,
-    e_intMul, zpow_natCast]
+  rw [← neg_mul, ← Int.cast_neg, ← Int.ofNat_natAbs_of_nonpos hn, e_intMul, zpow_natCast]
 
 lemma norm_e (w : ℂ) : ‖e w‖ = Real.exp (-(2 * Real.pi * w.im)) := by
-  rw [e, Complex.norm_exp]
-  congr 1
-  simp only [Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im, Complex.ofReal_re,
-    Complex.ofReal_im, Complex.re_ofNat, Complex.im_ofNat]
-  ring
+  simp only [e, Complex.norm_exp, Complex.mul_re, Complex.mul_im, Complex.I_re, Complex.I_im,
+    Complex.ofReal_re, Complex.ofReal_im, Complex.re_ofNat, Complex.im_ofNat]
+  ring_nf
 
 lemma norm_e_lt_one {w : ℂ} (hw : 0 < w.im) : ‖e w‖ < 1 := by
-  rw [norm_e, Real.exp_lt_one_iff]
-  nlinarith [Real.pi_pos]
+  simp [norm_e, Real.exp_lt_one_iff, Real.pi_pos, hw]
 
 lemma norm_e_lt_norm_e {z w : ℂ} (h : w.im < z.im) : ‖e z‖ < ‖e w‖ := by
-  rw [norm_e, norm_e, Real.exp_lt_exp]
-  nlinarith [Real.pi_pos]
+  simp [norm_e, norm_e, Real.exp_lt_exp, Real.pi_pos, h]
 
-lemma two_pi_I_ne_zero : (2 * (Real.pi : ℂ) * I) ≠ 0 := by
-  norm_num [Complex.ext_iff, Real.pi_ne_zero]
+lemma two_pi_I_ne_zero : (2 * (Real.pi : ℂ) * I) ≠ 0 := by simp
 
 /-- The pair of periods `(τ, 1)`, for `τ` not real. Its `PeriodPair.lattice` is
 `Λ_τ = ℤτ + ℤ`. -/
@@ -229,26 +213,19 @@ def periodPair (τ : ℂ) (hτ : τ.im ≠ 0) : PeriodPair where
   ω₂ := 1
   indep := by
     refine linearIndependent_fin2.mpr ⟨by simp, fun a h ↦ hτ ?_⟩
-    have h' : (a : ℂ) = τ := by simpa [Complex.real_smul] using h
-    rw [← h', Complex.ofReal_im]
+    simpa using congrArg Complex.im h.symm
 
 @[simp] lemma periodPair_ω₁ (τ : ℂ) (hτ : τ.im ≠ 0) : (periodPair τ hτ).ω₁ = τ := rfl
 
 @[simp] lemma periodPair_ω₂ (τ : ℂ) (hτ : τ.im ≠ 0) : (periodPair τ hτ).ω₂ = 1 := rfl
-
-private lemma periodPair_latticeEquiv_coe (τ : ℂ) (hτ : τ.im ≠ 0) (p : ℤ × ℤ) :
-    (((periodPair τ hτ).latticeEquivProd.symm p : (periodPair τ hτ).lattice) : ℂ)
-      = p.1 * τ + p.2 := by
-  rw [PeriodPair.latticeEquiv_symm_apply, periodPair_ω₁, periodPair_ω₂, mul_one]
 
 /-- Transport of a `HasSum` over the lattice `Λ_τ = ℤτ + ℤ` along the reindexing
 `ℤ × ℤ ≃ Λ_τ`, `(n, m) ↦ nτ + m`. -/
 private lemma hasSum_lattice_prod {τ : ℂ} (hτ : τ.im ≠ 0) {f : ℂ → ℂ} {S : ℂ}
     (h : HasSum (fun l : (periodPair τ hτ).lattice ↦ f l) S) :
     HasSum (fun p : ℤ × ℤ ↦ f (p.1 * τ + p.2)) S := by
-  refine (((periodPair τ hτ).latticeEquivProd.symm.toEquiv.hasSum_iff).mpr h).congr_fun
-    fun p ↦ ?_
-  simp only [Function.comp_apply, LinearEquiv.coe_toEquiv, periodPair_latticeEquiv_coe]
+  refine (((periodPair τ hτ).latticeEquivProd.symm.toEquiv.hasSum_iff).mpr h).congr_fun fun p ↦ ?_
+  simp [Function.comp_apply, PeriodPair.latticeEquiv_symm_apply]
 
 /-- The convergent power series `sₖ(q) = ∑_{n ≥ 1} σₖ(n)qⁿ`, for `‖q‖ < 1` (junk value
 otherwise); the evaluation of the formal series `TateCurve.s k` at `q`. Convergence
@@ -318,10 +295,7 @@ private lemma sum_int_inv_pow_succ (w : ℂ) (hw : 0 < w.im) {k : ℕ} (hk : 1 �
     ∑' m : ℤ, ((w + m) ^ (k + 1))⁻¹
       = (-2 * (Real.pi : ℂ) * I) ^ (k + 1) / (k.factorial : ℂ)
         * ∑' d : ℕ, (d : ℂ) ^ k * e w ^ d := by
-  have h := EisensteinSeries.qExpansion_identity hk (⟨w, hw⟩ : UpperHalfPlane)
-  simp only [one_div] at h
-  simp only [e]
-  exact h
+  simpa [one_div, e] using EisensteinSeries.qExpansion_identity hk (⟨w, hw⟩ : UpperHalfPlane)
 
 /-- Row sum, exponent `2`: for `w` in the upper half plane,
 `∑_{m : ℤ} (w + m)⁻² = (2πi)² e(w)/(1 - e(w))²`.
@@ -329,10 +303,7 @@ This is the case `k = 1` of `sum_int_inv_pow_succ` together with the closed form
 the Lambert sum. -/
 theorem sum_int_inv_sq (w : ℂ) (hw : 0 < w.im) :
     ∑' m : ℤ, ((w + m) ^ 2)⁻¹ = (2 * (Real.pi : ℂ) * I) ^ 2 * (e w / (1 - e w) ^ 2) := by
-  have h := sum_int_inv_pow_succ w hw le_rfl (k := 1)
-  simp only [Nat.reduceAdd, pow_one, Nat.factorial_one, Nat.cast_one, div_one] at h
-  rw [h, tsum_coe_mul_geometric_of_norm_lt_one (norm_e_lt_one hw)]
-  ring
+  simp [sum_int_inv_pow_succ w hw le_rfl, tsum_coe_mul_geometric_of_norm_lt_one (norm_e_lt_one hw)]
 
 /-- Row sum, exponent `3`: for `w` in the upper half plane,
 `∑_{m : ℤ} (w + m)⁻³ = -(2πi)³/2 ⬝ e(w)(1 + e(w))/(1 - e(w))³`
@@ -349,29 +320,22 @@ theorem sum_int_inv_cube (w : ℂ) (hw : 0 < w.im) :
 
 /-- `∑_{m : ℤ} (w + m)⁻ᵏ` converges (absolutely) for every `w` and `k ≥ 2`. -/
 private lemma summable_int_inv_pow (w : ℂ) {k : ℕ} (hk : 2 ≤ k) :
-    Summable fun m : ℤ ↦ ((w + m) ^ k)⁻¹ := by
-  refine (EisensteinSeries.linear_right_summable w 1
-    (by exact_mod_cast hk : 2 ≤ (k : ℤ))).congr fun m ↦ ?_
-  push_cast
-  rw [one_mul, zpow_natCast]
+    Summable fun m : ℤ ↦ ((w + m) ^ k)⁻¹ :=
+  (EisensteinSeries.linear_right_summable w 1 (by exact_mod_cast hk : 2 ≤ (k : ℤ))).congr
+    fun m ↦ by simp
 
 private lemma summable_comp_neg {f : ℤ → ℂ} (hf : Summable f) :
     Summable fun n : ℤ ↦ f (-n) :=
-  ((Equiv.neg ℤ).summable_iff.mpr hf).congr fun n ↦ by
-    simp only [Function.comp_apply, Equiv.neg_apply]
+  ((Equiv.neg ℤ).summable_iff.mpr hf).congr fun n ↦ by simp
 
 private lemma summable_int_inv_pow_sub (w : ℂ) {k : ℕ} (hk : 2 ≤ k) :
     Summable fun m : ℤ ↦ ((w - m) ^ k)⁻¹ := by
-  refine (summable_comp_neg (summable_int_inv_pow w hk)).congr fun m ↦ ?_
-  push_cast
-  rw [← sub_eq_add_neg]
+  refine (summable_comp_neg (summable_int_inv_pow w hk)).congr fun m ↦ by simp [← sub_eq_add_neg]
 
 private lemma tsum_int_inv_pow_sub (w : ℂ) (k : ℕ) :
     ∑' m : ℤ, ((w - m) ^ k)⁻¹ = ∑' m : ℤ, ((w + m) ^ k)⁻¹ := by
   rw [← tsum_comp_neg fun m : ℤ ↦ ((w + m) ^ k)⁻¹]
-  refine tsum_congr fun m ↦ ?_
-  push_cast
-  rw [← sub_eq_add_neg]
+  refine tsum_congr fun m ↦ by simp [← sub_eq_add_neg]
 
 /-- Evenness of the row sum under `w ↦ -w`, for even exponents. -/
 private lemma tsum_int_inv_pow_neg (w : ℂ) {k : ℕ} (hk : Even k) :
@@ -379,7 +343,7 @@ private lemma tsum_int_inv_pow_neg (w : ℂ) {k : ℕ} (hk : Even k) :
   rw [← tsum_comp_neg fun m : ℤ ↦ ((-w + m) ^ k)⁻¹]
   refine tsum_congr fun m ↦ ?_
   push_cast
-  rw [show -w + -(m : ℂ) = -(w + m) from by ring, hk.neg_pow]
+  rw [show -w + -(m : ℂ) = -(w + m) by ring, hk.neg_pow]
 
 /-- Oddness of the row sum under `w ↦ -w`, for odd exponents. -/
 private lemma tsum_int_inv_pow_neg_odd (w : ℂ) {k : ℕ} (hk : Odd k) :
@@ -387,7 +351,7 @@ private lemma tsum_int_inv_pow_neg_odd (w : ℂ) {k : ℕ} (hk : Odd k) :
   rw [← tsum_neg, ← tsum_comp_neg fun m : ℤ ↦ -((-w + m) ^ k)⁻¹]
   refine tsum_congr fun m ↦ ?_
   push_cast
-  rw [show -w + -(m : ℂ) = -(w + m) from by ring, hk.neg_pow, inv_neg, neg_neg]
+  rw [show -w + -(m : ℂ) = -(w + m) by ring, hk.neg_pow, inv_neg, neg_neg]
 
 /-- The Basel-type sums over `ℤ`: `∑_{m : ℤ} m⁻ᵏ = 2ζ(k)` for even `k ≥ 2` (the `m = 0`
 term is junk `0`). -/
@@ -396,8 +360,8 @@ private lemma hasSum_int_inv_pow {k : ℕ} (hk : 2 ≤ k) (hk2 : Even k) :
   rw [two_mul_riemannZeta_eq_tsum_int_inv_pow_of_even hk hk2]
   exact ((summable_int_inv_pow 0 hk).congr fun m ↦ by rw [zero_add]).hasSum
 
-private lemma one_sub_inv_ne_zero {v : ℂ} (hv1 : v ≠ 1) : 1 - v⁻¹ ≠ 0 := fun h ↦
-  hv1 (inv_eq_one.mp (sub_eq_zero.mp h).symm)
+private lemma one_sub_inv_ne_zero {v : ℂ} (hv1 : v ≠ 1) : 1 - v⁻¹ ≠ 0 :=
+  fun h ↦ hv1 (inv_eq_one.mp (sub_eq_zero.mp h).symm)
 
 /-- The rational-function identity `v⁻¹/(1 - v⁻¹)² = v/(1 - v)²` (true for `v ≠ 0`,
 including `v = 1` where both sides are junk `0`). -/
@@ -417,8 +381,8 @@ private lemma norm_pow_div_one_sub_pow_le {v : ℂ} {a : ℝ} (hva : ‖v‖ ≤
     rw [norm_one] at h2
     linarith
   have h2 : (1 - a) ^ k ≤ ‖1 - v‖ ^ k := pow_le_pow_left₀ h0.le h1 k
-  have h3 : (0 : ℝ) < ‖1 - v‖ ^ k := lt_of_lt_of_le (pow_pos h0 k) h2
-  rw [norm_div, norm_pow, norm_pow, div_le_div_iff₀ h3 (pow_pos h0 k)]
+  rw [norm_div, norm_pow, norm_pow, div_le_div_iff₀
+    (lt_of_lt_of_le (pow_pos h0 k) h2) (pow_pos h0 k)]
   exact mul_le_mul_of_nonneg_left h2 (pow_nonneg (norm_nonneg v) j)
 
 /-- If `‖x‖ < 1` and `‖xy‖ < 1` then `∑_{n ≥ 1} (xⁿy)ʲ/(1 - xⁿy)ᵏ` converges for `j ≥ 1`
@@ -426,25 +390,16 @@ private lemma norm_pow_div_one_sub_pow_le {v : ℂ} {a : ℝ} (hva : ‖v‖ ≤
 private lemma summable_aux' {x y : ℂ} (hx : ‖x‖ < 1) (hxy : ‖x * y‖ < 1) {j k : ℕ}
     (hj : 1 ≤ j) :
     Summable fun n : ℕ ↦ (x ^ (n + 1) * y) ^ j / (1 - x ^ (n + 1) * y) ^ k := by
-  apply Summable.of_norm_bounded
-    ((summable_geometric_of_lt_one (norm_nonneg x) hx).mul_left (‖x * y‖ / (1 - ‖x * y‖) ^ k))
+  apply Summable.of_norm_bounded ((summable_geometric_of_lt_one (norm_nonneg x) hx).mul_left
+    (‖x * y‖ / (1 - ‖x * y‖) ^ k))
   intro n
-  have hveq : ‖x ^ (n + 1) * y‖ = ‖x‖ ^ n * ‖x * y‖ := by
-    rw [pow_succ, mul_assoc, norm_mul, norm_pow]
   have hva : ‖x ^ (n + 1) * y‖ ≤ ‖x * y‖ := by
-    rw [hveq]
-    calc ‖x‖ ^ n * ‖x * y‖ ≤ 1 * ‖x * y‖ :=
-          mul_le_mul_of_nonneg_right (pow_le_one₀ (norm_nonneg x) hx.le) (norm_nonneg _)
-      _ = ‖x * y‖ := one_mul _
-  have hvj : ‖x ^ (n + 1) * y‖ ^ j ≤ ‖x ^ (n + 1) * y‖ :=
-    pow_le_of_le_one (norm_nonneg _) (hva.trans hxy.le) (Nat.one_le_iff_ne_zero.mp hj)
-  have h1 : (0 : ℝ) < 1 - ‖x * y‖ := by linarith
-  calc ‖(x ^ (n + 1) * y) ^ j / (1 - x ^ (n + 1) * y) ^ k‖
-      ≤ ‖x ^ (n + 1) * y‖ ^ j / (1 - ‖x * y‖) ^ k := norm_pow_div_one_sub_pow_le hva hxy j k
-    _ ≤ ‖x ^ (n + 1) * y‖ / (1 - ‖x * y‖) ^ k := by
-        rw [div_le_div_iff₀ (pow_pos h1 k) (pow_pos h1 k)]
-        exact mul_le_mul_of_nonneg_right hvj (pow_pos h1 k).le
-    _ = ‖x * y‖ / (1 - ‖x * y‖) ^ k * ‖x‖ ^ n := by rw [hveq]; ring
+    rw [pow_succ, mul_assoc, norm_mul, norm_pow]
+    exact mul_le_of_le_one_left (norm_nonneg _) (pow_le_one₀ (norm_nonneg x) hx.le)
+  refine (norm_pow_div_one_sub_pow_le hva hxy j k).trans ?_
+  rw [div_mul_eq_mul_div, mul_comm (‖x * y‖), ← norm_pow x, ← norm_mul, ← mul_assoc, ← pow_succ]
+  gcongr
+  exact pow_le_of_le_one (norm_nonneg _) (hva.trans hxy.le) (Nat.one_le_iff_ne_zero.mp hj)
 
 /-- If `‖x‖ < 1` and `‖xy‖ < 1` then `∑_{n ≥ 1} xⁿy/(1 - xⁿy)²` converges (the terms
 decay geometrically). -/
@@ -464,9 +419,9 @@ private lemma sum_int_inv_sq' (w : ℂ) (hw : w.im ≠ 0) :
 /-- The Basel problem over `ℤ`: `∑_{m : ℤ} m⁻² = π²/3` (the `m = 0` term is junk `0`). -/
 private lemma hasSum_int_inv_sq :
     HasSum (fun m : ℤ ↦ ((m : ℂ) ^ 2)⁻¹) ((Real.pi : ℂ) ^ 2 / 3) := by
-  have h := hasSum_int_inv_pow le_rfl even_two
-  rwa [show (((2 : ℕ) : ℂ)) = (2 : ℂ) from by norm_num, riemannZeta_two,
-    show (2 : ℂ) * ((Real.pi : ℂ) ^ 2 / 6) = (Real.pi : ℂ) ^ 2 / 3 from by ring] at h
+  simpa [Nat.cast_ofNat, riemannZeta_two,
+    show (2 : ℂ) * ((Real.pi : ℂ) ^ 2 / 6) = (Real.pi : ℂ) ^ 2 / 3 by ring] using
+      hasSum_int_inv_pow le_rfl even_two
 
 /-- Dropping a vanishing `0`th term: `∑'_{n : ℕ+} g n = ∑'_{n : ℕ} g n` when `g 0 = 0`
 (true without summability hypotheses, since both sides are junk simultaneously). -/
@@ -485,12 +440,9 @@ private lemma tsum_pnat_coe_mul_geometric {x : ℂ} (hx : ‖x‖ < 1) :
     tsum_coe_mul_geometric_of_norm_lt_one hx]
 
 private lemma summable_corr_nat {q : ℂ} (hq1 : ‖q‖ < 1) :
-    Summable fun n : ℕ ↦ q ^ n / (1 - q ^ n) ^ 2 := by
-  apply (summable_nat_add_iff 1).mp
-  have h := summable_aux (x := q) (y := 1) hq1 (by simpa using hq1)
-  apply h.congr
-  intro n
-  rw [mul_one]
+    Summable fun n : ℕ ↦ q ^ n / (1 - q ^ n) ^ 2 :=
+  (summable_nat_add_iff 1).mp
+    ((summable_aux (x := q) (y := 1) hq1 (by simpa using hq1)).congr fun n ↦ by rw [mul_one])
 
 /-- The Lambert-to-divisor-sum rearrangement:
 `∑_{n ≥ 0} qⁿ/(1 - qⁿ)² = ∑_{N ≥ 1} σ₁(N)qᴺ` (the `n = 0` term is junk `0`). -/
@@ -512,10 +464,8 @@ private lemma tsum_V_nat {q : ℂ} (hq1 : ‖q‖ < 1) :
 
 private lemma summable_corr_int {q : ℂ} (hq0 : q ≠ 0) (hq1 : ‖q‖ < 1) :
     Summable fun n : ℤ ↦ q ^ n / (1 - q ^ n) ^ 2 := by
-  have hpos : Summable fun n : ℕ ↦ q ^ (n : ℤ) / (1 - q ^ (n : ℤ)) ^ 2 := by
-    apply (summable_corr_nat hq1).congr
-    intro n
-    rw [zpow_natCast]
+  have hpos : Summable fun n : ℕ ↦ q ^ (n : ℤ) / (1 - q ^ (n : ℤ)) ^ 2 :=
+    (summable_corr_nat hq1).congr fun n ↦ by rw [zpow_natCast]
   rw [summable_int_iff_summable_nat_and_neg]
   refine ⟨hpos, hpos.congr fun n ↦ ?_⟩
   rw [zpow_neg, inv_div_one_sub_inv_sq (zpow_ne_zero _ hq0)]
@@ -524,10 +474,8 @@ private lemma summable_corr_int {q : ℂ} (hq0 : q ≠ 0) (hq1 : ‖q‖ < 1) :
 (the `n = 0` term is junk `0`, and `n ↔ -n` are equal). -/
 private lemma tsum_corr_int {q : ℂ} (hq0 : q ≠ 0) (hq1 : ‖q‖ < 1) :
     ∑' n : ℤ, q ^ n / (1 - q ^ n) ^ 2 = 2 * sAn 1 q := by
-  have hpos : Summable fun n : ℕ ↦ q ^ (n : ℤ) / (1 - q ^ (n : ℤ)) ^ 2 := by
-    apply (summable_corr_nat hq1).congr
-    intro n
-    rw [zpow_natCast]
+  have hpos : Summable fun n : ℕ ↦ q ^ (n : ℤ) / (1 - q ^ (n : ℤ)) ^ 2 :=
+    (summable_corr_nat hq1).congr fun n ↦ by rw [zpow_natCast]
   have hterm : ∀ n : ℕ, q ^ (-((n : ℤ) + 1)) / (1 - q ^ (-((n : ℤ) + 1))) ^ 2
       = q ^ (n + 1) / (1 - q ^ (n + 1)) ^ 2 := by
     intro n
@@ -584,16 +532,10 @@ private lemma summable_V {u q : ℂ} (hq0 : q ≠ 0) (hqu : ‖q‖ < ‖u‖) (
 /-- For `0 < im z < im τ`, every row `z - nτ` avoids the real axis. -/
 private lemma im_sub_int_mul_ne_zero {τ z : ℂ} (hτ : 0 < τ.im) (hz : 0 < z.im)
     (hzτ : z.im < τ.im) (n : ℤ) : (z - n * τ).im ≠ 0 := by
-  have h1 : (z - n * τ).im = z.im - n * τ.im := by
-    simp [Complex.sub_im, Complex.mul_im]
-  rw [h1]
+  rw [show (z - n * τ).im = z.im - n * τ.im by simp [Complex.sub_im, Complex.mul_im]]
   rcases le_or_gt n 0 with h | h
-  · have h2 : (n : ℝ) ≤ 0 := by exact_mod_cast h
-    have h3 : 0 < z.im - n * τ.im := by nlinarith
-    exact h3.ne'
-  · have h2 : (1 : ℝ) ≤ (n : ℝ) := by exact_mod_cast h
-    have h3 : z.im - n * τ.im < 0 := by nlinarith
-    exact h3.ne
+  · exact (show 0 < z.im - n * τ.im by nlinarith [show (n : ℝ) ≤ 0 by exact_mod_cast h]).ne'
+  · exact (show z.im - n * τ.im < 0 by nlinarith [show (1 : ℝ) ≤ (n : ℝ) by exact_mod_cast h]).ne
 
 /-- The corrector rows of the `℘`-expansion:
 `∑_{m : ℤ} (nτ + m)⁻² = (2πi)² V(qⁿ) + [n = 0]π²/3` where `V(v) = v/(1-v)²`
@@ -656,16 +598,9 @@ theorem weierstrassP_q_expansion (τ : ℂ) (hτ : 0 < τ.im) (z : ℂ) (hz : 0 
       tsum_congr fun m ↦ by congr 1; ring, tsum_int_inv_pow_sub,
       sum_int_inv_sq' _ (im_sub_int_mul_ne_zero hτ hz hzτ n), e_sub_intCast_mul]
   -- Step 4: summability of the row values
-  have hV : Summable fun n : ℤ ↦
-      e τ ^ n * e z / (1 - e τ ^ n * e z) ^ 2 :=
-    summable_V (u := e z) (q := e τ) hq0 hqu hu1
-  have hVneg : Summable fun n : ℤ ↦
-      e τ ^ (-n) * e z / (1 - e τ ^ (-n) * e z) ^ 2 :=
-    summable_comp_neg
-      (f := fun n : ℤ ↦ e τ ^ n * e z / (1 - e τ ^ n * e z) ^ 2) hV
   have hT1 : Summable fun n : ℤ ↦
       (2 * (Real.pi : ℂ) * I) ^ 2 * (e τ ^ (-n) * e z / (1 - e τ ^ (-n) * e z) ^ 2) :=
-    hVneg.mul_left ((2 * (Real.pi : ℂ) * I) ^ 2)
+    (summable_comp_neg (summable_V hq0 hqu hu1)).mul_left ((2 * (Real.pi : ℂ) * I) ^ 2)
   have hT2 : Summable fun n : ℤ ↦
       (2 * (Real.pi : ℂ) * I) ^ 2 * (e τ ^ n / (1 - e τ ^ n) ^ 2) :=
     Summable.mul_left _ (summable_corr_int hq0 hq1)
@@ -677,7 +612,7 @@ theorem weierstrassP_q_expansion (τ : ℂ) (hτ : 0 < τ.im) (z : ℂ) (hz : 0 
     tsum_mul_left, tsum_mul_left, tsum_ite_eq,
     tsum_comp_neg fun n : ℤ ↦ e τ ^ n * e z / (1 - e τ ^ n * e z) ^ 2,
     tsum_corr_int hq0 hq1, XAn,
-    show (2 * (Real.pi : ℂ) * I) ^ 2 = -4 * (Real.pi : ℂ) ^ 2 from by
+    show (2 * (Real.pi : ℂ) * I) ^ 2 = -4 * (Real.pi : ℂ) ^ 2 by
       rw [mul_pow, mul_pow, Complex.I_sq]; ring]
   ring
 
@@ -762,7 +697,7 @@ theorem derivWeierstrassP_q_expansion (τ : ℂ) (hτ : 0 < τ.im) (z : ℂ) (hz
   -- Step 2: summability of rows (for Fubini)
   have hrowsumm : ∀ n : ℤ, Summable fun m : ℤ ↦ -2 / (z - (n * τ + m)) ^ 3 := fun n ↦
     ((summable_int_inv_pow_sub (z - n * τ) (k := 3) (by norm_num)).mul_left (-2)).congr fun m ↦ by
-      rw [div_eq_mul_inv, show z - (n * τ + m) = z - n * τ - m from by ring]
+      rw [div_eq_mul_inv, show z - (n * τ + m) = z - n * τ - m by ring]
   -- Step 3: evaluate each row
   have hrowval : ∀ n : ℤ,
       ∑' m : ℤ, -2 / (z - (n * τ + m)) ^ 3
@@ -770,10 +705,10 @@ theorem derivWeierstrassP_q_expansion (τ : ℂ) (hτ : 0 < τ.im) (z : ℂ) (hz
           (e τ ^ (-n) * e z * (1 + e τ ^ (-n) * e z) / (1 - e τ ^ (-n) * e z) ^ 3) := by
     intro n
     rw [show ∑' m : ℤ, -2 / (z - (n * τ + m)) ^ 3
-        = -2 * ∑' m : ℤ, (((z - n * τ) - m) ^ 3)⁻¹ from by
+        = -2 * ∑' m : ℤ, (((z - n * τ) - m) ^ 3)⁻¹ by
       rw [← tsum_mul_left]
       exact tsum_congr fun m ↦ by
-        rw [div_eq_mul_inv, show z - (n * τ + m) = z - n * τ - m from by ring],
+        rw [div_eq_mul_inv, show z - (n * τ + m) = z - n * τ - m by ring],
       tsum_int_inv_pow_sub, sum_int_inv_cube' _ (im_sub_int_mul_ne_zero hτ hz hzτ n),
       e_sub_intCast_mul]
     ring
@@ -794,15 +729,15 @@ private lemma sum_int_inv_fourth (w : ℂ) (hw : 0 < w.im) :
       = (2 * (Real.pi : ℂ) * I) ^ 4 / 6 * ∑' d : ℕ, (d : ℂ) ^ 3 * e w ^ d := by
   have h := sum_int_inv_pow_succ w hw (by norm_num) (k := 3)
   simp only [Nat.reduceAdd] at h
-  rw [h, show ((Nat.factorial 3 : ℕ) : ℂ) = 6 from by norm_num [Nat.factorial]]
+  rw [h, show ((Nat.factorial 3 : ℕ) : ℂ) = 6 by norm_num [Nat.factorial]]
   ring
 
 /-- The Basel-type sum over `ℤ` in weight `4`: `∑_{m : ℤ} m⁻⁴ = π⁴/45`. -/
 private lemma hasSum_int_inv_fourth :
     HasSum (fun m : ℤ ↦ ((m : ℂ) ^ 4)⁻¹) ((Real.pi : ℂ) ^ 4 / 45) := by
-  have h := hasSum_int_inv_pow (by norm_num) (k := 4) ⟨2, by norm_num⟩
-  rwa [show (((4 : ℕ) : ℂ)) = (4 : ℂ) from by norm_num, riemannZeta_four,
-    show (2 : ℂ) * ((Real.pi : ℂ) ^ 4 / 90) = (Real.pi : ℂ) ^ 4 / 45 from by ring] at h
+  simpa [Nat.cast_ofNat, riemannZeta_four,
+    show (2 : ℂ) * ((Real.pi : ℂ) ^ 4 / 90) = (Real.pi : ℂ) ^ 4 / 45 by ring] using
+      hasSum_int_inv_pow (by norm_num) (k := 4) ⟨2, by norm_num⟩
 
 /-- `∑ dᵏ` diverges; used to see that the Lambert series contributes junk `0` in the
 `n = 0` row. -/
@@ -821,8 +756,7 @@ private lemma not_summable_natCast_pow (k : ℕ) : ¬ Summable fun d : ℕ ↦ (
 since the series diverges. -/
 private lemma tsum_natCast_pow_mul_one (j : ℕ) :
     ∑' d : ℕ, (d : ℂ) ^ j * (1 : ℂ) ^ d = 0 := by
-  simp only [one_pow, mul_one]
-  exact tsum_eq_zero_of_not_summable (not_summable_natCast_pow j)
+  simpa using tsum_eq_zero_of_not_summable (not_summable_natCast_pow j)
 
 /-- The divisor-sum rearrangement `∑_{n ≥ 0} ∑_{d ≥ 0} dʲ q^{nd} = sⱼ(q)` for `‖q‖ < 1`
 and `j ≠ 0` (the row `n = 0` is junk `0`, and the terms `d = 0` vanish). -/
@@ -846,15 +780,15 @@ private lemma tsum_int_lambert_natAbs {q : ℂ} (hq1 : ‖q‖ < 1) {j : ℕ} (h
   obtain ⟨hpos, hneg'⟩ := summable_int_iff_summable_nat_and_neg.mp hL
   have hneg : Summable fun n : ℕ ↦ ∑' d : ℕ, (d : ℂ) ^ j * (q ^ (-((n : ℤ) + 1)).natAbs) ^ d :=
     ((summable_nat_add_iff 1).mpr hneg').congr fun n ↦ by
-      rw [show ((-((n + 1 : ℕ) : ℤ)).natAbs) = ((-((n : ℤ) + 1)).natAbs) from by omega]
+      rw [show ((-((n + 1 : ℕ) : ℤ)).natAbs) = ((-((n : ℤ) + 1)).natAbs) by omega]
   rw [tsum_of_nat_of_neg_add_one
       (f := fun n : ℤ ↦ ∑' d : ℕ, (d : ℂ) ^ j * (q ^ n.natAbs) ^ d) hpos hneg,
     show (fun n : ℕ ↦ ∑' d : ℕ, (d : ℂ) ^ j * (q ^ ((n : ℤ)).natAbs) ^ d)
       = fun n : ℕ ↦ ∑' d : ℕ, (d : ℂ) ^ j * (q ^ n) ^ d from funext fun n ↦ by
-        rw [show ((n : ℤ)).natAbs = n from by omega],
+        rw [show ((n : ℤ)).natAbs = n by omega],
     show (fun n : ℕ ↦ ∑' d : ℕ, (d : ℂ) ^ j * (q ^ (-((n : ℤ) + 1)).natAbs) ^ d)
       = fun n : ℕ ↦ ∑' d : ℕ, (d : ℂ) ^ j * (q ^ (n + 1)) ^ d from funext fun n ↦ by
-        rw [show (-((n : ℤ) + 1)).natAbs = n + 1 from by omega],
+        rw [show (-((n : ℤ) + 1)).natAbs = n + 1 by omega],
     ← tsum_pnat_eq_tsum_succ (f := fun n : ℕ ↦ ∑' d : ℕ, (d : ℂ) ^ j * (q ^ n) ^ d),
     tsum_pnat_of_zero (fun n : ℕ ↦ ∑' d : ℕ, (d : ℂ) ^ j * (q ^ n) ^ d)
       (by simpa using tsum_natCast_pow_mul_one j),
@@ -873,7 +807,7 @@ private lemma row_eval_ne_zero {τ : ℂ} (hτ : 0 < τ.im) {k j : ℕ} (hkeven 
   rcases hn.lt_or_gt with h | h
   · have h0 : (0 : ℝ) < (-((n : ℂ) * τ)).im := by
       rw [Complex.neg_im, him]
-      nlinarith [show (n : ℝ) < 0 from by exact_mod_cast h]
+      nlinarith [show (n : ℝ) < 0 by exact_mod_cast h]
     rw [tsum_int_inv_pow_neg _ hkeven, hrow _ h0, e_neg_intCast_mul_natAbs h.le]
   · have h0 : (0 : ℝ) < ((n : ℂ) * τ).im := by
       rw [him]
@@ -938,8 +872,8 @@ theorem g₂_q_expansion (τ : ℂ) (hτ : 0 < τ.im) :
   rw [PeriodPair.g₂, G_q_expansion τ hτ (by norm_num) (by norm_num) ⟨2, by norm_num⟩
       (div_ne_zero (pow_ne_zero 4 two_pi_I_ne_zero) (by norm_num : (6 : ℂ) ≠ 0))
       sum_int_inv_fourth hasSum_int_inv_fourth,
-    show (2 * (Real.pi : ℂ) * I) ^ 4 = 16 * (Real.pi : ℂ) ^ 4 from by
-      rw [show (2 * (Real.pi : ℂ) * I) ^ 4 = ((2 * (Real.pi : ℂ)) ^ 2 * I ^ 2) ^ 2 from by
+    show (2 * (Real.pi : ℂ) * I) ^ 4 = 16 * (Real.pi : ℂ) ^ 4 by
+      rw [show (2 * (Real.pi : ℂ) * I) ^ 4 = ((2 * (Real.pi : ℂ)) ^ 2 * I ^ 2) ^ 2 by
         ring, Complex.I_sq]
       ring]
   ring
@@ -952,14 +886,14 @@ private lemma sum_int_inv_sixth (w : ℂ) (hw : 0 < w.im) :
       = (2 * (Real.pi : ℂ) * I) ^ 6 / 120 * ∑' d : ℕ, (d : ℂ) ^ 5 * e w ^ d := by
   have h := sum_int_inv_pow_succ w hw (by norm_num) (k := 5)
   simp only [Nat.reduceAdd] at h
-  rw [h, show ((Nat.factorial 5 : ℕ) : ℂ) = 120 from by norm_num [Nat.factorial]]
+  rw [h, show ((Nat.factorial 5 : ℕ) : ℂ) = 120 by norm_num [Nat.factorial]]
   ring
 
 /-- The Basel-type sum over `ℤ` in weight `6`: `∑_{m : ℤ} m⁻⁶ = 2ζ(6) = 2π⁶/945`. -/
 private lemma hasSum_int_inv_sixth :
     HasSum (fun m : ℤ ↦ ((m : ℂ) ^ 6)⁻¹) (2 * ((Real.pi : ℂ) ^ 6 / 945)) := by
-  have h := hasSum_int_inv_pow (by norm_num) (k := 6) ⟨3, by norm_num⟩
-  rwa [show (((6 : ℕ) : ℂ)) = (6 : ℂ) from by norm_num, riemannZeta_six] at h
+  simpa [Nat.cast_ofNat, riemannZeta_six] using
+    hasSum_int_inv_pow (by norm_num) (k := 6) ⟨3, by norm_num⟩
 
 /-- The `q`-expansion of `g₃` (Silverman, *Advanced topics*, Theorem I.7.1):
 
@@ -973,8 +907,8 @@ theorem g₃_q_expansion (τ : ℂ) (hτ : 0 < τ.im) :
   rw [PeriodPair.g₃, G_q_expansion τ hτ (by norm_num) (by norm_num) ⟨3, by norm_num⟩
       (div_ne_zero (pow_ne_zero 6 two_pi_I_ne_zero) (by norm_num : (120 : ℂ) ≠ 0))
       sum_int_inv_sixth hasSum_int_inv_sixth,
-    show (2 * (Real.pi : ℂ) * I) ^ 6 = -64 * (Real.pi : ℂ) ^ 6 from by
-      rw [show (2 * (Real.pi : ℂ) * I) ^ 6 = ((2 * (Real.pi : ℂ)) ^ 2 * I ^ 2) ^ 3 from by
+    show (2 * (Real.pi : ℂ) * I) ^ 6 = -64 * (Real.pi : ℂ) ^ 6 by
+      rw [show (2 * (Real.pi : ℂ) * I) ^ 6 = ((2 * (Real.pi : ℂ)) ^ 2 * I ^ 2) ^ 3 by
         ring, Complex.I_sq]
       ring]
   ring
@@ -984,8 +918,7 @@ theorem g₃_q_expansion (τ : ℂ) (hτ : 0 < τ.im) :
 theorem log_div_two_pi_I_im (w : ℂ) :
     ((Complex.log w) / (2 * (Real.pi : ℂ) * I)).im =
       -Real.log ‖w‖ / (2 * Real.pi) := by
-  rw [Complex.div_im]
-  simp [Complex.log_re, Complex.mul_re, Complex.mul_im, Complex.normSq]
+  simp [Complex.div_im, Complex.log_re]
   field_simp [Real.pi_ne_zero]
 
 theorem e_log_div_two_pi_I {w : ℂ} (hw : w ≠ 0) :
@@ -1000,42 +933,33 @@ theorem notMem_lattice_of_im_between {τ z : ℂ}
     (hτ : 0 < τ.im) (hz0 : 0 < z.im) (hzt : z.im < τ.im) :
     z ∉ (periodPair τ hτ.ne').lattice := by
   intro hzmem
-  rcases PeriodPair.mem_lattice.mp hzmem with ⟨m, n, hmn⟩
+  obtain ⟨m, n, hmn⟩ := PeriodPair.mem_lattice.mp hzmem
   have him : z.im = (m : ℝ) * τ.im := by
     have h := congrArg Complex.im hmn
     simp [periodPair, Complex.mul_im, Complex.add_im] at h
     linarith
-  have hm_pos_real : 0 < (m : ℝ) := by
-    have : 0 < (m : ℝ) * τ.im := by simpa [him] using hz0
-    nlinarith
+  have hm_pos_real : 0 < (m : ℝ) := by nlinarith [show 0 < (m : ℝ) * τ.im by simpa [him] using hz0]
   have hm_lt_one_real : (m : ℝ) < 1 := by
-    have : (m : ℝ) * τ.im < 1 * τ.im := by simpa [one_mul, him] using hzt
-    nlinarith
-  have hm_pos_int : 0 < m := by exact_mod_cast hm_pos_real
-  have hm_lt_one_int : m < 1 := by exact_mod_cast hm_lt_one_real
+    nlinarith [show (m : ℝ) * τ.im < 1 * τ.im by simpa [one_mul, him] using hzt]
+  have : 0 < m := by exact_mod_cast hm_pos_real
+  have : m < 1 := by exact_mod_cast hm_lt_one_real
   omega
 
 private theorem analytic_weierstrass_algebra (x y s3 s5 c P D g2 g3 : ℂ) (hc : c ≠ 0)
-    (hP : P = c ^ 2 * (1 / 12 + x))
-    (hD : D = c ^ 3 * (x + 2 * y))
-    (hg2 : g2 = c ^ 4 / 12 * (1 + 240 * s3))
-    (hg3 : g3 = -c ^ 6 / 216 * (1 - 504 * s5))
+    (hP : P = c ^ 2 * (1 / 12 + x)) (hD : D = c ^ 3 * (x + 2 * y))
+    (hg2 : g2 = c ^ 4 / 12 * (1 + 240 * s3)) (hg3 : g3 = -c ^ 6 / 216 * (1 - 504 * s5))
     (hDE : D ^ 2 = 4 * P ^ 3 - g2 * P - g3) :
     y ^ 2 + x * y = x ^ 3 - 5 * s3 * x - (5 * s3 + 7 * s5) / 12 := by
   have hmain :
       c ^ 6 * ((x + 2 * y) ^ 2 -
         (4 * (1 / 12 + x) ^ 3 - (1 + 240 * s3) / 12 * (1 / 12 + x) +
           (1 - 504 * s5) / 216)) = 0 := by
-    have h := hDE
-    rw [hD, hP, hg2, hg3] at h
-    ring_nf at h ⊢
-    linear_combination h
-  have hc6 : c ^ 6 ≠ 0 := pow_ne_zero 6 hc
-  have hmain' :
-      (x + 2 * y) ^ 2 =
-        4 * (1 / 12 + x) ^ 3 - (1 + 240 * s3) / 12 * (1 / 12 + x) +
-          (1 - 504 * s5) / 216 := by
-    exact sub_eq_zero.mp (mul_eq_zero.mp hmain |>.resolve_left hc6)
+    rw [hD, hP, hg2, hg3] at hDE
+    ring_nf at hDE ⊢
+    linear_combination hDE
+  have hmain' : (x + 2 * y) ^ 2 =
+        4 * (1 / 12 + x) ^ 3 - (1 + 240 * s3) / 12 * (1 / 12 + x) + (1 - 504 * s5) / 216 := by
+    exact sub_eq_zero.mp (mul_eq_zero.mp hmain |>.resolve_left (pow_ne_zero 6 hc))
   linear_combination hmain' / 4
 
 private theorem analytic_weierstrass_of_exp {τ z u q : ℂ} (hτ : 0 < τ.im)
@@ -1088,20 +1012,18 @@ def evalAt (u : ℂ) (r : RatFunc ℚ) : ℂ := r.eval (algebraMap ℚ ℂ) u
 noncomputable def evalAtHom (u : ℂ) (hu : Transcendental ℚ u) : RatFunc ℚ →+* ℂ where
   toFun r := (RatFunc.algEquivOfTranscendental u hu r : ℂ)
   map_one' := by simp
-  map_mul' := by intro x y; simp
+  map_mul' x y := by simp
   map_zero' := by simp
-  map_add' := by intro x y; simp
+  map_add' x y := by simp
 
 theorem evalAtHom_apply (u : ℂ) (hu : Transcendental ℚ u) (r : RatFunc ℚ) :
     evalAtHom u hu r = evalAt u r := by
   change (RatFunc.algEquivOfTranscendental u hu r : ℂ) = evalAt u r
-  rw [RatFunc.algEquivOfTranscendental_apply]
-  simp [evalAt, RatFunc.eval, Polynomial.aeval_def]
+  simp [RatFunc.algEquivOfTranscendental_apply, evalAt, RatFunc.eval, Polynomial.aeval_def]
 
 theorem evalAtHom_ratFuncX (u : ℂ) (hu : Transcendental ℚ u) :
     evalAtHom u hu RatFunc.X = u := by
   rw [evalAtHom_apply]
-  unfold evalAt
   exact RatFunc.eval_X (K := ℚ) (f := algebraMap ℚ ℂ) (a := u)
 
 /-! ### Transfer of `HasSum` between `ℕ` and `ℕ+`, and decomposition of `ℤ`-sums -/
@@ -1117,51 +1039,36 @@ private lemma hasSum_nat_of_pnat_add {f : ℕ → ℂ} {a : ℂ}
     (h : HasSum (fun N : ℕ+ ↦ f (N : ℕ)) a) : HasSum f (a + f 0) := by
   have hinj : Function.Injective Nat.succPNat := fun a b hab ↦ by
     simpa using congrArg PNat.natPred hab
-  have hs1 : HasSum (fun n : ℕ ↦ f (n + 1)) a := by
-    have h2 := (hinj.hasSum_iff (f := fun N : ℕ+ ↦ f (N : ℕ))
-      (fun x hx ↦ absurd (Set.mem_range.mpr ⟨x.natPred, PNat.succPNat_natPred x⟩) hx)).mpr h
-    apply h2.congr_fun
-    intro n
-    simp [Nat.succPNat_coe, Nat.succ_eq_add_one]
-  have h3 := (hasSum_nat_add_iff (f := f) 1).mp hs1
-  simpa using h3
+  have hs1 : HasSum (fun n : ℕ ↦ f (n + 1)) a :=
+    ((hinj.hasSum_iff (f := fun N : ℕ+ ↦ f (N : ℕ))
+      (fun x hx ↦ absurd (Set.mem_range.mpr ⟨x.natPred, PNat.succPNat_natPred x⟩) hx)).mpr
+      h).congr_fun fun n ↦ by simp [Nat.succPNat_coe, Nat.succ_eq_add_one]
+  simpa using (hasSum_nat_add_iff (f := f) 1).mp hs1
 
 /-- Splitting a summable `ℤ`-indexed sum into the term at `0` and the two tails. -/
 private lemma tsum_int_decomp {f : ℤ → ℂ} (hf : Summable f) :
     ∑' n : ℤ, f n
       = f 0 + ∑' n : ℕ+, f ((n : ℕ) : ℤ) + ∑' n : ℕ+, f (-((n : ℕ) : ℤ)) := by
   have h1 : Summable fun n : ℕ ↦ f n := hf.comp_injective Nat.cast_injective
-  have h2 : Summable fun n : ℕ ↦ f (-((n : ℤ) + 1)) := by
-    have h3 := hf.comp_injective (fun a b hab ↦ (Int.negSucc.inj hab : a = b))
-    apply h3.congr
-    intro n
-    simp only [Function.comp_apply, Int.negSucc_eq]
-  rw [tsum_of_nat_of_neg_add_one h1 h2, ← tsum_zero_pnat_eq_tsum_nat h1,
-    show (∑' n : ℕ, f (-((n : ℤ) + 1))) = ∑' n : ℕ+, f (-((n : ℕ) : ℤ)) from by
-      rw [tsum_pnat_eq_tsum_succ (f := fun k : ℕ ↦ f (-(k : ℤ)))]
-      apply tsum_congr
-      intro n
-      congr 1]
+  have h2 : Summable fun n : ℕ ↦ f (-((n : ℤ) + 1)) :=
+    (hf.comp_injective (fun a b hab ↦ (Int.negSucc.inj hab : a = b))).congr fun n ↦ by
+      simp only [Function.comp_apply, Int.negSucc_eq]
+  have h3 : (∑' n : ℕ, f (-((n : ℤ) + 1))) = ∑' n : ℕ+, f (-((n : ℕ) : ℤ)) := by
+    rw [tsum_pnat_eq_tsum_succ (f := fun k : ℕ ↦ f (-(k : ℤ)))]
+    refine tsum_congr fun n ↦ by congr 1
+  rw [tsum_of_nat_of_neg_add_one h1 h2, ← tsum_zero_pnat_eq_tsum_nat h1, h3]
   norm_num
 
 /-! ### Lambert series over `ℕ+` -/
 
 private lemma hasSum_pnat_lambert₁ {v : ℂ} (hv : ‖v‖ < 1) :
     HasSum (fun m : ℕ+ ↦ ((m : ℕ) : ℂ) * v ^ (m : ℕ)) (v / (1 - v) ^ 2) :=
-  by
-  have hnat : HasSum (fun n : ℕ ↦ (n : ℂ) * v ^ n) (v / (1 - v) ^ 2) :=
-    hasSum_coe_mul_geometric_of_norm_lt_one hv
-  exact hasSum_pnat_of_nat
-    (f := fun n : ℕ ↦ (n : ℂ) * v ^ n) (a := v / (1 - v) ^ 2) hnat (by simp)
+  hasSum_pnat_of_nat (hasSum_coe_mul_geometric_of_norm_lt_one hv) (by simp)
 
 private lemma hasSum_pnat_lambert₂ {v : ℂ} (hv : ‖v‖ < 1) :
     HasSum (fun m : ℕ+ ↦ (((m : ℕ).choose 2 : ℕ) : ℂ) * v ^ (m : ℕ))
       (v ^ 2 / (1 - v) ^ 3) := by
-  rw [div_eq_mul_inv]
-  exact hasSum_pnat_of_nat
-    (f := fun n : ℕ ↦ ((n.choose 2 : ℕ) : ℂ) * v ^ n)
-    (a := v ^ 2 * ((1 - v) ^ 3)⁻¹)
-    (hasSum_choose_two_mul_geometric hv) (by simp)
+  simpa [div_eq_mul_inv] using hasSum_pnat_of_nat (hasSum_choose_two_mul_geometric hv) (by simp)
 
 private lemma hasSum_pnat_lambert₂' {v : ℂ} (hv : ‖v‖ < 1) :
     HasSum (fun m : ℕ+ ↦ ((((m : ℕ) + 1).choose 2 : ℕ) : ℂ) * v ^ (m : ℕ))
@@ -1178,41 +1085,31 @@ private lemma hasSum_pnat_lambert₂' {v : ℂ} (hv : ‖v‖ < 1) :
       field_simp
       ring
     have h3 := hasSum_pnat_of_nat h2 (by simp)
-    rwa [show v⁻¹ * (v ^ 2 * ((1 - v) ^ 3)⁻¹) = v / (1 - v) ^ 3 from by
+    rwa [show v⁻¹ * (v ^ 2 * ((1 - v) ^ 3)⁻¹) = v / (1 - v) ^ 3 by
       rw [pow_two, mul_assoc, inv_mul_cancel_left₀ hv0, ← div_eq_mul_inv]] at h3
 
 /-- If `‖q‖ < 1` and `‖q * y‖ < 1` then `‖qⁿy‖ < 1` for every `n ≥ 1`. -/
 private lemma norm_pow_mul_lt_one {q y : ℂ} (hq1 : ‖q‖ < 1) (hqy : ‖q * y‖ < 1) (n : ℕ+) :
     ‖q ^ (n : ℕ) * y‖ < 1 := by
-  obtain ⟨k, hk⟩ : ∃ k, (n : ℕ) = k + 1 := ⟨(n : ℕ) - 1, by have := n.pos; omega⟩
-  rw [hk, pow_succ, mul_assoc, norm_mul, norm_pow]
-  calc ‖q‖ ^ k * ‖q * y‖ ≤ 1 * ‖q * y‖ :=
-        mul_le_mul_of_nonneg_right (pow_le_one₀ (norm_nonneg q) hq1.le) (norm_nonneg _)
-    _ = ‖q * y‖ := one_mul _
-    _ < 1 := hqy
+  rw [← Nat.sub_add_cancel n.pos, pow_succ, mul_assoc, norm_mul, norm_pow]
+  exact (mul_le_of_le_one_left (norm_nonneg _) (pow_le_one₀ (norm_nonneg q) hq1.le)).trans_lt hqy
 
 /-! ### Summability, Fubini, and divisor collection for the double series -/
 
 private lemma cast_le_sq (m : ℕ+) : ‖((m : ℕ) : ℂ)‖ ≤ (((m : ℕ)) : ℝ) ^ 2 := by
   rw [Complex.norm_natCast]
-  have h1 : (1 : ℝ) ≤ ((m : ℕ) : ℝ) := Nat.one_le_cast.mpr m.pos
+  have : (1 : ℝ) ≤ ((m : ℕ) : ℝ) := Nat.one_le_cast.mpr m.pos
   nlinarith
 
 private lemma choose_two_le_sq (m : ℕ+) :
     ‖(((m : ℕ).choose 2 : ℕ) : ℂ)‖ ≤ (((m : ℕ)) : ℝ) ^ 2 := by
-  rw [Complex.norm_natCast]
   exact_mod_cast Nat.choose_le_pow (m : ℕ) 2
 
 private lemma choose_add_one_two_le_sq (m : ℕ+) :
     ‖((((m : ℕ) + 1).choose 2 : ℕ) : ℂ)‖ ≤ (((m : ℕ)) : ℝ) ^ 2 := by
-  rw [Complex.norm_natCast]
-  have hm : 1 ≤ (m : ℕ) := m.pos
   have h1 : ((m : ℕ) + 1).choose 2 ≤ (m : ℕ) ^ 2 := by
-    have h2 : ((m : ℕ) + 1).choose 2 = ((m : ℕ) + 1) * (m : ℕ) / 2 := by
-      rw [Nat.choose_two_right]
-      simp
-    rw [h2]
-    have h3 : ((m : ℕ) + 1) * (m : ℕ) ≤ 2 * (m : ℕ) ^ 2 := by nlinarith
+    simp only [Nat.choose_two_right, add_tsub_cancel_right]
+    have : ((m : ℕ) + 1) * (m : ℕ) ≤ 2 * (m : ℕ) ^ 2 := by nlinarith
     omega
   exact_mod_cast h1
 
@@ -1221,46 +1118,25 @@ coefficients of at most quadratic growth. -/
 private lemma summable_coeff_prod {a : ℕ → ℂ} {x y : ℂ}
     (ha : ∀ m : ℕ+, ‖a (m : ℕ)‖ ≤ (((m : ℕ)) : ℝ) ^ 2) (hx : ‖x‖ < 1) (hxy : ‖x * y‖ < 1) :
     Summable fun p : ℕ+ × ℕ+ ↦ a (p.2 : ℕ) * y ^ (p.2 : ℕ) * x ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by
-  have hρ1 : max ‖x‖ ‖x * y‖ < 1 := max_lt hx hxy
-  have hρ0 : (0 : ℝ) ≤ max ‖x‖ ‖x * y‖ := le_trans (norm_nonneg x) (le_max_left _ _)
-  have hcomp : Summable fun p : ℕ+ × ℕ+ ↦
-      (((p.2 : ℕ)) : ℝ) ^ 2 * (max ‖x‖ ‖x * y‖) ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by
-    have h := summable_prod_mul_pow (𝕜 := ℝ) 2 (r := max ‖x‖ ‖x * y‖)
-      (by rwa [Real.norm_of_nonneg hρ0])
-    exact h
-  apply Summable.of_norm_bounded hcomp
+  apply Summable.of_norm_bounded (summable_prod_mul_pow (𝕜 := ℝ) 2 (r := max ‖x‖ ‖x * y‖)
+    (by rw [Real.norm_of_nonneg (le_max_of_le_left (norm_nonneg x))]; exact max_lt hx hxy))
   intro p
-  have hkey : ‖y‖ ^ (p.2 : ℕ) * ‖x‖ ^ ((p.1 : ℕ) * (p.2 : ℕ))
-      ≤ (max ‖x‖ ‖x * y‖) ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by
-    rcases le_or_gt ‖y‖ 1 with hy | hy
-    · calc ‖y‖ ^ (p.2 : ℕ) * ‖x‖ ^ ((p.1 : ℕ) * (p.2 : ℕ))
-          ≤ 1 * ‖x‖ ^ ((p.1 : ℕ) * (p.2 : ℕ)) :=
-            mul_le_mul_of_nonneg_right (pow_le_one₀ (norm_nonneg y) hy) (by positivity)
-        _ = ‖x‖ ^ ((p.1 : ℕ) * (p.2 : ℕ)) := one_mul _
-        _ ≤ (max ‖x‖ ‖x * y‖) ^ ((p.1 : ℕ) * (p.2 : ℕ)) :=
-            pow_le_pow_left₀ (norm_nonneg x) (le_max_left _ _) _
-    · have hym : ‖y‖ ^ (p.2 : ℕ) ≤ ‖y‖ ^ ((p.1 : ℕ) * (p.2 : ℕ)) :=
-        pow_le_pow_right₀ hy.le (Nat.le_mul_of_pos_left _ p.1.pos)
-      calc ‖y‖ ^ (p.2 : ℕ) * ‖x‖ ^ ((p.1 : ℕ) * (p.2 : ℕ))
-          ≤ ‖y‖ ^ ((p.1 : ℕ) * (p.2 : ℕ)) * ‖x‖ ^ ((p.1 : ℕ) * (p.2 : ℕ)) :=
-            mul_le_mul_of_nonneg_right hym (by positivity)
-        _ = ‖x * y‖ ^ ((p.1 : ℕ) * (p.2 : ℕ)) := by
-            rw [← mul_pow, mul_comm ‖y‖ ‖x‖, ← norm_mul]
-        _ ≤ (max ‖x‖ ‖x * y‖) ^ ((p.1 : ℕ) * (p.2 : ℕ)) :=
-            pow_le_pow_left₀ (norm_nonneg _) (le_max_right _ _) _
-  calc ‖a (p.2 : ℕ) * y ^ (p.2 : ℕ) * x ^ ((p.1 : ℕ) * (p.2 : ℕ))‖
-      = ‖a (p.2 : ℕ)‖ * (‖y‖ ^ (p.2 : ℕ) * ‖x‖ ^ ((p.1 : ℕ) * (p.2 : ℕ))) := by
-        rw [norm_mul, norm_mul, norm_pow, norm_pow, mul_assoc]
-    _ ≤ (((p.2 : ℕ)) : ℝ) ^ 2 * (max ‖x‖ ‖x * y‖) ^ ((p.1 : ℕ) * (p.2 : ℕ)) :=
-        mul_le_mul (ha p.2) hkey (by positivity) (by positivity)
+  rw [norm_mul, norm_mul, norm_pow, norm_pow, mul_assoc]
+  refine mul_le_mul (ha p.2) ?_ (by positivity) (by positivity)
+  rcases le_or_gt ‖y‖ 1 with hy | hy
+  · exact (mul_le_of_le_one_left (by positivity) (pow_le_one₀ (norm_nonneg y) hy)).trans
+      (pow_le_pow_left₀ (norm_nonneg x) (le_max_left _ _) _)
+  · refine le_trans ?_ (pow_le_pow_left₀ (norm_nonneg _) (le_max_right _ _) _)
+    rw [norm_mul, mul_comm ‖x‖ ‖y‖, mul_pow]
+    exact mul_le_mul_of_nonneg_right
+      (pow_le_pow_right₀ hy.le (Nat.le_mul_of_pos_left _ p.1.pos)) (by positivity)
 
 /-- A summable double series over `ℕ+ × ℕ+` has sum the iterated sum of its rows. -/
 private lemma hasSum_prod_pnat {T : ℕ+ × ℕ+ → ℂ} {F : ℕ+ → ℂ}
     (hsum : Summable T) (hfib : ∀ n : ℕ+, HasSum (fun m : ℕ+ ↦ T (n, m)) (F n)) :
     HasSum T (∑' n : ℕ+, F n) := by
-  have h := hsum.hasSum
-  rwa [hsum.tsum_prod' (fun n ↦ (hfib n).summable),
-    tsum_congr fun n ↦ (hfib n).tsum_eq] at h
+  simpa [hsum.tsum_prod' (fun n ↦ (hfib n).summable), tsum_congr fun n ↦ (hfib n).tsum_eq]
+    using hsum.hasSum
 
 /-- Fubini for the Lambert-type double series with coefficients `a` of at most
 quadratic growth, whose rows sum in closed form to `g (qⁿy)`. -/
@@ -1270,17 +1146,14 @@ private lemma hasSum_prod_lambert {q y : ℂ} (a : ℕ → ℂ) (g : ℂ → ℂ
     HasSum (fun p : ℕ+ × ℕ+ ↦ a (p.2 : ℕ) * y ^ (p.2 : ℕ) * q ^ ((p.1 : ℕ) * (p.2 : ℕ)))
       (∑' n : ℕ+, g (q ^ (n : ℕ) * y)) :=
   hasSum_prod_pnat (summable_coeff_prod ha hq1 hqy) fun n ↦
-    (hg _ (norm_pow_mul_lt_one hq1 hqy n)).congr_fun fun m ↦ by
-      rw [mul_pow, ← pow_mul]
-      ring
+    (hg _ (norm_pow_mul_lt_one hq1 hqy n)).congr_fun fun m ↦ by rw [mul_pow, ← pow_mul]; ring
 
 /-- Collecting a double series `∑_{n,m} g(m)x^{nm}` by powers of `x`: the coefficient
 of `x^N` is the divisor sum `∑_{d ∣ N} g d`. -/
 private lemma hasSum_divisor_collect (g : ℕ → ℂ) {x : ℂ} {S : ℂ}
     (hT : HasSum (fun p : ℕ+ × ℕ+ ↦ g (p.2 : ℕ) * x ^ ((p.1 : ℕ) * (p.2 : ℕ))) S) :
     HasSum (fun N : ℕ+ ↦ (∑ d ∈ (N : ℕ).divisors, g d) * x ^ (N : ℕ)) S := by
-  have h1 := (sigmaAntidiagonalEquivProd.hasSum_iff).mpr hT
-  apply h1.sigma
+  apply ((sigmaAntidiagonalEquivProd.hasSum_iff).mpr hT).sigma
   intro N
   have h2 := hasSum_fintype (fun c : ((N : ℕ).divisorsAntidiagonal) ↦
     (g c.1.2 * x ^ (c.1.1 * c.1.2) : ℂ))
@@ -1294,8 +1167,7 @@ private lemma hasSum_divisor_collect (g : ℕ → ℂ) {x : ℂ} {S : ℂ}
         Finset.sum_congr rfl fun p hp ↦ by rw [(Nat.mem_divisorsAntidiagonal.mp hp).1],
       ← Finset.sum_mul, Nat.sum_divisorsAntidiagonal' (f := fun _ d ↦ (g d : ℂ))]
   rw [hval] at h2
-  apply h2.congr_fun
-  intro c
+  refine h2.congr_fun fun c ↦ ?_
   simp only [Function.comp_apply, sigmaAntidiagonalEquivProd, Equiv.coe_fn_mk,
     divisorsAntidiagonalFactors, PNat.mk_coe]
 
@@ -1306,16 +1178,11 @@ private lemma hasSum_prodC {q : ℂ} (hq1 : ‖q‖ < 1) :
       (sAn 1 q) := by
   have h := hasSum_prod_lambert (y := 1) _ (fun v ↦ v / (1 - v) ^ 2) cast_le_sq hq1
     (by simpa using hq1) fun v hv ↦ hasSum_pnat_lambert₁ hv
-  rwa [show (∑' n : ℕ+, q ^ (n : ℕ) * 1 / (1 - q ^ (n : ℕ) * 1) ^ 2) = sAn 1 q from by
+  rwa [show (∑' n : ℕ+, q ^ (n : ℕ) * 1 / (1 - q ^ (n : ℕ) * 1) ^ 2) = sAn 1 q by
     simp only [mul_one]
-    rw [tsum_pnat_of_zero (fun k : ℕ ↦ q ^ k / (1 - q ^ k) ^ 2) (by simp),
-      tsum_V_nat hq1]] at h
+    rw [tsum_pnat_of_zero (fun k : ℕ ↦ q ^ k / (1 - q ^ k) ^ 2) (by simp), tsum_V_nat hq1]] at h
 
 /-! ### The coefficients of `X` and `Y`, evaluated at a transcendental point -/
-
-private theorem coeff_X_zero :
-    (PowerSeries.coeff 0) X = RatFunc.X / (1 - RatFunc.X) ^ 2 := by
-  simp [X]
 
 private theorem coeff_X_of_ne {N : ℕ} (hN : N ≠ 0) :
     (PowerSeries.coeff N) X
@@ -1324,21 +1191,14 @@ private theorem coeff_X_of_ne {N : ℕ} (hN : N ≠ 0) :
 
 private theorem evalAt_coeff_X_zero {u : ℂ} (hu : Transcendental ℚ u) :
     evalAt u ((PowerSeries.coeff 0) X) = u / (1 - u) ^ 2 := by
-  rw [← evalAtHom_apply u hu, coeff_X_zero]
-  simp only [map_div₀, map_pow, map_sub, map_one, evalAtHom_ratFuncX u hu]
+  simp [← evalAtHom_apply u hu, X, evalAtHom_ratFuncX u hu]
 
 private theorem evalAt_coeff_X {u : ℂ} (hu : Transcendental ℚ u) {N : ℕ} (hN : N ≠ 0) :
     evalAt u ((PowerSeries.coeff N) X)
       = ∑ d ∈ N.divisors, (d : ℂ) * (u ^ d + u⁻¹ ^ d - 2) := by
   rw [← evalAtHom_apply u hu, coeff_X_of_ne hN, map_sum]
-  apply Finset.sum_congr rfl
-  intro d hd
-  simp only [map_mul, map_natCast, map_sub, map_add, map_pow, map_inv₀, map_ofNat,
-    evalAtHom_ratFuncX u hu]
-
-private theorem coeff_Y_zero :
-    (PowerSeries.coeff 0) Y = RatFunc.X ^ 2 / (1 - RatFunc.X) ^ 3 := by
-  simp [Y]
+  refine Finset.sum_congr rfl fun d _ ↦ ?_
+  simp [map_ofNat, evalAtHom_ratFuncX u hu]
 
 private theorem coeff_Y_of_ne {N : ℕ} (hN : N ≠ 0) :
     (PowerSeries.coeff N) Y
@@ -1348,18 +1208,15 @@ private theorem coeff_Y_of_ne {N : ℕ} (hN : N ≠ 0) :
 
 private theorem evalAt_coeff_Y_zero {u : ℂ} (hu : Transcendental ℚ u) :
     evalAt u ((PowerSeries.coeff 0) Y) = u ^ 2 / (1 - u) ^ 3 := by
-  rw [← evalAtHom_apply u hu, coeff_Y_zero]
-  simp only [map_div₀, map_pow, map_sub, map_one, evalAtHom_ratFuncX u hu]
+  simp [← evalAtHom_apply u hu, Y, evalAtHom_ratFuncX u hu]
 
 private theorem evalAt_coeff_Y {u : ℂ} (hu : Transcendental ℚ u) {N : ℕ} (hN : N ≠ 0) :
     evalAt u ((PowerSeries.coeff N) Y)
       = ∑ d ∈ N.divisors, (((d.choose 2 : ℕ) : ℂ) * u ^ d
           - (((d + 1).choose 2 : ℕ) : ℂ) * u⁻¹ ^ d + (d : ℂ)) := by
   rw [← evalAtHom_apply u hu, coeff_Y_of_ne hN, map_sum]
-  apply Finset.sum_congr rfl
-  intro d hd
-  simp only [map_add, map_sub, map_mul, map_natCast, map_pow, map_inv₀,
-    evalAtHom_ratFuncX u hu]
+  refine Finset.sum_congr rfl fun d _ ↦ ?_
+  simp [evalAtHom_ratFuncX u hu]
 
 /-- Rearrangement for `X` (extracted from Silverman's proof of *Advanced topics*,
 Theorem V.3.1(c)): for `0 < ‖q‖ < ‖u‖ < 1` with `u` transcendental (so that evaluation
@@ -1401,7 +1258,7 @@ theorem hasSum_X_eval {u q : ℂ} (hu : Transcendental ℚ u) (h0 : 0 < ‖q‖)
       (mul_ne_zero (pow_ne_zero _ hq0) (inv_ne_zero hu0))]
   convert hfull using 1
   rw [XAn, tsum_int_decomp (summable_V hq0 h1 h2),
-    show q ^ (0 : ℤ) * u / (1 - q ^ (0 : ℤ) * u) ^ 2 = u / (1 - u) ^ 2 from by
+    show q ^ (0 : ℤ) * u / (1 - q ^ (0 : ℤ) * u) ^ 2 = u / (1 - u) ^ 2 by
       rw [zpow_zero, one_mul],
     tsum_congr hposEq, tsum_congr hnegEq, evalAt_coeff_X_zero hu, pow_zero, mul_one]
   ring
@@ -1445,7 +1302,7 @@ theorem hasSum_Y_eval {u q : ℂ} (hu : Transcendental ℚ u) (h0 : 0 < ‖q‖)
       (mul_ne_zero (pow_ne_zero _ hq0) (inv_ne_zero hu0))]
   convert hfull using 1
   rw [YAn, tsum_int_decomp (summable_V₂ hq0 h1 h2),
-    show (q ^ (0 : ℤ) * u) ^ 2 / (1 - q ^ (0 : ℤ) * u) ^ 3 = u ^ 2 / (1 - u) ^ 3 from by
+    show (q ^ (0 : ℤ) * u) ^ 2 / (1 - q ^ (0 : ℤ) * u) ^ 3 = u ^ 2 / (1 - u) ^ 3 by
       rw [zpow_zero, one_mul],
     tsum_congr hposEq, tsum_congr hnegEq, tsum_neg, evalAt_coeff_Y_zero hu, pow_zero,
     mul_one]
@@ -1457,37 +1314,28 @@ private theorem evalAt_ratCast (u : ℂ) (r : ℚ) : evalAt u (r : RatFunc ℚ) 
 
 private theorem summable_sAn_terms (k : ℕ) {q : ℂ} (hq : ‖q‖ < 1) :
     Summable (fun n : ℕ ↦ (σ k n : ℂ) * q ^ n) := by
-  refine Summable.of_norm_bounded (summable_norm_pow_mul_geometric_of_norm_lt_one (k + 1) hq) ?_
-  intro n
-  calc
-    ‖(σ k n : ℂ) * q ^ n‖ = (σ k n : ℝ) * ‖q ^ n‖ := by simp
-    _ ≤ (n ^ (k + 1) : ℝ) * ‖q ^ n‖ := by
-      gcongr
-      exact_mod_cast ArithmeticFunction.sigma_le_pow_succ k n
-    _ = ‖(n : ℂ) ^ (k + 1) * q ^ n‖ := by simp
+  refine Summable.of_norm_bounded (summable_norm_pow_mul_geometric_of_norm_lt_one (k + 1) hq)
+    fun n ↦ ?_
+  simp only [norm_mul, norm_natCast, norm_pow]
+  gcongr
+  exact_mod_cast ArithmeticFunction.sigma_le_pow_succ k n
 
 private theorem ofNat_powerSeries_eq_C (m : ℕ) [m.AtLeastTwo] :
     (OfNat.ofNat m : (RatFunc ℚ)⟦X⟧) = PowerSeries.C (OfNat.ofNat m : RatFunc ℚ) := by
-  rw [PowerSeries.C_eq_algebraMap]
-  exact (map_ofNat (algebraMap (RatFunc ℚ) ((RatFunc ℚ)⟦X⟧)) m).symm
+  simpa only [PowerSeries.C_eq_algebraMap] using
+    (map_ofNat (algebraMap (RatFunc ℚ) ((RatFunc ℚ)⟦X⟧)) m).symm
 
-private theorem coeff_a₆ (n : ℕ) :
-    ((PowerSeries.coeff n) a₆) =
-      (-(5 * (σ 3 n : ℚ) + 7 * (σ 5 n : ℚ)) / 12 : RatFunc ℚ) := by
-  have h7 : (7 : (RatFunc ℚ)⟦X⟧) = PowerSeries.C (7 : RatFunc ℚ) :=
-    ofNat_powerSeries_eq_C 7
-  have h5 : (5 : (RatFunc ℚ)⟦X⟧) = PowerSeries.C (5 : RatFunc ℚ) :=
-    ofNat_powerSeries_eq_C 5
-  simp only [a₆, s, h7, h5, PowerSeries.coeff_smul, PowerSeries.coeff_mk,
-    PowerSeries.coeff_C_mul, map_neg, map_add]
+private theorem coeff_a₆ (n : ℕ) : ((PowerSeries.coeff n) a₆) =
+    (-(5 * (σ 3 n : ℚ) + 7 * (σ 5 n : ℚ)) / 12 : RatFunc ℚ) := by
+  simp only [a₆, s, ofNat_powerSeries_eq_C 7, ofNat_powerSeries_eq_C 5, PowerSeries.coeff_smul,
+    PowerSeries.coeff_mk, PowerSeries.coeff_C_mul, map_neg, map_add]
   norm_num
   ring_nf
 
 private theorem evalAt_coeff_a₆ (u : ℂ) (n : ℕ) :
     evalAt u ((PowerSeries.coeff n) a₆) =
       (-(5 * (σ 3 n : ℂ) + 7 * (σ 5 n : ℂ)) / 12) := by
-  rw [coeff_a₆]
-  simpa using evalAt_ratCast u (-(5 * (σ 3 n : ℚ) + 7 * (σ 5 n : ℚ)) / 12)
+  simpa [coeff_a₆] using evalAt_ratCast u (-(5 * (σ 3 n : ℚ) + 7 * (σ 5 n : ℚ)) / 12)
 
 private theorem coeff_a₄ (n : ℕ) :
     ((PowerSeries.coeff n) a₄) = (-5 * (σ 3 n : ℚ) : RatFunc ℚ) := by
@@ -1499,113 +1347,59 @@ private theorem coeff_a₄ (n : ℕ) :
 
 private theorem evalAt_coeff_a₄ (u : ℂ) (n : ℕ) :
     evalAt u ((PowerSeries.coeff n) a₄) = -5 * (σ 3 n : ℂ) := by
-  rw [coeff_a₄]
-  simpa using evalAt_ratCast u (-5 * (σ 3 n : ℚ))
+  simpa [coeff_a₄] using evalAt_ratCast u (-5 * (σ 3 n : ℚ))
 
 /-- The coefficients of the formal series `a₄` evaluated at any `u` sum to `-5s₃(q)`
 for `‖q‖ < 1`. (The coefficients are constants, so this is just the convergence of
 `∑ σ₃(n)qⁿ`.) -/
 theorem hasSum_a₄_eval (u : ℂ) {q : ℂ} (hq : ‖q‖ < 1) :
     HasSum (fun n : ℕ ↦ evalAt u ((PowerSeries.coeff n) a₄) * q ^ n) (-5 * sAn 3 q) :=
-  by
-    have h3 : HasSum (fun n : ℕ ↦ (σ 3 n : ℂ) * q ^ n) (sAn 3 q) :=
-      (summable_sAn_terms 3 hq).hasSum
-    have hlin : HasSum (fun n : ℕ ↦ -5 * ((σ 3 n : ℂ) * q ^ n)) (-5 * sAn 3 q) :=
-      h3.mul_left (-5)
-    refine HasSum.congr_fun hlin ?_
-    intro n
-    rw [evalAt_coeff_a₄]
-    ring_nf
+  ((summable_sAn_terms 3 hq).hasSum.mul_left (-5)).congr_fun fun n ↦ by
+  rw [evalAt_coeff_a₄]; ring
 
 /-- The coefficients of the formal series `a₆` evaluated at any `u` sum to
 `-(5s₃(q) + 7s₅(q))/12` for `‖q‖ < 1`. -/
 theorem hasSum_a₆_eval (u : ℂ) {q : ℂ} (hq : ‖q‖ < 1) :
     HasSum (fun n : ℕ ↦ evalAt u ((PowerSeries.coeff n) a₆) * q ^ n)
       (-(5 * sAn 3 q + 7 * sAn 5 q) / 12) :=
-  by
-    have h3 : HasSum (fun n : ℕ ↦ (σ 3 n : ℂ) * q ^ n) (sAn 3 q) :=
-      (summable_sAn_terms 3 hq).hasSum
-    have h5 : HasSum (fun n : ℕ ↦ (σ 5 n : ℂ) * q ^ n) (sAn 5 q) :=
-      (summable_sAn_terms 5 hq).hasSum
-    have hlin : HasSum
-        (fun n : ℕ ↦ (-(5 * ((σ 3 n : ℂ) * q ^ n) + 7 * ((σ 5 n : ℂ) * q ^ n))) / 12)
-        (-(5 * sAn 3 q + 7 * sAn 5 q) / 12) := by
-      have h3' : HasSum (fun n : ℕ ↦ 5 * ((σ 3 n : ℂ) * q ^ n)) (5 * sAn 3 q) :=
-        h3.mul_left 5
-      have h5' : HasSum (fun n : ℕ ↦ 7 * ((σ 5 n : ℂ) * q ^ n)) (7 * sAn 5 q) :=
-        h5.mul_left 7
-      simpa using ((h3'.add h5').neg.div_const (12 : ℂ))
-    refine HasSum.congr_fun hlin ?_
-    intro n
-    rw [evalAt_coeff_a₆]
-    ring
+  ((((summable_sAn_terms 3 hq).hasSum.mul_left 5).add
+    ((summable_sAn_terms 5 hq).hasSum.mul_left 7)).neg.div_const (12 : ℂ)).congr_fun fun n ↦ by
+    rw [evalAt_coeff_a₆]; ring
 
 /-! ## Descent to the formal power series ring -/
 
 theorem coeffs_eq_zero_of_hasSum_punctured (c : ℕ → ℂ) (r : ℝ) (hr : 0 < r)
     (h : ∀ q : ℂ, 0 < ‖q‖ → ‖q‖ < r → HasSum (fun n : ℕ ↦ c n * q ^ n) 0) :
     c = 0 := by
-  let f : ℂ → ℂ := fun z ↦ if z = 0 then c 0 else 0
-  let p : FormalMultilinearSeries ℂ ℂ ℂ := FormalMultilinearSeries.ofScalars ℂ c
-  have hp : HasFPowerSeriesAt f p 0 := by
+  rw [← FormalMultilinearSeries.ofScalars_series_eq_zero (E := ℂ)]
+  have hp : HasFPowerSeriesAt (fun z : ℂ ↦ if z = 0 then c 0 else 0)
+      (FormalMultilinearSeries.ofScalars ℂ c) 0 := by
     rw [hasFPowerSeriesAt_iff]
     filter_upwards [Metric.ball_mem_nhds (0 : ℂ) hr] with z hz
-    by_cases hz0 : z = 0
-    · simpa [f, p, hz0, FormalMultilinearSeries.coeff_ofScalars] using
-        (HasSum.hasSum_at_zero (𝕜 := ℂ) c)
-    · have hzpos : 0 < ‖z‖ := norm_pos_iff.mpr hz0
-      have hzlt : ‖z‖ < r := by
-        simpa [Metric.mem_ball, dist_eq_norm] using hz
-      simpa [f, p, hz0, FormalMultilinearSeries.coeff_ofScalars, mul_comm] using
-        h z hzpos hzlt
-  have han : AnalyticAt ℂ f 0 := ⟨p, hp⟩
-  haveI : Filter.NeBot (𝓝[≠] (0 : ℂ)) := PerfectSpace.not_isolated (0 : ℂ)
-  have hfreq : ∃ᶠ z in 𝓝[≠] (0 : ℂ), f z = 0 := by
-    exact (eventually_nhdsWithin_of_forall (s := ({0}ᶜ : Set ℂ)) (a := (0 : ℂ)) (by
-      intro z hz
-      have hz0 : z ≠ 0 := by simpa using hz
-      simp [f, hz0])).frequently
-  have hev : f =ᶠ[𝓝 (0 : ℂ)] 0 := by
-    simpa [Filter.EventuallyEq] using han.frequently_zero_iff_eventually_zero.mp hfreq
-  have hpzero : p = 0 := hp.eq_zero_of_eventually hev
-  have hc_zero : FormalMultilinearSeries.ofScalars ℂ c = 0 := by
-    simpa [p] using hpzero
-  exact (FormalMultilinearSeries.ofScalars_series_eq_zero (E := ℂ) (c := c)).mp hc_zero
+    rcases eq_or_ne z 0 with hz0 | hz0
+    · simpa [hz0, FormalMultilinearSeries.coeff_ofScalars] using
+        HasSum.hasSum_at_zero (𝕜 := ℂ) c
+    · simpa [hz0, FormalMultilinearSeries.coeff_ofScalars, mul_comm] using
+        h z (norm_pos_iff.mpr hz0) (by simpa [Metric.mem_ball, dist_eq_norm] using hz)
+  refine hp.eq_zero_of_eventually ?_
+  simpa [Filter.EventuallyEq] using
+    (AnalyticAt.frequently_zero_iff_eventually_zero ⟨_, hp⟩).mp
+      (eventually_mem_nhdsWithin.mono fun z hz ↦ if_neg (by simpa using hz)).frequently
 
 theorem ratFunc_eq_zero_of_evalAt_eq_zero_on_infinite (r : RatFunc ℚ) (S : Set ℂ)
-    (hS : S.Infinite) (h : ∀ u ∈ S, evalAt u r = 0) :
-    r = 0 := by
-  classical
-  let D : Set ℂ := {u | Polynomial.eval₂ (algebraMap ℚ ℂ) u (RatFunc.denom r) = 0}
-  have hDfin : D.Finite := by
-    have hden_map : (RatFunc.denom r).map (algebraMap ℚ ℂ) ≠ 0 := by
-      exact (Polynomial.map_ne_zero_iff (FaithfulSMul.algebraMap_injective ℚ ℂ)).mpr
-        (RatFunc.denom_ne_zero r)
-    simpa [D, Polynomial.IsRoot, Polynomial.eval_map] using
-      (Polynomial.finite_setOf_isRoot
-        (p := (RatFunc.denom r).map (algebraMap ℚ ℂ)) hden_map)
-  have hSdiff : (S \ D).Infinite := hS.sdiff hDfin
-  let N : Set ℂ := {u | Polynomial.eval₂ (algebraMap ℚ ℂ) u (RatFunc.num r) = 0}
-  have hSdiff_subset : S \ D ⊆ N := by
-    intro u hu
-    have huS : u ∈ S := hu.1
-    have huD : u ∉ D := hu.2
-    have hden : Polynomial.eval₂ (algebraMap ℚ ℂ) u (RatFunc.denom r) ≠ 0 := by
-      simpa [D] using huD
-    have heval : Polynomial.eval₂ (algebraMap ℚ ℂ) u (RatFunc.num r) /
-        Polynomial.eval₂ (algebraMap ℚ ℂ) u (RatFunc.denom r) = 0 := by
-      simpa [evalAt, RatFunc.eval] using h u huS
-    exact (div_eq_zero_iff.mp heval).resolve_right hden
-  have hNinf : N.Infinite := hSdiff.mono hSdiff_subset
-  have hroots_inf :
-      ({u : ℂ | Polynomial.IsRoot ((RatFunc.num r).map (algebraMap ℚ ℂ)) u}).Infinite := by
-    simpa [N, Polynomial.IsRoot, Polynomial.eval_map] using hNinf
-  have hnum_map_zero : (RatFunc.num r).map (algebraMap ℚ ℂ) = 0 :=
-    Polynomial.eq_zero_of_infinite_isRoot _ hroots_inf
-  have hnum_zero : RatFunc.num r = 0 := by
-    exact (Polynomial.map_eq_zero_iff (FaithfulSMul.algebraMap_injective ℚ ℂ)).mp
-      hnum_map_zero
-  exact RatFunc.num_eq_zero_iff.mp hnum_zero
+    (hS : S.Infinite) (h : ∀ u ∈ S, evalAt u r = 0) : r = 0 := by
+  rw [← RatFunc.num_eq_zero_iff,
+    ← Polynomial.map_eq_zero_iff (FaithfulSMul.algebraMap_injective ℚ ℂ)]
+  have hfin : {u : ℂ | ((RatFunc.denom r).map (algebraMap ℚ ℂ)).IsRoot u}.Finite :=
+    Polynomial.finite_setOf_isRoot ((Polynomial.map_ne_zero_iff
+      (FaithfulSMul.algebraMap_injective ℚ ℂ)).mpr r.denom_ne_zero)
+  refine Polynomial.eq_zero_of_infinite_isRoot _ ((hS.sdiff hfin).mono fun u hu ↦ ?_)
+  have heval : Polynomial.eval₂ (algebraMap ℚ ℂ) u r.num /
+    Polynomial.eval₂ (algebraMap ℚ ℂ) u r.denom = 0 := by
+    simpa [evalAt, RatFunc.eval] using h u hu.1
+  simpa [Polynomial.IsRoot, Polynomial.eval_map] using
+    (div_eq_zero_iff.mp heval).resolve_right
+      (by simpa [Polynomial.IsRoot, Polynomial.eval_map] using hu.2)
 
 /-- The descent lemma: a formal power series `F ∈ ℚ(u)⟦q⟧` vanishes provided that, for
 infinitely many `u₀ : ℂ`, the evaluated series `∑ₙ Fₙ(u₀)q₀ⁿ` converges with sum `0`
@@ -1620,43 +1414,33 @@ matter, as removing them leaves an infinite set), hence its numerator has infini
 many roots and `Fₙ = 0` (`Polynomial.eq_zero_of_infinite_isRoot`). -/
 theorem eq_zero_of_forall_hasSum_zero (F : (RatFunc ℚ)⟦X⟧) (S : Set ℂ) (hS : S.Infinite)
     (h : ∀ u ∈ S, ∃ r > 0, ∀ q : ℂ, 0 < ‖q‖ → ‖q‖ < r →
-      HasSum (fun n : ℕ ↦ evalAt u ((PowerSeries.coeff n) F) * q ^ n) 0) :
-    F = 0 :=
-  by
-    ext n
-    apply ratFunc_eq_zero_of_evalAt_eq_zero_on_infinite _ S hS
-    intro u hu
-    rcases h u hu with ⟨r, hr, hsum⟩
-    have hc := coeffs_eq_zero_of_hasSum_punctured
-      (fun n : ℕ ↦ evalAt u ((PowerSeries.coeff n) F)) r hr hsum
-    simpa using congrFun hc n
+      HasSum (fun n : ℕ ↦ evalAt u ((PowerSeries.coeff n) F) * q ^ n) 0) : F = 0 := by
+  ext n
+  refine ratFunc_eq_zero_of_evalAt_eq_zero_on_infinite _ S hS fun u hu ↦ ?_
+  obtain ⟨r, hr, hsum⟩ := h u hu
+  simpa using congrFun (coeffs_eq_zero_of_hasSum_punctured
+    (fun n : ℕ ↦ evalAt u ((PowerSeries.coeff n) F)) r hr hsum) n
 
 private theorem hasSum_evalAt_add {u q : ℂ} (hu : Transcendental ℚ u)
     {φ ψ : (RatFunc ℚ)⟦X⟧} {A B : ℂ}
     (hφ : HasSum (fun n : ℕ ↦ evalAt u ((PowerSeries.coeff n) φ) * q ^ n) A)
     (hψ : HasSum (fun n : ℕ ↦ evalAt u ((PowerSeries.coeff n) ψ) * q ^ n) B) :
     HasSum (fun n : ℕ ↦ evalAt u ((PowerSeries.coeff n) (φ + ψ)) * q ^ n) (A + B) := by
-  let E := evalAtHom u hu
-  have hφE : HasSum (fun n : ℕ ↦ E ((PowerSeries.coeff n) φ) * q ^ n) A := by
-    simpa [E, evalAtHom_apply] using hφ
-  have hψE : HasSum (fun n : ℕ ↦ E ((PowerSeries.coeff n) ψ) * q ^ n) B := by
-    simpa [E, evalAtHom_apply] using hψ
-  refine HasSum.congr_fun (hφE.add hψE) ?_
-  intro n
-  rw [← evalAtHom_apply u hu ((PowerSeries.coeff n) (φ + ψ))]
-  simp [E, map_add, add_mul]
+  have hφE : HasSum (fun n : ℕ ↦ evalAtHom u hu ((PowerSeries.coeff n) φ) * q ^ n) A := by
+    simpa [evalAtHom_apply] using hφ
+  have hψE : HasSum (fun n : ℕ ↦ evalAtHom u hu ((PowerSeries.coeff n) ψ) * q ^ n) B := by
+    simpa [evalAtHom_apply] using hψ
+  refine HasSum.congr_fun (hφE.add hψE) fun n ↦ ?_
+  simp_rw [← evalAtHom_apply u hu ((PowerSeries.coeff n) (φ + ψ)), map_add, add_mul]
 
 private theorem hasSum_evalAt_neg {u q : ℂ} (hu : Transcendental ℚ u)
     {φ : (RatFunc ℚ)⟦X⟧} {A : ℂ}
     (hφ : HasSum (fun n : ℕ ↦ evalAt u ((PowerSeries.coeff n) φ) * q ^ n) A) :
     HasSum (fun n : ℕ ↦ evalAt u ((PowerSeries.coeff n) (-φ)) * q ^ n) (-A) := by
-  let E := evalAtHom u hu
-  have hφE : HasSum (fun n : ℕ ↦ E ((PowerSeries.coeff n) φ) * q ^ n) A := by
-    simpa [E, evalAtHom_apply] using hφ
-  refine HasSum.congr_fun hφE.neg ?_
-  intro n
-  rw [← evalAtHom_apply u hu ((PowerSeries.coeff n) (-φ))]
-  simp [E]
+  have hφE : HasSum (fun n : ℕ ↦ evalAtHom u hu ((PowerSeries.coeff n) φ) * q ^ n) A := by
+    simpa [evalAtHom_apply] using hφ
+  refine HasSum.congr_fun hφE.neg fun n ↦ ?_
+  simp_rw [← evalAtHom_apply u hu ((PowerSeries.coeff n) (-φ)), map_neg, neg_mul]
 
 private theorem hasSum_evalAt_sub {u q : ℂ} (hu : Transcendental ℚ u)
     {φ ψ : (RatFunc ℚ)⟦X⟧} {A B : ℂ}
@@ -1694,8 +1478,7 @@ private theorem transcendental_punctured_unit_disk_infinite :
     · exact .inr (not_not.mp htr)
   -- ... so if the set were finite, `(0, 1)` would be countable
   have hIoo : (Set.Ioo (0 : ℝ) 1).Countable :=
-    Set.countable_of_injective_of_countable_image
-      (fun x _ y _ h ↦ Complex.ofReal_injective h)
+    Set.countable_of_injective_of_countable_image (fun x _ y _ h ↦ Complex.ofReal_injective h)
       ((hfin.countable.union (Algebraic.countable ℚ ℂ)).mono hsub)
   exact not_le_of_gt Cardinal.aleph0_lt_continuum
     (Cardinal.mk_Ioo_real one_pos ▸ Cardinal.le_aleph0_iff_set_countable.mpr hIoo)

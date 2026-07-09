@@ -75,6 +75,7 @@ public import FLT.KnownIn1980s.EllipticCurves.Flat
 public import FLT.KnownIn1980s.EllipticCurves.GoodReduction
 public import FLT.KnownIn1980s.EllipticCurves.MaybeMathlib
 public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists
+public import FLT.KnownIn1980s.EllipticCurves.ReductionBaseChange
 public import FLT.KnownIn1980s.EllipticCurves.TateCurve
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveAddition
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveAdditionDescent
@@ -92,6 +93,7 @@ public import FLT.KnownIn1980s.EllipticCurves.Torsion
 public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
 public import FLT.KnownIn1980s.PGL2.Defs
 public import FLT.KnownIn1980s.PGL2.Proofs
+public import FLT.KnownIn1980s.RepresentationTheory.OddAbsIrred
 public import FLT.Mathlib.Algebra.Algebra.Bilinear
 public import FLT.Mathlib.Algebra.Algebra.Hom
 public import FLT.Mathlib.Algebra.Algebra.Pi
@@ -103,6 +105,7 @@ public import FLT.Mathlib.Algebra.IsDirectLimit
 public import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 public import FLT.Mathlib.Algebra.Module.Submodule.Basic
 public import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
+public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
 public import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 public import FLT.Mathlib.Data.Fin.Basic
 public import FLT.Mathlib.Data.Real.Archimedean
@@ -219,6 +222,7 @@ public import FLT.Slop.DimensionTheorem.DimLeGrowth
 public import FLT.Slop.DimensionTheorem.GrowthLeDelta
 public import FLT.Slop.DimensionTheorem.Main
 public import FLT.Slop.DimensionTheorem.Numeric
+public import FLT.Slop.NumberTheory.TsumDivisorsAntidiagonal
 public import FLT.Slop.PGL2.FiniteSubgroups.CyclicPartition
 public import FLT.Slop.PGL2.FiniteSubgroups.DicksonClassification
 public import FLT.Slop.PGL2.FiniteSubgroups.FieldReconstruction
@@ -231,4 +235,6 @@ public import FLT.Slop.PGL2.FiniteSubgroups.PartitionProof
 public import FLT.Slop.PGL2.FiniteSubgroups.RecognitionA5
 public import FLT.Slop.PGL2.FiniteSubgroups.TameClassification
 public import FLT.Slop.PGL2.FiniteSubgroups.WildClassification
+public import FLT.Slop.RepresentationTheory.OddAbsIrredOrig
+public import FLT.Slop.RepresentationTheory.OddAbsIrredSlop
 public import FLT.TateCurve.TateCurve
