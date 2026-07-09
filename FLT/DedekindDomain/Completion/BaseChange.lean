@@ -15,11 +15,12 @@ public import FLT.Mathlib.Topology.Algebra.UniformRing
 public import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
 public import Mathlib.RingTheory.Valuation.Discrete.RankOne
 public import Mathlib.Topology.Algebra.Valued.NormedValued
-import FLT.Mathlib.RingTheory.TensorProduct.Basis
-import Mathlib.NumberTheory.RamificationInertia.Basic
-import Mathlib.RingTheory.PicardGroup
-import Mathlib.RingTheory.SimpleRing.Principal
-import Mathlib.Topology.Algebra.Module.FiniteDimension
+public import FLT.Mathlib.RingTheory.TensorProduct.Basis
+public import Mathlib.NumberTheory.RamificationInertia.Basic
+public import Mathlib.RingTheory.PicardGroup
+public import Mathlib.RingTheory.SimpleRing.Principal
+public import Mathlib.Topology.Algebra.Module.FiniteDimension
+public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 
 /-!
 
@@ -109,11 +110,6 @@ namespace IsDedekindDomain.HeightOneSpectrum
 
 variable (v : HeightOneSpectrum A) {A B}
 
--- Needed to make next proof compile after bump to mathlib#34045
-instance : IsTopologicalAddGroup (WithVal (valuation K v)) := inferInstance
-variable (w : HeightOneSpectrum B) in
-instance : ContinuousAdd (WithVal (valuation L w)) := inferInstance
-
 /--
 If we have an AKLB set-up, and `w` is a valuation on `L` extending `v` on `K`,
 then `σ v w` is the ring homomorphism from (K with valuation v) to (L with valuation w).
@@ -126,7 +122,6 @@ that `σ v w` is continuous.
 local notation "σ" => fun v w => algebraMap (WithVal (HeightOneSpectrum.valuation K v))
     (WithVal (HeightOneSpectrum.valuation L w))
 
-set_option backward.isDefEq.respectTransparency false in
 lemma adicValued.continuous_algebraMap
    (w : HeightOneSpectrum B) (hvw : w.under A = v) :
     Continuous (σ v w) := by
@@ -182,18 +177,25 @@ def _root_.WithVal.semialgebraMap {R S Γ₀ Γ₀' : Type*} [CommRing R]
   map_smul' r x := by
     simp [WithVal.algebraMap_left_apply, WithVal.algebraMap_right_apply, Algebra.smul_def]
 
-/-- If w of L divides v of K, `underSemialgHom v w pf` is the canonical map
-`Kᵥ → L_w` lying above `K → L`. Here we actually use the type synonyms `WithVal K` and `WithVal L`.
--/
+/-- If w of L divides v of K, `underSemialgHom v w pf` is the canonical map `Kᵥ → L_w` lying
+above `K → L`. Here we actually use the type synonyms `WithVal K` and `WithVal L`. -/
 noncomputable def adicCompletionSemialgHom :
     v.adicCompletion K →ₛₐ[algebraMap K L] w.1.adicCompletion L :=
-  .restrictScalars (WithVal.semialgebraMap (v.valuation K) (w.1.valuation L)) <|
-    UniformSpace.Completion.mapSemialgHom _ <| adicValued.continuous_algebraMap K L v w.1 w.2
+  ((adicCompletion.algEquiv L w.1).symm.toAlgHom.toSemialgHom).comp <|
+    (((WithVal.semialgebraMap (v.valuation K) (w.1.valuation L)).restrictScalars <|
+        UniformSpace.Completion.mapSemialgHom _ <|
+          adicValued.continuous_algebraMap K L v w.1 w.2).comp
+      (adicCompletion.algEquiv K v).toAlgHom.toSemialgHom)
 
 /-- The square with sides K → K_v → L_w and K → L → L_w commutes. -/
 lemma adicCompletionSemialgHom_coe (x : WithVal (v.valuation K)) :
     w.adicCompletionSemialgHom K L x = algebraMap K L x.ofVal :=
   (w.adicCompletionSemialgHom K L).commutes _
+
+/-- The map K_v → L_w is continuous. -/
+lemma adicCompletionSemialgHom_continuous : Continuous (w.adicCompletionSemialgHom K L) :=
+  (adicCompletion.continuous_ofCompletion L w.1).comp
+    (UniformSpace.Completion.continuous_map.comp (adicCompletion.continuous_toCompletion K v))
 
 open WithZeroTopology in
 /--
@@ -207,12 +209,17 @@ lemma valued_adicCompletionSemialgHom (x) :
   revert x
   apply funext_iff.mp
   symm
+  apply (adicCompletion.ofCompletion_surjective K v).injective_comp_right
   apply UniformSpace.Completion.ext
-  · exact (Valued.continuous_valuation_of_surjective (v.valuedAdicCompletion_surjective K)).pow _
-  · exact (Valued.continuous_valuation_of_surjective (w.1.valuedAdicCompletion_surjective L)).comp
-      UniformSpace.Completion.continuous_map
+  · exact ((Valued.continuous_valuation_of_surjective
+      (v.valuedAdicCompletion_surjective K)).pow _).comp
+      (adicCompletion.continuous_ofCompletion K v)
+  · exact ((Valued.continuous_valuation_of_surjective (w.1.valuedAdicCompletion_surjective L)).comp
+      (adicCompletionSemialgHom_continuous K L w)).comp
+      (adicCompletion.continuous_ofCompletion K v)
   intro a
-  simp only [adicCompletion, Valued.valuedCompletion_apply, w.2, adicCompletionSemialgHom_coe,
+  simp only [Function.comp_apply, adicCompletion.valued_ofCompletion,
+    Valued.valuedCompletion_apply, w.2, adicCompletionSemialgHom_coe,
     WithVal.equiv_symm_apply, WithVal.valued_toVal, ← valuation_comap A K L B w.1 _]
   rw [WithVal.valued_toVal]
 
@@ -230,10 +237,6 @@ lemma adicCompletionSemialgHom_image_adicCompletionIntegers :
 noncomputable
 instance : Algebra (v.adicCompletion K) (w.1.adicCompletion L) :=
   (w.adicCompletionSemialgHom K L).toAlgebra
-
-/-- The map K_v → L_w is continuous. -/
-lemma adicCompletionSemialgHom_continuous : Continuous (w.adicCompletionSemialgHom K L) :=
-  UniformSpace.Completion.continuous_extension
 
 /-- The K_v-action on L_w is continuous. -/
 instance : ContinuousSMul (adicCompletion K v) (adicCompletion L w.1) := by
@@ -288,11 +291,7 @@ noncomputable local instance :
     · apply ne_of_lt
       rwa [valuation_of_algebraMap, intValuation_lt_one_iff_mem]
 
--- attribute [local instance 9999] SMulCommClass.of_commMonoid TensorProduct.isScalarTower_left
---   IsScalarTower.right Algebra.toSMul Algebra.toModule
-
 set_option backward.isDefEq.respectTransparency false in
-attribute [local instance 9999] Algebra.toModule in
 open scoped TensorProduct.RightActions in
 /-- The canonical map `L ⊗[K] K_v → ∏_{w|v} L_w` is surjective. -/
 lemma baseChangeRight_surjective [FiniteDimensional K L] :
@@ -312,21 +311,16 @@ lemma baseChangeRight_surjective [FiniteDimensional K L] :
   use (l ⊗ₜ 1)
   simp
 
-attribute [local instance 9999] Algebra.toModule in
 open scoped TensorProduct.RightActions in
 /-- ∏_{w|v} L_w is a finite K_v-module. -/
 instance [FiniteDimensional K L] :
     Module.Finite (adicCompletion K v) (Π w : v.Extension B, w.1.adicCompletion L) :=
   .of_surjective (baseChangeRight K L B v).toLinearMap (baseChangeRight_surjective K L B v)
 
-attribute [local instance 9999] Algebra.toModule in
 /-- L_w is a finite K_v-module if w | v. -/
 instance [FiniteDimensional K L] (w : v.Extension B) :
     Module.Finite (adicCompletion K v) (adicCompletion L w.1) :=
   Module.Finite.of_pi (fun (w : Extension B v) => w.1.adicCompletion L) w
-
--- attribute [local instance 9999] SMulCommClass.of_commMonoid TensorProduct.isScalarTower_left
---   IsScalarTower.right Algebra.toSMul Algebra.toModule
 
 /-- L_w has the K_v-module topology. -/
 instance instIsModuleTopology [FiniteDimensional K L] (w : v.Extension B) :
@@ -364,10 +358,6 @@ section ModuleTopology
 
 open Extension adicCompletion
 
---attribute [local irreducible] WithVal.instRing -- speedup which I'm hoping to
--- get into mathlib: see https://github.com/leanprover-community/mathlib4/pull/39519
--- update: this didn't get merged but https://github.com/leanprover-community/mathlib4/pull/39562
--- got merged instead, so we'll see if that helps.
 variable (B)
 
 /-- The canonical B-algebra map `B ⊗[A] 𝓞_v → L ⊗[K] K_v` -/
@@ -593,7 +583,6 @@ instance : IsBiscalar B (v.adicCompletionIntegers K) (tensorAdicCompletionIntege
       TensorProduct.RightActions.algebraMap_eval, map_mul, map_one]
     rfl
 
-attribute [local instance 9999] Algebra.toModule Algebra.toSMul in
 instance {w : v.Extension B} : IsScalarTower (adicCompletionIntegers K v) (adicCompletion K v)
     (w.1.adicCompletion L) := Submonoid.instIsScalarTowerSubtypeMem (adicCompletionIntegers K v)
 
@@ -644,7 +633,6 @@ lemma tensorAdicCompletionIntegersToAdicCompletion_range_eq_integers [FiniteDime
 noncomputable local instance : MulAction (v.adicCompletionIntegers K) (v.adicCompletion K) :=
   LieAlgebra.ofAssociativeAlgebra.toMulAction
 
-attribute [local instance 9999] Algebra.toSMul Algebra.toModule in
 open scoped TensorProduct.RightActions in
 /-- `𝓞_w` is finite over `𝓞_v`. -/
 -- This can be proved for finite extensions of complete discretely valued fields without
@@ -740,10 +728,6 @@ theorem inertiaDeg_eq_inertiaDeg :
         rw [Ideal.inertiaDeg'_algebra_tower v.asIdeal (v.completionIdeal K) (w.1.completionIdeal L),
           inertiaDeg_asIdeal_completionIdeal, one_mul]
 
-/-- A shortcut instance for the action of `𝓞ᵥ` on `Kᵥ`. -/
-noncomputable local instance : MulAction (v.adicCompletionIntegers K) (v.adicCompletion K) :=
-  LieAlgebra.ofAssociativeAlgebra.toMulAction
-
 -- We use Ideal.sum_ramification_inertia_of_isLocalRing here to show this, but we could make use
 -- of the more general results in BGR:
 -- - in general e * f <= degree (Prop 3.1.3.2)
@@ -765,10 +749,6 @@ end RamificationInertia
 variable [FiniteDimensional K L] [Module.Finite A B] (B)
 variable (v : HeightOneSpectrum A) (w : v.Extension B)
 
---shortcut
-local instance : Module.Free (v.adicCompletion K) (adicCompletion L w.1) :=
-  Module.free_of_finite_type_torsion_free'
-
 open scoped TensorProduct.RightActions in
 /-- `L ⊗[K] K_v` and `∏_{w|v} L_w` have equal dimensions -/
 lemma finrank_tensorProduct_adicCompletion_eq_finrank_pi_adicCompletion :
@@ -785,7 +765,6 @@ lemma finrank_tensorProduct_adicCompletion_eq_finrank_pi_adicCompletion :
     _ = Module.finrank (adicCompletion K v) ((w : Extension B v) → adicCompletion L w.val) := by
         rw [Module.finrank_pi_fintype (adicCompletion K v)]
 
-attribute [local instance 9999] Algebra.toModule in
 open scoped TensorProduct.RightActions in
 /-- The canonical map `L ⊗[K] K_v → ∏_{w|v} L_w` is bijective. -/
 theorem baseChange_bijective : Function.Bijective (baseChange K L B v) := by
@@ -800,19 +779,7 @@ noncomputable def baseChangeAlgEquiv :
     L ⊗[K] v.adicCompletion K ≃ₐ[L] Π w : v.Extension B, w.1.adicCompletion L :=
   AlgEquiv.ofBijective (baseChange K L B v) <| baseChange_bijective K L B v
 
--- shortcut instance needed to make next shortcut instance work
-noncomputable instance : AddCommMonoid ((w : Extension B v) → adicCompletion L w.1) := inferInstance
-
--- shortcut instance needed to make next definition work
 set_option backward.isDefEq.respectTransparency false in
-open scoped TensorProduct.RightActions in
-attribute [local instance 9999] Algebra.toModule in
-instance : IsBiscalar L (adicCompletion K v) (baseChange K L B v) := inferInstance
-
-set_option maxHeartbeats 400000 in
--- the above is needed after mathlib#34045
-set_option backward.isDefEq.respectTransparency false
-attribute [local instance 9999] Algebra.toModule in
 open scoped TensorProduct.RightActions in
 /-- The continuous L-algebra isomorphism `L ⊗[K] K_v ≅ ∏_{w|v} L_w`. -/
 noncomputable def baseChangeContinuousAlgEquiv :
@@ -867,8 +834,6 @@ open Extension
 
 variable [FiniteDimensional K L] [Module.Finite A B]
 
-attribute [local instance 9999] SMulCommClass.of_commMonoid TensorProduct.isScalarTower_left
-  IsScalarTower.right in
 theorem integerBaseChangeLinearEquiv_bijOn (v : HeightOneSpectrum A) :
     Set.BijOn (integerBaseChangeLinearEquiv K L B v)
       (Set.range (adicCompletionIntegers.tensorCoe K B v))

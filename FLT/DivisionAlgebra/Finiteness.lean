@@ -422,12 +422,6 @@ variable [FiniteDimensional K D]
 instance (vi : InfinitePlace K) : SecondCountableTopology (D ⊗[K] vi.Completion) :=
   Module.Finite.secondCountabletopology vi.Completion _
 
--- shortcut
-instance (vi : InfinitePlace K) : Module K vi.Completion := inferInstance
-
-set_option synthInstance.maxHeartbeats 40000 in
--- https://github.com/ImperialCollegeLondon/FLT/issues/891
-set_option maxHeartbeats 400000 in
 variable
   [(vi : InfinitePlace K) → MeasurableSpace (D ⊗[K] vi.Completion)]
   [(vi : InfinitePlace K) → BorelSpace (D ⊗[K] vi.Completion)] in
