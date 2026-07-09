@@ -132,7 +132,6 @@ public import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
 public import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
 public import FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
 public import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
-public import FLT.Mathlib.NumberTheory.TsumDivisorsAntidiagonal
 public import FLT.Mathlib.Order.Filter.Cofinite
 public import FLT.Mathlib.RepresentationTheory.Basic
 public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
@@ -210,6 +209,7 @@ public import FLT.Slop.DimensionTheorem.DimLeGrowth
 public import FLT.Slop.DimensionTheorem.GrowthLeDelta
 public import FLT.Slop.DimensionTheorem.Main
 public import FLT.Slop.DimensionTheorem.Numeric
+public import FLT.Slop.NumberTheory.TsumDivisorsAntidiagonal
 public import FLT.Slop.PGL2.FiniteSubgroups.CyclicPartition
 public import FLT.Slop.PGL2.FiniteSubgroups.DicksonClassification
 public import FLT.Slop.PGL2.FiniteSubgroups.FieldReconstruction

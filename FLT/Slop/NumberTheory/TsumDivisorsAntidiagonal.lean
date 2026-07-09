@@ -11,8 +11,6 @@ public import Mathlib.Topology.Algebra.TopologicallyNilpotent
 /-!
 # The Lambert series rearrangement, hypothesis-driven
 
-Material destined for Mathlib.
-
 This file proves the general Lambert series rearrangement
 `∑_{m≥1} c(m)rᵐ/(1-rᵐ) = ∑_{N≥1} (∑_{d ∣ N} c(d))rᴺ` over a topological field, with the analytic
 inputs taken as *hypotheses* rather than derived from a norm. The rearrangement itself — regrouping
