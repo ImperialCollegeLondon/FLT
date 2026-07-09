@@ -12,8 +12,8 @@ public import FLT.Slop.RepresentationTheory.OddAbsIrredSlop
 /-!
 # The assumed statements S1–S4
 
-This file contains the four statements assumed (`sorry`ed) in the proof of the main theorem
-of `FLT.Slop.CyclotomicAbsIrred.Main`, exactly as specified in §2 of `abs_irred_v2.tex`:
+This file contains the four statements assumed (currently `sorry`ed) in the proof of the main
+theorem of `FLT.Slop.CyclotomicAbsIrred.Main`, exactly as specified in §2 of `abs_irred_v2.tex`:
 
 * **S1** (`flat_character_tame_bound`): *the local theorem*.  A flat continuous character
   `ψ` of the absolute Galois group of a ramified quadratic extension `K/ℚ_ℓ` (`ℓ ≥ 5`)
@@ -69,7 +69,7 @@ namespace CyclotomicAbsIrred
 
 variable (ℓ : ℕ) [Fact ℓ.Prime]
 
-/-- **S1, the local theorem — the permanent `sorry`.**
+/-- **S1, the local theorem (currently `sorry`).**
 
 Let `ℓ ≥ 5` be a prime and let `K/ℚ_ℓ` be a ramified quadratic extension: here encoded as an
 intermediate field of `ℚ̄_ℓ/ℚ_ℓ` whose fixing subgroup `G_K = Gal(ℚ̄_ℓ/K)` has index 2 in
