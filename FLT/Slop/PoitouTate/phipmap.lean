@@ -8,6 +8,14 @@ module
 public import Mathlib.RepresentationTheory.Homological.ContCohomology.Basic
 public import Mathlib.Tactic.Group
 
+/-!
+# Continuous `1`-cocycles
+
+Cochain-level description of degree-`1` continuous cohomology: the continuous `1`-cocycles
+`Z¹(G, X) ⊆ C(G, X)` (functions with `c (g * h) = c g + ρ(g) (c h)`), and the identification
+of the kernel of the degree-`1` differential of the homogeneous cochain complex with them.
+-/
+
 @[expose] public section
 
 open CategoryTheory ContinuousMap
@@ -50,3 +58,5 @@ def oneCocycles : Submodule R C(G, X.V) where
 omit [IsTopologicalGroup G] in
 @[simp] lemma mem_oneCocycles {c : C(G, X.V)} :
     c ∈ oneCocycles X ↔ ∀ g h : G, c (g * h) = c g + (X.ρ g).hom (c h) := Iff.rfl
+
+end ContinuousCohomology

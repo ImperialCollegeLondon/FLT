@@ -1,3 +1,22 @@
+/-
+Copyright (c) 2026 Y. Samanda Zhang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Y. Samanda Zhang
+-/
+module
+
+public import Mathlib
+
+/-!
+# Topological modules with a group action as `Action (TopModuleCat R) G`
+
+`TopModuleCat.actionOf` packages a topological `R`-module `M` equipped with an `R`-linear
+`G`-action that is continuous in the module variable as an object of
+`Action (TopModuleCat R) G`, with `g` acting by `m ↦ g • m`.
+-/
+
+@[expose] public section
+
 open CategoryTheory
 
 namespace TopModuleCat

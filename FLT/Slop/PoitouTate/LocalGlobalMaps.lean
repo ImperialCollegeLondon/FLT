@@ -7,6 +7,7 @@ module
 
 public import Mathlib
 public import FLT.Slop.PoitouTate.GKSDefn
+public import FLT.Slop.PoitouTate.ConjInvariance
 public import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
 
 /-!
@@ -30,9 +31,10 @@ along which the restriction maps `αᵢ : Hⁱ(G_S, M) → ∏_{v ∈ S} Hⁱ(G_
   blueprint is `(localToGlobal F S v).range`.
 * `NumberField.PoitouTate.continuousCohomology_map_conjAux` — the blueprint's remark that the
   choices "have no effect on the `Hⁱ`": conjugating the group homomorphism (and twisting the
-  coefficients accordingly) does not change the induced map on continuous cohomology.
-
-All `sorry`s are statements to be proved; no proofs are attempted in this file.
+  coefficients accordingly) does not change the induced map on continuous cohomology. The proof
+  reduces via `ContinuousCohomology.map_comp` to the core conjugation-invariance result
+  `continuousCohomology_map_conj_id` proved in `ConjInvariance.lean` by a chain-homotopy
+  argument; the latter needs `G` locally compact, which holds for the profinite `G_{F,S}`.
 -/
 
 @[expose] public section
@@ -56,9 +58,11 @@ noncomputable def toGKS : (Γ F) →ₜ* unramifiedOutsideGaloisGroup F S where
     (maximalUnramifiedOutside F S)
   continuous_toFun := InfiniteGalois.restrictNormalHom_continuous _
 
-/-- `G_{F,S}` is a quotient of the absolute Galois group: the restriction map is surjective. -/
+/-- `G_{F,S}` is a quotient of the absolute Galois group: the restriction map is surjective
+(every `F`-automorphism of the normal subextension `F_S` lifts to `F̄`, `AlgEquiv.liftNormal`). -/
 theorem toGKS_surjective : Function.Surjective ⇑(toGKS F S) :=
-  sorry
+  AlgEquiv.restrictNormalHom_surjective
+    (F := F) (E := AlgebraicClosure F) (K₁ := ↥(maximalUnramifiedOutside F S))
 
 /-- Blueprint §1.1: the local-to-global map `G_v = Gal(F̄_ṽ/F_v) → G_{F,S}` at a finite place
 `v`, the composite of `Γ Fᵥ →ₜ* Γ F` (which fixes an arbitrary embedding of algebraic closures,
@@ -75,33 +79,21 @@ variable {k : Type*} [Ring k] [TopologicalSpace k]
 variable {G H : Type v} [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
   [Group H] [TopologicalSpace H] [IsTopologicalGroup H]
 
-/-- Conjugation by `g` as a continuous monoid homomorphism. -/
-def conjCMHom (g : G) : G →ₜ* G where
-  __ := (MulAut.conj g).toMonoidHom
-  continuous_toFun := (continuous_const.mul continuous_id).mul continuous_const
-
-/-- The coefficient intertwiner for `continuousCohomology_map_conjAux`: `ρ g⁻¹` intertwines the
-restriction of `X` along `conj g ∘ φ` with its restriction along `φ`. -/
-def conjResHom (X : TopRep k G) (φ : H →ₜ* G) (g : G) :
-    TopRep.res (((conjCMHom g).comp φ : H →ₜ* G) : H →* G) X ⟶
-      TopRep.res (φ : H →* G) X :=
-  TopRep.ofHom
-    { toContinuousLinearMap := X.ρ g⁻¹
-      isIntertwining' := fun h => by
-        ext x
-        change (X.ρ g⁻¹ * X.ρ (g * φ h * g⁻¹)) x = (X.ρ (φ h) * X.ρ g⁻¹) x
-        rw [← map_mul, ← map_mul]
-        congr 2
-        group }
-
 /-- Blueprint §1.1, "the choices have no effect on the `Hⁱ`": the map induced on continuous
 cohomology by `conj g ∘ φ` (with coefficients twisted by `ρ g⁻¹`) agrees with the map induced
 by `φ`. In particular the maps `Hⁱ(G_{F,S}, M) → Hⁱ(G_v, M)` do not depend on the choice of
-`ṽ` above `v` (any two choices differ by conjugation). -/
-theorem continuousCohomology_map_conjAux (X : TopRep k G) (φ : H →ₜ* G) (g : G) (n : ℕ) :
+`ṽ` above `v` (any two choices differ by conjugation).
+
+The local compactness hypothesis on `G` comes from the chain-homotopy argument in
+`ConjInvariance.lean`; it is satisfied in the application, where `G = G_{F,S}` is profinite. -/
+theorem continuousCohomology_map_conjAux [LocallyCompactSpace G]
+    (X : TopRep k G) (φ : H →ₜ* G) (g : G) (n : ℕ) :
     ContinuousCohomology.map ((conjCMHom g).comp φ) (conjResHom X φ g) n =
-      ContinuousCohomology.map φ (𝟙 (TopRep.res (φ : H →* G) X)) n :=
-  sorry
+      ContinuousCohomology.map φ (𝟙 (TopRep.res (φ : H →* G) X)) n := by
+  have h := ContinuousCohomology.map_comp (X := X) (conjCMHom g) φ (conjResHomId X g)
+    (𝟙 (TopRep.res (φ : H →* G) X)) n
+  rw [continuousCohomology_map_conj_id, Category.id_comp] at h
+  exact h
 
 end ConjInvariance
 
