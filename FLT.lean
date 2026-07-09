@@ -211,6 +211,13 @@ public import FLT.Slop.DimensionTheorem.DimLeGrowth
 public import FLT.Slop.DimensionTheorem.GrowthLeDelta
 public import FLT.Slop.DimensionTheorem.Main
 public import FLT.Slop.DimensionTheorem.Numeric
+public import FLT.Slop.HenselianPair
+public import FLT.Slop.HenselianPair.Coprime
+public import FLT.Slop.HenselianPair.Defs
+public import FLT.Slop.HenselianPair.HenselianRing
+public import FLT.Slop.HenselianPair.Idempotents
+public import FLT.Slop.HenselianPair.Polynomial
+public import FLT.Slop.HenselianPair.Quotient
 public import FLT.Slop.NumberTheory.TsumDivisorsAntidiagonal
 public import FLT.Slop.PGL2.FiniteSubgroups.CyclicPartition
 public import FLT.Slop.PGL2.FiniteSubgroups.DicksonClassification
