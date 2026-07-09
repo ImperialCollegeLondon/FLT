@@ -183,12 +183,6 @@ theorem AdjoinRoot.root_notMem_range_algebraMap {F : Type*} [Field F] {q : F[X]}
   rw [← hc, minpoly.eq_X_sub_C, natDegree_X_sub_C] at h
   lia
 
-/-- The image of a principal ideal under a ring homomorphism is principal. -/
-theorem Ideal.IsPrincipal.map_ringHom {A B : Type*} [CommRing A] [CommRing B] (f : A →+* B)
-    {I : Ideal A} (hI : I.IsPrincipal) : (I.map f).IsPrincipal := by
-  obtain ⟨a, ha⟩ := hI.principal
-  exact ⟨⟨f a, by rw [ha, map_span, Set.image_singleton]⟩⟩
-
 /-- An integral algebra `S` over a local ring `R` such that `𝔪_R · S` is a maximal ideal is
 itself local, with maximal ideal `𝔪_R · S`: any maximal ideal of `S` contracts to `𝔪_R` by
 integrality, hence contains `𝔪_R · S`, hence equals it. -/
@@ -250,7 +244,8 @@ theorem AdjoinRoot.isDiscreteValuationRing_of_irreducible_map_residue
       (hmaxS ▸ IsLocalRing.isField_iff_maximalIdeal_eq.mp hf))
   have : IsDiscreteValuationRing (AdjoinRoot P) :=
     ((IsDiscreteValuationRing.TFAE (AdjoinRoot P) hSnotfield).out 4 0).mp
-      (hmaxS ▸ Ideal.IsPrincipal.map_ringHom _ (IsPrincipalIdealRing.principal (maximalIdeal R)))
+      (hmaxS ▸ Submodule.IsPrincipal.map_ringHom _
+        (IsPrincipalIdealRing.principal (maximalIdeal R)))
   exact ⟨hmS_max, inferInstance,
     ((local_hom_TFAE (algebraMap R (AdjoinRoot P))).out 2 0).mp (le_of_eq hmaxS.symm)⟩
 
