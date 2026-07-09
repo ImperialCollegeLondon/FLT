@@ -5,11 +5,11 @@ Authors: Kevin Buzzard, Claude
 -/
 module
 
-public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists
+public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.QuadraticTwists
 public import Mathlib.Algebra.QuadraticDiscriminant
 public import Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
 
-import FLT.KnownIn1980s.EllipticCurves.LiftSeparableExtension
+import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.LiftSeparableExtension
 import Mathlib.LinearAlgebra.Charpoly.ToMatrix
 import Mathlib.RingTheory.Flat.TorsionFree
 import Mathlib.RingTheory.LocalRing.Quotient
@@ -21,10 +21,10 @@ import Mathlib.RingTheory.Localization.NormTrace
 Let `R` be a discrete valuation ring with fraction field `K` (for example the ring of integers
 of a nonarchimedean local field), and let `E` be an elliptic curve over `K` with multiplicative
 reduction. This file proves that if the reduction is *nonsplit*, then the quadratic twist of `E`
-(`FLT.KnownIn1980s.EllipticCurves.QuadraticTwists`) by the unramified quadratic extension of `K`
-(`FLT.KnownIn1980s.EllipticCurves.LiftSeparableExtension`) has *split* multiplicative reduction:
-the reduction of the twist is the same nodal cubic with the Galois action on the two tangent
-directions at the node twisted into triviality.
+(`FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.QuadraticTwists`) by the unramified quadratic
+extension of `K` (`FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.LiftSeparableExtension`) has
+*split* multiplicative reduction: the reduction of the twist is the same nodal cubic with the
+Galois action on the two tangent directions at the node twisted into triviality.
 
 ## Main definitions and statements
 
