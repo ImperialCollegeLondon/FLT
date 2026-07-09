@@ -198,8 +198,8 @@ theorem summable_of_valuation_le_pow {ι : Type*} {q : k} (hq : valuation k q < 
     (hf : ∀ i, valuation k (f i) ≤ valuation k q ^ e i) : Summable f := by
   -- `Summable` only sees the topology, but the completeness criterion below is stated for
   -- uniform spaces: equip `k` with its canonical uniformity
-  letI : UniformSpace k := IsTopologicalAddGroup.rightUniformSpace k
-  haveI : IsUniformAddGroup k := isUniformAddGroup_of_addCommGroup
+  let : UniformSpace k := IsTopologicalAddGroup.rightUniformSpace k
+  have : IsUniformAddGroup k := isUniformAddGroup_of_addCommGroup
   apply NonarchimedeanAddGroup.summable_of_tendsto_cofinite_zero
   rw [(IsValuativeTopology.hasBasis_nhds (0 : k)).tendsto_right_iff]
   intro γ _

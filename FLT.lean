@@ -83,6 +83,7 @@ public import FLT.KnownIn1980s.EllipticCurves.Torsion
 public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
 public import FLT.KnownIn1980s.PGL2.Defs
 public import FLT.KnownIn1980s.PGL2.Proofs
+public import FLT.KnownIn1980s.RepresentationTheory.OddAbsIrred
 public import FLT.Mathlib.Algebra.Algebra.Bilinear
 public import FLT.Mathlib.Algebra.Algebra.Hom
 public import FLT.Mathlib.Algebra.Algebra.Pi
@@ -133,7 +134,6 @@ public import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Basic
 public import FLT.Mathlib.NumberTheory.NumberField.InfinitePlace.Completion
 public import FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
 public import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
-public import FLT.Mathlib.NumberTheory.TsumDivisorsAntidiagonal
 public import FLT.Mathlib.Order.Filter.Cofinite
 public import FLT.Mathlib.RepresentationTheory.Basic
 public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
@@ -211,6 +211,7 @@ public import FLT.Slop.DimensionTheorem.DimLeGrowth
 public import FLT.Slop.DimensionTheorem.GrowthLeDelta
 public import FLT.Slop.DimensionTheorem.Main
 public import FLT.Slop.DimensionTheorem.Numeric
+public import FLT.Slop.NumberTheory.TsumDivisorsAntidiagonal
 public import FLT.Slop.PGL2.FiniteSubgroups.CyclicPartition
 public import FLT.Slop.PGL2.FiniteSubgroups.DicksonClassification
 public import FLT.Slop.PGL2.FiniteSubgroups.FieldReconstruction
@@ -223,4 +224,6 @@ public import FLT.Slop.PGL2.FiniteSubgroups.PartitionProof
 public import FLT.Slop.PGL2.FiniteSubgroups.RecognitionA5
 public import FLT.Slop.PGL2.FiniteSubgroups.TameClassification
 public import FLT.Slop.PGL2.FiniteSubgroups.WildClassification
+public import FLT.Slop.RepresentationTheory.OddAbsIrredOrig
+public import FLT.Slop.RepresentationTheory.OddAbsIrredSlop
 public import FLT.TateCurve.TateCurve
