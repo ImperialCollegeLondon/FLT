@@ -10,6 +10,7 @@ public import Mathlib.NumberTheory.ArithmeticFunction.Misc
 public import Mathlib.RingTheory.PowerSeries.Basic
 public import Mathlib.Analysis.SpecialFunctions.Elliptic.Weierstrass
 public import Mathlib.NumberTheory.LSeries.RiemannZeta
+public import FLT.KnownIn1980s.EllipticCurves.MaybeMathlib
 
 import Mathlib.Algebra.AlgebraicCard
 import Mathlib.Analysis.Complex.UpperHalfPlane.Exp
@@ -943,22 +944,6 @@ theorem g₂_q_expansion (τ : ℂ) (hτ : 0 < τ.im) :
       ring]
   ring
 
-private theorem bernoulli'_five : bernoulli' 5 = 0 := by
-  rw [bernoulli'_def]; norm_num [Finset.sum_range_succ, Finset.sum_range_zero, Nat.choose]
-
-private theorem bernoulli'_six : bernoulli' 6 = 1 / 42 := by
-  rw [bernoulli'_def]
-  norm_num [Finset.sum_range_succ, Finset.sum_range_zero, Nat.choose, bernoulli'_five]
-
-open Real in
-/-- The value `ζ(6) = π⁶/945` (companion to Mathlib's `riemannZeta_four`). -/
-theorem riemannZeta_six : riemannZeta 6 = (π : ℂ) ^ 6 / 945 := by
-  have h := riemannZeta_two_mul_nat (k := 3) (by norm_num)
-  rw [show (2 * ((3 : ℕ) : ℂ)) = 6 by norm_num] at h
-  rw [h, bernoulli_eq_bernoulli'_of_ne_one (by norm_num), bernoulli'_six]
-  norm_num [Nat.factorial]
-  ring
-
 /-- Row sum, exponent `6`: for `w` in the upper half plane,
 `∑_{m : ℤ} (w + m)⁻⁶ = (2πi)⁶/120 ⬝ ∑_{d ≥ 1} d⁵e(w)ᵈ`.
 This is the case `k = 5` of `sum_int_inv_pow_succ`. -/
@@ -996,14 +981,14 @@ theorem g₃_q_expansion (τ : ℂ) (hτ : 0 < τ.im) :
 
 /-! ## The analytic Weierstrass equation -/
 
-private theorem log_div_two_pi_I_im (w : ℂ) :
+theorem log_div_two_pi_I_im (w : ℂ) :
     ((Complex.log w) / (2 * (Real.pi : ℂ) * I)).im =
       -Real.log ‖w‖ / (2 * Real.pi) := by
   rw [Complex.div_im]
   simp [Complex.log_re, Complex.mul_re, Complex.mul_im, Complex.normSq]
   field_simp [Real.pi_ne_zero]
 
-private theorem e_log_div_two_pi_I {w : ℂ} (hw : w ≠ 0) :
+theorem e_log_div_two_pi_I {w : ℂ} (hw : w ≠ 0) :
     e (Complex.log w / (2 * (Real.pi : ℂ) * I)) = w := by
   rw [e]
   have hmul : 2 * (Real.pi : ℂ) * I * (Complex.log w / (2 * (Real.pi : ℂ) * I)) =
@@ -1011,7 +996,7 @@ private theorem e_log_div_two_pi_I {w : ℂ} (hw : w ≠ 0) :
     field_simp [two_pi_I_ne_zero]
   rw [hmul, Complex.exp_log hw]
 
-private theorem notMem_lattice_of_im_between {τ z : ℂ}
+theorem notMem_lattice_of_im_between {τ z : ℂ}
     (hτ : 0 < τ.im) (hz0 : 0 < z.im) (hzt : z.im < τ.im) :
     z ∉ (periodPair τ hτ.ne').lattice := by
   intro hzmem
@@ -1100,20 +1085,20 @@ def evalAt (u : ℂ) (r : RatFunc ℚ) : ℂ := r.eval (algebraMap ℚ ℂ) u
 
 /-- For transcendental `u`, evaluation at `u` is a ring homomorphism
 `ℚ(u) →+* ℂ` (there are no poles to produce junk values). -/
-private noncomputable def evalAtHom (u : ℂ) (hu : Transcendental ℚ u) : RatFunc ℚ →+* ℂ where
+noncomputable def evalAtHom (u : ℂ) (hu : Transcendental ℚ u) : RatFunc ℚ →+* ℂ where
   toFun r := (RatFunc.algEquivOfTranscendental u hu r : ℂ)
   map_one' := by simp
   map_mul' := by intro x y; simp
   map_zero' := by simp
   map_add' := by intro x y; simp
 
-private theorem evalAtHom_apply (u : ℂ) (hu : Transcendental ℚ u) (r : RatFunc ℚ) :
+theorem evalAtHom_apply (u : ℂ) (hu : Transcendental ℚ u) (r : RatFunc ℚ) :
     evalAtHom u hu r = evalAt u r := by
   change (RatFunc.algEquivOfTranscendental u hu r : ℂ) = evalAt u r
   rw [RatFunc.algEquivOfTranscendental_apply]
   simp [evalAt, RatFunc.eval, Polynomial.aeval_def]
 
-private theorem evalAtHom_ratFuncX (u : ℂ) (hu : Transcendental ℚ u) :
+theorem evalAtHom_ratFuncX (u : ℂ) (hu : Transcendental ℚ u) :
     evalAtHom u hu RatFunc.X = u := by
   rw [evalAtHom_apply]
   unfold evalAt
@@ -1557,7 +1542,7 @@ theorem hasSum_a₆_eval (u : ℂ) {q : ℂ} (hq : ‖q‖ < 1) :
 
 /-! ## Descent to the formal power series ring -/
 
-private theorem coeffs_eq_zero_of_hasSum_punctured (c : ℕ → ℂ) (r : ℝ) (hr : 0 < r)
+theorem coeffs_eq_zero_of_hasSum_punctured (c : ℕ → ℂ) (r : ℝ) (hr : 0 < r)
     (h : ∀ q : ℂ, 0 < ‖q‖ → ‖q‖ < r → HasSum (fun n : ℕ ↦ c n * q ^ n) 0) :
     c = 0 := by
   let f : ℂ → ℂ := fun z ↦ if z = 0 then c 0 else 0
@@ -1587,7 +1572,7 @@ private theorem coeffs_eq_zero_of_hasSum_punctured (c : ℕ → ℂ) (r : ℝ) (
     simpa [p] using hpzero
   exact (FormalMultilinearSeries.ofScalars_series_eq_zero (E := ℂ) (c := c)).mp hc_zero
 
-private theorem ratFunc_eq_zero_of_evalAt_eq_zero_on_infinite (r : RatFunc ℚ) (S : Set ℂ)
+theorem ratFunc_eq_zero_of_evalAt_eq_zero_on_infinite (r : RatFunc ℚ) (S : Set ℂ)
     (hS : S.Infinite) (h : ∀ u ∈ S, evalAt u r = 0) :
     r = 0 := by
   classical
