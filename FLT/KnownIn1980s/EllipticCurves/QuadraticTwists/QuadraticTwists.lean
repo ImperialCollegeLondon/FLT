@@ -444,8 +444,8 @@ theorem b₆_quadraticTwistOf : (E.quadraticTwistOf t n).b₆ = (t ^ 2 - 4 * n) 
 theorem quadraticTwistOf_map {B : Type*} [CommRing B] (f : A →+* B) :
     (E.quadraticTwistOf t n).map f = (E.map f).quadraticTwistOf (f t) (f n) := by
   ext <;>
-    simp only [quadraticTwistOf, WeierstrassCurve.map_a₁, WeierstrassCurve.map_a₂,
-      WeierstrassCurve.map_a₃, WeierstrassCurve.map_a₄, WeierstrassCurve.map_a₆, map_mul, map_sub,
+    simp only [quadraticTwistOf, map_a₁, map_a₂,
+      map_a₃, map_a₄, map_a₆, map_mul, map_sub,
       map_pow, map_ofNat]
 
 /-- The discriminant of the node's tangent polynomial `c₄ T² + a₁ c₄ T - (54 b₆ - 3 b₂ b₄ + a₂ c₄)`
@@ -602,7 +602,7 @@ lemma baseChange_smul_baseChange (C : VariableChange K) (V : WeierstrassCurve K)
 `C • V = W` over `K`. -/
 lemma smul_eq_of_baseChange_smul_eq (C : VariableChange K) {V W : WeierstrassCurve K}
     (h : (C.baseChange L) • V.baseChange L = W.baseChange L) : C • V = W := by
-  apply WeierstrassCurve.map_injective (FaithfulSMul.algebraMap_injective K L)
+  apply map_injective (FaithfulSMul.algebraMap_injective K L)
   exact (baseChange_smul_baseChange L C V).symm.trans h
 
 /-- The Galois conjugate of an `L`-isomorphism between base-changed curves is again one. -/
@@ -610,9 +610,9 @@ lemma map_smul_baseChange_eq (σ : L ≃ₐ[K] L) {V W : WeierstrassCurve K} {ρ
     (hρ : ρ • V.baseChange L = W.baseChange L) :
     (ρ.map σ.toAlgHom.toRingHom) • V.baseChange L = W.baseChange L := by
   have hVinv : (V.baseChange L).map σ.toAlgHom.toRingHom = V.baseChange L :=
-    WeierstrassCurve.map_baseChange (W := V) σ.toAlgHom
+    map_baseChange (W := V) σ.toAlgHom
   have hWinv : (W.baseChange L).map σ.toAlgHom.toRingHom = W.baseChange L :=
-    WeierstrassCurve.map_baseChange (W := W) σ.toAlgHom
+    map_baseChange (W := W) σ.toAlgHom
   have hmv := map_variableChange (W := V.baseChange L) (C := ρ) (φ := σ.toAlgHom.toRingHom)
   rw [hρ, hVinv, hWinv] at hmv
   exact hmv
@@ -1107,7 +1107,7 @@ theorem exists_baseChange_point_eq_of_map_eq [DecidableEq K] [DecidableEq L]
     injection hR with hx hy
     obtain ⟨x₀, rfl⟩ := mem_range_algebraMap_of_apply_eq K L hσ hx
     obtain ⟨y₀, rfl⟩ := mem_range_algebraMap_of_apply_eq K L hσ hy
-    exact ⟨.some x₀ y₀ ((WeierstrassCurve.Affine.baseChange_nonsingular W
+    exact ⟨.some x₀ y₀ ((Affine.baseChange_nonsingular W
       (f := Algebra.ofId K L) (FaithfulSMul.algebraMap_injective K L) x₀ y₀).mp h), rfl⟩
 
 /-- The rational points of the quadratic twist, viewed inside `E(L)`, are exactly the anti-fixed

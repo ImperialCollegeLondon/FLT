@@ -137,9 +137,9 @@ lemma r_eq_zero_of_u_eq_one (hc6 : E.c₆ ≠ 0) {C : VariableChange K} (hu : C.
     (hCE : C • E = E) :
     C.r = 0 := by
   rw [c₆] at hc6
-  have eb4 := congrArg WeierstrassCurve.b₄ hCE
-  have eb6 := congrArg WeierstrassCurve.b₆ hCE
-  have eb8 := congrArg WeierstrassCurve.b₈ hCE
+  have eb4 := congrArg b₄ hCE
+  have eb6 := congrArg b₆ hCE
+  have eb8 := congrArg b₈ hCE
   simp [variableChange_b₄, variableChange_b₆, variableChange_b₈, hu] at eb4 eb6 eb8
   grobner
 
@@ -177,10 +177,10 @@ the `c₄` and `c₆` laws give `u⁴ = u⁶ = 1`. -/
 lemma u_eq_one_or_eq_neg_one (hc4 : E.c₄ ≠ 0) (hc6 : E.c₆ ≠ 0) {C : VariableChange K}
     (hCE : C • E = E) : C.u = 1 ∨ C.u = -1 := by
   have hu4 : (C.u : K) ^ 4 = 1 := by
-    have h := congrArg WeierstrassCurve.c₄ hCE
+    have h := congrArg c₄ hCE
     rwa [variableChange_c₄, Units.val_inv_eq_inv_val, mul_eq_right₀ hc4, inv_pow, inv_eq_one] at h
   have hu6 : (C.u : K) ^ 6 = 1 := by
-    have h := congrArg WeierstrassCurve.c₆ hCE
+    have h := congrArg c₆ hCE
     rwa [variableChange_c₆, Units.val_inv_eq_inv_val, mul_eq_right₀ hc6, inv_pow, inv_eq_one] at h
   have hu2 : (C.u : K) * (C.u : K) = 1 := by linear_combination hu6 - (C.u : K) ^ 2 * hu4
   rcases mul_self_eq_one_iff.mp hu2 with h | h

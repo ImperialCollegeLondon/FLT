@@ -362,9 +362,9 @@ lemma integralModel_baseChange (W : WeierstrassCurve R) [IsIntegral R (W⁄K)] :
     integralModel R (W⁄K) = W := by
   ext <;> apply IsFractionRing.injective R K <;>
     simp only [integralModel_a₁_eq, integralModel_a₂_eq, integralModel_a₃_eq, integralModel_a₄_eq,
-      integralModel_a₆_eq, WeierstrassCurve.baseChange, WeierstrassCurve.map_a₁,
-      WeierstrassCurve.map_a₂, WeierstrassCurve.map_a₃, WeierstrassCurve.map_a₄,
-      WeierstrassCurve.map_a₆]
+      integralModel_a₆_eq, baseChange, map_a₁,
+      map_a₂, map_a₃, map_a₄,
+      map_a₆]
 
 variable [IsDomain R]
 
@@ -775,7 +775,7 @@ theorem HasSplitMultiplicativeReduction.of_isMinimal_smul {W₁ W₂ : Weierstra
         rw [hc₄eq]; exact h₁.toHasMultiplicativeReduction.multiplicativeReduction }
   refine { hmult₂ with splitMultiplicativeReduction := ?_ }
   have hint₂ : W₂.integralModel R = C₀ • W₁.integralModel R := by
-    apply WeierstrassCurve.map_injective (IsFractionRing.injective R K)
+    apply map_injective (IsFractionRing.injective R K)
     change ((W₂.integralModel R)⁄K) = ((C₀ • W₁.integralModel R)⁄K)
     exact (baseChange_integralModel_eq R W₂).trans hW₂eq.symm
   rw [hint₂]
