@@ -49,6 +49,24 @@ theorem map_mul_of_generic {G H : Type*} [CommGroup G] [AddCommGroup H]
     rw [← hmul _ _ h1, mul_assoc a b w, hmul _ _ h2, hmul _ _ h3, ← add_assoc]
   exact add_right_cancel key
 
+/-! ## → `Mathlib.Algebra.Group.Subgroup.ZPowers.Basic` -/
+
+/-- Translating by a power of `g` does not change membership in `zpowers g`. -/
+@[simp]
+theorem Subgroup.zpow_mul_mem_zpowers_iff {G : Type*} [CommGroup G] (g w : G) (j : ℤ) :
+    g ^ j * w ∈ Subgroup.zpowers g ↔ w ∈ Subgroup.zpowers g := by
+  refine ⟨fun h ↦ ?_, fun h ↦ mul_mem (zpow_mem (mem_zpowers g) j) h⟩
+  have := mul_mem (zpow_mem (Subgroup.mem_zpowers g) (-j)) h
+  rwa [← mul_assoc, ← zpow_add, neg_add_cancel, zpow_zero, one_mul] at this
+
+/-! ## → `Mathlib.Algebra.GroupWithZero.Units.Basic` -/
+
+/-- The coercion `Mˣ → M` applied to `g ^ j * w`. -/
+@[simp]
+theorem Units.val_zpow_mul {M : Type*} [DivisionRing M] (g w : Mˣ) (j : ℤ) :
+    ((g ^ j * w : Mˣ) : M) = (g : M) ^ j * (w : M) := by
+  simp only [Units.val_mul, Units.val_zpow_eq_zpow_val]
+
 /-! ## → `Mathlib.Algebra.Polynomial.Cardinal` (or `Mathlib.Algebra.Polynomial.Basic`) -/
 
 namespace Polynomial

@@ -88,6 +88,32 @@ end TateCurve
 variable {k : Type*} [Field k] [ValuativeRel k] [TopologicalSpace k]
   [IsNonarchimedeanLocalField k]
 
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- The valuation of a unit of `k` is nonzero. -/
+theorem TateCurve.valuation_unit_ne_zero (w : kˣ) : valuation k (w : k) ≠ 0 :=
+  (valuation k).ne_zero_iff.mpr (Units.ne_zero w)
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- The valuation of a unit of `k` is positive. -/
+theorem TateCurve.valuation_unit_pos (w : kˣ) : 0 < valuation k (w : k) :=
+  zero_lt_iff.mpr (valuation_unit_ne_zero w)
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- If `|w| ≤ 1` for a unit `w`, then `1 ≤ |w|⁻¹`. -/
+theorem TateCurve.one_le_valuation_inv {w : kˣ} (hw : valuation k (w : k) ≤ 1) :
+    1 ≤ (valuation k (w : k))⁻¹ :=
+  (one_le_inv₀ (valuation_unit_pos w)).mpr hw
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- The open unit disc absorbs the closed one: `|q| < 1` and `|x| ≤ 1` give `|q·x| < 1`. -/
+theorem TateCurve.valuation_mul_lt_one {q : k} {x : k} (hq : valuation k q < 1)
+    (hx : valuation k x ≤ 1) : valuation k (q * x) < 1 := by
+  rw [map_mul]
+  calc valuation k q * valuation k x
+      ≤ valuation k q * 1 := mul_le_mul_right hx _
+    _ = valuation k q := mul_one _
+    _ < 1 := hq
+
 /-- Any unit of `k` can be moved into the annulus `|q| < |·| ≤ 1` by a power of `q`:
 a fundamental domain for the action of `qᶻ` on `kˣ`. As with
 `exists_pow_valuation_lt`, this is where the rank-one hypothesis enters, through the

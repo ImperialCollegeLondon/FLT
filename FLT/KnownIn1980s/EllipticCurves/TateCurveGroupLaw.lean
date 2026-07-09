@@ -59,45 +59,8 @@ private theorem TateCurve.evalBounded_XField_tail_wide (q u : kˣ) :
         (valuation k (q : k) * valuation k (u : k)))
       (PowerSeries.mk fun n ↦ ∑ d ∈ n.divisors,
         ((d : k) * (u : k) ^ d + (d : k) * ((u : k)⁻¹) ^ d - 2 * (d : k))) := by
-  have hvu : valuation k (u : k) ≠ 0 := (valuation k).ne_zero_iff.mpr (Units.ne_zero u)
-  set M := max (valuation k (u : k))⁻¹ (valuation k (u : k)) with hM
-  have h1M : (1 : ValueGroupWithZero k) ≤ M := by
-    rcases le_total (valuation k (u : k)) 1 with h | h
-    · exact le_max_of_le_left ((one_le_inv₀ (zero_lt_iff.mpr hvu)).mpr h)
-    · exact le_max_of_le_right h
-  have huM : valuation k (u : k) ≤ M := le_max_right _ _
-  have hiuM : (valuation k (u : k))⁻¹ ≤ M := le_max_left _ _
-  refine ⟨1, one_ne_zero, fun n ↦ ?_⟩
-  have h1n : (1 : ValueGroupWithZero k) ≤ M ^ n := by
-    calc (1 : ValueGroupWithZero k) = M ^ 0 := (pow_zero _).symm
-      _ ≤ M ^ n := pow_le_pow_right' h1M (Nat.zero_le n)
-  have hsum : valuation k (∑ d ∈ n.divisors,
-      ((d : k) * (u : k) ^ d + (d : k) * ((u : k)⁻¹) ^ d - 2 * (d : k))) ≤ M ^ n := by
-    refine (valuation k).map_sum_le fun d hd ↦ ?_
-    have hdn : d ≤ n := Nat.divisor_le hd
-    refine le_trans ((valuation k).map_sub _ _) (max_le (le_trans
-      ((valuation k).map_add _ _) (max_le ?_ ?_)) ?_)
-    · rw [map_mul, map_pow]
-      calc valuation k ((d : ℕ) : k) * valuation k (u : k) ^ d
-          ≤ 1 * M ^ d := mul_le_mul' (valuation_natCast_le_one d) (pow_le_pow_left' huM d)
-        _ = M ^ d := one_mul _
-        _ ≤ M ^ n := pow_le_pow_right' h1M hdn
-    · rw [map_mul, map_pow, map_inv₀]
-      calc valuation k ((d : ℕ) : k) * (valuation k (u : k))⁻¹ ^ d
-          ≤ 1 * M ^ d := mul_le_mul' (valuation_natCast_le_one d) (pow_le_pow_left' hiuM d)
-        _ = M ^ d := one_mul _
-        _ ≤ M ^ n := pow_le_pow_right' h1M hdn
-    · rw [show ((2 : k) * (d : k)) = ((2 * d : ℕ) : k) by push_cast; ring]
-      exact le_trans (valuation_natCast_le_one _) h1n
-  rw [one_mul, PowerSeries.coeff_mk, map_mul, map_pow]
-  calc valuation k (∑ d ∈ n.divisors,
-        ((d : k) * (u : k) ^ d + (d : k) * ((u : k)⁻¹) ^ d - 2 * (d : k))) *
-        valuation k (q : k) ^ n
-      ≤ M ^ n * valuation k (q : k) ^ n := mul_le_mul' hsum le_rfl
-    _ = valuation k (q : k) ^ n * M ^ n := mul_comm _ _
-    _ = (valuation k (q : k) * M) ^ n := (mul_pow _ _ _).symm
-    _ = (max (valuation k (q : k) * (valuation k (u : k))⁻¹)
-          (valuation k (q : k) * valuation k (u : k))) ^ n := by rw [hM, mul_max]
+  rw [← mul_max]
+  exact evalBounded_XField_tail_of_annulusBound q u (annulusBound_wide u)
 
 omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
 /-- The wide-annulus bound for the divisor-sum tail of `YField u`; cf.
@@ -107,44 +70,8 @@ private theorem TateCurve.evalBounded_YField_tail_wide (q u : kˣ) :
         (valuation k (q : k) * valuation k (u : k)))
       (PowerSeries.mk fun n ↦ ∑ d ∈ n.divisors, (((d.choose 2 : ℕ) : k) * (u : k) ^ d
         - (((d + 1).choose 2 : ℕ) : k) * ((u : k)⁻¹) ^ d + (d : k))) := by
-  have hvu : valuation k (u : k) ≠ 0 := (valuation k).ne_zero_iff.mpr (Units.ne_zero u)
-  set M := max (valuation k (u : k))⁻¹ (valuation k (u : k)) with hM
-  have h1M : (1 : ValueGroupWithZero k) ≤ M := by
-    rcases le_total (valuation k (u : k)) 1 with h | h
-    · exact le_max_of_le_left ((one_le_inv₀ (zero_lt_iff.mpr hvu)).mpr h)
-    · exact le_max_of_le_right h
-  have huM : valuation k (u : k) ≤ M := le_max_right _ _
-  have hiuM : (valuation k (u : k))⁻¹ ≤ M := le_max_left _ _
-  refine ⟨1, one_ne_zero, fun n ↦ ?_⟩
-  have h1n : (1 : ValueGroupWithZero k) ≤ M ^ n := by
-    calc (1 : ValueGroupWithZero k) = M ^ 0 := (pow_zero _).symm
-      _ ≤ M ^ n := pow_le_pow_right' h1M (Nat.zero_le n)
-  have hsum : valuation k (∑ d ∈ n.divisors, (((d.choose 2 : ℕ) : k) * (u : k) ^ d
-      - (((d + 1).choose 2 : ℕ) : k) * ((u : k)⁻¹) ^ d + (d : k))) ≤ M ^ n := by
-    refine (valuation k).map_sum_le fun d hd ↦ ?_
-    have hdn : d ≤ n := Nat.divisor_le hd
-    refine le_trans ((valuation k).map_add _ _) (max_le (le_trans
-      ((valuation k).map_sub _ _) (max_le ?_ ?_)) ?_)
-    · rw [map_mul, map_pow]
-      calc valuation k ((d.choose 2 : ℕ) : k) * valuation k (u : k) ^ d
-          ≤ 1 * M ^ d := mul_le_mul' (valuation_natCast_le_one _) (pow_le_pow_left' huM d)
-        _ = M ^ d := one_mul _
-        _ ≤ M ^ n := pow_le_pow_right' h1M hdn
-    · rw [map_mul, map_pow, map_inv₀]
-      calc valuation k (((d + 1).choose 2 : ℕ) : k) * (valuation k (u : k))⁻¹ ^ d
-          ≤ 1 * M ^ d := mul_le_mul' (valuation_natCast_le_one _) (pow_le_pow_left' hiuM d)
-        _ = M ^ d := one_mul _
-        _ ≤ M ^ n := pow_le_pow_right' h1M hdn
-    · exact le_trans (valuation_natCast_le_one d) h1n
-  rw [one_mul, PowerSeries.coeff_mk, map_mul, map_pow]
-  calc valuation k (∑ d ∈ n.divisors, (((d.choose 2 : ℕ) : k) * (u : k) ^ d
-        - (((d + 1).choose 2 : ℕ) : k) * ((u : k)⁻¹) ^ d + (d : k))) *
-        valuation k (q : k) ^ n
-      ≤ M ^ n * valuation k (q : k) ^ n := mul_le_mul' hsum le_rfl
-    _ = valuation k (q : k) ^ n * M ^ n := mul_comm _ _
-    _ = (valuation k (q : k) * M) ^ n := (mul_pow _ _ _).symm
-    _ = (max (valuation k (q : k) * (valuation k (u : k))⁻¹)
-          (valuation k (q : k) * valuation k (u : k))) ^ n := by rw [hM, mul_max]
+  rw [← mul_max]
+  exact evalBounded_YField_tail_of_annulusBound q u (annulusBound_wide u)
 
 omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
 /-- The wide-annulus evaluation bound for the `x`-coordinate series: for
@@ -238,6 +165,43 @@ theorem WeierstrassCurve.tateY_eq_evalK_wide (q u : kˣ) (hq : valuation k (q : 
     rw [hcoe, inv_inv] at hinv
     rw [hinv, hYw, hXw, hYinv, TateCurve.evalK_sub h₂m hbY.neg hbX, TateCurve.evalK_neg]
 
+/-- The evaluation radius attached to a unit `w` in the wide annulus: the radius appearing
+in `TateCurve.evalBounded_XField_wide`/`evalBounded_YField_wide`. Reducible, so that those
+lemmas apply to it definitionally. -/
+private noncomputable abbrev TateCurve.wideRadius (q w : kˣ) : ValueGroupWithZero k :=
+  max (valuation k (q : k) * (valuation k (w : k))⁻¹)
+    (valuation k (q : k) * valuation k (w : k))
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- `wideRadius q w < 1` exactly says that `w` lies in the wide annulus. -/
+private theorem TateCurve.wideRadius_lt_one {q w : kˣ}
+    (h₁ : valuation k (q : k) < valuation k (w : k))
+    (h₂ : valuation k ((q : k) * (w : k)) < 1) : TateCurve.wideRadius q w < 1 := by
+  refine max_lt ?_ ?_
+  · rw [← div_eq_mul_inv]; exact (div_lt_one₀ (TateCurve.valuation_unit_pos w)).mpr h₁
+  · rw [← map_mul]; exact h₂
+
+/-- The package of facts attached to a chord representative `w` lying in the wide annulus and
+off `qᶻ`: it is a nonzero non-identity scalar, its `tate` coordinates are the `evalK`-values of
+the formal series `XField w`/`YField w`, and those series are evaluation-bounded at radius
+`wideRadius q w`. This is the per-representative core of `chord_law_values`, which applies it
+three times (to `u`, `v` and `uv`). -/
+private theorem TateCurve.chord_rep {q : kˣ} (hq : valuation k (q : k) < 1) {w : kˣ}
+    (h₁ : valuation k (q : k) < valuation k (w : k))
+    (h₂ : valuation k ((q : k) * (w : k)) < 1) (hw : w ∉ Subgroup.zpowers q) :
+    (w : k) ≠ 0 ∧ (w : k) ≠ 1 ∧
+      TateCurve.evalK (q : k) (TateCurve.XField (w : k)) =
+        WeierstrassCurve.tateX (w : k) (q : k) ∧
+      TateCurve.evalK (q : k) (TateCurve.YField (w : k)) =
+        WeierstrassCurve.tateY (w : k) (q : k) ∧
+      TateCurve.EvalBounded (q : k) (TateCurve.wideRadius q w) (TateCurve.XField (w : k)) ∧
+      TateCurve.EvalBounded (q : k) (TateCurve.wideRadius q w) (TateCurve.YField (w : k)) := by
+  refine ⟨Units.ne_zero w, ?_, (WeierstrassCurve.tateX_eq_evalK_wide q w hq h₁ h₂).symm,
+    (WeierstrassCurve.tateY_eq_evalK_wide q w hq h₁ h₂).symm,
+    TateCurve.evalBounded_XField_wide q w, TateCurve.evalBounded_YField_wide q w⟩
+  intro hcon
+  exact hw (Units.val_eq_one.mp hcon ▸ Subgroup.one_mem _)
+
 /-- Representatives for the chord law: any pair `u, v ∈ kˣ` has representatives
 `a = qᵐu`, `b = qⁿv` modulo `qᶻ` with `a` and `ab` in the fundamental annulus
 `|q| < |·| ≤ 1` and `b` in the wide annulus (`|q| < |b|` and `|qb| < 1`). Take `a` and
@@ -270,11 +234,7 @@ theorem TateCurve.exists_chord_reps (q : kˣ) (hq : valuation k (q : k) < 1) (u 
     · rw [eA]; exact hm1
     · rw [eA]; exact hm2
     · rw [eB]; exact hn1
-    · rw [eB, map_mul]
-      calc valuation k (q : k) * valuation k ((q : k) ^ n₀ * (v : k))
-          ≤ valuation k (q : k) * 1 := mul_le_mul_right hn2 _
-        _ = valuation k (q : k) := mul_one _
-        _ < 1 := hq
+    · rw [eB]; exact TateCurve.valuation_mul_lt_one hq hn2
     · rw [eAB]; exact hab
     · rw [eAB, map_mul]; exact mul_le_one₀ hm2 zero_le hn2
   · rw [not_lt] at hab
@@ -350,144 +310,66 @@ private theorem WeierstrassCurve.chord_law_values (q : kˣ) (hq : valuation k (q
           - (tateY (u : k) (q : k) * tateX (v : k) (q : k)
             - tateY (v : k) (q : k) * tateX (u : k) (q : k)) := by
   obtain ⟨m, n, ha1, ha2, hb1, hb2, hab1, hab2⟩ := TateCurve.exists_chord_reps q hq u v
+  set A : kˣ := q ^ m * u with hAdef
+  set B : kˣ := q ^ n * v with hBdef
   -- coercion identities
-  have eA : ((q ^ m * u : kˣ) : k) = (q : k) ^ m * (u : k) := by
-    simp only [Units.val_mul, Units.val_zpow_eq_zpow_val]
-  have eB : ((q ^ n * v : kˣ) : k) = (q : k) ^ n * (v : k) := by
-    simp only [Units.val_mul, Units.val_zpow_eq_zpow_val]
-  have hABmul : ((q ^ m * u * (q ^ n * v) : kˣ) : k) =
-      ((q ^ m * u : kˣ) : k) * ((q ^ n * v : kˣ) : k) := Units.val_mul _ _
-  have hABcoe : ((q ^ m * u : kˣ) : k) * ((q ^ n * v : kˣ) : k) =
-      (q : k) ^ (m + n) * ((u : k) * (v : k)) := by
-    rw [eA, eB, zpow_add₀ (Units.ne_zero q)]; ring
+  have hABmul : ((A * B : kˣ) : k) = (A : k) * (B : k) := Units.val_mul _ _
+  have hABcoe : (A : k) * (B : k) = (q : k) ^ (m + n) * ((u : k) * (v : k)) := by
+    rw [hAdef, hBdef, Units.val_zpow_mul, Units.val_zpow_mul, zpow_add₀ (Units.ne_zero q)]; ring
   -- the value transports (qᶻ-invariance)
-  have hXA : tateX ((q ^ m * u : kˣ) : k) (q : k) = tateX (u : k) (q : k) := by
-    rw [eA]; exact tateX_zpow_mul_left q m (u : k)
-  have hXB : tateX ((q ^ n * v : kˣ) : k) (q : k) = tateX (v : k) (q : k) := by
-    rw [eB]; exact tateX_zpow_mul_left q n (v : k)
-  have hYA : tateY ((q ^ m * u : kˣ) : k) (q : k) = tateY (u : k) (q : k) := by
-    rw [eA]; exact tateY_zpow_mul_left q m (u : k)
-  have hYB : tateY ((q ^ n * v : kˣ) : k) (q : k) = tateY (v : k) (q : k) := by
-    rw [eB]; exact tateY_zpow_mul_left q n (v : k)
-  have hXAB : tateX (((q ^ m * u : kˣ) : k) * ((q ^ n * v : kˣ) : k)) (q : k) =
-      tateX ((u : k) * (v : k)) (q : k) := by
+  have hXA : tateX (A : k) (q : k) = tateX (u : k) (q : k) := by
+    rw [hAdef, Units.val_zpow_mul]; exact tateX_zpow_mul_left q m (u : k)
+  have hXB : tateX (B : k) (q : k) = tateX (v : k) (q : k) := by
+    rw [hBdef, Units.val_zpow_mul]; exact tateX_zpow_mul_left q n (v : k)
+  have hYA : tateY (A : k) (q : k) = tateY (u : k) (q : k) := by
+    rw [hAdef, Units.val_zpow_mul]; exact tateY_zpow_mul_left q m (u : k)
+  have hYB : tateY (B : k) (q : k) = tateY (v : k) (q : k) := by
+    rw [hBdef, Units.val_zpow_mul]; exact tateY_zpow_mul_left q n (v : k)
+  have hXAB : tateX ((A : k) * (B : k)) (q : k) = tateX ((u : k) * (v : k)) (q : k) := by
     rw [hABcoe]; exact tateX_zpow_mul_left q (m + n) ((u : k) * (v : k))
-  have hYAB : tateY (((q ^ m * u : kˣ) : k) * ((q ^ n * v : kˣ) : k)) (q : k) =
-      tateY ((u : k) * (v : k)) (q : k) := by
+  have hYAB : tateY ((A : k) * (B : k)) (q : k) = tateY ((u : k) * (v : k)) (q : k) := by
     rw [hABcoe]; exact tateY_zpow_mul_left q (m + n) ((u : k) * (v : k))
-  -- upper-bound facts for the wide bridges
-  have h₂A : valuation k ((q : k) * ((q ^ m * u : kˣ) : k)) < 1 := by
-    rw [map_mul]
-    calc valuation k (q : k) * valuation k ((q ^ m * u : kˣ) : k)
-        ≤ valuation k (q : k) * 1 := mul_le_mul_right ha2 _
-      _ = valuation k (q : k) := mul_one _
-      _ < 1 := hq
-  have h₂AB : valuation k ((q : k) * ((q ^ m * u * (q ^ n * v) : kˣ) : k)) < 1 := by
-    rw [map_mul]
-    calc valuation k (q : k) * valuation k ((q ^ m * u * (q ^ n * v) : kˣ) : k)
-        ≤ valuation k (q : k) * 1 := mul_le_mul_right hab2 _
-      _ = valuation k (q : k) := mul_one _
-      _ < 1 := hq
-  -- the bridges evalK ↦ value
-  have bridgeXA : TateCurve.evalK (q : k) (TateCurve.XField ((q ^ m * u : kˣ) : k)) =
-      tateX (u : k) (q : k) := (tateX_eq_evalK_wide q (q ^ m * u) hq ha1 h₂A).symm.trans hXA
-  have bridgeXB : TateCurve.evalK (q : k) (TateCurve.XField ((q ^ n * v : kˣ) : k)) =
-      tateX (v : k) (q : k) := (tateX_eq_evalK_wide q (q ^ n * v) hq hb1 hb2).symm.trans hXB
-  have bridgeYA : TateCurve.evalK (q : k) (TateCurve.YField ((q ^ m * u : kˣ) : k)) =
-      tateY (u : k) (q : k) := (tateY_eq_evalK_wide q (q ^ m * u) hq ha1 h₂A).symm.trans hYA
-  have bridgeYB : TateCurve.evalK (q : k) (TateCurve.YField ((q ^ n * v : kˣ) : k)) =
-      tateY (v : k) (q : k) := (tateY_eq_evalK_wide q (q ^ n * v) hq hb1 hb2).symm.trans hYB
-  have bridgeXAB : TateCurve.evalK (q : k)
-      (TateCurve.XField (((q ^ m * u : kˣ) : k) * ((q ^ n * v : kˣ) : k))) =
-      tateX ((u : k) * (v : k)) (q : k) := by
-    have h := (tateX_eq_evalK_wide q (q ^ m * u * (q ^ n * v)) hq hab1 h₂AB).symm
-    rw [hABmul] at h; exact h.trans hXAB
-  have bridgeYAB : TateCurve.evalK (q : k)
-      (TateCurve.YField (((q ^ m * u : kˣ) : k) * ((q ^ n * v : kˣ) : k))) =
-      tateY ((u : k) * (v : k)) (q : k) := by
-    have h := (tateY_eq_evalK_wide q (q ^ m * u * (q ^ n * v)) hq hab1 h₂AB).symm
-    rw [hABmul] at h; exact h.trans hYAB
   -- memberships of the representatives
-  have hqmem : ∀ j : ℤ, q ^ j ∈ Subgroup.zpowers q := fun j ↦ zpow_mem (Subgroup.mem_zpowers q) j
-  have hA : q ^ m * u ∉ Subgroup.zpowers q := by
-    intro h; refine hu ?_
-    have := mul_mem (hqmem (-m)) h
-    rwa [← mul_assoc, ← zpow_add, neg_add_cancel, zpow_zero, one_mul] at this
-  have hB : q ^ n * v ∉ Subgroup.zpowers q := by
-    intro h; refine hv ?_
-    have := mul_mem (hqmem (-n)) h
-    rwa [← mul_assoc, ← zpow_add, neg_add_cancel, zpow_zero, one_mul] at this
-  have hABeq : q ^ m * u * (q ^ n * v) = q ^ (m + n) * (u * v) := by
-    rw [zpow_add, mul_mul_mul_comm]
-  have hABmem : q ^ m * u * (q ^ n * v) ∉ Subgroup.zpowers q := by
-    intro h; refine huv ?_
-    rw [hABeq] at h
-    have := mul_mem (hqmem (-(m + n))) h
-    rwa [← mul_assoc, ← zpow_add, neg_add_cancel, zpow_zero, one_mul] at this
-  -- field genericity facts
-  have hval1 : ∀ w : kˣ, w ∉ Subgroup.zpowers q → (w : k) ≠ 1 := by
-    intro w hw hcon
-    apply hw
-    rw [Units.val_eq_one.mp hcon]
-    exact Subgroup.one_mem _
-  have hA0 : ((q ^ m * u : kˣ) : k) ≠ 0 := Units.ne_zero _
-  have hB0 : ((q ^ n * v : kˣ) : k) ≠ 0 := Units.ne_zero _
-  have hA1 : ((q ^ m * u : kˣ) : k) ≠ 1 := hval1 _ hA
-  have hB1 : ((q ^ n * v : kˣ) : k) ≠ 1 := hval1 _ hB
-  have hAB1 : ((q ^ m * u : kˣ) : k) * ((q ^ n * v : kˣ) : k) ≠ 1 := by
-    rw [← hABmul]; exact hval1 _ hABmem
+  have hAmem : A ∉ Subgroup.zpowers q := by rw [hAdef]; simpa using hu
+  have hBmem : B ∉ Subgroup.zpowers q := by rw [hBdef]; simpa using hv
+  have hABmem : A * B ∉ Subgroup.zpowers q := by
+    have hABeq : A * B = q ^ (m + n) * (u * v) := by
+      rw [hAdef, hBdef, zpow_add, mul_mul_mul_comm]
+    rw [hABeq]; simpa using huv
+  -- the per-representative packages
+  obtain ⟨hA0, hA1, eXA, eYA, bXA₀, bYA₀⟩ :=
+    TateCurve.chord_rep hq ha1 (TateCurve.valuation_mul_lt_one hq ha2) hAmem
+  obtain ⟨hB0, hB1, eXB, eYB, bXB₀, bYB₀⟩ := TateCurve.chord_rep hq hb1 hb2 hBmem
+  obtain ⟨-, hAB1', eXAB, eYAB, bXAB₀, bYAB₀⟩ :=
+    TateCurve.chord_rep hq hab1 (TateCurve.valuation_mul_lt_one hq hab2) hABmem
+  rw [hABmul] at hAB1' eXAB eYAB bXAB₀ bYAB₀
+  -- the bridges evalK ↦ value
+  have bridgeXA := eXA.trans hXA
+  have bridgeXB := eXB.trans hXB
+  have bridgeYA := eYA.trans hYA
+  have bridgeYB := eYB.trans hYB
+  have bridgeXAB := eXAB.trans hXAB
+  have bridgeYAB := eYAB.trans hYAB
   -- the common radius and the six evaluation bounds
-  have pA : (0 : ValueGroupWithZero k) < valuation k ((q ^ m * u : kˣ) : k) :=
-    zero_lt_iff.mpr ((valuation k).ne_zero_iff.mpr (Units.ne_zero _))
-  have pB : (0 : ValueGroupWithZero k) < valuation k ((q ^ n * v : kˣ) : k) :=
-    zero_lt_iff.mpr ((valuation k).ne_zero_iff.mpr (Units.ne_zero _))
-  have pAB : (0 : ValueGroupWithZero k) < valuation k ((q ^ m * u * (q ^ n * v) : kˣ) : k) :=
-    zero_lt_iff.mpr ((valuation k).ne_zero_iff.mpr (Units.ne_zero _))
-  set ρ := max (max (valuation k (q : k) * (valuation k ((q ^ m * u : kˣ) : k))⁻¹)
-        (valuation k (q : k) * valuation k ((q ^ m * u : kˣ) : k)))
-      (max (max (valuation k (q : k) * (valuation k ((q ^ n * v : kˣ) : k))⁻¹)
-          (valuation k (q : k) * valuation k ((q ^ n * v : kˣ) : k)))
-        (max (valuation k (q : k) * (valuation k ((q ^ m * u * (q ^ n * v) : kˣ) : k))⁻¹)
-          (valuation k (q : k) * valuation k ((q ^ m * u * (q ^ n * v) : kˣ) : k)))) with hρdef
-  have hρ : ρ < 1 := by
-    rw [hρdef]
-    refine max_lt (max_lt ?_ ?_) (max_lt (max_lt ?_ ?_) (max_lt ?_ ?_))
-    · rw [← div_eq_mul_inv]; exact (div_lt_one₀ pA).mpr ha1
-    · calc valuation k (q : k) * valuation k ((q ^ m * u : kˣ) : k)
-          ≤ valuation k (q : k) * 1 := mul_le_mul_right ha2 _
-        _ = valuation k (q : k) := mul_one _
-        _ < 1 := hq
-    · rw [← div_eq_mul_inv]; exact (div_lt_one₀ pB).mpr hb1
-    · rw [← map_mul]; exact hb2
-    · rw [← div_eq_mul_inv]; exact (div_lt_one₀ pAB).mpr hab1
-    · calc valuation k (q : k) * valuation k ((q ^ m * u * (q ^ n * v) : kˣ) : k)
-          ≤ valuation k (q : k) * 1 := mul_le_mul_right hab2 _
-        _ = valuation k (q : k) := mul_one _
-        _ < 1 := hq
-  have bXA : TateCurve.EvalBounded (q : k) ρ (TateCurve.XField ((q ^ m * u : kˣ) : k)) :=
-    (TateCurve.evalBounded_XField_wide q (q ^ m * u)).mono (by rw [hρdef]; exact le_max_left _ _)
-  have bYA : TateCurve.EvalBounded (q : k) ρ (TateCurve.YField ((q ^ m * u : kˣ) : k)) :=
-    (TateCurve.evalBounded_YField_wide q (q ^ m * u)).mono (by rw [hρdef]; exact le_max_left _ _)
-  have bXB : TateCurve.EvalBounded (q : k) ρ (TateCurve.XField ((q ^ n * v : kˣ) : k)) :=
-    (TateCurve.evalBounded_XField_wide q (q ^ n * v)).mono
-      (by rw [hρdef]; exact le_max_of_le_right (le_max_left _ _))
-  have bYB : TateCurve.EvalBounded (q : k) ρ (TateCurve.YField ((q ^ n * v : kˣ) : k)) :=
-    (TateCurve.evalBounded_YField_wide q (q ^ n * v)).mono
-      (by rw [hρdef]; exact le_max_of_le_right (le_max_left _ _))
-  have bXAB : TateCurve.EvalBounded (q : k) ρ
-      (TateCurve.XField (((q ^ m * u : kˣ) : k) * ((q ^ n * v : kˣ) : k))) := by
-    have h : TateCurve.EvalBounded (q : k) ρ
-        (TateCurve.XField ((q ^ m * u * (q ^ n * v) : kˣ) : k)) :=
-      (TateCurve.evalBounded_XField_wide q (q ^ m * u * (q ^ n * v))).mono
-        (by rw [hρdef]; exact le_max_of_le_right (le_max_right _ _))
-    rwa [hABmul] at h
-  have bYAB : TateCurve.EvalBounded (q : k) ρ
-      (TateCurve.YField (((q ^ m * u : kˣ) : k) * ((q ^ n * v : kˣ) : k))) := by
-    have h : TateCurve.EvalBounded (q : k) ρ
-        (TateCurve.YField ((q ^ m * u * (q ^ n * v) : kˣ) : k)) :=
-      (TateCurve.evalBounded_YField_wide q (q ^ m * u * (q ^ n * v))).mono
-        (by rw [hρdef]; exact le_max_of_le_right (le_max_right _ _))
-    rwa [hABmul] at h
+  set ρ := max (TateCurve.wideRadius q A)
+    (max (TateCurve.wideRadius q B) (TateCurve.wideRadius q (A * B))) with hρdef
+  have hρ : ρ < 1 :=
+    max_lt (TateCurve.wideRadius_lt_one ha1 (TateCurve.valuation_mul_lt_one hq ha2))
+      (max_lt (TateCurve.wideRadius_lt_one hb1 hb2)
+        (TateCurve.wideRadius_lt_one hab1 (TateCurve.valuation_mul_lt_one hq hab2)))
+  have bXA : TateCurve.EvalBounded (q : k) ρ (TateCurve.XField (A : k)) :=
+    bXA₀.mono (hρdef ▸ le_max_left _ _)
+  have bYA : TateCurve.EvalBounded (q : k) ρ (TateCurve.YField (A : k)) :=
+    bYA₀.mono (hρdef ▸ le_max_left _ _)
+  have bXB : TateCurve.EvalBounded (q : k) ρ (TateCurve.XField (B : k)) :=
+    bXB₀.mono (hρdef ▸ le_max_of_le_right (le_max_left _ _))
+  have bYB : TateCurve.EvalBounded (q : k) ρ (TateCurve.YField (B : k)) :=
+    bYB₀.mono (hρdef ▸ le_max_of_le_right (le_max_left _ _))
+  have bXAB : TateCurve.EvalBounded (q : k) ρ (TateCurve.XField ((A : k) * (B : k))) :=
+    bXAB₀.mono (hρdef ▸ le_max_of_le_right (le_max_right _ _))
+  have bYAB : TateCurve.EvalBounded (q : k) ρ (TateCurve.YField ((A : k) * (B : k))) :=
+    bYAB₀.mono (hρdef ▸ le_max_of_le_right (le_max_right _ _))
+  have hAB1 : (A : k) * (B : k) ≠ 1 := hAB1'
   refine ⟨?_, ?_⟩
   · have hcx := TateCurve.chord_x_field (K := k) hA0 hA1 hB0 hB1 hAB1
     have h := congrArg (TateCurve.evalK (q : k)) hcx

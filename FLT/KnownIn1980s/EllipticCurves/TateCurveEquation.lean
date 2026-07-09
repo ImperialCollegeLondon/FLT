@@ -114,7 +114,7 @@ theorem WeierstrassCurve.tateX_eq_annulus (q u : kˣ) (hq : valuation k (q : k) 
   have hvu : valuation k (u : k) ≠ 0 := (valuation k).ne_zero_iff.mpr hu0
   have hρ : valuation k ((q : k) * (u : k)⁻¹) < 1 := by
     rw [map_mul, map_inv₀, ← div_eq_mul_inv]
-    exact (div_lt_one₀ (zero_lt_iff.mpr hvu)).mpr h₁
+    exact (div_lt_one₀ (TateCurve.valuation_unit_pos u)).mpr h₁
   -- the discs on which the geometric expansions are valid
   have hposlt : ∀ n : ℕ, valuation k ((q : k) ^ (n + 1) * (u : k)) < 1 := by
     intro n
@@ -150,8 +150,7 @@ theorem WeierstrassCurve.tateX_eq_annulus (q u : kˣ) (hq : valuation k (q : k) 
     refine TateCurve.summable_of_valuation_le_pow hρ (fun p ↦ (p.1 : ℕ) * (p.2 : ℕ))
       (fun N ↦ TateCurve.finite_pnat_mul_lt N) fun p ↦ ?_
     simp only [map_mul, map_pow, map_inv₀]
-    have h1u : (1 : ValueGroupWithZero k) ≤ (valuation k (u : k))⁻¹ :=
-      (one_le_inv₀ (zero_lt_iff.mpr hvu)).mpr h₂
+    have h1u := TateCurve.one_le_valuation_inv (w := u) h₂
     calc valuation k ((p.1 : ℕ) : k) * (valuation k (u : k))⁻¹ ^ (p.1 : ℕ) *
           valuation k (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ))
         ≤ 1 * (valuation k (u : k))⁻¹ ^ ((p.1 : ℕ) * (p.2 : ℕ)) *
@@ -251,7 +250,7 @@ theorem WeierstrassCurve.tateY_eq_annulus (q u : kˣ) (hq : valuation k (q : k) 
   have hvu : valuation k (u : k) ≠ 0 := (valuation k).ne_zero_iff.mpr hu0
   have hρ : valuation k ((q : k) * (u : k)⁻¹) < 1 := by
     rw [map_mul, map_inv₀, ← div_eq_mul_inv]
-    exact (div_lt_one₀ (zero_lt_iff.mpr hvu)).mpr h₁
+    exact (div_lt_one₀ (TateCurve.valuation_unit_pos u)).mpr h₁
   have hposlt : ∀ n : ℕ, valuation k ((q : k) ^ (n + 1) * (u : k)) < 1 := by
     intro n
     rw [map_mul, map_pow]
@@ -287,8 +286,7 @@ theorem WeierstrassCurve.tateY_eq_annulus (q u : kˣ) (hq : valuation k (q : k) 
     refine TateCurve.summable_of_valuation_le_pow hρ (fun p ↦ (p.1 : ℕ) * (p.2 : ℕ))
       (fun N ↦ TateCurve.finite_pnat_mul_lt N) fun p ↦ ?_
     simp only [map_mul, map_pow, map_inv₀]
-    have h1u : (1 : ValueGroupWithZero k) ≤ (valuation k (u : k))⁻¹ :=
-      (one_le_inv₀ (zero_lt_iff.mpr hvu)).mpr h₂
+    have h1u := TateCurve.one_le_valuation_inv (w := u) h₂
     calc valuation k (((((p.1 : ℕ) + 1).choose 2 : ℕ)) : k) *
           (valuation k (u : k))⁻¹ ^ (p.1 : ℕ) *
           valuation k (q : k) ^ ((p.1 : ℕ) * (p.2 : ℕ))
@@ -626,45 +624,103 @@ theorem TateCurve.evalK_neg (q : k) (F : k⟦X⟧) : evalK q (-F) = -evalK q F :
   exact tsum_neg
 
 omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- A power series whose `n`-th coefficient has valuation at most `M ^ n` is
+evaluation-bounded at `q` with radius `|q| * M` and constant `1`. -/
+theorem TateCurve.evalBounded_of_coeff_le_pow {q : k} {M : ValueGroupWithZero k} {F : k⟦X⟧}
+    (h : ∀ n, valuation k (PowerSeries.coeff n F) ≤ M ^ n) :
+    EvalBounded q (valuation k q * M) F :=
+  ⟨1, one_ne_zero, fun n ↦ by
+    rw [one_mul, map_mul, map_pow, mul_pow, mul_comm (valuation k q ^ n)]
+    exact mul_le_mul' (h n) le_rfl⟩
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- A divisor-sum series `∑_{d ∣ n} c n d` whose summands satisfy `|c n d| ≤ M ^ d` (for
+`1 ≤ M`) is evaluation-bounded at `q` with radius `|q| * M`: the ultrametric inequality
+turns the termwise bound into `|∑_{d ∣ n} c n d| ≤ M ^ n`, since every `d ∣ n` has `d ≤ n`. -/
+theorem TateCurve.evalBounded_divisorSum {q : k} {M : ValueGroupWithZero k} (h1M : 1 ≤ M)
+    (c : ℕ → ℕ → k) (hc : ∀ n, ∀ d ∈ n.divisors, valuation k (c n d) ≤ M ^ d) :
+    EvalBounded q (valuation k q * M) (PowerSeries.mk fun n ↦ ∑ d ∈ n.divisors, c n d) := by
+  refine evalBounded_of_coeff_le_pow fun n ↦ ?_
+  rw [PowerSeries.coeff_mk]
+  exact (valuation k).map_sum_le fun d hd ↦
+    (hc n d hd).trans (pow_le_pow_right' h1M (Nat.divisor_le hd))
+
+/-- The three properties of a bound `M` shared by the fundamental annulus (`M = |u|⁻¹`,
+see `annulusBound_narrow`) and the wide annulus (`M = max |u|⁻¹ |u|`, see
+`annulusBound_wide`). Both `XField` and `YField` are evaluation-bounded with radius
+`|q| * M` for any such `M`. -/
+structure TateCurve.AnnulusBound (u : kˣ) (M : ValueGroupWithZero k) : Prop where
+  one_le : 1 ≤ M
+  val_le : valuation k (u : k) ≤ M
+  inv_le : (valuation k (u : k))⁻¹ ≤ M
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- On the fundamental annulus `|u| ≤ 1`, take `M = |u|⁻¹`. -/
+theorem TateCurve.annulusBound_narrow (u : kˣ) (h₂ : valuation k (u : k) ≤ 1) :
+    AnnulusBound u (valuation k (u : k))⁻¹ :=
+  ⟨one_le_valuation_inv h₂, h₂.trans (one_le_valuation_inv h₂), le_rfl⟩
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- On the wide annulus, take `M = max |u|⁻¹ |u|`; no constraint on `|u|` is needed. -/
+theorem TateCurve.annulusBound_wide (u : kˣ) :
+    AnnulusBound u (max (valuation k (u : k))⁻¹ (valuation k (u : k))) := by
+  refine ⟨?_, le_max_right _ _, le_max_left _ _⟩
+  rcases le_total (valuation k (u : k)) 1 with h | h
+  · exact le_max_of_le_left (one_le_valuation_inv h)
+  · exact le_max_of_le_right h
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- The divisor-sum tail of `XField u` is evaluation-bounded with radius `|q| * M` for any
+annulus bound `M`: each summand `d·u^d`, `d·u⁻ᵈ`, `2d` has valuation at most `M ^ d`. -/
+theorem TateCurve.evalBounded_XField_tail_of_annulusBound (q u : kˣ)
+    {M : ValueGroupWithZero k} (hM : AnnulusBound u M) :
+    EvalBounded (q : k) (valuation k (q : k) * M)
+      (PowerSeries.mk fun n ↦ ∑ d ∈ n.divisors,
+        ((d : k) * (u : k) ^ d + (d : k) * ((u : k)⁻¹) ^ d - 2 * (d : k))) := by
+  refine evalBounded_divisorSum hM.one_le _ fun n d _ ↦ ?_
+  have h1d : (1 : ValueGroupWithZero k) ≤ M ^ d := one_le_pow₀ hM.one_le
+  refine le_trans ((valuation k).map_sub _ _)
+    (max_le (le_trans ((valuation k).map_add _ _) (max_le ?_ ?_)) ?_)
+  · rw [map_mul, map_pow]
+    calc valuation k ((d : ℕ) : k) * valuation k (u : k) ^ d
+        ≤ 1 * M ^ d := mul_le_mul' (valuation_natCast_le_one d) (pow_le_pow_left' hM.val_le d)
+      _ = M ^ d := one_mul _
+  · rw [map_mul, map_pow, map_inv₀]
+    calc valuation k ((d : ℕ) : k) * (valuation k (u : k))⁻¹ ^ d
+        ≤ 1 * M ^ d := mul_le_mul' (valuation_natCast_le_one d) (pow_le_pow_left' hM.inv_le d)
+      _ = M ^ d := one_mul _
+  · rw [show ((2 : k) * (d : k)) = ((2 * d : ℕ) : k) by push_cast; ring]
+    exact le_trans (valuation_natCast_le_one _) h1d
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- The divisor-sum tail of `YField u`; as for `evalBounded_XField_tail_of_annulusBound`. -/
+theorem TateCurve.evalBounded_YField_tail_of_annulusBound (q u : kˣ)
+    {M : ValueGroupWithZero k} (hM : AnnulusBound u M) :
+    EvalBounded (q : k) (valuation k (q : k) * M)
+      (PowerSeries.mk fun n ↦ ∑ d ∈ n.divisors, (((d.choose 2 : ℕ) : k) * (u : k) ^ d
+        - (((d + 1).choose 2 : ℕ) : k) * ((u : k)⁻¹) ^ d + (d : k))) := by
+  refine evalBounded_divisorSum hM.one_le _ fun n d _ ↦ ?_
+  have h1d : (1 : ValueGroupWithZero k) ≤ M ^ d := one_le_pow₀ hM.one_le
+  refine le_trans ((valuation k).map_add _ _)
+    (max_le (le_trans ((valuation k).map_sub _ _) (max_le ?_ ?_)) ?_)
+  · rw [map_mul, map_pow]
+    calc valuation k ((d.choose 2 : ℕ) : k) * valuation k (u : k) ^ d
+        ≤ 1 * M ^ d := mul_le_mul' (valuation_natCast_le_one _) (pow_le_pow_left' hM.val_le d)
+      _ = M ^ d := one_mul _
+  · rw [map_mul, map_pow, map_inv₀]
+    calc valuation k (((d + 1).choose 2 : ℕ) : k) * (valuation k (u : k))⁻¹ ^ d
+        ≤ 1 * M ^ d := mul_le_mul' (valuation_natCast_le_one _) (pow_le_pow_left' hM.inv_le d)
+      _ = M ^ d := one_mul _
+  · exact le_trans (valuation_natCast_le_one d) h1d
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
 /-- The divisor-sum tail of `XField u` is evaluation-bounded by `(|q|/|u|)ⁿ`-powers: the
 `u⁻ᵈ`-terms grow like `|u|⁻ⁿ`, which the annulus bound absorbs. -/
 theorem TateCurve.evalBounded_XField_tail (q u : kˣ) (h₂ : valuation k (u : k) ≤ 1) :
     EvalBounded (q : k) (valuation k (q : k) * (valuation k (u : k))⁻¹)
       (PowerSeries.mk fun n ↦ ∑ d ∈ n.divisors,
-        ((d : k) * (u : k) ^ d + (d : k) * ((u : k)⁻¹) ^ d - 2 * (d : k))) := by
-  have hvu : valuation k (u : k) ≠ 0 := (valuation k).ne_zero_iff.mpr (Units.ne_zero u)
-  have h1u : (1 : ValueGroupWithZero k) ≤ (valuation k (u : k))⁻¹ :=
-    (one_le_inv₀ (zero_lt_iff.mpr hvu)).mpr h₂
-  refine ⟨1, one_ne_zero, fun n ↦ ?_⟩
-  have h1n : (1 : ValueGroupWithZero k) ≤ (valuation k (u : k))⁻¹ ^ n := by
-    calc (1 : ValueGroupWithZero k) = (valuation k (u : k))⁻¹ ^ 0 := (pow_zero _).symm
-      _ ≤ (valuation k (u : k))⁻¹ ^ n := pow_le_pow_right' h1u (Nat.zero_le n)
-  have hsum : valuation k (∑ d ∈ n.divisors,
-      ((d : k) * (u : k) ^ d + (d : k) * ((u : k)⁻¹) ^ d - 2 * (d : k)))
-      ≤ (valuation k (u : k))⁻¹ ^ n := by
-    refine (valuation k).map_sum_le fun d hd ↦ ?_
-    have hdn : d ≤ n := Nat.divisor_le hd
-    refine le_trans ((valuation k).map_sub _ _) (max_le (le_trans
-      ((valuation k).map_add _ _) (max_le ?_ ?_)) ?_)
-    · rw [map_mul, map_pow]
-      calc valuation k ((d : ℕ) : k) * valuation k (u : k) ^ d
-          ≤ 1 * 1 := mul_le_mul' (valuation_natCast_le_one d) (pow_le_one' h₂ d)
-        _ = 1 := one_mul 1
-        _ ≤ (valuation k (u : k))⁻¹ ^ n := h1n
-    · rw [map_mul, map_pow, map_inv₀]
-      calc valuation k ((d : ℕ) : k) * (valuation k (u : k))⁻¹ ^ d
-          ≤ 1 * (valuation k (u : k))⁻¹ ^ d :=
-            mul_le_mul_left (valuation_natCast_le_one d) _
-        _ = (valuation k (u : k))⁻¹ ^ d := one_mul _
-        _ ≤ (valuation k (u : k))⁻¹ ^ n := pow_le_pow_right' h1u hdn
-    · rw [show ((2 : k) * (d : k)) = ((2 * d : ℕ) : k) by push_cast; ring]
-      exact le_trans (valuation_natCast_le_one _) h1n
-  rw [one_mul, PowerSeries.coeff_mk, map_mul, map_pow, mul_pow]
-  calc valuation k (∑ d ∈ n.divisors,
-        ((d : k) * (u : k) ^ d + (d : k) * ((u : k)⁻¹) ^ d - 2 * (d : k))) *
-        valuation k (q : k) ^ n
-      ≤ (valuation k (u : k))⁻¹ ^ n * valuation k (q : k) ^ n := mul_le_mul' hsum le_rfl
-    _ = valuation k (q : k) ^ n * ((valuation k (u : k))⁻¹) ^ n := mul_comm _ _
+        ((d : k) * (u : k) ^ d + (d : k) * ((u : k)⁻¹) ^ d - 2 * (d : k))) :=
+  evalBounded_XField_tail_of_annulusBound q u (annulusBound_narrow u h₂)
 
 omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
 theorem TateCurve.evalBounded_XField (q u : kˣ) (h₂ : valuation k (u : k) ≤ 1) :
@@ -677,39 +733,8 @@ omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
 theorem TateCurve.evalBounded_YField_tail (q u : kˣ) (h₂ : valuation k (u : k) ≤ 1) :
     EvalBounded (q : k) (valuation k (q : k) * (valuation k (u : k))⁻¹)
       (PowerSeries.mk fun n ↦ ∑ d ∈ n.divisors, (((d.choose 2 : ℕ) : k) * (u : k) ^ d
-        - (((d + 1).choose 2 : ℕ) : k) * ((u : k)⁻¹) ^ d + (d : k))) := by
-  have hvu : valuation k (u : k) ≠ 0 := (valuation k).ne_zero_iff.mpr (Units.ne_zero u)
-  have h1u : (1 : ValueGroupWithZero k) ≤ (valuation k (u : k))⁻¹ :=
-    (one_le_inv₀ (zero_lt_iff.mpr hvu)).mpr h₂
-  refine ⟨1, one_ne_zero, fun n ↦ ?_⟩
-  have h1n : (1 : ValueGroupWithZero k) ≤ (valuation k (u : k))⁻¹ ^ n := by
-    calc (1 : ValueGroupWithZero k) = (valuation k (u : k))⁻¹ ^ 0 := (pow_zero _).symm
-      _ ≤ (valuation k (u : k))⁻¹ ^ n := pow_le_pow_right' h1u (Nat.zero_le n)
-  have hsum : valuation k (∑ d ∈ n.divisors, (((d.choose 2 : ℕ) : k) * (u : k) ^ d
-      - (((d + 1).choose 2 : ℕ) : k) * ((u : k)⁻¹) ^ d + (d : k)))
-      ≤ (valuation k (u : k))⁻¹ ^ n := by
-    refine (valuation k).map_sum_le fun d hd ↦ ?_
-    have hdn : d ≤ n := Nat.divisor_le hd
-    refine le_trans ((valuation k).map_add _ _) (max_le (le_trans
-      ((valuation k).map_sub _ _) (max_le ?_ ?_)) ?_)
-    · rw [map_mul, map_pow]
-      calc valuation k ((d.choose 2 : ℕ) : k) * valuation k (u : k) ^ d
-          ≤ 1 * 1 := mul_le_mul' (valuation_natCast_le_one _) (pow_le_one' h₂ d)
-        _ = 1 := one_mul 1
-        _ ≤ (valuation k (u : k))⁻¹ ^ n := h1n
-    · rw [map_mul, map_pow, map_inv₀]
-      calc valuation k (((d + 1).choose 2 : ℕ) : k) * (valuation k (u : k))⁻¹ ^ d
-          ≤ 1 * (valuation k (u : k))⁻¹ ^ d :=
-            mul_le_mul_left (valuation_natCast_le_one _) _
-        _ = (valuation k (u : k))⁻¹ ^ d := one_mul _
-        _ ≤ (valuation k (u : k))⁻¹ ^ n := pow_le_pow_right' h1u hdn
-    · exact le_trans (valuation_natCast_le_one d) h1n
-  rw [one_mul, PowerSeries.coeff_mk, map_mul, map_pow, mul_pow]
-  calc valuation k (∑ d ∈ n.divisors, (((d.choose 2 : ℕ) : k) * (u : k) ^ d
-        - (((d + 1).choose 2 : ℕ) : k) * ((u : k)⁻¹) ^ d + (d : k))) *
-        valuation k (q : k) ^ n
-      ≤ (valuation k (u : k))⁻¹ ^ n * valuation k (q : k) ^ n := mul_le_mul' hsum le_rfl
-    _ = valuation k (q : k) ^ n * ((valuation k (u : k))⁻¹) ^ n := mul_comm _ _
+        - (((d + 1).choose 2 : ℕ) : k) * ((u : k)⁻¹) ^ d + (d : k))) :=
+  evalBounded_YField_tail_of_annulusBound q u (annulusBound_narrow u h₂)
 
 omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
 theorem TateCurve.evalBounded_YField (q u : kˣ) (h₂ : valuation k (u : k) ≤ 1) :
@@ -722,10 +747,10 @@ theorem TateCurve.evalBounded_YField (q u : kˣ) (h₂ : valuation k (u : k) ≤
 theorem WeierstrassCurve.tateX_eq_evalK (q u : kˣ) (hq : valuation k (q : k) < 1)
     (h₁ : valuation k (q : k) < valuation k (u : k)) (h₂ : valuation k (u : k) ≤ 1) :
     tateX (u : k) (q : k) = TateCurve.evalK (q : k) (TateCurve.XField (u : k)) := by
-  have hvu : valuation k (u : k) ≠ 0 := (valuation k).ne_zero_iff.mpr (Units.ne_zero u)
+  have hvu : valuation k (u : k) ≠ 0 := TateCurve.valuation_unit_ne_zero u
   have hρ1 : valuation k (q : k) * (valuation k (u : k))⁻¹ < 1 := by
     rw [← div_eq_mul_inv]
-    exact (div_lt_one₀ (zero_lt_iff.mpr hvu)).mpr h₁
+    exact (div_lt_one₀ (TateCurve.valuation_unit_pos u)).mpr h₁
   have htail : Summable fun n : ℕ ↦ (∑ d ∈ n.divisors,
       ((d : k) * (u : k) ^ d + (d : k) * ((u : k)⁻¹) ^ d - 2 * (d : k))) * (q : k) ^ n :=
     ((TateCurve.evalBounded_XField_tail q u h₂).summable hρ1).congr fun n ↦ by
@@ -752,10 +777,10 @@ theorem WeierstrassCurve.tateX_eq_evalK (q u : kˣ) (hq : valuation k (q : k) < 
 theorem WeierstrassCurve.tateY_eq_evalK (q u : kˣ) (hq : valuation k (q : k) < 1)
     (h₁ : valuation k (q : k) < valuation k (u : k)) (h₂ : valuation k (u : k) ≤ 1) :
     tateY (u : k) (q : k) = TateCurve.evalK (q : k) (TateCurve.YField (u : k)) := by
-  have hvu : valuation k (u : k) ≠ 0 := (valuation k).ne_zero_iff.mpr (Units.ne_zero u)
+  have hvu : valuation k (u : k) ≠ 0 := TateCurve.valuation_unit_ne_zero u
   have hρ1 : valuation k (q : k) * (valuation k (u : k))⁻¹ < 1 := by
     rw [← div_eq_mul_inv]
-    exact (div_lt_one₀ (zero_lt_iff.mpr hvu)).mpr h₁
+    exact (div_lt_one₀ (TateCurve.valuation_unit_pos u)).mpr h₁
   have htail : Summable fun n : ℕ ↦ (∑ d ∈ n.divisors,
       (((d.choose 2 : ℕ) : k) * (u : k) ^ d
         - (((d + 1).choose 2 : ℕ) : k) * ((u : k)⁻¹) ^ d + (d : k))) * (q : k) ^ n :=
@@ -816,11 +841,11 @@ theorem WeierstrassCurve.tateCurve_equation_of_annulus (q : kˣ)
   have hvu : valuation k (u : k) ≠ 0 := (valuation k).ne_zero_iff.mpr hu0
   have hρ1 : valuation k (q : k) * (valuation k (u : k))⁻¹ < 1 := by
     rw [← div_eq_mul_inv]
-    exact (div_lt_one₀ (zero_lt_iff.mpr hvu)).mpr h₁
+    exact (div_lt_one₀ (TateCurve.valuation_unit_pos u)).mpr h₁
   have hqρ : valuation k (q : k) ≤ valuation k (q : k) * (valuation k (u : k))⁻¹ :=
     calc valuation k (q : k) = valuation k (q : k) * 1 := (mul_one _).symm
       _ ≤ valuation k (q : k) * (valuation k (u : k))⁻¹ :=
-        mul_le_mul' le_rfl ((one_le_inv₀ (zero_lt_iff.mpr hvu)).mpr h₂)
+        mul_le_mul' le_rfl (TateCurve.one_le_valuation_inv (w := u) h₂)
   -- the four series are evaluation-bounded on the annulus
   have hX := TateCurve.evalBounded_XField q u h₂
   have hY := TateCurve.evalBounded_YField q u h₂
