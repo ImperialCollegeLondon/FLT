@@ -10,7 +10,7 @@ public import FLT.Mathlib.Algebra.Algebra.Equiv
 public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
 public import FLT.Mathlib.RingTheory.Norm.Quotient
 
-import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.LiftSeparableExtension
+import FLT.Mathlib.RingTheory.Unramified.LocalRing
 import Mathlib.LinearAlgebra.Charpoly.ToMatrix
 import Mathlib.RingTheory.Flat.TorsionFree
 import Mathlib.RingTheory.LocalRing.Quotient
@@ -23,7 +23,7 @@ Let `R` be a discrete valuation ring with fraction field `K` (for example the ri
 of a nonarchimedean local field), and let `E` be an elliptic curve over `K` with multiplicative
 reduction. This file proves that if the reduction is *nonsplit*, then the quadratic twist of `E`
 (`FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.QuadraticTwists`) by the unramified quadratic
-extension of `K` (`FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.LiftSeparableExtension`) has
+extension of `K` (`FLT.Mathlib.RingTheory.Unramified.LocalRing`) has
 *split* multiplicative reduction: the reduction of the twist is the same nodal cubic with the
 Galois action on the two tangent directions at the node twisted into triviality.
 

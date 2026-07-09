@@ -5,6 +5,7 @@ Authors: Michael Stoll, Claude
 -/
 module
 
+public import Mathlib.RingTheory.Unramified.LocalRing
 public import FLT.Mathlib.RingTheory.DiscreteValuationRing.AdjoinRoot
 public import FLT.Mathlib.RingTheory.DiscreteValuationRing.Separable
 
@@ -13,6 +14,10 @@ import Mathlib.RingTheory.Polynomial.GaussLemma
 
 /-!
 # Unramified lifts of separable residue field extensions
+
+Material for `Mathlib.RingTheory.Unramified.LocalRing`, whose characterization of unramified
+extensions of local rings (`Algebra.FormallyUnramified.iff_map_maximalIdeal_eq`) this
+complements with an existence statement.
 
 A finite separable extension `k'` of the residue field `k` of a discrete valuation ring `R`
 (with fraction field `K`) lifts to an *unramified* extension `L/K` of the same degree: writing

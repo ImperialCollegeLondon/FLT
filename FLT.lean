@@ -74,7 +74,6 @@ public import FLT.HenselianLocalRing.Finite
 public import FLT.HenselianLocalRing.Stuff
 public import FLT.KnownIn1980s.EllipticCurves.Flat
 public import FLT.KnownIn1980s.EllipticCurves.GoodReduction
-public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.LiftSeparableExtension
 public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.QuadraticTwists
 public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.SplitMultiplicativeReduction
 public import FLT.KnownIn1980s.EllipticCurves.TateCurve
@@ -161,6 +160,7 @@ public import FLT.Mathlib.RingTheory.Polynomial.GaussLemma
 public import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct
 public import FLT.Mathlib.RingTheory.TensorProduct.Basis
 public import FLT.Mathlib.RingTheory.TensorProduct.Pi
+public import FLT.Mathlib.RingTheory.Unramified.LocalRing
 public import FLT.Mathlib.RingTheory.Valuation.Discrete.IsDiscreteValuationRing
 public import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 public import FLT.Mathlib.Topology.Algebra.Algebra.Hom
