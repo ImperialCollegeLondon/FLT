@@ -12,6 +12,8 @@ public import FLT.Mathlib.GroupTheory.SpecificGroups.Cyclic
 
 # Automorphisms of an elliptic curve with `j ∉ {0, 1728}`
 
+Proposed new Mathlib file `Mathlib.AlgebraicGeometry.EllipticCurve.Aut`.
+
 Let `E` be an elliptic curve over a field `K`. Over a field, isomorphisms of Weierstrass curves
 are exactly the admissible changes of variables `WeierstrassCurve.VariableChange K`, acting via
 `•`; the automorphisms of `E` are therefore the `C : VariableChange K` with `C • E = E`. This file

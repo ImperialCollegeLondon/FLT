@@ -5,7 +5,7 @@ Authors: Kevin Buzzard, Claude
 -/
 module
 
-public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.Aut
+public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.Aut
 public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
 public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.GaloisDescent
 public import FLT.Mathlib.RingTheory.Norm.Quadratic

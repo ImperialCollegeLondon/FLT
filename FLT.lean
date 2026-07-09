@@ -74,7 +74,6 @@ public import FLT.HenselianLocalRing.Finite
 public import FLT.HenselianLocalRing.Stuff
 public import FLT.KnownIn1980s.EllipticCurves.Flat
 public import FLT.KnownIn1980s.EllipticCurves.GoodReduction
-public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.Aut
 public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.LiftSeparableExtension
 public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.QuadraticTwists
 public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.SplitMultiplicativeReduction
@@ -97,6 +96,7 @@ public import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 public import FLT.Mathlib.Algebra.Polynomial.QuadraticDiscriminant
 public import FLT.Mathlib.Algebra.Polynomial.Splits
 public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
+public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.Aut
 public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.GaloisDescent
 public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
 public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.VariableChange
@@ -155,12 +155,12 @@ public import FLT.Mathlib.RingTheory.IntegralClosure.IsIntegral.Basic
 public import FLT.Mathlib.RingTheory.LocalRing.Defs
 public import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
 public import FLT.Mathlib.RingTheory.Localization.BaseChange
+public import FLT.Mathlib.RingTheory.Norm.Quadratic
 public import FLT.Mathlib.RingTheory.Norm.Quotient
 public import FLT.Mathlib.RingTheory.Polynomial.GaussLemma
 public import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct
 public import FLT.Mathlib.RingTheory.TensorProduct.Basis
 public import FLT.Mathlib.RingTheory.TensorProduct.Pi
-public import FLT.Mathlib.RingTheory.Norm.Quadratic
 public import FLT.Mathlib.RingTheory.Valuation.Discrete.IsDiscreteValuationRing
 public import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
 public import FLT.Mathlib.Topology.Algebra.Algebra.Hom
