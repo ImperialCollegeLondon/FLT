@@ -667,13 +667,13 @@ theorem exists_algebraMap_unit_eq_of_valuation_eq_one {x : K}
   exact ⟨u₀⁻¹, mul_left_cancel₀ (left_ne_zero_of_mul_eq_one h1) (h2.trans h1.symm)⟩
 
 open IsDedekindDomain.HeightOneSpectrum IsDiscreteValuationRing IsLocalRing in
-/-- The scaling factor of a change of variables between two minimal models of a curve with
-nonzero discriminant has valuation `1`: the valuations of the discriminants agree and differ by
-a factor `v(u)⁻¹²`. -/
+/-- The scaling factor of a change of variables between two minimal models of an elliptic curve
+has valuation `1`: the valuations of the discriminants agree and differ by a factor `v(u)⁻¹²`. -/
 theorem valuation_u_eq_one_of_isMinimal_smul {W₁ W₂ : WeierstrassCurve K} [IsMinimal R W₁]
-    [IsMinimal R W₂] (D : VariableChange K) (hD : D • W₁ = W₂) (hΔ₁ : W₁.Δ ≠ 0) :
+    [IsMinimal R W₂] [W₁.IsElliptic] (D : VariableChange K) (hD : D • W₁ = W₂) :
     valuation K (maximalIdeal R) ↑D.u = 1 := by
-  have hΔ0 : valuation K (maximalIdeal R) W₁.Δ ≠ 0 := (Valuation.ne_zero_iff _).mpr hΔ₁
+  have hΔ0 : valuation K (maximalIdeal R) W₁.Δ ≠ 0 :=
+    (Valuation.ne_zero_iff _).mpr W₁.isUnit_Δ.ne_zero
   have h12 : valuation K (maximalIdeal R) ↑D.u ^ 12 = 1 := by
     have key : valuation K (maximalIdeal R) W₁.Δ
         = (valuation K (maximalIdeal R) ↑D.u)⁻¹ ^ 12 * valuation K (maximalIdeal R) W₁.Δ := by
@@ -744,19 +744,19 @@ theorem exists_variableChange_baseChange_eq_of_smul_eq {W₁ W₂ : WeierstrassC
 
 open IsDedekindDomain.HeightOneSpectrum IsDiscreteValuationRing IsLocalRing in
 /-- **Split multiplicative reduction is an isomorphism invariant of minimal models.** If two minimal
-Weierstrass models `W₁`, `W₂` over `K` are related by a change of variables (`D • W₁ = W₂`) with
-`W₁.Δ ≠ 0`, and `W₁` has split multiplicative reduction, then so does `W₂`.
+Weierstrass models `W₁`, `W₂` of an elliptic curve over `K` are related by a change of variables
+(`D • W₁ = W₂`), and `W₁` has split multiplicative reduction, then so does `W₂`.
 
 This is a form of Silverman VII.1.3(b) (uniqueness of minimal models over a discrete valuation
 ring): the change `D` has `u ∈ Rˣ` (`valuation_u_eq_one_of_isMinimal_smul`), so it is defined over
 `R` (`exists_variableChange_baseChange_eq_of_smul_eq`); then the node polynomial's splitting
 transfers by `nodePoly_map_splits_smul_iff`. -/
 theorem HasSplitMultiplicativeReduction.of_isMinimal_smul {W₁ W₂ : WeierstrassCurve K}
-    [IsMinimal R W₁] [IsMinimal R W₂] (D : VariableChange K) (hD : D • W₁ = W₂)
-    (hΔ₁ : W₁.Δ ≠ 0) (h₁ : W₁.HasSplitMultiplicativeReduction R) :
+    [IsMinimal R W₁] [IsMinimal R W₂] [W₁.IsElliptic] (D : VariableChange K) (hD : D • W₁ = W₂)
+    (h₁ : W₁.HasSplitMultiplicativeReduction R) :
     W₂.HasSplitMultiplicativeReduction R := by
   -- `D.u` is the image of a unit of `R`, so `D` descends to `C₀ : VariableChange R`.
-  have hvu := valuation_u_eq_one_of_isMinimal_smul R D hD hΔ₁
+  have hvu := valuation_u_eq_one_of_isMinimal_smul R D hD
   obtain ⟨u₀, hau⟩ := exists_algebraMap_unit_eq_of_valuation_eq_one R hvu
   obtain ⟨C₀, hDC₀⟩ := exists_variableChange_baseChange_eq_of_smul_eq R D hD u₀ hau
   have hW₂eq : (C₀ • W₁.integralModel R)⁄K = W₂ := by
@@ -1100,9 +1100,10 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
   have hD : (((E.quadraticTwist L).exists_isMinimal R).choose * C⁻¹)
       • (((E.integralModel R).quadraticTwistOf t' n')⁄K) = (E.quadraticTwist L).minimal R := by
     rw [mul_smul, ← hC, inv_smul_smul]; rfl
-  have hΔ₁ : (((E.integralModel R).quadraticTwistOf t' n')⁄K).Δ ≠ 0 :=
-    Δ_baseChange_quadraticTwistOf_ne_zero E R t' n' fun h0 ↦ hDne (by rw [h0, map_zero])
-  exact HasSplitMultiplicativeReduction.of_isMinimal_smul R _ hD hΔ₁ hWsplit
+  have : (((E.integralModel R).quadraticTwistOf t' n')⁄K).IsElliptic :=
+    ⟨(Δ_baseChange_quadraticTwistOf_ne_zero E R t' n' fun h0 ↦
+      hDne (by rw [h0, map_zero])).isUnit⟩
+  exact HasSplitMultiplicativeReduction.of_isMinimal_smul R _ hD hWsplit
 
 end Reduction
 

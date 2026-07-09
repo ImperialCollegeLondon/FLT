@@ -25,14 +25,18 @@ proves the classical fact (Silverman, *The Arithmetic of Elliptic Curves*, III.1
   of `E`, as an admissible change of variables `⟨-1, 0, -a₁, -a₃⟩`.
 * `WeierstrassCurve.eq_one_or_eq_negVariableChange_of_smul_eq` : if `j(E) ∉ {0, 1728}` then any
   `C : VariableChange K` with `C • E = E` equals `1` or `negVariableChange E`.
+* `WeierstrassCurve.autGroup E` : the automorphism group of `E`, as the stabiliser of `E` under
+  the action of `VariableChange K`.
+* `WeierstrassCurve.autGroupMulEquiv` : for `j(E) ∉ {0, 1728}`, the (computable) isomorphism
+  `autGroup E ≃* Multiplicative (ZMod 2)`.
 
 ## Implementation notes
 
 The proof is broken into pieces. `j ∉ {0, 1728}` is equivalent to `c₄ ≠ 0` and `c₆ ≠ 0`
-(`c₆_ne_zero_of_j_ne_1728`). From the transformation laws of `c₄` and `c₆` one gets `u² = 1`
-(`u_eq_one_or_eq_neg_one`), which reduces everything to the case `u = 1`. There
-`r = 0` follows from the transformation laws of `b₄`, `b₆`, `b₈` (`r_eq_zero_of_u_eq_one`,
-splitting on whether `6 = 0`), and then `s`, `t` are read off from those of `a₁`, `a₃`, `a₄`, `a₆`
+(`j_eq_zero_iff` and `c₆_eq_zero_iff_j_eq_1728`). From the transformation laws of `c₄` and `c₆`
+one gets `u² = 1` (`u_eq_one_or_eq_neg_one`), which reduces everything to the case `u = 1`. There
+`r = 0` follows from the transformation laws of `b₄`, `b₆`, `b₈` (`r_eq_zero_of_u_eq_one`), and
+then `s`, `t` are read off from those of `a₁`, `a₂`, `a₃`, `a₄`
 (`eq_one_or_eq_negVariableChange_of_u_eq_one`, where the `negVariableChange` value can occur only
 in characteristic `2`).
 
@@ -105,17 +109,17 @@ lemma negVariableChange_map {A B : Type*} [Field A] [Field B] (W : WeierstrassCu
 Throughout, `C • E = E` is an automorphism of `E`; the nonvanishing of `c₄` and `c₆` encodes
 `j ∉ {0, 1728}`. -/
 
-/-- In characteristic `2`, a curve with `Δ ≠ 0` has `a₁ ≠ 0` or `a₃ ≠ 0`: otherwise `a₁ = a₃ = 0`
+/-- In characteristic `2`, an elliptic curve has `a₁ ≠ 0` or `a₃ ≠ 0`: otherwise `a₁ = a₃ = 0`
 makes the partial derivative `∂/∂y = 2y + a₁x + a₃` vanish identically, so `Δ = 0`. -/
-lemma a₁_ne_zero_or_a₃_ne_zero_of_two_eq_zero (hΔ : E.Δ ≠ 0) (h2 : (2 : K) = 0) :
+lemma a₁_ne_zero_or_a₃_ne_zero_of_two_eq_zero [E.IsElliptic] (h2 : (2 : K) = 0) :
     E.a₁ ≠ 0 ∨ E.a₃ ≠ 0 := by
   by_contra! h
-  exact hΔ (by rw [Δ, b₈, b₆, b₄, b₂, h.1, h.2]; grobner)
+  exact E.isUnit_Δ.ne_zero (by rw [Δ, b₈, b₆, b₄, b₂, h.1, h.2]; grobner)
 
-/-- The negation automorphism is nontrivial for a curve with `Δ ≠ 0`: in characteristic `≠ 2` it
-has `u = -1 ≠ 1`, and in characteristic `2` it has `(s, t) = (-a₁, -a₃) ≠ (0, 0)`, since a curve
-with `Δ ≠ 0` in characteristic `2` cannot have `a₁ = a₃ = 0`. -/
-lemma negVariableChange_ne_one (hΔ : E.Δ ≠ 0) : E.negVariableChange ≠ 1 := by
+/-- The negation automorphism is nontrivial for an elliptic curve: in characteristic `≠ 2` it
+has `u = -1 ≠ 1`, and in characteristic `2` it has `(s, t) = (-a₁, -a₃) ≠ (0, 0)`, since an
+elliptic curve in characteristic `2` cannot have `a₁ = a₃ = 0`. -/
+lemma negVariableChange_ne_one [E.IsElliptic] : E.negVariableChange ≠ 1 := by
   intro h
   rcases eq_or_ne (2 : K) 0 with h2 | h2
   · have hs := congrArg VariableChange.s h
@@ -127,8 +131,8 @@ lemma negVariableChange_ne_one (hΔ : E.Δ ≠ 0) : E.negVariableChange ≠ 1 :=
       simpa [VariableChange.one_def] using congrArg (fun C : VariableChange K ↦ (C.u : K)) h
     linear_combination -hv
 
-/-- An automorphism `C` of `E` with `C.u = 1` has no `x`-translation: `C.r = 0`. Splitting on
-whether `6 = 0`, this uses `c₄ ≠ 0` in characteristic `2` or `3` and `c₆ ≠ 0` otherwise. -/
+/-- An automorphism `C` of `E` with `C.u = 1` has no `x`-translation: `C.r = 0`. This follows
+from the transformation laws of `b₄`, `b₆`, `b₈` together with `c₆ ≠ 0`. -/
 lemma r_eq_zero_of_u_eq_one (hc6 : E.c₆ ≠ 0) {C : VariableChange K} (hu : C.u = 1)
     (hCE : C • E = E) :
     C.r = 0 := by
@@ -141,7 +145,7 @@ lemma r_eq_zero_of_u_eq_one (hc6 : E.c₆ ≠ 0) {C : VariableChange K} (hu : C.
 
 /-- An automorphism `C` of `E` with `C.u = 1` is either the identity or `negVariableChange E`.
 After `r_eq_zero_of_u_eq_one`, the `a₁` and `a₃` laws give `2s = 2t = 0`; in characteristic `≠ 2`
-this forces `s = t = 0`, and in characteristic `2` the `a₄`, `a₆` laws pin `(s, t)` down to either
+this forces `s = t = 0`, and in characteristic `2` the `a₂`, `a₄` laws pin `(s, t)` down to either
 `(0, 0)` or `(-a₁, -a₃)`. -/
 lemma eq_one_or_eq_negVariableChange_of_u_eq_one (hc4 : E.c₄ ≠ 0) (hc6 : E.c₆ ≠ 0)
     {C : VariableChange K} (hu : C.u = 1) (hCE : C • E = E) :
@@ -183,15 +187,12 @@ lemma u_eq_one_or_eq_neg_one (hc4 : E.c₄ ≠ 0) (hc6 : E.c₆ ≠ 0) {C : Vari
   · exact .inl (Units.val_eq_one.mp h)
   · exact .inr (Units.ext h)
 
-/-- If `j(E) ≠ 1728` then `c₆(E) ≠ 0`, since `c₆ = 0` forces `1728·Δ = c₄³`, i.e. `j = 1728`. -/
-lemma c₆_ne_zero_of_j_ne_1728 [E.IsElliptic] (hj : E.j ≠ 1728) : E.c₆ ≠ 0 := by
-  intro h
-  apply hj
-  have hcr : E.c₄ ^ 3 = 1728 * (E.Δ' : K) := by
-    have hh := E.c_relation
-    rw [h, ← coe_Δ'] at hh
-    linear_combination -hh
-  rw [j, Units.val_inv_eq_inv_val, hcr, mul_left_comm, inv_mul_cancel₀ E.Δ'.ne_zero, mul_one]
+/-- `c₆(E) = 0` if and only if `j(E) = 1728`, by the relation `1728·Δ = c₄³ - c₆²`. This is the
+analogue for `j = 1728` of `WeierstrassCurve.j_eq_zero_iff` (`j = 0 ↔ c₄ = 0`). -/
+lemma c₆_eq_zero_iff_j_eq_1728 [E.IsElliptic] : E.c₆ = 0 ↔ E.j = 1728 := by
+  have h : E.c₆ ^ 2 = E.c₄ ^ 3 - 1728 * E.Δ := by linear_combination E.c_relation
+  rw [← sq_eq_zero_iff, h, sub_eq_zero, j, Units.inv_mul_eq_iff_eq_mul, coe_Δ',
+    mul_comm E.Δ 1728]
 
 /-- If `c₄ ≠ 0` and `c₆ ≠ 0` then the only admissible changes of variables fixing `E` are `1` and
 `negVariableChange E`. This is the form of `Aut(E) = {±1}` phrased via `c₄, c₆` (equivalent to
@@ -217,8 +218,8 @@ theorem eq_one_or_eq_negVariableChange_of_smul_eq_of_c₄_ne_zero (hc4 : E.c₄ 
 theorem eq_one_or_eq_negVariableChange_of_smul_eq [E.IsElliptic] (hj₀ : E.j ≠ 0)
     (hj₁₇₂₈ : E.j ≠ 1728) {C : VariableChange K} (hC : C • E = E) :
     C = 1 ∨ C = E.negVariableChange :=
-  E.eq_one_or_eq_negVariableChange_of_smul_eq_of_c₄_ne_zero (fun h ↦ hj₀ (E.j_eq_zero h))
-    (E.c₆_ne_zero_of_j_ne_1728 hj₁₇₂₈) hC
+  E.eq_one_or_eq_negVariableChange_of_smul_eq_of_c₄_ne_zero (E.j_eq_zero_iff.not.mp hj₀)
+    (E.c₆_eq_zero_iff_j_eq_1728.not.mpr hj₁₇₂₈) hC
 
 /-! ### The automorphism group -/
 
@@ -230,7 +231,7 @@ def autGroup : Subgroup (VariableChange K) := stabilizer (VariableChange K) E
 lemma mem_autGroup {C : VariableChange K} : C ∈ E.autGroup ↔ C • E = E := Iff.rfl
 
 /-- Two admissible changes of variables agree iff their four coefficients do; this makes equality
-of changes of variables decidable over a field with decidable equality. -/
+of changes of variables decidable over a commutative ring with decidable equality. -/
 instance {R : Type*} [CommRing R] [DecidableEq R] : DecidableEq (VariableChange R) :=
   fun _ _ ↦ decidable_of_iff _ VariableChange.ext_iff.symm
 
@@ -242,7 +243,7 @@ isomorphism sends `negVariableChange E` to `Multiplicative.ofAdd 1`. -/
 def autGroupMulEquiv [DecidableEq K] [E.IsElliptic] (hj₀ : E.j ≠ 0) (hj₁₇₂₈ : E.j ≠ 1728) :
     E.autGroup ≃* Multiplicative (ZMod 2) :=
   mulEquivMultiplicativeZModTwo ⟨E.negVariableChange, E.negVariableChange_smul_self⟩
-    (fun h ↦ E.negVariableChange_ne_one E.isUnit_Δ.ne_zero (congrArg Subtype.val h))
+    (fun h ↦ E.negVariableChange_ne_one (congrArg Subtype.val h))
     fun C ↦ (E.eq_one_or_eq_negVariableChange_of_smul_eq hj₀ hj₁₇₂₈
       (E.mem_autGroup.mp C.2)).imp Subtype.ext Subtype.ext
 

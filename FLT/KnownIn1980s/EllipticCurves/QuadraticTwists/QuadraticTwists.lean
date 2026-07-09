@@ -617,26 +617,28 @@ lemma map_smul_baseChange_eq (σ : L ≃ₐ[K] L) {V W : WeierstrassCurve K} {ρ
   rw [hρ, hVinv, hWinv] at hmv
   exact hmv
 
+/-- The base change of an elliptic curve is an elliptic curve. Restates the instance for
+`WeierstrassCurve.map`, which does not apply to `baseChange` directly since the latter is a
+non-reducible definition. -/
+instance {R A : Type*} [CommRing R] [CommRing A] [Algebra R A] (W : WeierstrassCurve R)
+    [W.IsElliptic] : (W.baseChange A).IsElliptic :=
+  inferInstanceAs (W.map (algebraMap R A)).IsElliptic
+
 section
 
 variable [E.IsElliptic]
-
-/-- Base change to a field extension preserves the nonvanishing of the discriminant. -/
-lemma baseChange_Δ_ne_zero : (E.baseChange L).Δ ≠ 0 := by
-  simp only [baseChange, map_Δ]
-  exact (map_ne_zero_iff _ (FaithfulSMul.algebraMap_injective K L)).mpr E.isUnit_Δ.ne_zero
 
 /-- If `j(E) ≠ 0` then `c₄ ≠ 0`, also after base change to a field extension. -/
 lemma baseChange_c₄_ne_zero (hj₀ : E.j ≠ 0) : (E.baseChange L).c₄ ≠ 0 := by
   simp only [baseChange, map_c₄]
   exact (map_ne_zero_iff _ (FaithfulSMul.algebraMap_injective K L)).mpr
-    fun h ↦ hj₀ (E.j_eq_zero h)
+    (E.j_eq_zero_iff.not.mp hj₀)
 
 /-- If `j(E) ≠ 1728` then `c₆ ≠ 0`, also after base change to a field extension. -/
 lemma baseChange_c₆_ne_zero (hj₁₇₂₈ : E.j ≠ 1728) : (E.baseChange L).c₆ ≠ 0 := by
   simp only [baseChange, map_c₆]
   exact (map_ne_zero_iff _ (FaithfulSMul.algebraMap_injective K L)).mpr
-    (E.c₆_ne_zero_of_j_ne_1728 hj₁₇₂₈)
+    (E.c₆_eq_zero_iff_j_eq_1728.not.mpr hj₁₇₂₈)
 
 end
 
@@ -840,7 +842,6 @@ theorem not_exists_smul_quadraticTwist_eq (hj₀ : E.j ≠ 0) (hj₁₇₂₈ : 
   have hψinv : ψ.map σ.toAlgHom.toRingHom = ψ := by
     rw [hψ]; exact VariableChange.map_baseChange (C := CK * C₀⁻¹) σ.toAlgHom
   -- `c₄, c₆` of `Eᴸ` are nonzero, so `Aut(Eᴸ) = {±1}`.
-  have hΔL : (E.baseChange L).Δ ≠ 0 := E.baseChange_Δ_ne_zero L
   have hc4L : (E.baseChange L).c₄ ≠ 0 := E.baseChange_c₄_ne_zero L hj₀
   have hc6L : (E.baseChange L).c₆ ≠ 0 := E.baseChange_c₆_ne_zero L hj₁₇₂₈
   -- `a := ψ · C₁⁻¹` is an automorphism of `Eᴸ`, so `a = 1` or `a = [-1]`.
@@ -856,7 +857,7 @@ theorem not_exists_smul_quadraticTwist_eq (hj₀ : E.j ≠ 0) (hj₁₇₂₈ : 
     · rw [hcase]; exact map_one (VariableChange.mapHom σ.toAlgHom.toRingHom)
     · rw [hcase]; exact E.negVariableChange_baseChange_map L σ
   -- Applying `σ` to `ψ = a · C₁` forces `[-1] = 1`, a contradiction.
-  refine (E.baseChange L).negVariableChange_ne_one hΔL ?_
+  apply (E.baseChange L).negVariableChange_ne_one
   have hchain : a * ((E.baseChange L).negVariableChange * C₁) = a * C₁ :=
     calc a * ((E.baseChange L).negVariableChange * C₁)
         = a.map σ.toAlgHom.toRingHom * C₁.map σ.toAlgHom.toRingHom := by rw [hamap, hcoc]
