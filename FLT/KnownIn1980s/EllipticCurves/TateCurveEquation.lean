@@ -413,9 +413,9 @@ leading coefficients (such as `u/(1-u)²` for `u` close to `1`). -/
 theorem TateCurve.summable_of_valuation_le_const_mul_pow {C ρ : ValueGroupWithZero k}
     (hC : C ≠ 0) (hρ : ρ < 1) (f : ℕ → k)
     (hf : ∀ n, valuation k (f n) ≤ C * ρ ^ n) : Summable f := by
-  letI : UniformSpace k := IsTopologicalAddGroup.rightUniformSpace k
-  haveI : IsUniformAddGroup k := isUniformAddGroup_of_addCommGroup
-  haveI : NonarchimedeanRing k := by
+  let : UniformSpace k := IsTopologicalAddGroup.rightUniformSpace k
+  have : IsUniformAddGroup k := isUniformAddGroup_of_addCommGroup
+  have : NonarchimedeanRing k := by
     convert! ValuativeRel.nonarchimedeanRing k
     exact Valuation.toTopologicalSpace_eq _
   apply NonarchimedeanAddGroup.summable_of_tendsto_cofinite_zero
@@ -542,9 +542,9 @@ theorem TateCurve.evalK_mul {q : k} {ρ : ValueGroupWithZero k} (hρ : ρ < 1) {
   obtain ⟨C₂, hC₂, h₂⟩ := hG
   have hfg : Summable fun x : ℕ × ℕ ↦
       (PowerSeries.coeff x.1 F * q ^ x.1) * (PowerSeries.coeff x.2 G * q ^ x.2) := by
-    letI : UniformSpace k := IsTopologicalAddGroup.rightUniformSpace k
-    haveI : IsUniformAddGroup k := isUniformAddGroup_of_addCommGroup
-    haveI : NonarchimedeanRing k := by
+    let : UniformSpace k := IsTopologicalAddGroup.rightUniformSpace k
+    have : IsUniformAddGroup k := isUniformAddGroup_of_addCommGroup
+    have : NonarchimedeanRing k := by
       convert! ValuativeRel.nonarchimedeanRing k
       exact Valuation.toTopologicalSpace_eq _
     apply NonarchimedeanAddGroup.summable_of_tendsto_cofinite_zero

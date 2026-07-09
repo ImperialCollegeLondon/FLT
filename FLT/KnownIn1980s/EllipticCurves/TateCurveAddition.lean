@@ -333,7 +333,7 @@ three embeddings `emb₁, emb₂, emb₃` recovers the single-variable evaluatio
 private theorem isAlgebraic_ratFunc_of_rat (w₁ : ℂ) (hw₁ : Transcendental ℚ w₁) {z : ℂ}
     (hz : IsAlgebraic ℚ z) :
     letI := (evalAtHom w₁ hw₁).toAlgebra; IsAlgebraic (RatFunc ℚ) z := by
-  letI : Algebra (RatFunc ℚ) ℂ := (evalAtHom w₁ hw₁).toAlgebra
+  let : Algebra (RatFunc ℚ) ℂ := (evalAtHom w₁ hw₁).toAlgebra
   obtain ⟨p, hp0, hp⟩ := hz
   refine ⟨p.map (algebraMap ℚ (RatFunc ℚ)),
     (Polynomial.map_ne_zero_iff (algebraMap ℚ (RatFunc ℚ)).injective).mpr hp0, ?_⟩
@@ -364,7 +364,7 @@ independent pair `(w₁, w₂)`. -/
 private noncomputable def evalε (w₁ w₂ : ℂ) (hw₁ : Transcendental ℚ w₁)
     (hw₂ : letI := (evalAtHom w₁ hw₁).toAlgebra; Transcendental (RatFunc ℚ) w₂) :
     RatFunc₂ →+* ℂ :=
-  letI : Algebra (RatFunc ℚ) ℂ := (evalAtHom w₁ hw₁).toAlgebra
+  let : Algebra (RatFunc ℚ) ℂ := (evalAtHom w₁ hw₁).toAlgebra
   (RatFunc.liftAlgHom (Polynomial.aeval w₂) (by
     intro p hp
     rw [Submonoid.mem_comap, mem_nonZeroDivisors_iff_ne_zero]
@@ -374,7 +374,7 @@ private noncomputable def evalε (w₁ w₂ : ℂ) (hw₁ : Transcendental ℚ w
 private theorem evalε_algebraMap (w₁ w₂ : ℂ) (hw₁ : Transcendental ℚ w₁)
     (hw₂ : letI := (evalAtHom w₁ hw₁).toAlgebra; Transcendental (RatFunc ℚ) w₂) (r : RatFunc ℚ) :
     evalε w₁ w₂ hw₁ hw₂ (algebraMap (RatFunc ℚ) RatFunc₂ r) = evalAtHom w₁ hw₁ r := by
-  letI : Algebra (RatFunc ℚ) ℂ := (evalAtHom w₁ hw₁).toAlgebra
+  let : Algebra (RatFunc ℚ) ℂ := (evalAtHom w₁ hw₁).toAlgebra
   change (RatFunc.liftAlgHom (Polynomial.aeval w₂) _ : RatFunc₂ →ₐ[RatFunc ℚ] ℂ)
       (algebraMap (RatFunc ℚ) RatFunc₂ r) = evalAtHom w₁ hw₁ r
   rw [AlgHom.commutes, RingHom.algebraMap_toAlgebra]
@@ -382,7 +382,7 @@ private theorem evalε_algebraMap (w₁ w₂ : ℂ) (hw₁ : Transcendental ℚ 
 private theorem evalε_ratFuncX (w₁ w₂ : ℂ) (hw₁ : Transcendental ℚ w₁)
     (hw₂ : letI := (evalAtHom w₁ hw₁).toAlgebra; Transcendental (RatFunc ℚ) w₂) :
     evalε w₁ w₂ hw₁ hw₂ RatFunc.X = w₂ := by
-  letI : Algebra (RatFunc ℚ) ℂ := (evalAtHom w₁ hw₁).toAlgebra
+  let : Algebra (RatFunc ℚ) ℂ := (evalAtHom w₁ hw₁).toAlgebra
   change (RatFunc.liftAlgHom (Polynomial.aeval w₂) _ : RatFunc₂ →ₐ[RatFunc ℚ] ℂ) RatFunc.X = w₂
   rw [RatFunc.liftAlgHom_apply, RatFunc.num_X, RatFunc.denom_X]
   simp
@@ -397,7 +397,7 @@ private theorem transcendental_snd (w₁ w₂ : ℂ) (hw₁ : Transcendental ℚ
 private theorem transcendental_prod (w₁ w₂ : ℂ) (hw₁ : Transcendental ℚ w₁)
     (hw₂ : letI := (evalAtHom w₁ hw₁).toAlgebra; Transcendental (RatFunc ℚ) w₂)
     (hw10 : w₁ ≠ 0) : Transcendental ℚ (w₁ * w₂) := by
-  letI : Algebra (RatFunc ℚ) ℂ := (evalAtHom w₁ hw₁).toAlgebra
+  let : Algebra (RatFunc ℚ) ℂ := (evalAtHom w₁ hw₁).toAlgebra
   intro halg
   apply hw₂
   have h1 := isAlgebraic_ratFunc_of_rat w₁ hw₁ halg
@@ -472,7 +472,7 @@ private theorem evalε_eq (w₁ w₂ : ℂ) (hw₁ : Transcendental ℚ w₁)
     evalε w₁ w₂ hw₁ hw₂ r =
       ((RatFunc.num r).map (evalAtHom w₁ hw₁)).eval w₂
         / ((RatFunc.denom r).map (evalAtHom w₁ hw₁)).eval w₂ := by
-  letI : Algebra (RatFunc ℚ) ℂ := (evalAtHom w₁ hw₁).toAlgebra
+  let : Algebra (RatFunc ℚ) ℂ := (evalAtHom w₁ hw₁).toAlgebra
   change (RatFunc.liftAlgHom (Polynomial.aeval w₂) _ : RatFunc₂ →ₐ[RatFunc ℚ] ℂ) r = _
   rw [RatFunc.liftAlgHom_apply]
   have key : ∀ p : Polynomial (RatFunc ℚ), (Polynomial.aeval w₂) p
@@ -495,7 +495,7 @@ private theorem ratFunc₂_eq_zero (r : RatFunc₂)
     {w₁ : ℂ | Transcendental ℚ w₁ ∧ 0 < ‖w₁‖ ∧ ‖w₁‖ < 1}
     (transcendental_punctured_unit_disk_infinite' (K := ℚ)) ?_
   rintro w₁ ⟨hw₁, hw₁0, hw₁1⟩
-  letI : Algebra (RatFunc ℚ) ℂ := (evalAtHom w₁ hw₁).toAlgebra
+  let : Algebra (RatFunc ℚ) ℂ := (evalAtHom w₁ hw₁).toAlgebra
   rw [← evalAtHom_apply w₁ hw₁, ← Polynomial.coeff_map]
   suffices hP : (RatFunc.num r).map (evalAtHom w₁ hw₁) = 0 by rw [hP, Polynomial.coeff_zero]
   apply Polynomial.eq_zero_of_infinite_isRoot
