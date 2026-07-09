@@ -81,21 +81,19 @@ normal extensions is normal (`IntermediateField.normal_iSup`); separability is a
 characteristic zero. The "unramified outside `S`" predicate plays no role here — it only
 selects which Galois `M` enter the compositum. -/
 
-set_option maxHeartbeats 1600000 in
--- unifying through the `maximalUnramifiedOutside` suprema is expensive; see the section
--- comment on the cached instances below
 instance normal_maximalUnramifiedOutside : Normal F ↥(maximalUnramifiedOutside F S) := by
-  unfold maximalUnramifiedOutside
-  have h : ∀ M : IntermediateField F (AlgebraicClosure F),
-      Normal F ↥(⨆ (_ : IsUnramifiedOutside F S M) (_ : IsGalois F M), M) := fun M ↦ by
-    have h1 : ∀ _ : IsUnramifiedOutside F S M, Normal F ↥(⨆ (_ : IsGalois F M), M) :=
-      fun _ ↦ IntermediateField.normal_iSup (h := fun h ↦ h.to_normal)
-    exact IntermediateField.normal_iSup (h := h1)
-  exact IntermediateField.normal_iSup (h := h)
+  -- Re-index the Prop-layered supremum as a supremum over a subtype:
+  -- `IntermediateField.normal_iSup` wants a `Type*`-indexed family, and unifying through the
+  -- `Prop`-indexed `⨆`s directly is prohibitively slow.
+  have key : (⨆ s : {M : IntermediateField F (AlgebraicClosure F) //
+      IsUnramifiedOutside F S M ∧ IsGalois F M}, s.1) = maximalUnramifiedOutside F S := by
+    rw [maximalUnramifiedOutside, iSup_subtype]
+    exact iSup_congr fun M ↦ iSup_and
+  haveI : Normal F ↥(⨆ s : {M : IntermediateField F (AlgebraicClosure F) //
+      IsUnramifiedOutside F S M ∧ IsGalois F M}, s.1) :=
+    IntermediateField.normal_iSup (h := fun s ↦ s.2.2.to_normal)
+  exact Normal.of_algEquiv (IntermediateField.equivOfEq key)
 
-set_option synthInstance.maxHeartbeats 400000 in
--- instance search walks the `maximalUnramifiedOutside` suprema; see the section comment on
--- the cached instances below
 instance isGalois_maximalUnramifiedOutside : IsGalois F ↥(maximalUnramifiedOutside F S) :=
   haveI : Algebra.IsAlgebraic F ↥(maximalUnramifiedOutside F S) :=
     (normal_maximalUnramifiedOutside (F := F) (S := S)).toIsAlgebraic
