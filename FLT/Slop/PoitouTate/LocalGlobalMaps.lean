@@ -21,8 +21,8 @@ along which the restriction maps `αᵢ : Hⁱ(G_S, M) → ∏_{v ∈ S} Hⁱ(G_
 ## Main declarations
 
 * `NumberField.PoitouTate.toGKS` — the restriction map `Gal(F̄/F) →ₜ* G_{F,S}`, using that
-  `F_S/F` is Galois (the `Normal` instance is a `sorry` here; per `GKSDefn.lean` it is
-  "developed elsewhere").
+  `F_S/F` is Galois (proved in `GKSDefn.lean`,
+  `NumberField.normal_maximalUnramifiedOutside`).
 * `NumberField.PoitouTate.localToGlobal v` — the blueprint's map `G_v → G_{F,S}`, the composite
   of `Field.absoluteGaloisGroup.map (algebraMap F Fᵥ) : Γ Fᵥ →ₜ* Γ F` with `toGKS`. The
   blueprint's "choice of `ṽ` above `v`" is absorbed into `Field.absoluteGaloisGroup.map`, which
@@ -48,13 +48,9 @@ variable (S : Finset (HeightOneSpectrum (RingOfIntegers F)))
 
 local notation "Γ" K => Field.absoluteGaloisGroup K
 
-/-- The maximal extension `F_S/F` unramified outside `S` is Galois over `F`
-(blueprint §1.1; stated in `GKSDefn.lean` as "developed elsewhere"). -/
-instance normal_maximalUnramifiedOutside : Normal F ↥(maximalUnramifiedOutside F S) :=
-  sorry
-
 /-- The canonical continuous surjection `Gal(F̄/F) →ₜ* G_{F,S}`, restriction of automorphisms
-of the algebraic closure to the maximal extension unramified outside `S`. -/
+of the algebraic closure to the maximal extension unramified outside `S` (which is normal by
+`NumberField.normal_maximalUnramifiedOutside` in `GKSDefn.lean`). -/
 noncomputable def toGKS : (Γ F) →ₜ* unramifiedOutsideGaloisGroup F S where
   __ := AlgEquiv.restrictNormalHom (F := F) (K₁ := AlgebraicClosure F)
     (maximalUnramifiedOutside F S)

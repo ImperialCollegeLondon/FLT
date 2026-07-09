@@ -41,9 +41,10 @@ ramification set varies — restricting the ramification to a finite `S` cuts do
 the
 finiteness property.
 
-This file only *defines* `G_{F,S}`; that `F_S/F` is Galois (so that `G_{F,S}` is genuinely its
-Galois group and a continuous quotient of `Gal(F̄/F)`), and the `Φ_p` finiteness, are developed
-elsewhere.
+That `F_S/F` is Galois (so that `G_{F,S}` is genuinely its Galois group, a continuous quotient
+of `Gal(F̄/F)`, and compact) is proved here (`NumberField.normal_maximalUnramifiedOutside`,
+`NumberField.isGalois_maximalUnramifiedOutside`): `F_S` is a compositum of Galois extensions,
+and separability is free in characteristic zero. The `Φ_p` finiteness is developed elsewhere.
 -/
 
 @[expose] public section
@@ -73,6 +74,33 @@ abbrev unramifiedOutsideGaloisGroup (S : Finset (HeightOneSpectrum (RingOfIntege
 
 variable {F} {S : Finset (HeightOneSpectrum (RingOfIntegers F))}
 
+/-! ### `F_S/F` is Galois
+
+`F_S` is a compositum of subextensions that are each assumed Galois, and a compositum of
+normal extensions is normal (`IntermediateField.normal_iSup`); separability is automatic in
+characteristic zero. The "unramified outside `S`" predicate plays no role here — it only
+selects which Galois `M` enter the compositum. -/
+
+set_option maxHeartbeats 1600000 in
+-- unifying through the `maximalUnramifiedOutside` suprema is expensive; see the section
+-- comment on the cached instances below
+instance normal_maximalUnramifiedOutside : Normal F ↥(maximalUnramifiedOutside F S) := by
+  unfold maximalUnramifiedOutside
+  have h : ∀ M : IntermediateField F (AlgebraicClosure F),
+      Normal F ↥(⨆ (_ : IsUnramifiedOutside F S M) (_ : IsGalois F M), M) := fun M ↦ by
+    have h1 : ∀ _ : IsUnramifiedOutside F S M, Normal F ↥(⨆ (_ : IsGalois F M), M) :=
+      fun _ ↦ IntermediateField.normal_iSup (h := fun h ↦ h.to_normal)
+    exact IntermediateField.normal_iSup (h := h1)
+  exact IntermediateField.normal_iSup (h := h)
+
+set_option synthInstance.maxHeartbeats 400000 in
+-- instance search walks the `maximalUnramifiedOutside` suprema; see the section comment on
+-- the cached instances below
+instance isGalois_maximalUnramifiedOutside : IsGalois F ↥(maximalUnramifiedOutside F S) :=
+  haveI : Algebra.IsAlgebraic F ↥(maximalUnramifiedOutside F S) :=
+    (normal_maximalUnramifiedOutside (F := F) (S := S)).toIsAlgebraic
+  ⟨⟩
+
 /-! ### Cached profinite instances
 
 `G_{F,S}` is profinite under the Krull topology; deriving each of these facts walks the
@@ -88,11 +116,12 @@ set_option synthInstance.maxHeartbeats 400000 in
 instance (priority := 5000) : TotallyDisconnectedSpace (unramifiedOutsideGaloisGroup F S) :=
   inferInstance
 
+set_option synthInstance.maxHeartbeats 400000 in
+-- instance search walks the `maximalUnramifiedOutside` suprema; see the section comment above.
+-- Unlike the other profinite instances, compactness needs `F_S/F` to be Galois
+-- (`isGalois_maximalUnramifiedOutside` above).
 instance (priority := 5000) : CompactSpace (unramifiedOutsideGaloisGroup F S) :=
-  -- Unlike the other profinite instances, compactness genuinely needs `F_S/F` to be Galois
-  -- (`IsGalois F (maximalUnramifiedOutside F S)`), which per the module docstring is developed
-  -- elsewhere; until then this instance is sorried.
-  sorry
+  inferInstance
 
 set_option synthInstance.maxHeartbeats 400000 in
 -- instance search walks the `maximalUnramifiedOutside` suprema; see the section comment above
