@@ -218,6 +218,15 @@ public import FLT.Slop.PGL2.FiniteSubgroups.PartitionProof
 public import FLT.Slop.PGL2.FiniteSubgroups.RecognitionA5
 public import FLT.Slop.PGL2.FiniteSubgroups.TameClassification
 public import FLT.Slop.PGL2.FiniteSubgroups.WildClassification
+public import FLT.Slop.PoitouTate
+public import FLT.Slop.PoitouTate.DualModule
+public import FLT.Slop.PoitouTate.GKSDefn
+public import FLT.Slop.PoitouTate.InfRes
+public import FLT.Slop.PoitouTate.LocalGlobalMaps
+public import FLT.Slop.PoitouTate.LocalTateDuality
+public import FLT.Slop.PoitouTate.PoitouTateStatement
+public import FLT.Slop.PoitouTate.cupprod
+public import FLT.Slop.PoitouTate.inflmap
 public import FLT.Slop.RepresentationTheory.OddAbsIrredOrig
 public import FLT.Slop.RepresentationTheory.OddAbsIrredSlop
 public import FLT.TateCurve.TateCurve

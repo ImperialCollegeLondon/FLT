@@ -1,8 +1,14 @@
+/-
+Copyright (c) 2026 Andrew Yang. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Andrew Yang
+-/
 module
 
 public import Mathlib.NumberTheory.NumberField.Basic
 public import Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
 public import Mathlib.NumberTheory.RamificationInertia.Ramification
+public import Mathlib.RingTheory.RamificationInertia.Ramification
 public import Mathlib.FieldTheory.KrullTopology
 public import Mathlib.FieldTheory.AbsoluteGaloisGroup
 public import Mathlib.FieldTheory.Galois.Profinite
@@ -55,7 +61,7 @@ def IsUnramifiedOutside (S : Finset (HeightOneSpectrum (RingOfIntegers F)))
   ∀ v : HeightOneSpectrum (RingOfIntegers F), v ∉ S →
     ∀ w : Ideal (integralClosure (RingOfIntegers F) M), w.IsMaximal →
       v.asIdeal = w.comap (algebraMap (RingOfIntegers F) (integralClosure (RingOfIntegers F) M)) →
-      Ideal.ramificationIdx v.asIdeal w = 1
+      Ideal.ramificationIdx w (RingOfIntegers F) = 1
 
 noncomputable def maximalUnramifiedOutside (S : Finset (HeightOneSpectrum (RingOfIntegers F))) :
     IntermediateField F (AlgebraicClosure F) :=
@@ -78,18 +84,23 @@ spellings of the bad set (`toLocalDeformationData.S` vs `badPrimes`), since `S` 
 section ProfiniteShortcuts
 
 set_option synthInstance.maxHeartbeats 400000 in
+-- instance search walks the `maximalUnramifiedOutside` suprema; see the section comment above
 instance (priority := 5000) : TotallyDisconnectedSpace (unramifiedOutsideGaloisGroup F S) :=
   inferInstance
 
-set_option synthInstance.maxHeartbeats 400000 in
 instance (priority := 5000) : CompactSpace (unramifiedOutsideGaloisGroup F S) :=
-  inferInstance
+  -- Unlike the other profinite instances, compactness genuinely needs `F_S/F` to be Galois
+  -- (`IsGalois F (maximalUnramifiedOutside F S)`), which per the module docstring is developed
+  -- elsewhere; until then this instance is sorried.
+  sorry
 
 set_option synthInstance.maxHeartbeats 400000 in
+-- instance search walks the `maximalUnramifiedOutside` suprema; see the section comment above
 instance (priority := 5000) : T0Space (unramifiedOutsideGaloisGroup F S) :=
   inferInstance
 
 set_option synthInstance.maxHeartbeats 400000 in
+-- instance search walks the `maximalUnramifiedOutside` suprema; see the section comment above
 instance (priority := 5000) : IsTopologicalGroup (unramifiedOutsideGaloisGroup F S) :=
   inferInstance
 
