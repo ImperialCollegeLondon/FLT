@@ -13,8 +13,9 @@ public import FLT.Mathlib.Algebra.Polynomial.Splits
 # Separability and splitting criteria for quadratic polynomials
 
 Proposed new Mathlib file `Mathlib.Algebra.Polynomial.QuadraticDiscriminant`: a quadratic
-over a field is separable iff its discriminant is nonzero, and splits iff its discriminant is a square (in
-characteristic 2: iff its Artin–Schreier invariant is in the image of `z ↦ z² + z`).
+over a field is separable iff its discriminant is nonzero, and splits iff its discriminant is
+a square (in characteristic 2: iff its Artin–Schreier invariant is in the image of
+`z ↦ z² + z`).
 -/
 
 @[expose] public section
