@@ -28,8 +28,11 @@ characteristic `p`, `F` is a number field, `S` a finite set of finite places of 
   `Hom_ℤ(X, Additive Lˣ)`, with `G`-action `(g • f) (m) = g • f (g⁻¹ • m)` and `𝔽`-action
   `(a • f) (m) = f (a • m)`. Specializing:
 * `NumberField.PoitouTate.dualRep M` — the blueprint's `M* = Hom_ℤ(M, K_S^×)`.
-* `NumberField.PoitouTate.finite_dualRep` — blueprint lemma: `M*` is finite ("matrix counting":
-  each value of `f : M →+ K_S^×` is a root of unity of order dividing `#M`).
+* `AddMonoidHom.finite_toAdditiveUnits` — additive homomorphisms from a finite additive group
+  into the units of a domain form a finite type (each value is a root of unity of order
+  dividing the cardinality of the source).
+* `NumberField.PoitouTate.finite_dualRep` — blueprint lemma: `M*` is finite, a special case of
+  the previous instance.
 * `NumberField.PoitouTate.finite_continuousCohomology_two`,
   `NumberField.PoitouTate.finite_continuousCohomology_one_dualRep` — blueprint lemma:
   `H²(G_S, M)` and `H¹(G_S, M*)` are finite.
@@ -37,7 +40,10 @@ characteristic `p`, `F` is a number field, `S` a finite set of finite places of 
   lemma `H³-n-torsion-trivial`: if every prime dividing `n` lies in `S` (i.e. `n` is a unit in
   `R_{F,S}`), then `H³(G_S, K_S^×)` has no nonzero element killed by `n`.
 
-All theorem bodies are `sorry`; this file only fixes the statements.
+The definitions and the finiteness/discreteness of `M*` are proved. The three remaining
+`sorry`s are the deep arithmetic inputs: the two global cohomological finiteness lemmas
+(which rest on Hermite–Minkowski, cf. the `Φ_p` discussion in `GKSDefn.lean`) and the `H³`
+torsion-vanishing lemma (global class field theory).
 -/
 
 @[expose] public section
@@ -45,6 +51,19 @@ All theorem bodies are `sorry`; this file only fixes the statements.
 universe u
 
 open IsDedekindDomain
+
+/-- Additive homomorphisms from a finite additive group into the (additive) units of a domain
+form a finite type: every value is a root of unity of order dividing the cardinality of the
+source. -/
+instance AddMonoidHom.finite_toAdditiveUnits {M R : Type*} [AddCommGroup M] [Finite M]
+    [CommRing R] [IsDomain R] : Finite (M →+ Additive Rˣ) := by
+  have : NeZero (Nat.card M) := .of_pos Nat.card_pos
+  refine Finite.of_injective
+    (fun f (m : M) => (⟨(f m).toMul, ?_⟩ : rootsOfUnity (Nat.card M) R))
+    (fun f g hfg => ?_)
+  · rw [mem_rootsOfUnity, ← toMul_nsmul, ← map_nsmul, card_nsmul_eq_zero', map_zero, toMul_zero]
+  · ext m
+    exact congrArg (fun x : rootsOfUnity (Nat.card M) R => (x.1 : R)) (congrFun hfg m)
 
 namespace NumberField.PoitouTate
 
@@ -63,8 +82,8 @@ noncomputable def unitsAddRep (G : Type*) [Group G] (L : Type*) [Field L]
           { toLinearMap := (MonoidHom.toAdditive
               (Units.map (MulSemiringAction.toRingHom G L g).toMonoidHom)).toIntLinearMap
             cont := continuous_of_discreteTopology }
-        map_one' := by sorry
-        map_mul' := by sorry } }
+        map_one' := by ext x; simp
+        map_mul' g h := by ext x; simp [mul_smul] } }
 
 /-- The units `K_S^×` of the maximal extension of `F` unramified outside `S`, as a discrete
 topological `ℤ`-representation of `G_{F,S}` (blueprint notation item 7: the target of the
@@ -83,11 +102,18 @@ section HomUnitsRep
 variable {G : Type*} [Group G] [TopologicalSpace G]
 variable (X : TopRep 𝔽 G) (L : Type*) [Field L] [MulSemiringAction G L]
 
+omit [Finite 𝔽] [DiscreteTopology 𝔽] [TopologicalSpace G] [MulSemiringAction G L] in
 /-- The `𝔽`-module structure on `Hom_ℤ(X, Additive Lˣ)` through the domain:
-`(a • f) (m) = f (a • m)`. The construction (the `DomMulAct` trick of `CharacterModule`,
-using commutativity of `𝔽`) is left as `sorry` at this statement-only layer. -/
-noncomputable instance : Module 𝔽 (↥X →+ Additive Lˣ) :=
-  sorry
+`(a • f) (m) = f (a • m)`. As for `CharacterModule`, this is the `DomMulAct` module structure
+pulled back along `𝔽 →+* 𝔽ᵈᵐᵃ`, using commutativity of `𝔽`. -/
+instance : Module 𝔽 (↥X →+ Additive Lˣ) :=
+  fast_instance% Module.compHom (R := 𝔽ᵈᵐᵃ) _ ((RingEquiv.toOpposite 𝔽).toRingHom : 𝔽 →+* 𝔽ᵈᵐᵃ)
+
+omit [Finite 𝔽] [DiscreteTopology 𝔽] [TopologicalSpace G] [MulSemiringAction G L] in
+@[simp]
+lemma smul_addMonoidHom_apply (a : 𝔽) (f : ↥X →+ Additive Lˣ) (m : ↥X) :
+    (a • f) m = f (a • m) :=
+  rfl
 
 /-- The `𝔽`-linear topological representation of `G` on `Hom_ℤ(X, Additive Lˣ)`, with the
 discrete topology, `G` acting by `(g • f) (m) = g • f (g⁻¹ • m)` and `𝔽` acting through the
@@ -104,11 +130,11 @@ noncomputable def homUnitsRep : TopRep 𝔽 G :=
               { toFun f := ((MonoidHom.toAdditive
                     (Units.map (MulSemiringAction.toRingHom G L g).toMonoidHom)).comp f).comp
                     (X.ρ g⁻¹).toLinearMap.toAddMonoidHom
-                map_add' := by sorry
-                map_smul' := by sorry }
+                map_add' f₁ f₂ := by ext m; simp
+                map_smul' a f := by ext m; simp }
             cont := continuous_of_discreteTopology }
-        map_one' := by sorry
-        map_mul' := by sorry } }
+        map_one' := by ext f m; simp
+        map_mul' g h := by ext f m; simp [mul_smul] } }
 
 end HomUnitsRep
 
@@ -126,11 +152,11 @@ finite — every value of `f : M →+ K_S^×` is a root of unity of order dividi
 field has at most `n` roots of `xⁿ = 1`. Registered as an instance since downstream
 statements need it. -/
 instance finite_dualRep [Finite M] : Finite ↥(dualRep 𝔽 F S M) :=
-  sorry
+  inferInstanceAs (Finite (↥M →+ Additive (↥(maximalUnramifiedOutside F S))ˣ))
 
 /-- The dual module is discrete (it carries the discrete topology by construction). -/
 instance discreteTopology_dualRep : DiscreteTopology ↥(dualRep 𝔽 F S M) :=
-  sorry
+  ⟨rfl⟩
 
 /-- **Blueprint lemma** (§"Connecting maps"): `H²(G_S, M)` is finite for `M` finite. -/
 theorem finite_continuousCohomology_two [Finite M] [DiscreteTopology M] :
