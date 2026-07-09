@@ -26,11 +26,13 @@ A key ingredient is the separability transfer
 `Polynomial.Monic.separable_map_algebraMap_of_separable_map_residue` (a monic polynomial over `R`
 with separable reduction stays separable over `K`), proved via Gauss's lemma.
 
-## Main statement
+## Main statements
 
-* `exists_unramified_extension_of_residueField`
+* `exists_unramified_extension_of_residueField` : the lifting theorem.
+* `AdjoinRoot.isDiscreteValuationRing_of_irreducible_map_residue` : for a monic `P` over `R`
+  with irreducible reduction, `R[X]/(P)` is a discrete valuation ring, unramified over `R`.
 
-Its quadratic case is the local-field input to
+The quadratic case of the lifting theorem is the local-field input to
 `WeierstrassCurve.exists_quadraticTwist_hasSplitMultiplicativeReduction`.
 -/
 
@@ -228,7 +230,8 @@ variable {K : Type u} [Field K] [Algebra R K] [IsFractionRing R K]
 
 /-- For a monic `P` over a discrete valuation ring `R` whose reduction is irreducible over the
 residue field, `S = R[X]/(P)` is again a discrete valuation ring, *unramified* over `R`: its maximal
-ideal is `𝔪_R · S` (residue field `(residue R)[X]/(P̄)`), so `R → S` is a local homomorphism. -/
+ideal is `𝔪_R · S` (residue field `(ResidueField R)[X]/(P̄)`), so `R → S` is a local
+homomorphism. -/
 theorem AdjoinRoot.isDiscreteValuationRing_of_irreducible_map_residue
     {P : R[X]} [IsDomain (AdjoinRoot P)] (hPm : P.Monic) (hP0 : P.degree ≠ 0)
     (hirr : Irreducible (P.map (residue R))) :
@@ -294,9 +297,9 @@ theorem AdjoinRoot.isFractionRing_map {P : R[X]} (hP0 : P.degree ≠ 0)
     (hmap : (algebraMap (AdjoinRoot P) (AdjoinRoot (P.map (algebraMap R K)))).comp (mk P)
       = (mk (P.map (algebraMap R K))).comp (Polynomial.mapRingHom (algebraMap R K))) :
     IsFractionRing (AdjoinRoot P) (AdjoinRoot (P.map (algebraMap R K))) := by
-  set S := AdjoinRoot P with hSdef
-  set pK := P.map (algebraMap R K) with hpK
-  set L := AdjoinRoot pK with hLdef
+  set S := AdjoinRoot P
+  set pK := P.map (algebraMap R K)
+  set L := AdjoinRoot pK
   have hinj : Function.Injective (algebraMap R S) := by
     rw [algebraMap_eq]; exact of.injective_of_degree_ne_zero hP0
   have hRL_inj : Function.Injective (algebraMap R L) := by
@@ -345,6 +348,7 @@ theorem Polynomial.Monic.separable_map_algebraMap_of_separable_map_residue {P : 
   rw [derivative_map]
   exact map_dvd _ hdvdP'
 
+open AdjoinRoot in
 /-- **Unramified lifting, arbitrary degree.** A finite separable extension `k'` of the residue
 field of a discrete valuation ring `R` lifts to an unramified extension `L` of its fraction field
 `K`: there is a finite separable extension `L/K` with `[L : K] = [k' : k]` and a discrete
@@ -360,7 +364,6 @@ theorem exists_unramified_extension_of_residueField
       (_ : IsLocalHom (algebraMap R S)),
       Module.finrank K L = Module.finrank (ResidueField R) k'
         ∧ Nonempty (ResidueField S ≃ₐ[ResidueField R] k') := by
-  classical
   -- `k' = k[X]/(pbar)` for a monic separable irreducible `pbar` of degree `[k' : k]`.
   obtain ⟨pbar, hpbar_monic, hpbar_sep, hpbar_irr, hpbar_deg, ⟨hk'_equiv⟩⟩ :=
     Field.exists_monic_irreducible_adjoinRoot_algEquiv (ResidueField R) k'
@@ -369,50 +372,50 @@ theorem exists_unramified_extension_of_residueField
   obtain ⟨P, hP_monic, hP_map, hP_deg⟩ := IsLocalRing.exists_monic_map_residue_eq hpbar_monic
   have hP_redirr : Irreducible (P.map (residue R)) := by rw [hP_map]; exact hpbar_irr
   have hP_irr : Irreducible P :=
-    Polynomial.Monic.irreducible_of_irreducible_map (residue R) P hP_monic hP_redirr
+    hP_monic.irreducible_of_irreducible_map (residue R) P hP_redirr
   have hPdeg : P.degree ≠ 0 := by
     rw [Polynomial.degree_eq_natDegree hP_monic.ne_zero, hP_deg]
     exact_mod_cast hpbar_pos.ne'
   set pK := P.map (algebraMap R K) with hpK
   have : Fact (Irreducible pK) :=
-    ⟨(Polynomial.Monic.irreducible_iff_irreducible_map_fraction_map (K := K) hP_monic).mp hP_irr⟩
-  set L := AdjoinRoot pK with hL
-  set S := AdjoinRoot P with hS
-  have hSdom : IsDomain S := AdjoinRoot.isDomain_of_prime
+    ⟨(hP_monic.irreducible_iff_irreducible_map_fraction_map (K := K)).mp hP_irr⟩
+  set L := AdjoinRoot pK
+  set S := AdjoinRoot P
+  have hSdom : IsDomain S := isDomain_of_prime
     (UniqueFactorizationMonoid.irreducible_iff_prime.mp hP_irr)
   -- `S = R[X]/(P)` is a discrete valuation ring, unramified over `R`.
   obtain ⟨hmS_max, hSdvr, hSlocalhom⟩ :=
-    AdjoinRoot.isDiscreteValuationRing_of_irreducible_map_residue hP_monic hPdeg hP_redirr
+    isDiscreteValuationRing_of_irreducible_map_residue hP_monic hPdeg hP_redirr
   have hmaxS : maximalIdeal S = (maximalIdeal R).map (algebraMap R S) :=
     (IsLocalRing.eq_maximalIdeal hmS_max).symm
   -- `L = K[X]/(pK)` has degree `[k' : k]` over `K`.
   have hLrank : Module.finrank K L = Module.finrank (ResidueField R) k' :=
-    AdjoinRoot.finrank_eq_natDegree.trans
+    finrank_eq_natDegree.trans
       (by rw [hpK, hP_monic.natDegree_map, hP_deg, hpbar_deg])
   -- The `R`-algebra map `S → L` and the tower `R → S → L`.
-  let algSL : Algebra S L := (AdjoinRoot.map (algebraMap R K) P pK hpK.dvd).toAlgebra
-  have halg : algebraMap S L = AdjoinRoot.map (algebraMap R K) P pK hpK.dvd :=
+  let algSL : Algebra S L := (map (algebraMap R K) P pK hpK.dvd).toAlgebra
+  have halg : algebraMap S L = map (algebraMap R K) P pK hpK.dvd :=
     RingHom.algebraMap_toAlgebra _
   have htower : IsScalarTower R S L := IsScalarTower.of_algebraMap_eq fun r ↦ by
-    rw [halg, AdjoinRoot.algebraMap_eq (f := P), AdjoinRoot.map_of, AdjoinRoot.algebraMap_eq']
+    rw [halg, algebraMap_eq (f := P), map_of, algebraMap_eq']
     rfl
   -- Residue field: `S/𝔪_S ≅ k[X]/(pbar) ≅ k'`, as `R`-algebra equivalences, then lift the base
   -- ring to `ResidueField R` (`extendScalarsOfSurjective`).
   let _ : Algebra R k' := ((algebraMap (ResidueField R) k').comp (residue R)).toAlgebra
   have : IsScalarTower R (ResidueField R) k' := .of_algebraMap_eq fun _ ↦ rfl
   have e : ResidueField S ≃ₐ[R] k' :=
-    (AdjoinRoot.residueFieldEquiv hmaxS).trans
+    (residueFieldEquiv hmaxS).trans
       ((Ideal.quotientEquivAlgOfEq R (congrArg (fun q ↦ Ideal.span {q}) hP_map)).trans
         (hk'_equiv.restrictScalars R))
   exact ⟨L, inferInstance, inferInstance,
-    (AdjoinRoot.powerBasis (Fact.out (p := Irreducible pK)).ne_zero).finite,
-    AdjoinRoot.isSeparable_of_separable
+    (powerBasis (Fact.out (p := Irreducible pK)).ne_zero).finite,
+    isSeparable_of_separable
       (hP_monic.separable_map_algebraMap_of_separable_map_residue
         (by rw [hP_map]; exact hpbar_sep)),
     inferInstance, inferInstance, S, inferInstance, hSdom, hSdvr, inferInstance,
     hP_monic.finite_adjoinRoot, algSL, htower,
-    AdjoinRoot.isFractionRing_map hPdeg hmaxS
-      (by rw [halg]; exact AdjoinRoot.map_comp_mk (algebraMap R K) hpK),
+    isFractionRing_map hPdeg hmaxS
+      (by rw [halg]; exact map_comp_mk (algebraMap R K) hpK),
     hSlocalhom, hLrank, ⟨e.extendScalarsOfSurjective residue_surjective⟩⟩
 
 end
