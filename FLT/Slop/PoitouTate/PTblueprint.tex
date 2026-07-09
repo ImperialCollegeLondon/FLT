@@ -1,0 +1,362 @@
+%------ For Paper Format -----%
+
+\documentclass[11pt]{article}
+\include{preamble}
+
+%--------Meta Data: Fill in your info------
+\date{\today}
+
+
+%Tips:
+%\newcommand{\cur}[1]{\mathcal{#1}} cur = mathcal
+%\newcommand{\fk}[1]{\fk{#1}}    fk - mathfrak
+%\newcommand{\mero}[1]{\cur{M}(#1)}
+\newcommand{\scr}[1]{\mathscr{#1}} %scr = mathscr
+
+\begin{document}
+
+The goal of this document is to formalize the statement of Poitou-Tate.% \textcolor{red}{Modify using Milne's version instead of Washington's yellow book version. See Prop 4.10 in Chapter I in Miline's book.}
+
+\bigskip
+Note that our interest is in the application of Poitou-Tate, so we will only care a relatively more `restrictive' version of Poitou-Tate sufficient enough for application in FLT as in Gee's AWS notes.
+
+\bigskip
+\textbf{Notations:}
+\begin{enumerate}
+    \item Fix prime $p > 2$ and denote $\F$ to be some finite field of characteristic $p$.
+    \item $K$ is a totally real field \textit{(in Milne, a global field, but for FLT, $F$ totally real suffices)}.
+    \item $S$ a non-empty set of primes of $K$ containing $\infty$.
+    \item $K_S$ is the maximal subfield of $K^s$, the separable closure of $K$, that is ramified over $K$ only at primes in $S$.
+    \item $k(v)$ residue field at $v$, $g_v = \Gal(k(v)^s / k(v)) = G_v / I_v$.
+    \item $G_S = \Gal (K_S/K)$. For $v \in S$, $G_v  = \Gal(K_v^s / K_v)$.
+    \item $R_S = \varinjlim R_{F, S}$ where $R_{F, S} = \cap_{w \not\in S} \O_w$, the ring of $S_F$-integers for $F/K$ finite extension contained in $K_S$.
+    \item $M$ is a finitely generated $G_S$-module over $\F$ whose order is a unit in $R_{K, S}$.
+    \item $\hat{H}^i$ is the Tate cohomology.
+    \item $M^* = \Hom_{\Z} (M, K_S^\times)$. (Milne uses $M^D$).
+\end{enumerate}
+
+%\bigskip
+%Before formalising the actual statement, my current thought is that we will give all the relevant definition and propositions we need before we try to formalise the theorem. The rough idea of steps of formalising can be split as follows:
+%\begin{enumerate}
+ %   \item Defining the $\alpha_i$ maps
+ %   \item Defining the $\beta_i$ maps
+%    \item The pairing connective maps
+%\end{enumerate}
+
+
+%\bigskip
+%Things we can assume is formalised or in the process of formalising:
+%\begin{enumerate}
+%    \item Pontryagin dual -- Yael
+%    \item Continuous cohomology, Tate duality -- Edison
+%    \item Perfect pairing (this part is slightly unclear how much and to what extent) -- Edison
+%    \item Inflation-Restriction sequence
+%\end{enumerate}
+
+\section{Pre-requisites before formalising the statement}
+
+\subsection{Restriction Galois Groups}
+
+Andrew has code for defining $G_{K, S}$ where we allow ramification outside $S$. But, I think we need to define the maps where $v \in S$, the map
+\[
+G_v=\operatorname{Gal}(\overline{K}_{\widetilde{v}}/K_v) \to G_{K, S}.
+\]
+
+\begin{itemize}
+    \item There aren't canonical maps, these depend on some choice of \( \widetilde{v} \) of \( \overline{K} \) above \( v \).
+    \item After making such a choice, one gets a decomposition group
+    \[
+    D_v := \{\sigma \in G_{K,S} : \sigma\widetilde{v} = \widetilde{v} \}
+    \]
+    and an isomorphism \( G_v\cong D_v \).
+    \item The choices have no effect on the \( H^i \); any such decomposition groups are conjugates of each other
+\end{itemize}
+
+\subsection{Inflation-Restriction}
+
+Let \( M \) be an abelian group, with the action of a group \( G \). Let \( H \) be a normal subgroup of \( G \).
+\begin{prop}
+There is an exact sequence
+\[
+0 \to H^1 (G/H, M^H) \to H^1 (G, M) \to H^1 (H, M)^{G/H} \to H^2 (G/H, M^H) \to H^2 (G, M).
+\]
+\end{prop}
+\textcolor{red}{Note: Do we only need the restriction map?}
+
+\subsection{Local--Tate duality}
+
+If \( A \) is an abelian group, let \( A^\vee = \operatorname{Hom}(A,\Q/\Z) \) be the continuous Pontryagin dual.
+\begin{thm}[Milne, Corollary 2.3]
+    \begin{enumerate}[label=(\arabic*)]
+        \item Let \( M \) be a finitely generated \( G_v \)-module. Then cup-product
+        \[ H^i(G_v,M^*)\times H^{2-i}(G_v,M)\to H^2(G_v,\overline{\Q}_p^\times) \cong \Q/\Z \]
+        defines an isomorphism
+        \[ H^i(G_v,M^*)\to H^{2-i}(G_v,M)^\vee \]
+        for all \( i\geq 0 \).
+        \item In particular, \( H^i(G_v,M)=0 \) for all \( i\geq 3 \).
+    \end{enumerate}
+\end{thm}
+\begin{thm}[Milne, Theorem 2.1]
+    Let \( M \) be a finitely generated \( G_v \)-module.
+
+    Then \( H^i(G_v,M) \) is finite for all \( i \).
+\end{thm}
+\begin{thm}[Milne, Example 1.6] \label{thm:cup-prod-duality}
+    \begin{enumerate}[label=(\arabic*)]
+        \item Let \( G \) be a profinite group isomorphic to \( \widehat{\Z} \). Let \( G \) act trivially on \( \Z \). Choose a topological generator \( \sigma \) of \( G \). For each \( m \), \( G \) has a unique open subgroup \( U \) of index \( m \), and \( \sigma^m \) generates \( U \). The boundary map in the cohomology sequence of
+        \[ 0 \to \Z \to \Q \to \Q/\Z \to 0 \]
+        is an isomorphism \( H^1(U,\Q/\Z)\to H^2(U,\Z) \). We define
+        \[ \operatorname{inv}_U: H^2(U,\Z)\to \Q/\Z \]
+        to be the composition of the inverse of this isomorphism with
+        \[ H^1(U,\Q/\Z)=\operatorname{Hom}_{\operatorname{cts}}(U,\Q/\Z) \xrightarrow{f\mapsto f(\sigma^m)} \Q/\Z. \]
+        Note that \( \operatorname{inv}_U \) depends on the choice of \( \sigma \).
+        \item Let \( I_v = \operatorname{Gal}(\overline{K}_{\widetilde{v}}/K_v^{\operatorname{un}}) \) be the inertial subgroup of \( G_v \). The inflation map
+        \[ H^2(G_v/I_v, {K^{\operatorname{un}}}^\times)\to H^2(G_v,\overline{K}^\times) \]
+        is an isomorphism. We define \( \operatorname{inv}_{G_v}: H^2(G_v,\overline{K}^\times)\to \Q/\Z \) to be the composition of the inverse of this isomorphism with the following isomorphisms:
+        \[ H^2(G_v/I_v,{K^{\operatorname{un}}}^\times)\xrightarrow{\operatorname{ord}} H^2(G_v/I_v,\Z) \xrightarrow{\operatorname{inv}_{G_v/I_v}} \Q/\Z. \]
+        Denote the map from $H^2 (G_v, \overline{K}^\times) \to \Q/\Z$ to be $\varphi$.
+    \end{enumerate}
+\end{thm}
+
+\bigskip
+\noindent\textbf{Unramified cohomology.}
+A \( G_v \)-module \( M \) is said to be \emph{unramified} if \( M^{I_v} = M \).
+For a finitely generated \( G_v \)-module \( M \), we write \( M^d \) for the submodule
+\[ M^d = \Hom(M, (R^{\operatorname{un}})^\times) \]
+of \( M^* = \Hom(M, \overline{K}^\times) \), where \( R^{\operatorname{un}} \) denotes
+the ring of integers of \( K_v^{\operatorname{un}} \). Note that if \( M \) is
+unramified, then \( H^1(G_v/I_v, M) \) makes sense and is a subgroup of
+\( H^1(G_v, M) \). Moreover, when \( M \) is finite, \( H^1(G_v/I_v, M) \) is dual
+to \( \operatorname{Ext}^1_{G_v/I_v}(M, \Z) \) \textit{(see Milne, 1.10)}.
+
+\begin{thm}[Milne, Theorem 2.6]
+    If \( M \) is a finitely generated unramified \( G_v \)-module whose torsion is
+    prime to \( \operatorname{char}(k(v)) \), then the groups
+    \( H^1(G_v/I_v, M) \) and \( H^1(G_v/I_v, M^d) \) are the exact annihilators
+    of each other in the cup-product pairing
+    \[ H^1(G_v, M) \times H^1(G_v, M^*) \to H^2(G_v, \overline{K}^\times) \cong \Q/\Z. \]
+\end{thm}
+
+
+\begin{comment}
+Local Tate duality as in the sense of Washington.
+\begin{thm}\label{thm:local-Tate}
+    \begin{enumerate}
+        \item The groups $H^i (G_p, M)$ are finite for all $i \geq 0$, and $= 0$ for $i \geq 3$.
+        \item For $i= 0, 1, 2$, the cup product gives a non-degenerate pairing
+        \[
+        H^i (G_p, M) \times H^{2-i} (G_p, M^*) \to H^2 (G_p, \overline{\Q_p}^\times) \cong \Q/\Z
+        \]
+        \textcolor{red}{the isomorphism with $\Q/\Z$ is deep, debate on whether formalising.}
+        \item If $p$ does not divide the order of $M$, then the unramified classes
+        \[
+        H^1 (G_p/I_p, M^{I_p}) \text{ and } H^1 (G_p/I_p, (M^*)^{I_p})
+        \]
+        are the exact annihilators of each other under the pairing $H^1 (G_p, M) \times H^1 (G_p, M^*) \to \Q/\Z$.
+    \end{enumerate}
+\end{thm}
+
+\textcolor{red}{Also need to formalize the statement.}
+\end{comment}
+
+\section{$\alpha_i$ maps}
+For all \( i \), let
+\[ \alpha_i: H^i(G_{S},M)\to \prod_{v\in S_\infty}\widehat{H}^i(G_v,M)\times\prod_{v\in S_f}H^i(G_v,M) \]
+be induced by restriction maps.
+
+\textcolor{red}{Note: Since \( p>2 \), \( \widehat{H}^i(G_v,M)=0 \) for all \( i \), whenever \( v\in S_\infty \)}
+
+\bigskip
+We will define in steps:
+\begin{enumerate}
+    \item Give the definition of restriction maps.
+\[
+\res_v^i : H^i (G_S, M) \to H^i (G_v, M).
+\]
+
+\begin{itemize}
+    \item Then the map on cochains is described explicitly by the restriction of functions on $G_S^i$ to functions on $G_v^i$ (maybe easy to formalize assuming that the cochain complex used to define $H^i$ is given by continuous functions \( C^i(G, M) = \{f: G^i \to M\} \))
+\end{itemize}
+\item For an infinite place \( v\in S_\infty \), \( G_v \) is a finite subgroup of \( G_S \). Then
+\[ \widehat{H}^0(G_v,M) = H^0(G_v,M)/\operatorname{Norm}(M). \]
+\end{enumerate}
+These \( \alpha_i \) maps are denoted by \( \beta^r \) in Milne, p. 55.
+
+\section{$\beta_i$ maps}
+
+By Local--Tate duality,
+\[ \prod_{v\in S_\infty}\widehat{H}^i(G_v,M)\times\prod_{v\in S_f}H^i(G_v,M) \]
+is the (Pontryagin) dual to
+\[ \prod_{v\in S_\infty}\widehat{H}^{2-i}(G_v,M^*)\times\prod_{v\in S_f}H^{2-i}(G_v,M^*). \]
+So we may dualize the restriction map
+\[ H^{2-i}(G_{S},M^*)\to \prod_{v\in S_\infty}\widehat{H}^{2-i}(G_v,M^*)\times\prod_{v\in S_f}H^{2-i}(G_v,M^*) \]
+to obtain
+\[ \prod_{v\in S}\widehat{H}^{i}(G_v,M)\times\prod_{v\in S_f}H^{i}(G_v,M)\to H^{2-i}(G_{S},M^*)^\vee. \]
+These \( \beta_i \) maps are denoted by \( \gamma^r \) in Milne, p. 56.
+
+\section{Connecting maps}
+Let \( \operatorname{Ker}^i(G_S,M)=\ker \alpha_i \).
+
+\bigskip
+\textbf{Assume $M$ is a finite $G_p$-module.}
+
+\begin{lem}
+    For $M$ finite with cardinality $n$, $M^* = \Hom_\Z (M, \mu_n)$ is also finite. Note that the $G_p$-action on $M^*$ is given by $(g x^*)(x) = g(x^* (g^{-1}x))$.
+\end{lem}
+
+\begin{proof}
+    Idea: This is really matrix counting of finite set.
+\end{proof}
+
+\begin{lem}
+    If $M$ is finite, then $H^2(G_S, M)$ and $H^1 (G_S, M^*)$ are finite.
+\end{lem}
+
+\begin{proof}
+    Given $M$ is finite, so $M^*$ is finite. So, by Prop 7 in Washington, we know $H^1 (G_S, M^*)$ is finite.
+
+    \bigskip
+    Need $H^2$ finite.
+\end{proof}
+
+\subsection{Some pre-requisites needed for defining the pairing}
+Again for $M$ with order $n$.
+\begin{lem} \label{lem:H3-n-torsion-trivial }
+ There is no non-zero element of order n in $H^3 (G_S, K_S^\times)$.
+\end{lem}
+
+\begin{proof}
+    \textcolor{red}{Sorry}
+\end{proof}
+
+\subsection{Explicitly defining the pairing}
+
+%\begin{lem}[Lem 4.8 + sentence above, Milne]
+ %   For any finite $G_S$-module $M$, the image of
+  %  \[
+   % H^r (G_S, M) \to \prod_{v \in S} H^r (K_v, M)
+    %\]
+    %is contained in $P^r_S (K, M) = \bigoplus_{v \in S} H^r (K_v, M)$.
+%\end{lem}
+
+In consideration of formalising, we will need to give an explicit definition of the non-degenerate pairing,
+\[
+\ker^2 (G_S, M) \times \ker^1 (G_S, M^*) \to \Q/\Z.
+\]
+
+
+\bigskip
+Recall also $\ker^2 (G_S, M) \subseteq H^2 (G_S, M)$ and $\ker^1 (G_S, M^*) \subseteq H^1 (G_S, M^*)$.
+
+\bigskip
+Fix $f \in \ker^2$ and $g \in \ker^1$. Let $v \in S$. Then, by definition, $\res_v f$ and $\res_v g$ are both 0. So, given the cohomology is computed via computing the cohomology for the chain complex $\Hom (G^n, X)$, so there exists $\phi_v \in \Hom (G_v, M)$  and $\psi_v \in M^*$ such that
+\[
+\res_v f = d^1 \phi_v \text{ and } \res_v g = d^0 \psi_v.
+\]
+
+\bigskip
+Then, consider $f \cup g$.
+\begin{claim}
+    $f \cup g = 0$.
+\end{claim}
+
+\begin{proof}
+Given $M$ is finite of order $n$, so is $M^*$. So, both $f$ and $g$ are $n$-torsion, meaning so is $f \cup g$. Then by Lem \ref{lem:H3-n-torsion-trivial}, as there is no nontrivial $n$-torsion element in $H^3 (G_S, K_S^\times)$, thus forcing $f \cup g = 0$.
+\end{proof}
+
+\bigskip
+Given $f \cup g = 0 \in H^3 (G_S, K_S^\times)$, there exists $h \in C^2 (G_S, K_S^\times)$ such that
+\[
+f \cup g = d h.
+\]
+For short-hand of notation, let $f_v = \res_v f$, $g_v = \res_v g$, $h_v = \res_v h = f_v \cup g_v$. Then consider $(f_v \cup \psi_v) - h_v$.
+\begin{claim}
+    \begin{enumerate}
+        \item $f_v \cup \psi_v - h_v \in \ker d^2$.
+        \item $f_v \cup \psi_v -h_v = \phi_v \cup g_v - h_v \in H^2 (G_S, K_S^\times)$.
+    \end{enumerate}
+\end{claim}
+\begin{proof}
+\begin{enumerate}
+    \item We will directly evaluate
+    \begin{align*}
+    d^2 (f_v \cup \psi_v - h_v) & = d^2 (f_v \cup \psi_v) - d^2 h_v = d^2 (f_v \cup \psi_v) - f_v \cup g_v \\
+    & = d^2 f_v \cup \psi_v + f_v \cup d^2 \psi_v - f_v \cup g_v = d^2 f_v \cup \psi_v + f_v \cup g_v  - f_v \cup g_v = 0 \\
+    \end{align*}
+    (Note that $f \in H^2 (G_S, M)$, so $f$ can be pull-back (upto equivalence of the coboundary) an element in $\ker d^2$.
+
+    \bigskip
+    A similar computation for $\phi_v \cup g_v - h_v$ can be show that this lies in $\ker d^2$.
+
+    \bigskip
+    \item We claim that
+    \[
+        f_v \cup \psi_v - h_v = \phi_v \cup g_v - h_v + d^1 (\phi_v \cup \psi_v).
+    \]
+    We will compute from RHS to LHS,
+    \begin{align}
+    \phi_v \cup g_v - h_v + d^1 (\phi_v \cup \psi_v) & = \phi_v \cup g_v - h_v + f_v \cup \psi_v -\phi_v \cup g_v \\
+    & = f_v \cup \psi_v - h_v.
+    \end{align}
+\end{enumerate}
+
+
+\end{proof}
+
+Denote $x_v = f \cup \psi_v - h$. Then, apply the map from Thm \ref{thm:cup-prod-duality} (2), the image of $x_v$, $\varphi(x_v)$ is an element in $\Q/\Z$.
+
+\bigskip
+So, define
+\[
+\langle f, g \rangle := \sum_{v \in S} \varphi(x_v)
+\]
+for $x_v$ defined as above.
+
+\begin{prop} \label{prop:perfect-pairing}
+    There is a non-degenerate canonical pairing
+    \[ \operatorname{Ker}^2(G_S,M)\times \operatorname{Ker}^1(G_S,M^*)\to \mathbb{Q}/\mathbb{Z}. \]
+
+    \bigskip
+    Furthermore, as $M$ is finite, the pairing is in fact perfect.
+\end{prop}
+
+%\textcolor{blue}{We will follow the proof as from Washington, as that's more explicit. Milne's proof is translating everything to an $\Ext$ sequence, which is harder to formalise.}
+
+\bigskip
+Then, the connecting maps for Poitou-Tate will be defined in the following steps:
+\begin{enumerate}
+    \item The map $\iota: \ker^2 (G_S, M^*) \hookrightarrow H^2 (G_S, M^*)$ induces a quotient map $\iota^\vee: H^2 (G_S, M^*)^\vee \twoheadrightarrow (\ker^2 (G_S, M^*))^\vee.$
+
+    \bigskip
+    For $f \in H^2 (G_S, M^*)^\vee$, apply $\iota^\vee$ gives $\iota^\vee (f) \in \ker^2 (G_S, M^*)^\vee$.
+
+    \item By Prop \ref{prop:perfect-pairing}, we have an isomorphism
+    \[
+    \psi: (\ker^2 (G_S, M^*))^\vee \to \ker^1 (G_S, M)
+    \]
+    which for $\langle f, g \rangle \in \ker^2 (G_S, M) \times \ker^1 (G_S, M^*) \mapsto c \in \Q/\Z$, $\psi$ takes the unique map $\varphi: \ker^2 (G_S, M^*) \to \Q/\Z$ that $\varphi(f) = c$ and maps to $g$.
+\end{enumerate}
+
+
+
+
+\section{Statement}
+\begin{thm}[Poitou-Tate]
+The following nine-term sequence is exact:
+\begin{align*}
+0 \to  H^0 (G_S, M) \xrightarrow{\alpha_0} \prod_{l \in S_f} \hat{H}^0 (G_l, M) \xrightarrow{\beta_0} H^2 (G_{S}, M^*)^\vee \\
+\to  H^1 (G_S, M) \xrightarrow{\alpha_1} \prod_{l \in S} H^1 (G_l, M) \xrightarrow{\beta_1} H^1 (G_S, M^*)^\vee \\
+\to H^2 (G_S, M) \xrightarrow{\alpha_2} \prod_{l \in S} H^2 (G_l, M) \xrightarrow{\beta_2} H^0 (G_S, M^*)^\vee \to 0
+\end{align*}
+
+\bigskip
+\textit{Note that for $p >2$, $\hat{H}^0 (G_{\R}, M) = 0$. For $p = 2$, see either Washington Galois cohomology or Milne for the $p = 2$ case. }
+\end{thm}
+
+
+
+
+
+
+
+\end{document}
