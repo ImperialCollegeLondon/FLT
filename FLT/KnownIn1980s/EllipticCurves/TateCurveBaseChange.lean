@@ -7,7 +7,7 @@ module
 
 public import FLT.KnownIn1980s.EllipticCurves.TateParameter
 
-import FLT.Mathlib.NumberTheory.TsumDivisorsAntidiagonal
+import FLT.Slop.NumberTheory.TsumDivisorsAntidiagonal
 import Mathlib.Topology.Algebra.InfiniteSum.Nonarchimedean
 
 /-!
@@ -131,7 +131,7 @@ theorem hasSum_geometric_succ {x : k} (hx : valuation k x < 1) :
 coefficients `c` and `|q| < 1`,
 `∑_{m≥1} c(m)qᵐ/(1 - qᵐ) = ∑_{N≥1} (∑_{d ∣ N} c(d))qᴺ`.
 This is the valuative instantiation of the general `tsum_lambert_of_summable`
-(`FLT.Mathlib.NumberTheory.TsumDivisorsAntidiagonal`): the geometric row expansions come
+(`FLT.Slop.NumberTheory.TsumDivisorsAntidiagonal`): the geometric row expansions come
 from `hasSum_geometric_succ`, and the double series is summable since its terms tend to
 zero nonarchimedeanly (`summable_of_valuation_le_pow`). -/
 theorem tsum_lambert (q : k) (hq : valuation k q < 1) (c : ℕ → ℤ) :
