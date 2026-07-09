@@ -87,9 +87,12 @@ public import FLT.Mathlib.Algebra.Algebra.Bilinear
 public import FLT.Mathlib.Algebra.Algebra.Hom
 public import FLT.Mathlib.Algebra.Algebra.Pi
 public import FLT.Mathlib.Algebra.Algebra.Tower
+public import FLT.Mathlib.Algebra.Category.ModuleCat.Topology.Basic
+public import FLT.Mathlib.Algebra.Category.ModuleCat.Topology.Homology
 public import FLT.Mathlib.Algebra.Central.TensorProduct
 public import FLT.Mathlib.Algebra.FixedPoints.Basic
 public import FLT.Mathlib.Algebra.Group.Action.Hom
+public import FLT.Mathlib.Algebra.Homology.HomologicalComplex
 public import FLT.Mathlib.Algebra.IsDirectLimit
 public import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 public import FLT.Mathlib.Algebra.Module.Submodule.Basic
@@ -134,6 +137,10 @@ public import FLT.Mathlib.NumberTheory.Padics.HeightOneSpectrum
 public import FLT.Mathlib.NumberTheory.Padics.PadicIntegers
 public import FLT.Mathlib.Order.Filter.Cofinite
 public import FLT.Mathlib.RepresentationTheory.Basic
+public import FLT.Mathlib.RepresentationTheory.Continuous.Basic
+public import FLT.Mathlib.RepresentationTheory.Continuous.TopRep
+public import FLT.Mathlib.RepresentationTheory.Homological.ContCohomology.Basic
+public import FLT.Mathlib.RepresentationTheory.Homological.ContCohomology.CupProduct
 public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 public import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
@@ -154,6 +161,7 @@ public import FLT.Mathlib.Topology.Algebra.Group.Basic
 public import FLT.Mathlib.Topology.Algebra.Group.Quotient
 public import FLT.Mathlib.Topology.Algebra.Group.Units
 public import FLT.Mathlib.Topology.Algebra.IsUniformGroup.Basic
+public import FLT.Mathlib.Topology.Algebra.Module.CompactOpen
 public import FLT.Mathlib.Topology.Algebra.Module.Equiv
 public import FLT.Mathlib.Topology.Algebra.Module.FiniteDimension
 public import FLT.Mathlib.Topology.Algebra.Module.ModuleTopology
@@ -172,6 +180,7 @@ public import FLT.Mathlib.Topology.Algebra.ValuativeRel.ValuativeTopology
 public import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 public import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 public import FLT.Mathlib.Topology.Bases
+public import FLT.Mathlib.Topology.CompactOpen
 public import FLT.Mathlib.Topology.Constructions
 public import FLT.Mathlib.Topology.HomToDiscrete
 public import FLT.Mathlib.Topology.Instances.Matrix
