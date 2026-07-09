@@ -502,7 +502,7 @@ theorem TateCurve.evalInt_ΔFormal (q : k) (hq : valuation k q < 1) :
       ∏ n ∈ s, (1 - q ^ (n + 1)) := by
     intro s
     induction s using Finset.cons_induction with
-    | empty => simp
+    | empty => simp [evalInt_one]
     | cons a s ha ih =>
       rw [Finset.prod_cons, Finset.prod_cons, evalInt_mul q hq, ih,
         evalInt_sub (summable_evalInt q hq 1) (summable_evalInt q hq (PowerSeries.X ^ (a + 1))),
