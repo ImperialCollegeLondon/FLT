@@ -8,6 +8,7 @@ module
 public import FLT.Slop.PoitouTate.GKSDefn
 public import FLT.Slop.PoitouTate.cupprod
 public import FLT.Slop.PoitouTate.inflmap
+public import FLT.Slop.PoitouTate.phipmap
 public import FLT.Slop.PoitouTate.LocalGlobalMaps
 public import FLT.Slop.PoitouTate.DualModule
 public import FLT.Slop.PoitouTate.LocalTateDuality

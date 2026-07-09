@@ -5,7 +5,7 @@ Authors: Claude
 -/
 module
 
-public import Mathlib.Algebra.Category.ContinuousCohomology.Basic
+public import Mathlib.RepresentationTheory.Homological.ContCohomology.Basic
 public import Mathlib.Tactic.Group
 
 @[expose] public section

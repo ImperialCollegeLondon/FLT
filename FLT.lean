@@ -227,6 +227,7 @@ public import FLT.Slop.PoitouTate.LocalTateDuality
 public import FLT.Slop.PoitouTate.PoitouTateStatement
 public import FLT.Slop.PoitouTate.cupprod
 public import FLT.Slop.PoitouTate.inflmap
+public import FLT.Slop.PoitouTate.phipmap
 public import FLT.Slop.RepresentationTheory.OddAbsIrredOrig
 public import FLT.Slop.RepresentationTheory.OddAbsIrredSlop
 public import FLT.TateCurve.TateCurve
