@@ -78,11 +78,13 @@ public import FLT.KnownIn1980s.EllipticCurves.ReductionBaseChange
 public import FLT.KnownIn1980s.EllipticCurves.TateCurve
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveBaseChange
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstruction
+public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstructionExperiment
 public import FLT.KnownIn1980s.EllipticCurves.TateParameter
 public import FLT.KnownIn1980s.EllipticCurves.Torsion
 public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
 public import FLT.KnownIn1980s.PGL2.Defs
 public import FLT.KnownIn1980s.PGL2.Proofs
+public import FLT.KnownIn1980s.RepresentationTheory.OddAbsIrred
 public import FLT.Mathlib.Algebra.Algebra.Bilinear
 public import FLT.Mathlib.Algebra.Algebra.Hom
 public import FLT.Mathlib.Algebra.Algebra.Pi
@@ -223,4 +225,6 @@ public import FLT.Slop.PGL2.FiniteSubgroups.PartitionProof
 public import FLT.Slop.PGL2.FiniteSubgroups.RecognitionA5
 public import FLT.Slop.PGL2.FiniteSubgroups.TameClassification
 public import FLT.Slop.PGL2.FiniteSubgroups.WildClassification
+public import FLT.Slop.RepresentationTheory.OddAbsIrredOrig
+public import FLT.Slop.RepresentationTheory.OddAbsIrredSlop
 public import FLT.TateCurve.TateCurve
