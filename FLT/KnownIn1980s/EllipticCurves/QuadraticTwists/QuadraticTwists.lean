@@ -6,8 +6,10 @@ Authors: Kevin Buzzard, Claude
 module
 
 public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.Aut
-public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.VariableChangeEquiv
-public import Mathlib.RingTheory.Trace.Basic
+public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
+public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.GaloisDescent
+public import FLT.Mathlib.RingTheory.Norm.Quadratic
+public import FLT.Mathlib.LinearAlgebra.Dimension.IsQuadraticExtension
 
 import Mathlib.RingTheory.Norm.Transitivity
 
@@ -73,8 +75,6 @@ statements: the isomorphism on points over `L` and its `χ`-twisted equivariance
 classification of forms of `E`. The reduction-theoretic statements are in
 `FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.SplitMultiplicativeReduction`.
 
-* `quadraticCharacter K L M` : the quadratic character `Aut(M/K) →* {±1} = ℤˣ` attached to a
-  separable quadratic subextension `K ⊆ L ⊆ M`.
 * `WeierstrassCurve.quadraticTwistOf`, `WeierstrassCurve.quadraticTwistBy` and
   `WeierstrassCurve.quadraticTwist E L` : an explicit Weierstrass model of the quadratic twist,
   uniform in the characteristic — parametrised respectively by a pair `(t, n)`, by a generator
@@ -130,7 +130,6 @@ classification of forms of `E`. The reduction-theoretic statements are in
 open scoped WeierstrassCurve.Affine -- `(E⁄K).Point` notation for the group of `K`-points
 open Algebra.IsQuadraticExtension
 
-
 /-! ### Separable quadratic extensions and their quadratic characters
 
 Mathlib's `Algebra.IsQuadraticExtension K L` says that `L` is free of rank 2 over `K`, so for
@@ -141,230 +140,12 @@ section QuadraticCharacter
 
 variable (K L : Type*) [Field K] [Field L] [Algebra K L]
 
-/-- `1` and any element lying outside the base field are linearly independent over the base
-field. -/
-theorem linearIndependent_one_of_notMem_range_algebraMap {θ : L}
-    (hθ : θ ∉ Set.range (algebraMap K L)) : LinearIndependent K ![(1 : L), θ] :=
-  (LinearIndependent.pair_iff' one_ne_zero).mpr fun a ha ↦
-    hθ ⟨a, by rwa [Algebra.algebraMap_eq_smul_one]⟩
-
 variable [Algebra.IsQuadraticExtension K L]
-
-/-- A quadratic extension contains an element not in the base field. (Used to choose a
-generator of `L/K` in the definition of the quadratic twist below.) -/
-theorem Algebra.IsQuadraticExtension.exists_notMem_range_algebraMap :
-    ∃ θ : L, θ ∉ Set.range (algebraMap K L) := by
-  by_contra! h
-  have hbot : (⊥ : Subalgebra K L) = ⊤ :=
-    Algebra.eq_top_iff.mpr fun x ↦ Algebra.mem_bot.mpr (h x)
-  have h1 := Subalgebra.bot_eq_top_iff_finrank_eq_one.mp hbot
-  have h2 := finrank_eq_two K L
-  lia
-
-/-- Any element of a quadratic extension `L/K` is a `K`-linear combination of `1` and a given
-generator `θ`, and the `θ`-coefficient is nonzero if the element also lies outside `K`. -/
-theorem Algebra.IsQuadraticExtension.exists_eq_algebraMap_add_algebraMap_mul {θ θ' : L}
-    (hθ : θ ∉ Set.range (algebraMap K L)) (hθ' : θ' ∉ Set.range (algebraMap K L)) :
-    ∃ a b : K, a ≠ 0 ∧ θ' = algebraMap K L b + algebraMap K L a * θ := by
-  have hli := linearIndependent_one_of_notMem_range_algebraMap K L hθ
-  have hmem : θ' ∈ Submodule.span K (Set.range ![(1 : L), θ]) := by
-    rw [hli.span_eq_top_of_card_eq_finrank
-      (by rw [Fintype.card_fin]; exact (finrank_eq_two K L).symm)]
-    trivial
-  rw [Matrix.range_cons_cons_empty, Submodule.mem_span_pair] at hmem
-  obtain ⟨c, d, hcd⟩ := hmem
-  refine ⟨d, c, fun hd ↦ hθ' ⟨c, ?_⟩, ?_⟩
-  · rw [← hcd, hd, zero_smul, add_zero, Algebra.algebraMap_eq_smul_one]
-  · rw [← hcd, Algebra.smul_def, Algebra.smul_def, mul_one]
 
 -- Let `M` be a field extension of `L`, for example `L` itself or a separable closure of `K`.
 variable (M : Type*) [Field M] [Algebra K M] [Algebra L M] [IsScalarTower K L M]
 
-/-- For a normal subextension `K ⊆ L ⊆ M`, a `K`-automorphism `σ` of `M` fixes `L` pointwise
-if and only if its restriction to `L` (`AlgEquiv.restrictNormal`) is the identity. -/
-theorem forall_apply_algebraMap_iff_restrictNormal_eq_one (σ : M ≃ₐ[K] M) :
-    (∀ x : L, σ (algebraMap L M x) = algebraMap L M x) ↔ σ.restrictNormal L = 1 := by
-  simp only [AlgEquiv.ext_iff, AlgEquiv.one_apply, ← AlgEquiv.restrictNormal_commutes]
-  exact forall_congr' fun x ↦ (FaithfulSMul.algebraMap_injective L M).eq_iff
-
 variable [Algebra.IsSeparable K L]
-
--- Note that mathlib already knows the basic facts about this situation: `L/K` is
--- finite (`Module.Finite` from `Algebra.IsQuadraticExtension`), normal
--- (`Algebra.IsQuadraticExtension.normal`) and hence Galois
--- (`Algebra.IsQuadraticExtension.isGalois`), with cyclic Galois group
--- (`Algebra.IsQuadraticExtension.isCyclic`) of order 2 (`IsGalois.card_aut_eq_finrank`
--- plus `Algebra.IsQuadraticExtension.finrank_eq_two`).
-
-/-- A separable quadratic extension has exactly two automorphisms. -/
-theorem Algebra.IsQuadraticExtension.card_algEquiv : Nat.card (L ≃ₐ[K] L) = 2 := by
-  rw [IsGalois.card_aut_eq_finrank]
-  exact finrank_eq_two K L
-
-/-- A separable quadratic extension has a nontrivial automorphism. -/
-theorem Algebra.IsQuadraticExtension.exists_algEquiv_ne_one : ∃ σ : L ≃ₐ[K] L, σ ≠ 1 :=
-  ((Nat.card_eq_two_iff' 1).mp (card_algEquiv K L)).exists
-
-/-- The only automorphisms of a separable quadratic extension are the identity and any given
-nontrivial automorphism. -/
-theorem Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1)
-    (φ : L ≃ₐ[K] L) : φ = 1 ∨ φ = σ := by
-  rcases eq_or_ne φ 1 with h1 | h1
-  · exact Or.inl h1
-  · exact Or.inr (((Nat.card_eq_two_iff' 1).mp (card_algEquiv K L)).unique h1 hσ)
-
-/-- The nontrivial automorphism of a separable quadratic extension is an involution. -/
-theorem Algebra.IsQuadraticExtension.algEquiv_mul_self {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1) :
-    σ * σ = 1 :=
-  (algEquiv_eq_one_or_eq K L hσ (σ * σ)).resolve_right fun h ↦ absurd (mul_eq_left.mp h) hσ
-
-/-- An element fixed by a nontrivial automorphism — hence, `Gal(L/K)` having order two, by all of
-`Gal(L/K)` — lies in the base field. -/
-theorem Algebra.IsQuadraticExtension.mem_range_algebraMap_of_apply_eq {σ : L ≃ₐ[K] L}
-    (hσ : σ ≠ 1) {x : L} (hx : σ x = x) : x ∈ Set.range (algebraMap K L) := by
-  rw [IsGalois.mem_range_algebraMap_iff_fixed]
-  intro φ
-  rcases algEquiv_eq_one_or_eq K L hσ φ with rfl | rfl
-  · exact AlgEquiv.one_apply x
-  · exact hx
-
-open Classical in
-/-- The automorphism group of a separable quadratic extension consists of the identity and one
-nontrivial element. -/
-theorem Algebra.IsQuadraticExtension.univ_algEquiv {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1) :
-    (Finset.univ : Finset (L ≃ₐ[K] L)) = {1, σ} :=
-  (Finset.eq_univ_of_forall fun φ ↦ by simpa using algEquiv_eq_one_or_eq K L hσ φ).symm
-
-/-- In a separable quadratic extension, the trace of `x` is `x + σx`, where `σ` is the
-nontrivial automorphism. -/
-theorem Algebra.IsQuadraticExtension.algebraMap_trace_eq_add {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1)
-    (x : L) : algebraMap K L (Algebra.trace K L x) = x + σ x := by
-  classical
-  rw [trace_eq_sum_automorphisms, univ_algEquiv K L hσ, Finset.sum_pair (Ne.symm hσ)]
-  simp
-
-/-- In a separable quadratic extension, the norm of `x` is `x * σx`, where `σ` is the
-nontrivial automorphism. -/
-theorem Algebra.IsQuadraticExtension.algebraMap_norm_eq_mul {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1)
-    (x : L) : algebraMap K L (Algebra.norm K x) = x * σ x := by
-  classical
-  rw [Algebra.norm_eq_prod_automorphisms, univ_algEquiv K L hσ, Finset.prod_pair (Ne.symm hσ)]
-  simp
-
-/-- The trace of `b + aθ` in a separable quadratic extension is `a·tr(θ) + 2b`. -/
-theorem Algebra.IsQuadraticExtension.trace_algebraMap_add_algebraMap_mul (a b : K) (θ : L) :
-    Algebra.trace K L (algebraMap K L b + algebraMap K L a * θ)
-      = a * Algebra.trace K L θ + 2 * b := by
-  obtain ⟨σ, hσ⟩ := exists_algEquiv_ne_one K L
-  apply FaithfulSMul.algebraMap_injective K L
-  simp only [map_add, map_mul, map_ofNat, algebraMap_trace_eq_add K L hσ, AlgEquiv.commutes]
-  ring
-
-/-- The norm of `b + aθ` in a separable quadratic extension is `b² + ab·tr(θ) + a²·N(θ)`. -/
-theorem Algebra.IsQuadraticExtension.norm_algebraMap_add_algebraMap_mul (a b : K) (θ : L) :
-    Algebra.norm K (algebraMap K L b + algebraMap K L a * θ)
-      = b ^ 2 + a * b * Algebra.trace K L θ + a ^ 2 * Algebra.norm K θ := by
-  obtain ⟨σ, hσ⟩ := exists_algEquiv_ne_one K L
-  apply FaithfulSMul.algebraMap_injective K L
-  simp only [map_add, map_mul, map_pow, algebraMap_trace_eq_add K L hσ,
-    algebraMap_norm_eq_mul K L hσ, AlgEquiv.commutes]
-  ring
-
-/-- The nontrivial automorphism of a separable quadratic extension moves every element
-lying outside the base field. -/
-theorem Algebra.IsQuadraticExtension.algEquiv_apply_ne {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1) {x : L}
-    (hx : x ∉ Set.range (algebraMap K L)) : σ x ≠ x :=
-  fun heq ↦ hx (mem_range_algebraMap_of_apply_eq K L hσ heq)
-
-/-- If `θ` generates a separable quadratic extension of `K` — that is, lies outside `K` — and
-`t`, `n` denote its trace and norm, so that `θ² = tθ - n`, then the discriminant `t² - 4n` of
-the minimal polynomial of `θ` is nonzero. (Over the nontrivial automorphism `σ` it equals
-`(θ - σθ)²` with `σθ ≠ θ`. In characteristic 2 the statement says `t ≠ 0`: separable quadratic
-extensions are Artin–Schreier extensions.) -/
-theorem Algebra.IsQuadraticExtension.discrim_ne_zero {θ : L}
-    (hθ : θ ∉ Set.range (algebraMap K L)) :
-    Algebra.trace K L θ ^ 2 - 4 * Algebra.norm K θ ≠ 0 := by
-  obtain ⟨σ, hσ⟩ := exists_algEquiv_ne_one K L
-  intro h0
-  have h1 : (θ - σ θ) ^ 2 = 0 := by
-    have h2 := congrArg (algebraMap K L) h0
-    simp only [map_sub, map_pow, map_mul, map_zero, map_ofNat,
-      algebraMap_trace_eq_add K L hσ, algebraMap_norm_eq_mul K L hσ] at h2
-    linear_combination h2
-  exact algEquiv_apply_ne K L hσ hθ
-    (sub_eq_zero.mp ((pow_eq_zero_iff two_ne_zero).mp h1)).symm
-
-/-- A square root `α ∉ K` of `d ∈ K` has trace `0` and norm `-d`: the nontrivial automorphism
-sends `α` to `-α`. -/
-theorem Algebra.IsQuadraticExtension.trace_eq_zero_and_norm_eq_neg_of_sq_eq {α : L} {d : K}
-    (hαK : α ∉ Set.range (algebraMap K L)) (hα : α ^ 2 = algebraMap K L d) :
-    Algebra.trace K L α = 0 ∧ Algebra.norm K α = -d := by
-  obtain ⟨σ, hσ⟩ := exists_algEquiv_ne_one K L
-  have hσα : σ α ≠ α := algEquiv_apply_ne K L hσ hαK
-  have hσαα : σ α = -α := by
-    have hσ2 : (σ α) ^ 2 = α ^ 2 := by rw [← map_pow, hα, AlgEquiv.commutes]
-    have h1 : (σ α - α) * (σ α + α) = 0 := by linear_combination hσ2
-    exact eq_neg_of_add_eq_zero_left
-      ((mul_eq_zero.mp h1).resolve_left fun h ↦ hσα (sub_eq_zero.mp h))
-  constructor
-  · apply FaithfulSMul.algebraMap_injective K L
-    rw [algebraMap_trace_eq_add K L hσ, hσαα, map_zero, add_neg_cancel]
-  · apply FaithfulSMul.algebraMap_injective K L
-    rw [algebraMap_norm_eq_mul K L hσ, hσαα, map_neg, ← hα]
-    ring
-
-open Classical in
-/-- The quadratic character of `Aut(M/K)` attached to a separable quadratic subextension
-`K ⊆ L ⊆ M`: it sends `σ` to `1` if `σ` fixes `L` pointwise, and to `-1` otherwise.
-
-Since `L/K` is normal, every `K`-automorphism of `M` maps `L` to `L`, and multiplicativity
-(`map_mul'`) follows because restriction to `L` is a homomorphism to the order 2 group
-`Gal(L/K)`. Taking `M = L` gives the quadratic character of `Gal(L/K)` itself; if `M/K` is
-normal then this character is the composite of the restriction `Aut(M/K) → Gal(L/K)` with the
-unique isomorphism `Gal(L/K) ≃ {±1}`, and in particular is surjective
-(`quadraticCharacter_surjective`). -/
-noncomputable def quadraticCharacter : (M ≃ₐ[K] M) →* ℤˣ where
-  toFun σ := if ∀ x : L, σ (algebraMap L M x) = algebraMap L M x then 1 else -1
-  map_one' := by simp
-  map_mul' φ φ' := by
-    -- "Fixes `L` pointwise" means "restricts to `1`" on `L`; restriction is multiplicative
-    -- (`restrictNormalHom`), so the claim reduces to the sign map of the order-2 `Gal(L/K)`.
-    obtain ⟨σ, hσ⟩ := exists_algEquiv_ne_one K L
-    have hor := algEquiv_eq_one_or_eq K L hσ
-    have hmul : (φ * φ').restrictNormal L = φ.restrictNormal L * φ'.restrictNormal L :=
-      map_mul (AlgEquiv.restrictNormalHom L) φ φ'
-    have hsq : σ * σ = 1 := algEquiv_mul_self K L hσ
-    simp only [forall_apply_algebraMap_iff_restrictNormal_eq_one]
-    rw [hmul]
-    rcases hor (φ.restrictNormal L) with h1 | h1 <;>
-      rcases hor (φ'.restrictNormal L) with h2 | h2 <;>
-      rw [h1, h2] <;> simp [hsq, hσ]
-
-theorem quadraticCharacter_eq_one_iff (σ : M ≃ₐ[K] M) :
-    quadraticCharacter K L M σ = 1 ↔ ∀ x : L, σ (algebraMap L M x) = algebraMap L M x := by
-  classical
-  unfold quadraticCharacter
-  simp only [MonoidHom.coe_mk, OneHom.coe_mk]
-  split_ifs with h
-  · exact iff_of_true rfl h
-  · exact iff_of_false (fun hc ↦ by simpa using congrArg Units.val hc) h
-
-/-- If `M/K` is normal (for example `M = L`, or `M` a separable closure of `K`) then the
-nontrivial element of `Gal(L/K)` extends to an automorphism of `M`, so the quadratic character
-of `Aut(M/K)` attached to `L/K` is surjective. -/
-theorem quadraticCharacter_surjective [Normal K M] :
-    Function.Surjective (quadraticCharacter K L M) := by
-  intro u
-  rcases Int.units_eq_one_or u with rfl | rfl
-  · exact ⟨1, map_one _⟩
-  · -- The nontrivial element of `Gal(L/K)` lifts to some `τ ∈ Aut(M/K)` because `M/K` is normal;
-    -- `τ` does not fix `L` pointwise, so `χ(τ) ≠ 1`, hence `χ(τ) = -1`.
-    obtain ⟨σ₀, hσ₀⟩ := exists_algEquiv_ne_one K L
-    obtain ⟨τ, hτ⟩ := AlgEquiv.restrictNormalHom_surjective (F := K) (K₁ := L) (E := M) σ₀
-    refine ⟨τ, (Int.units_eq_one_or _).resolve_left fun heq ↦ hσ₀ ?_⟩
-    rw [← hτ]
-    exact (forall_apply_algebraMap_iff_restrictNormal_eq_one K L M τ).mp
-      ((quadraticCharacter_eq_one_iff K L M τ).mp heq)
 
 end QuadraticCharacter
 
@@ -439,16 +220,6 @@ theorem quadraticTwistOf_map {B : Type*} [CommRing B] (f : A →+* B) :
     simp only [quadraticTwistOf, map_a₁, map_a₂,
       map_a₃, map_a₄, map_a₆, map_mul, map_sub,
       map_pow, map_ofNat]
-
-/-- The discriminant of the node's tangent polynomial `c₄ T² + a₁ c₄ T - (54 b₆ - 3 b₂ b₄ + a₂ c₄)`
-(the quadratic controlling split multiplicative reduction) equals `-c₄ c₆`. Hence the tangent
-directions at the node are rational over the residue field exactly when `-c₄ c₆` is a square there;
-twisting by `(t, n)` multiplies `-c₄ c₆` by `(t² - 4n)⁵ = (t² - 4n)⁴ · (t² - 4n)`, i.e. by the
-twisting parameter up to a square (see `c₄_quadraticTwistOf`, `c₆_quadraticTwistOf`). -/
-theorem splitPolynomial_discrim :
-    (E.a₁ * E.c₄) ^ 2 + 4 * E.c₄ * (54 * E.b₆ - 3 * E.b₂ * E.b₄ + E.a₂ * E.c₄)
-      = -(E.c₄ * E.c₆) := by
-  simp only [c₄, c₆, b₂, b₄, b₆]; ring
 
 /-- The node-polynomial constant `κ = 54 b₆ - 3 b₂ b₄ + a₂ c₄` of the quadratic twist by `(t, n)`
 in terms of that of `E`: `κ_W = D³ κ - D² n a₁² c₄` where `D = t² - 4n`. -/
@@ -553,63 +324,12 @@ noncomputable def quadraticTwist (E : WeierstrassCurve K) (L : Type*) [Field L] 
 variable (E : WeierstrassCurve K)
 variable (L : Type*) [Field L] [Algebra K L]
 
-/-- The automorphism `[-1]` of `E` over `L` is defined over `K`, hence fixed by the Galois action:
-its components `-1, 0, -a₁, -a₃` all lie in `K`. -/
-lemma negVariableChange_baseChange_map (σ : L ≃ₐ[K] L) :
-    (E.baseChange L).negVariableChange.map σ.toAlgHom.toRingHom
-      = (E.baseChange L).negVariableChange := by
-  ext <;>
-    simp [VariableChange.map, negVariableChange, map_neg, baseChange, AlgEquiv.commutes]
-
 section
 
 -- Let `M` be a field extension of `L`, for example `L` itself or a separable closure of `K`.
 variable (M : Type*) [Field M] [Algebra K M] [Algebra L M] [IsScalarTower K L M]
 
-lemma baseChange_map_algebraMap (V : WeierstrassCurve K) :
-    (V.baseChange L).map (algebraMap L M) = V.baseChange M :=
-  V.map_baseChange (IsScalarTower.toAlgHom K L M)
-
 end
-
-/-- An element whose square is (the image of) a nonsquare of `K` lies outside `K`. -/
-lemma notMem_range_algebraMap_of_not_isSquare {d : K} (hd : ¬IsSquare d) {α : L}
-    (hα : α ^ 2 = algebraMap K L d) : α ∉ Set.range (algebraMap K L) := by
-  rintro ⟨c, rfl⟩
-  refine hd ⟨c, FaithfulSMul.algebraMap_injective K L ?_⟩
-  rw [map_mul, ← sq]
-  exact hα.symm
-
-/-- Base change commutes with the action of changes of variables. -/
-lemma baseChange_smul_baseChange (C : VariableChange K) (V : WeierstrassCurve K) :
-    (C.baseChange L) • V.baseChange L = (C • V).baseChange L :=
-  map_variableChange (W := V) (C := C) (φ := algebraMap K L)
-
-/-- A relation `Cᴸ • Vᴸ = Wᴸ` between base changes, with `C` defined over `K`, descends to
-`C • V = W` over `K`. -/
-lemma smul_eq_of_baseChange_smul_eq (C : VariableChange K) {V W : WeierstrassCurve K}
-    (h : (C.baseChange L) • V.baseChange L = W.baseChange L) : C • V = W := by
-  apply map_injective (FaithfulSMul.algebraMap_injective K L)
-  exact (baseChange_smul_baseChange L C V).symm.trans h
-
-/-- The Galois conjugate of an `L`-isomorphism between base-changed curves is again one. -/
-lemma map_smul_baseChange_eq (σ : L ≃ₐ[K] L) {V W : WeierstrassCurve K} {ρ : VariableChange L}
-    (hρ : ρ • V.baseChange L = W.baseChange L) :
-    (ρ.map σ.toAlgHom.toRingHom) • V.baseChange L = W.baseChange L := by
-  have hVinv : (V.baseChange L).map σ.toAlgHom.toRingHom = V.baseChange L :=
-    map_baseChange (W := V) σ.toAlgHom
-  have hWinv : (W.baseChange L).map σ.toAlgHom.toRingHom = W.baseChange L :=
-    map_baseChange (W := W) σ.toAlgHom
-  have hmv := map_variableChange (W := V.baseChange L) (C := ρ) (φ := σ.toAlgHom.toRingHom)
-  rw [hρ, hVinv, hWinv] at hmv
-  exact hmv
-
-/-- The base change of an elliptic curve is an elliptic curve. Restates the instance for
-`WeierstrassCurve.map`, which does not apply to `baseChange` directly since the latter is a
-non-reducible definition. -/
-instance {R A : Type*} [CommRing R] [CommRing A] [Algebra R A] (W : WeierstrassCurve R)
-    [W.IsElliptic] : (W.baseChange A).IsElliptic :=
-  inferInstanceAs (W.map (algebraMap R A)).IsElliptic
 
 section
 
@@ -693,30 +413,6 @@ theorem exists_smul_quadraticTwist_quadraticTwist_eq :
   obtain ⟨C, hC⟩ := E.exists_smul_eq_quadraticTwistOf_quadraticTwistOf _ _
     (discrim_ne_zero K L (exists_notMem_range_algebraMap K L).choose_spec)
   exact ⟨C⁻¹, inv_smul_eq_iff.mpr hC.symm⟩
-
-/-- **Galois descent for changes of variables.** A change of variables over `L` fixed by the
-nontrivial `σ ∈ Gal(L/K)` has all its coefficients in `K`, so it is the base change of a change of
-variables over `K`. -/
-lemma exists_baseChange_eq_of_map_eq {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1) {C : VariableChange L}
-    (hCinv : C.map σ.toAlgHom.toRingHom = C) : ∃ CK : VariableChange K, CK.baseChange L = C := by
-  have hap : ⇑σ.toAlgHom.toRingHom = ⇑σ := rfl
-  have mem : ∀ x : L, σ x = x → x ∈ Set.range (algebraMap K L) :=
-    fun x hx ↦ mem_range_algebraMap_of_apply_eq K L hσ hx
-  have hu : σ (C.u : L) = (C.u : L) := by
-    simpa [VariableChange.map, Units.coe_map, hap] using congrArg (fun D ↦ (D.u : L)) hCinv
-  have hr : σ C.r = C.r := by
-    simpa [VariableChange.map, hap] using congrArg VariableChange.r hCinv
-  have hs : σ C.s = C.s := by
-    simpa [VariableChange.map, hap] using congrArg VariableChange.s hCinv
-  have ht : σ C.t = C.t := by
-    simpa [VariableChange.map, hap] using congrArg VariableChange.t hCinv
-  obtain ⟨uK, huK⟩ := mem _ hu
-  obtain ⟨rK, hrK⟩ := mem _ hr
-  obtain ⟨sK, hsK⟩ := mem _ hs
-  obtain ⟨tK, htK⟩ := mem _ ht
-  have huK' : uK ≠ 0 := by rintro rfl; rw [map_zero] at huK; exact C.u.ne_zero huK.symm
-  refine ⟨⟨Units.mk0 uK huK', rK, sK, tK⟩, VariableChange.ext (Units.ext ?_) hrK hsK htK⟩
-  simpa [VariableChange.baseChange, VariableChange.map] using huK
 
 /-- The classical formula for the quadratic twist away from characteristic 2. Suppose
 `char K ≠ 2`, so that after completing the square we may assume `E` has the form
@@ -1063,22 +759,6 @@ theorem quadraticTwistPointEquiv_conj [DecidableEq L] {σ : L ≃ₐ[K] L} (hσ 
   refine E.quadraticTwistPointEquiv_map_of_not_fixed L L (fun hfix ↦ hσ ?_) P
   ext x
   simpa using hfix x
-
-/-- **Galois descent for points.** A point of `W(L)` fixed by the nontrivial `σ ∈ Gal(L/K)` (hence,
-as `[L : K] = 2`, by all of `Gal(L/K)`) is the base change of a point of `W(K)`: its coordinates,
-being fixed by `σ`, lie in `K`. -/
-theorem exists_baseChange_point_eq_of_map_eq [DecidableEq K] [DecidableEq L]
-    {W : WeierstrassCurve K} {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1) {R : (W⁄L).Point}
-    (hR : Affine.Point.map σ.toAlgHom R = R) :
-    ∃ Q : (W⁄K).Point, Affine.Point.baseChange K L Q = R := by
-  rcases R with _ | ⟨x, y, h⟩
-  · exact ⟨0, rfl⟩
-  · rw [Affine.Point.map_some] at hR
-    injection hR with hx hy
-    obtain ⟨x₀, rfl⟩ := mem_range_algebraMap_of_apply_eq K L hσ hx
-    obtain ⟨y₀, rfl⟩ := mem_range_algebraMap_of_apply_eq K L hσ hy
-    exact ⟨.some x₀ y₀ ((Affine.baseChange_nonsingular W
-      (f := Algebra.ofId K L) (FaithfulSMul.algebraMap_injective K L) x₀ y₀).mp h), rfl⟩
 
 /-- The rational points of the quadratic twist, viewed inside `E(L)` via the isomorphism over
 `L`, are exactly the points of `E(L)` on which the nontrivial element of `Gal(L/K)` acts as `-1`

@@ -5,9 +5,8 @@ Authors: Michael Stoll, Claude
 -/
 module
 
-public import Mathlib.AlgebraicGeometry.EllipticCurve.VariableChange
-
-import Mathlib.Algebra.Group.TypeTags.Finite
+public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.VariableChange
+public import FLT.Mathlib.GroupTheory.SpecificGroups.Cyclic
 
 /-!
 
@@ -21,8 +20,6 @@ proves the classical fact (Silverman, *The Arithmetic of Elliptic Curves*, III.1
 
 ## Main definitions and statements
 
-* `WeierstrassCurve.negVariableChange E` : the automorphism `[-1] : (x, y) ↦ (x, -y - a₁x - a₃)`
-  of `E`, as an admissible change of variables `⟨-1, 0, -a₁, -a₃⟩`.
 * `WeierstrassCurve.eq_one_or_eq_negVariableChange_of_smul_eq` : if `j(E) ∉ {0, 1728}` then any
   `C : VariableChange K` with `C • E = E` equals `1` or `negVariableChange E`.
 * `WeierstrassCurve.autGroup E` : the automorphism group of `E`, as the stabiliser of `E` under
@@ -44,92 +41,16 @@ in characteristic `2`).
 
 @[expose] public section
 
-/-! ### API
-
-A general construction, independent of elliptic curves: a group with exactly two elements is
-isomorphic to `Multiplicative (ZMod 2)`. -/
-
-section API
-
-/-- A group `G` with exactly two elements — the identity `1` and a distinguished element `g ≠ 1`,
-every element being equal to one of the two — is isomorphic to `Multiplicative (ZMod 2)`, via the
-isomorphism sending `g` to `Multiplicative.ofAdd 1`. The generator `g` and the exhaustion `key` are
-taken as explicit data (rather than a bare `Nat.card G = 2`) so the isomorphism is computable. -/
-def mulEquivMultiplicativeZModTwo {G : Type*} [Group G] [DecidableEq G] (g : G) (hg : g ≠ 1)
-    (key : ∀ x : G, x = 1 ∨ x = g) : G ≃* Multiplicative (ZMod 2) :=
-  have hgg : g * g = 1 := (key (g * g)).resolve_right fun h ↦ hg (mul_eq_right.mp h)
-  have keyM : ∀ x : Multiplicative (ZMod 2), x = 1 ∨ x = .ofAdd 1 := by decide
-  have hM1 : (.ofAdd 1 : Multiplicative (ZMod 2)) ≠ 1 := by decide
-  have hMM : (.ofAdd 1 : Multiplicative (ZMod 2)) * .ofAdd 1 = 1 := by
-    decide
-  { toFun x := if x = 1 then 1 else .ofAdd 1
-    invFun x := if x = 1 then 1 else g
-    left_inv x := by rcases key x <;> grind
-    right_inv x := by rcases keyM x <;> grind
-    map_mul' a b := by rcases key a <;> rcases key b <;> grind
-  }
-
-end API
-
 namespace WeierstrassCurve
 
 universe u
 
 variable {K : Type u} [Field K] (E : WeierstrassCurve K)
 
-/-! ### The negation automorphism -/
-
-/-- The automorphism `[-1] : (x, y) ↦ (x, -y - a₁x - a₃)` of a Weierstrass curve, as an admissible
-change of variables `⟨-1, 0, -a₁, -a₃⟩`. It fixes `E` (`negVariableChange_smul_self`) and is an
-involution (`negVariableChange_mul_self`). -/
-def negVariableChange : VariableChange K :=
-  ⟨-1, 0, -E.a₁, -E.a₃⟩
-
-@[simp] lemma negVariableChange_u : E.negVariableChange.u = -1 := rfl
-
-lemma negVariableChange_smul_self : E.negVariableChange • E = E := by
-  simp [variableChange_def, negVariableChange]
-  ring_nf
-
-lemma negVariableChange_mul_self : E.negVariableChange * E.negVariableChange = 1 := by
-  simp [VariableChange.mul_def, VariableChange.one_def, negVariableChange,
-    Odd.neg_one_pow (by decide : Odd 3)]
-
-lemma negVariableChange_inv : E.negVariableChange⁻¹ = E.negVariableChange :=
-  inv_eq_of_mul_eq_one_right E.negVariableChange_mul_self
-
-/-- Base change commutes with the negation automorphism: mapping `[-1]` on `W` through a ring
-homomorphism `φ` gives `[-1]` on `W.map φ`. -/
-lemma negVariableChange_map {A B : Type*} [Field A] [Field B] (W : WeierstrassCurve A)
-    (φ : A →+* B) : W.negVariableChange.map φ = (W.map φ).negVariableChange := by
-  ext <;> simp [negVariableChange]
-
 /-! ### `Aut(E) = {±1}` for `j ∉ {0, 1728}`
 
 Throughout, `C • E = E` is an automorphism of `E`; the nonvanishing of `c₄` and `c₆` encodes
 `j ∉ {0, 1728}`. -/
-
-/-- In characteristic `2`, an elliptic curve has `a₁ ≠ 0` or `a₃ ≠ 0`: otherwise `a₁ = a₃ = 0`
-makes the partial derivative `∂/∂y = 2y + a₁x + a₃` vanish identically, so `Δ = 0`. -/
-lemma a₁_ne_zero_or_a₃_ne_zero_of_two_eq_zero [E.IsElliptic] (h2 : (2 : K) = 0) :
-    E.a₁ ≠ 0 ∨ E.a₃ ≠ 0 := by
-  by_contra! h
-  exact E.isUnit_Δ.ne_zero (by rw [Δ, b₈, b₆, b₄, b₂, h.1, h.2]; grobner)
-
-/-- The negation automorphism is nontrivial for an elliptic curve: in characteristic `≠ 2` it
-has `u = -1 ≠ 1`, and in characteristic `2` it has `(s, t) = (-a₁, -a₃) ≠ (0, 0)`, since an
-elliptic curve in characteristic `2` cannot have `a₁ = a₃ = 0`. -/
-lemma negVariableChange_ne_one [E.IsElliptic] : E.negVariableChange ≠ 1 := by
-  intro h
-  rcases eq_or_ne (2 : K) 0 with h2 | h2
-  · have hs := congrArg VariableChange.s h
-    have ht := congrArg VariableChange.t h
-    simp [negVariableChange, VariableChange.one_def] at hs ht
-    grind [a₁_ne_zero_or_a₃_ne_zero_of_two_eq_zero]
-  · contrapose h2
-    have hv : (-1 : K) = 1 := by
-      simpa [VariableChange.one_def] using congrArg (fun C : VariableChange K ↦ (C.u : K)) h
-    linear_combination -hv
 
 /-- An automorphism `C` of `E` with `C.u = 1` has no `x`-translation: `C.r = 0`. This follows
 from the transformation laws of `b₄`, `b₆`, `b₈` together with `c₆ ≠ 0`. -/
@@ -187,13 +108,6 @@ lemma u_eq_one_or_eq_neg_one (hc4 : E.c₄ ≠ 0) (hc6 : E.c₆ ≠ 0) {C : Vari
   · exact .inl (Units.val_eq_one.mp h)
   · exact .inr (Units.ext h)
 
-/-- `c₆(E) = 0` if and only if `j(E) = 1728`, by the relation `1728·Δ = c₄³ - c₆²`. This is the
-analogue for `j = 1728` of `WeierstrassCurve.j_eq_zero_iff` (`j = 0 ↔ c₄ = 0`). -/
-lemma c₆_eq_zero_iff_j_eq_1728 [E.IsElliptic] : E.c₆ = 0 ↔ E.j = 1728 := by
-  have h : E.c₆ ^ 2 = E.c₄ ^ 3 - 1728 * E.Δ := by linear_combination E.c_relation
-  rw [← sq_eq_zero_iff, h, sub_eq_zero, j, Units.inv_mul_eq_iff_eq_mul, coe_Δ',
-    mul_comm E.Δ 1728]
-
 /-- If `c₄ ≠ 0` and `c₆ ≠ 0` then the only admissible changes of variables fixing `E` are `1` and
 `negVariableChange E`. This is the form of `Aut(E) = {±1}` phrased via `c₄, c₆` (equivalent to
 `j ∉ {0, 1728}` for an elliptic curve, see `eq_one_or_eq_negVariableChange_of_smul_eq`). -/
@@ -229,11 +143,6 @@ variables fixing `E`, i.e. the stabiliser of `E` under the action of `VariableCh
 def autGroup : Subgroup (VariableChange K) := stabilizer (VariableChange K) E
 
 lemma mem_autGroup {C : VariableChange K} : C ∈ E.autGroup ↔ C • E = E := Iff.rfl
-
-/-- Two admissible changes of variables agree iff their four coefficients do; this makes equality
-of changes of variables decidable over a commutative ring with decidable equality. -/
-instance {R : Type*} [CommRing R] [DecidableEq R] : DecidableEq (VariableChange R) :=
-  fun _ _ ↦ decidable_of_iff _ VariableChange.ext_iff.symm
 
 open MulAction in
 /-- **`Aut(E) ≅ ℤ/2` for `j(E) ∉ {0, 1728}`.** The automorphism group of `E` is `{±1}`, so it is

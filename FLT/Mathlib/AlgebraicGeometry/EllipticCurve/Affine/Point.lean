@@ -8,6 +8,15 @@ module
 public import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
 
 /-!
+# Isomorphism of point groups induced by a change of variables
+
+Material for `Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point`; see the section
+header below for details.
+-/
+
+@[expose] public section
+
+/-!
 
 # Isomorphism of point groups induced by a change of variables
 
