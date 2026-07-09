@@ -133,13 +133,10 @@ theorem splits_quadratic_iff_exists_root {k : Type*} [Field k] {a b c : k} (ha :
   constructor
   · intro hs
     obtain ⟨x, hx⟩ := hs.exists_eval_eq_zero (by simp [degree_eq_natDegree hp0, hdeg])
-    rw [hp] at hx
-    simp only [eval_add, eval_mul, eval_C, eval_pow, eval_X] at hx
-    exact ⟨x, hx⟩
+    exact ⟨x, by simpa [hp] using hx⟩
   · rintro ⟨x, hx⟩
     refine Splits.of_natDegree_le_two_of_isRoot hdeg.le (x := x) ?_
-    rw [hp, IsRoot]
-    simp only [eval_add, eval_mul, eval_C, eval_pow, eval_X]
+    simp [hp, IsRoot]
     linear_combination hx
 
 /-- Over a field of characteristic `≠ 2`, a quadratic `a X² + b X + c` (with `a ≠ 0`) *splits*
@@ -461,11 +458,6 @@ lemma irreducible_nodePoly_map [E.HasMultiplicativeReduction R]
   have hns := not_splits_nodePoly_of_not_hasSplit E R h
   have hdeg := natDegree_nodePoly_map E R
   rw [← hP] at hns hdeg
-  have hpos : ∀ a : Polynomial (ResidueField R), a ≠ 0 → ¬ IsUnit a → 0 < a.natDegree := by
-    intro a ha0 hau
-    by_contra hc
-    refine hau (Polynomial.isUnit_iff_degree_eq_zero.mpr ?_)
-    rw [Polynomial.degree_eq_natDegree ha0, Nat.le_zero.mp (Nat.not_lt.mp hc), Nat.cast_zero]
   have hP0 : P ≠ 0 := fun h0 ↦ by simp [h0] at hdeg
   refine ⟨Polynomial.not_isUnit_of_natDegree_pos P (by rw [hdeg]; norm_num), fun a b hab ↦ ?_⟩
   by_contra hcon
@@ -474,8 +466,10 @@ lemma irreducible_nodePoly_map [E.HasMultiplicativeReduction R]
   have ha0 : a ≠ 0 := fun h0 ↦ hP0 (by rw [hab, h0, zero_mul])
   have hb0 : b ≠ 0 := fun h0 ↦ hP0 (by rw [hab, h0, mul_zero])
   have hsum : a.natDegree + b.natDegree = 2 := by rw [← hdeg, hab, Polynomial.natDegree_mul ha0 hb0]
-  have hda := hpos a ha0 hna
-  have hdb := hpos b hb0 hnb
+  have hda := Polynomial.natDegree_pos_iff_degree_pos.mpr
+    (Polynomial.degree_pos_of_ne_zero_of_nonunit ha0 hna)
+  have hdb := Polynomial.natDegree_pos_iff_degree_pos.mpr
+    (Polynomial.degree_pos_of_ne_zero_of_nonunit hb0 hnb)
   exact hns (hab ▸ (Polynomial.Splits.of_natDegree_le_one (by lia)).mul
     (Polynomial.Splits.of_natDegree_le_one (by lia)))
 
@@ -505,7 +499,7 @@ theorem isMinimal_of_valuation_c₄_eq_one (W : WeierstrassCurve K) [hint : IsIn
   have hCi : IsIntegral R (C • W) := hC
   simp only [← Subtype.coe_le_coe, one_smul, valuation_Δ_aux_eq_of_isIntegral R (C • W),
     valuation_Δ_aux_eq_of_isIntegral R W]
-  set v := valuation K (maximalIdeal R) with hv
+  set v := valuation K (maximalIdeal R)
   set y := v ((C.u⁻¹ : Kˣ) : K) with hy
   -- From integrality, `valuation (C • W).c₄ = y⁴ · valuation W.c₄ = y⁴ ≤ 1`, hence `y ≤ 1`.
   have huc : v ((C • W).c₄) ≤ 1 := by
@@ -600,9 +594,8 @@ theorem sq_sub_trace_mul_self_add_norm_residue {S : Type u} [CommRing S] [IsLoca
   have htower : ∀ r : R, algebraMap (ResidueField R) (ResidueField S) (residue R r)
       = residue S (algebraMap R S r) := fun r ↦ by
     simp only [← ResidueField.algebraMap_residue]
-  have h0 := congrArg (fun x ↦ resIso (residue S x)) (sq_sub_trace_mul_self_add_norm hSrank θ)
-  simp only [map_sub, map_add, map_mul, map_pow, map_zero, ← htower, resIso.commutes] at h0
-  exact h0
+  simpa only [map_sub, map_add, map_mul, map_pow, map_zero, ← htower, resIso.commutes]
+    using congrArg (fun x ↦ resIso (residue S x)) (sq_sub_trace_mul_self_add_norm hSrank θ)
 
 /-- An element satisfying a monic quadratic relation with coefficients in `A` is integral. -/
 theorem isIntegral_of_sq_add_mul_add_eq_zero {A B : Type*} [CommRing A] [CommRing B] [Algebra A B]
@@ -633,11 +626,9 @@ theorem isIntegral_of_pow_four_add_eq_zero {A B : Type*} [CommRing A] [CommRing 
 of the discriminant. -/
 theorem valuation_Δ_aux_smul_le {W : WeierstrassCurve K} [hm : IsMinimal R W]
     (D : VariableChange K) (hint : IsIntegral R (D • W)) :
-    valuation_Δ_aux R (D • W) ≤ valuation_Δ_aux R ((1 : VariableChange K) • W) := by
-  rcases le_total (valuation_Δ_aux R ((1 : VariableChange K) • W)) (valuation_Δ_aux R (D • W))
-    with h | h
-  · exact hm.val_Δ_maximal.2 hint h
-  · exact h
+    valuation_Δ_aux R (D • W) ≤ valuation_Δ_aux R ((1 : VariableChange K) • W) :=
+  (le_total (valuation_Δ_aux R ((1 : VariableChange K) • W)) (valuation_Δ_aux R (D • W))).elim
+    (hm.val_Δ_maximal.2 hint) id
 
 open IsDedekindDomain.HeightOneSpectrum IsDiscreteValuationRing IsLocalRing in
 /-- Two minimal Weierstrass models related by a change of variables have the same valuation of
@@ -699,12 +690,12 @@ theorem exists_variableChange_baseChange_eq_of_smul_eq {W₁ W₂ : WeierstrassC
       = W₁.b₆ + 2 * D.r * W₁.b₄ + D.r ^ 2 * W₁.b₂ + 4 * D.r ^ 3 := by
     rw [← hD, variableChange_b₆]
     simp only [Units.val_inv_eq_inv_val]
-    field_simp
+    field
   have hb₈ : (↑D.u : K) ^ 8 * W₂.b₈
       = W₁.b₈ + 3 * D.r * W₁.b₆ + 3 * D.r ^ 2 * W₁.b₄ + D.r ^ 3 * W₁.b₂ + 3 * D.r ^ 4 := by
     rw [← hD, variableChange_b₈]
     simp only [Units.val_inv_eq_inv_val]
-    field_simp
+    field
   obtain ⟨rR, hrR⟩ := IsIntegrallyClosed.isIntegral_iff.mp
     (isIntegral_of_pow_four_add_eq_zero (x := D.r) (-(W₁.integralModel R).b₄)
       (-(2 * (W₁.integralModel R).b₆) - (↑u₀ : R) ^ 6 * (W₂.integralModel R).b₆)
@@ -717,7 +708,7 @@ theorem exists_variableChange_baseChange_eq_of_smul_eq {W₁ W₂ : WeierstrassC
   have ha₂ : (↑D.u : K) ^ 2 * W₂.a₂ = W₁.a₂ - D.s * W₁.a₁ + 3 * D.r - D.s ^ 2 := by
     rw [← hD, variableChange_a₂]
     simp only [Units.val_inv_eq_inv_val]
-    field_simp
+    field
   obtain ⟨sR, hsR⟩ := IsIntegrallyClosed.isIntegral_iff.mp
     (isIntegral_of_sq_add_mul_add_eq_zero (x := D.s) (W₁.integralModel R).a₁
       ((↑u₀ : R) ^ 2 * (W₂.integralModel R).a₂ - (W₁.integralModel R).a₂ - 3 * rR) (by
@@ -730,7 +721,7 @@ theorem exists_variableChange_baseChange_eq_of_smul_eq {W₁ W₂ : WeierstrassC
       - D.t * W₁.a₃ - D.t ^ 2 - D.r * D.t * W₁.a₁ := by
     rw [← hD, variableChange_a₆]
     simp only [Units.val_inv_eq_inv_val]
-    field_simp
+    field
   obtain ⟨tR, htR⟩ := IsIntegrallyClosed.isIntegral_iff.mp
     (isIntegral_of_sq_add_mul_add_eq_zero (x := D.t)
       ((W₁.integralModel R).a₃ + rR * (W₁.integralModel R).a₁)
@@ -1031,7 +1022,6 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
     ∃ (L : Type u) (_ : Field L) (_ : Algebra K L) (_ : Algebra.IsQuadraticExtension K L)
       (_ : Algebra.IsSeparable K L),
       ((E.quadraticTwist L).minimal R).HasSplitMultiplicativeReduction R := by
-  classical
   -- The node polynomial reduced to the residue field `k`; nonsplitness makes it irreducible
   -- (`irreducible_nodePoly_map`), and multiplicative reduction makes it separable
   -- (`separable_nodePoly_map`). Its root field `k' = k[X]/(P)` is therefore a separable
@@ -1068,8 +1058,8 @@ theorem exists_quadraticTwist_hasSplitMultiplicativeReduction [E.HasMultiplicati
   have hρ1 := sq_sub_trace_mul_self_add_norm_residue R hSrank resIso θ'
   rw [hθ'res, resIso.apply_symm_apply] at hρ1
   obtain ⟨hA, hB⟩ := nodePoly_map_root_relations E R hirr hρ1
-  set t' := Algebra.trace R S θ' with ht'
-  set n' := Algebra.norm R θ' with hn'
+  set t' := Algebra.trace R S θ'
+  set n' := Algebra.norm R θ'
   -- `root P ∉ k` (its minimal polynomial has degree 2), so `θ'̄ = resIso⁻¹(root P) ∉ k` and, since
   -- `R` is integrally closed, `algebraMap S L θ' ∉ K` — the twist by `θ'` is nontrivial.
   have hθ' : algebraMap S L θ' ∉ Set.range (algebraMap K L) :=
