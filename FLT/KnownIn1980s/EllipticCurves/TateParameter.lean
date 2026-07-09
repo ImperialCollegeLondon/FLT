@@ -7,6 +7,7 @@ module
 
 public import Mathlib.NumberTheory.ArithmeticFunction.Misc
 public import Mathlib.NumberTheory.LocalField.Basic
+public import Mathlib.RingTheory.PowerSeries.Evaluation
 public import Mathlib.RingTheory.PowerSeries.Inverse
 public import Mathlib.RingTheory.PowerSeries.PiTopology
 public import Mathlib.RingTheory.PowerSeries.Substitution
@@ -187,33 +188,49 @@ end
 -- now let k be a nonarchimedean local field
 variable [ValuativeRel k] [IsNonarchimedeanLocalField k]
 
-/-- Every integral power series is evaluable on the open unit disc of a nonarchimedean
-local field: integers have valuation at most `1`, so the terms have valuation at most
-`|q|ⁿ → 0`, and a series whose terms tend to zero converges, by completeness and the
-nonarchimedean property (no absolute convergence is needed — contrast the archimedean
-case). -/
-theorem summable_evalInt (q : k) (hq : valuation k q < 1) (F : ℤ⟦X⟧) :
-    Summable fun n ↦ ((PowerSeries.coeff n F : ℤ) : k) * q ^ n := by
+/-- The convergence criterion for series over a nonarchimedean local field: if each term
+of `f` is bounded by `|q|^(e i)` for an exponent function `e` with finite sublevel sets,
+then `f` is summable — its terms tend to zero cofinitely, which suffices by completeness
+and the nonarchimedean property (no absolute convergence is needed — contrast the
+archimedean case). -/
+theorem summable_of_valuation_le_pow {ι : Type*} {q : k} (hq : valuation k q < 1)
+    {f : ι → k} (e : ι → ℕ) (he : ∀ N, {i | e i < N}.Finite)
+    (hf : ∀ i, valuation k (f i) ≤ valuation k q ^ e i) : Summable f := by
   -- `Summable` only sees the topology, but the completeness criterion below is stated for
   -- uniform spaces: equip `k` with its canonical uniformity
   let : UniformSpace k := IsTopologicalAddGroup.rightUniformSpace k
   have : IsUniformAddGroup k := isUniformAddGroup_of_addCommGroup
-  have : NonarchimedeanRing k := by
-    convert! ValuativeRel.nonarchimedeanRing k
-    exact Valuation.toTopologicalSpace_eq _
-  -- in a complete nonarchimedean group, it suffices that the terms tend to zero
   apply NonarchimedeanAddGroup.summable_of_tendsto_cofinite_zero
-  rw [Nat.cofinite_eq_atTop, (IsValuativeTopology.hasBasis_nhds (0 : k)).tendsto_right_iff]
+  rw [(IsValuativeTopology.hasBasis_nhds (0 : k)).tendsto_right_iff]
   intro γ _
   obtain ⟨N, hN⟩ := exists_pow_valuation_lt q hq γ
-  -- from `n ≥ N` on, the terms have valuation `≤ |q|ⁿ ≤ |q|^N < γ`
+  rw [Filter.eventually_cofinite]
+  refine (he N).subset fun i hi ↦ ?_
+  simp only [Set.mem_setOf_eq, sub_zero] at hi
+  exact lt_of_not_ge fun hge ↦
+    hi (lt_of_le_of_lt ((hf i).trans (pow_le_pow_right_of_le_one' hq.le hge)) hN)
+
+/-- Powers of an element of the open unit disc tend to zero. -/
+theorem tendsto_pow_nhds_zero {x : k} (hx : valuation k x < 1) :
+    Filter.Tendsto (fun n : ℕ ↦ x ^ n) Filter.atTop (nhds 0) := by
+  rw [(IsValuativeTopology.hasBasis_nhds (0 : k)).tendsto_right_iff]
+  intro γ _
+  obtain ⟨N, hN⟩ := exists_pow_valuation_lt x hx γ
   filter_upwards [Filter.eventually_ge_atTop N] with n hn
-  simp only [sub_zero, map_mul, map_pow]
-  calc valuation k ((PowerSeries.coeff n F : ℤ) : k) * valuation k q ^ n
-      ≤ 1 * valuation k q ^ n := mul_le_mul_left (valuation_intCast_le_one _) _
-    _ = valuation k q ^ n := one_mul _
-    _ ≤ valuation k q ^ N := pow_le_pow_right_of_le_one' hq.le hn
-    _ < γ := hN
+  simp only [sub_zero, map_pow]
+  exact lt_of_le_of_lt (pow_le_pow_right_of_le_one' hx.le hn) hN
+
+/-- Every integral power series is evaluable on the open unit disc of a nonarchimedean
+local field: integers have valuation at most `1`, so the terms have valuation at most
+`|q|ⁿ → 0`, and the nonarchimedean convergence criterion `summable_of_valuation_le_pow`
+applies with exponent function `n ↦ n`. -/
+theorem summable_evalInt (q : k) (hq : valuation k q < 1) (F : ℤ⟦X⟧) :
+    Summable fun n ↦ ((PowerSeries.coeff n F : ℤ) : k) * q ^ n :=
+  summable_of_valuation_le_pow hq (fun n ↦ n) (fun N ↦ Set.finite_Iio N) fun n ↦ by
+    rw [map_mul, map_pow]
+    calc valuation k ((PowerSeries.coeff n F : ℤ) : k) * valuation k q ^ n
+        ≤ 1 * valuation k q ^ n := mul_le_mul_left (valuation_intCast_le_one _) _
+      _ = valuation k q ^ n := one_mul _
 
 /-- If the first `M` coefficients of `F` vanish, its evaluation at a point of the open
 unit disc has valuation at most `|q|^M`: the partial sums satisfy the bound by the
@@ -275,6 +292,68 @@ theorem valuation_evalInt_eq (q : k) (hq0 : q ≠ 0) (hq : valuation k q < 1)
     lt_of_le_of_lt (valuation_evalInt_le_pow q hq hlow)
       (pow_lt_self_of_lt_one₀ (zero_lt_iff.mpr ((valuation k).ne_zero_iff.mpr hq0)) hq one_lt_two)
   rw [hsplit, (valuation k).map_add_eq_of_lt_left hr]
+
+/-! #### Multiplicativity, via mathlib's topological evaluation
+
+On the open unit disc, `evalInt q` is a ring homomorphism `ℤ⟦X⟧ → k`. Rather than
+hand-rolling the nonarchimedean Mertens theorem (the Cauchy-product argument of FLT
+PR #1081), we obtain the multiplicative structure from mathlib's topological power-series
+evaluation `PowerSeries.eval₂Hom` (`Mathlib.RingTheory.PowerSeries.Evaluation`). That API
+requires the target to be *linearly topologized* — a neighbourhood basis of `0` made of
+ideals — which is never true of the field `k` itself, but is true of its ring of integers
+(the `IsLinearTopology 𝒪[k] 𝒪[k]` instance of
+`FLT.Mathlib.Topology.Algebra.ValuativeRel.ValuativeTopology`): for `|q| < 1` the point
+`q` is a topologically nilpotent *integer* (`PowerSeries.HasEval`), the evaluation lands
+in `𝒪[k]`, and `evalInt` is its coercion to `k` (`evalInt_eq_eval₂` below). The ring-hom
+identities (`evalInt_mul`, `evalInt_pow`, …) then fall out of `map_mul`, `map_pow`, ….
+
+**Alternative, not taken here: upstream a valued-field evaluation.** The mathematically
+right fix is a mathlib PR extending `PowerSeries.eval₂` to targets whose topology is
+linear over a *subring* — equivalently, an evaluation theory for fields complete with
+respect to a rank-1 valuation — so that `PowerSeries.eval₂ (Int.castRingHom k) q` makes
+sense directly, with no subtype bookkeeping. That generality (which would also serve
+`ℂ_p`, cf. the rank-1 TODO of the TateCurve module docstring) subsumes the route below
+and would replace it wholesale; we take the `𝒪[k]` route in the meantime because it
+exists today, at the cost of one coercion.
+-/
+
+/-- Evaluation of integral power series at a point of the open unit disc is
+multiplicative. Together with `evalInt_add` this makes `evalInt q` a ring homomorphism
+`ℤ⟦X⟧ → k` for each `|q| < 1`.
+
+Proof: on the open unit disc, `evalInt` is the coercion to `k` of mathlib's topological
+power-series evaluation over the ring of integers (`key` below): `q` is an integer and
+topologically nilpotent (`PowerSeries.HasEval`), so `PowerSeries.eval₂Hom` converges in
+`𝒪[k]` — which is linearly topologized, see the module comment above — and the
+continuous inclusion `𝒪[k] → k` carries its defining sum (`PowerSeries.hasSum_eval₂`) to
+the sum defining `evalInt`. Multiplicativity is then `map_mul` of `eval₂Hom`. -/
+theorem evalInt_mul (q : k) (hq : valuation k q < 1) (F G : ℤ⟦X⟧) :
+    evalInt q (F * G) = evalInt q F * evalInt q G := by
+  letI : UniformSpace k := IsTopologicalAddGroup.rightUniformSpace k
+  haveI : IsUniformAddGroup k := isUniformAddGroup_of_addCommGroup
+  haveI : IsUniformAddGroup 𝒪[k] := inferInstanceAs (IsUniformAddGroup 𝒪[k].toAddSubgroup)
+  have hind : Topology.IsInducing ((↑) : 𝒪[k] → k) := ⟨rfl⟩
+  have hφ : Continuous (Int.castRingHom 𝒪[k]) := continuous_of_discreteTopology
+  have ha : PowerSeries.HasEval (⟨q, hq.le⟩ : 𝒪[k]) :=
+    hind.tendsto_nhds_iff.mpr (by simpa [Function.comp_def] using tendsto_pow_nhds_zero hq)
+  have key : ∀ H : ℤ⟦X⟧, evalInt q H = (PowerSeries.eval₂Hom hφ ha H : k) := by
+    intro H
+    change (∑' n : ℕ, ((PowerSeries.coeff n H : ℤ) : k) * q ^ n) = _
+    rw [PowerSeries.coe_eval₂Hom hφ ha]
+    refine HasSum.tsum_eq ?_
+    simpa [Function.comp_def] using (PowerSeries.hasSum_eval₂ hφ ha H).map
+      (Subring.subtype 𝒪[k]).toAddMonoidHom continuous_subtype_val
+  simp only [key, map_mul]
+  push_cast
+  ring
+
+/-- Evaluation of integral power series at a point of the open unit disc respects powers:
+iterated `evalInt_mul`. -/
+theorem evalInt_pow (q : k) (hq : valuation k q < 1) (F : ℤ⟦X⟧) (m : ℕ) :
+    evalInt q (F ^ m) = evalInt q F ^ m := by
+  induction m with
+  | zero => simp [evalInt]
+  | succ m ih => rw [pow_succ, pow_succ, evalInt_mul q hq, ih]
 
 end Evaluation
 

@@ -5,6 +5,8 @@ Authors: Kevin Buzzard, William Coram
 -/
 module
 
+public import Mathlib.RingTheory.DedekindDomain.AdicValuation
+public import Mathlib.RingTheory.Valuation.Discrete.IsDiscreteValuationRing
 public import Mathlib.RingTheory.Valuation.Integers
 public import Mathlib.RingTheory.Valuation.ValuativeRel.Basic
 
@@ -44,5 +46,49 @@ theorem exists_pow_valuation_lt [IsRankLeOne R] (q : R) (hq : valuation R q < 1)
       (show 0 < s.emb γ by simpa using s.strictMono (zero_lt_iff.mpr γ.ne_zero))
       (show s.emb (valuation R q) < 1 by simpa using s.strictMono hq)
     exact ⟨N, s.strictMono.lt_iff_lt.mp (by rwa [map_pow])⟩
+
+/-! ### Bridging the adic and canonical valuations
+
+Mathlib's reduction theory of elliptic curves is phrased in the adic valuation attached to
+the maximal ideal of the discrete valuation ring `𝒪[K]`
+(`IsDedekindDomain.HeightOneSpectrum.valuation`), while the Tate curve files work with the
+canonical `ValuativeRel` valuation of `K`. On integral elements the two agree on the only
+distinctions that matter — `< 1` (maximal-ideal membership, i.e. non-unitality) and `= 1`
+(unitality) — and the two lemmas below convert between them in both directions.
+-/
+
+section AdicValuation
+
+variable {K : Type*} [Field K] [ValuativeRel K]
+  [IsDiscreteValuationRing (valuation K).integer] [IsFractionRing (valuation K).integer K]
+
+/-- On an integral element, the adic valuation attached to the maximal ideal of `𝒪[K]` is
+less than `1` exactly when the canonical valuation is: both detect membership in the
+maximal ideal, i.e. non-unitality in `𝒪[K]`. -/
+theorem adicValuation_lt_one_iff {x : (valuation K).integer} :
+    (IsDiscreteValuationRing.maximalIdeal (valuation K).integer).valuation K
+        (algebraMap (valuation K).integer K x) < 1 ↔
+      valuation K (algebraMap (valuation K).integer K x) < 1 := by
+  rw [IsDedekindDomain.HeightOneSpectrum.valuation_lt_one_iff_mem]
+  exact ⟨fun h ↦ Valuation.Integer.not_isUnit_iff_valuation_lt_one.mp
+      (mem_nonunits_iff.mp ((IsLocalRing.mem_maximalIdeal _).mp h)),
+    fun h ↦ (IsLocalRing.mem_maximalIdeal _).mpr
+      (mem_nonunits_iff.mpr (Valuation.Integer.not_isUnit_iff_valuation_lt_one.mpr h))⟩
+
+/-- On an integral element, the adic valuation attached to the maximal ideal of `𝒪[K]`
+equals `1` exactly when the canonical valuation does: both detect unitality in `𝒪[K]`. -/
+theorem adicValuation_eq_one_iff {x : (valuation K).integer} :
+    (IsDiscreteValuationRing.maximalIdeal (valuation K).integer).valuation K
+        (algebraMap (valuation K).integer K x) = 1 ↔
+      valuation K (algebraMap (valuation K).integer K x) = 1 := by
+  rw [IsDedekindDomain.HeightOneSpectrum.valuation_eq_one_iff_notMem]
+  exact ⟨fun h ↦ (Valuation.integer.integers (valuation K)).isUnit_iff_valuation_eq_one.mp
+      (by
+        by_contra hne
+        exact h ((IsLocalRing.mem_maximalIdeal _).mpr (mem_nonunits_iff.mpr hne))),
+    fun h hmem ↦ mem_nonunits_iff.mp ((IsLocalRing.mem_maximalIdeal _).mp hmem)
+      ((Valuation.integer.integers (valuation K)).isUnit_iff_valuation_eq_one.mpr h)⟩
+
+end AdicValuation
 
 end ValuativeRel
