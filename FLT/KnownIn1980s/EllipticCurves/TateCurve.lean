@@ -215,11 +215,13 @@ noncomputable def WeierstrassCurve.q (E : WeierstrassCurve k) [E.IsElliptic] : k
 -- Let E/k be an elliptic curve, given by a minimal Weierstrass equation,
 -- with split multiplicative reduction
 variable (E : WeierstrassCurve k) [E.IsElliptic] [E.HasSplitMultiplicativeReduction 𝒪[k]]
--- [E.IsMinimal 𝒪[k]] - caused lake lint errors; re-add back later
+  [E.IsMinimal 𝒪[k]]
 
+omit [E.IsMinimal 𝒪[k]] in
 theorem WeierstrassCurve.q_ne_zero : E.q ≠ 0 :=
   tateParameter_ne_zero E.one_lt_valuation_j
 
+omit [E.IsMinimal 𝒪[k]] in
 /-- The Tate parameter has norm less than `1`. -/
 theorem WeierstrassCurve.valuation_q_lt_one : valuation k E.q < 1 :=
   valuation_tateParameter_lt_one E.one_lt_valuation_j
@@ -376,7 +378,7 @@ theorem WeierstrassCurve.tateParameter_map {j : k} (hj : 1 < valuation k j) :
     simpa [map_inv₀] using inv_lt_one_of_one_lt₀ hj
   simp_rw [WeierstrassCurve.tateParameter_eq, TateCurve.evalInt_map j⁻¹ hjinv, map_inv₀]
 
--- The Tate parameter pushes forward under base change.
+omit [E.IsMinimal 𝒪[k]] in
 theorem WeierstrassCurve.q_baseChange : (E.baseChange l).q = algebraMap k l E.q := by
   rw [show (E.baseChange l).q = tateParameter (E.baseChange l).j from rfl,
     show E.q = tateParameter E.j from rfl,
