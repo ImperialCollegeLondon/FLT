@@ -16,13 +16,13 @@ induced by a change of the base field (for a *fixed* Weierstrass curve), but not
 Mordell–Weil groups induced by an admissible change of variables between two *different* curves.
 This file supplies that: for `C : VariableChange F` and an elliptic curve `W` over a field `F`, the
 admissible change of variables `(x, y) ↦ (u²x + r, u³y + u²sx + t)` gives a group isomorphism
-`WeierstrassCurve.Affine.pointEquivVariableChange : (C • W).Point ≃+ W.Point`.
+`WeierstrassCurve.Affine.Point.equivVariableChange : (C • W).Point ≃+ W.Point`.
 
 ## Main definitions
 
 * `WeierstrassCurve.Affine.Point.mapVariableChange` : the group homomorphism `(C • W).Point →+
   W.Point`, `(x, y) ↦ (u²x + r, u³y + u²sx + t)`.
-* `WeierstrassCurve.Affine.pointEquivVariableChange` : the group isomorphism `(C • W).Point ≃+
+* `WeierstrassCurve.Affine.Point.equivVariableChange` : the group isomorphism `(C • W).Point ≃+
   W.Point`, with inverse coming from `C⁻¹`.
 
 -/
@@ -74,16 +74,14 @@ lemma variableChange_slope [DecidableEq F] {x₁ x₂ y₁ y₂ : F}
         ((C.u : F) ^ 3 * y₂ + (C.u : F) ^ 2 * C.s * x₂ + C.t)
       = (C.u : F) * (C • W).toAffine.slope x₁ x₂ y₁ y₂ + C.s := by
   have hu : (C.u : F) ≠ 0 := C.u.ne_zero
-  by_cases hx : x₁ = x₂
-  · have hy : y₁ ≠ (C • W).toAffine.negY x₂ y₂ := fun h ↦ hxy ⟨hx, h⟩
-    obtain rfl := hx
+  rcases eq_or_ne x₁ x₂ with rfl | hx
+  · have hy : y₁ ≠ (C • W).toAffine.negY x₁ y₂ := fun h ↦ hxy ⟨rfl, h⟩
     obtain rfl := Y_eq_of_Y_ne h₁ h₂ rfl hy
     have hΦy : (C.u : F) ^ 3 * y₁ + (C.u : F) ^ 2 * C.s * x₁ + C.t
         ≠ W.toAffine.negY ((C.u : F) ^ 2 * x₁ + C.r)
             ((C.u : F) ^ 3 * y₁ + (C.u : F) ^ 2 * C.s * x₁ + C.t) := by
       rw [variableChange_negY]
-      intro h
-      exact hy (mul_left_cancel₀ (pow_ne_zero 3 hu) (by linear_combination h))
+      exact fun h ↦ hy (mul_left_cancel₀ (pow_ne_zero 3 hu) (by linear_combination h))
     rw [W.toAffine.slope_of_Y_ne rfl hΦy, (C • W).toAffine.slope_of_Y_ne rfl hy,
       ← mul_div_assoc, div_add' _ _ _ (sub_ne_zero.mpr hy),
       div_eq_div_iff (sub_ne_zero.mpr hΦy) (sub_ne_zero.mpr hy)]
@@ -91,8 +89,7 @@ lemma variableChange_slope [DecidableEq F] {x₁ x₂ y₁ y₂ : F}
       Units.val_inv_eq_inv_val]
     field
   · have hΦx : (C.u : F) ^ 2 * x₁ + C.r ≠ (C.u : F) ^ 2 * x₂ + C.r := by
-      simp only [ne_eq, add_left_inj, mul_right_inj' (pow_ne_zero 2 hu)]
-      exact hx
+      simpa [mul_right_inj' (pow_ne_zero 2 hu)] using hx
     rw [W.toAffine.slope_of_X_ne hΦx, (C • W).toAffine.slope_of_X_ne hx]
     have h1 := sub_ne_zero.mpr hΦx
     have h2 := sub_ne_zero.mpr hx
@@ -105,10 +102,8 @@ lemma variableChange_equation (x y : F) :
         ((C.u : F) ^ 3 * y + (C.u : F) ^ 2 * C.s * x + C.t)
       ↔ (C • W).toAffine.Equation x y := by
   have hu : (C.u : F) ≠ 0 := C.u.ne_zero
-  rw [equation_iff', equation_iff']
-  simp only [variableChange_a₁, variableChange_a₂, variableChange_a₃, variableChange_a₄,
-    variableChange_a₆, Units.val_inv_eq_inv_val]
-  field_simp
+  simp only [equation_iff', variableChange_a₁, variableChange_a₂, variableChange_a₃,
+    variableChange_a₄, variableChange_a₆, Units.val_inv_eq_inv_val, field]
   refine ⟨fun h ↦ ?_, fun h ↦ ?_⟩ <;> linear_combination h
 
 /-! ### The induced isomorphism of point groups -/
@@ -117,16 +112,14 @@ variable [W.IsElliptic]
 
 /-- The underlying map `(C • W).Point → W.Point` of the change of variables, sending `0` to `0` and
 `(x, y)` to `(u²x + r, u³y + u²sx + t)`. -/
-noncomputable def Point.mapVariableChangeFun :
-    (C • W).toAffine.Point → W.toAffine.Point
+noncomputable def Point.mapVariableChangeFun : (C • W).toAffine.Point → W.toAffine.Point
   | .zero => .zero
   | .some x y h => .some ((C.u : F) ^ 2 * x + C.r)
       ((C.u : F) ^ 3 * y + (C.u : F) ^ 2 * C.s * x + C.t)
       (equation_iff_nonsingular.mp
         ((variableChange_equation W C x y).mpr (equation_iff_nonsingular.mpr h)))
 
-@[simp] lemma Point.mapVariableChangeFun_zero :
-    Point.mapVariableChangeFun W C 0 = 0 := rfl
+@[simp] lemma Point.mapVariableChangeFun_zero : Point.mapVariableChangeFun W C 0 = 0 := rfl
 
 lemma Point.mapVariableChangeFun_some {x y : F} (h : (C • W).toAffine.Nonsingular x y) :
     Point.mapVariableChangeFun W C (.some x y h)
@@ -134,9 +127,9 @@ lemma Point.mapVariableChangeFun_some {x y : F} (h : (C • W).toAffine.Nonsingu
           (equation_iff_nonsingular.mp
             ((variableChange_equation W C x y).mpr (equation_iff_nonsingular.mpr h))) := rfl
 
-lemma Point.some_eq_some (V : WeierstrassCurve F) {x₁ x₂ y₁ y₂ : F} (hx : x₁ = x₂) (hy : y₁ = y₂)
-    {h₁ : V.toAffine.Nonsingular x₁ y₁} {h₂ : V.toAffine.Nonsingular x₂ y₂} :
-    (Point.some x₁ y₁ h₁ : V.toAffine.Point) = Point.some x₂ y₂ h₂ := by
+lemma Point.some_eq_some (W : WeierstrassCurve F) {x₁ x₂ y₁ y₂ : F} (hx : x₁ = x₂) (hy : y₁ = y₂)
+    {h₁ : W.toAffine.Nonsingular x₁ y₁} {h₂ : W.toAffine.Nonsingular x₂ y₂} :
+    (Point.some x₁ y₁ h₁ : W.toAffine.Point) = Point.some x₂ y₂ h₂ := by
   subst hx; subst hy; rfl
 
 lemma Point.mapVariableChangeFun_injective :
@@ -198,13 +191,12 @@ noncomputable def Point.mapVariableChange : (C • W).toAffine.Point →+ W.toAf
 
 /-- The group isomorphism `(C • W).Point ≃+ W.Point` induced by the admissible change of
 variables `(x, y) ↦ (u²x + r, u³y + u²sx + t)`. -/
-noncomputable def pointEquivVariableChange :
-    (C • W).toAffine.Point ≃+ W.toAffine.Point :=
+noncomputable def Point.equivVariableChange : (C • W).toAffine.Point ≃+ W.toAffine.Point :=
   AddEquiv.ofBijective (Point.mapVariableChange W C)
     ⟨Point.mapVariableChangeFun_injective W C, Point.mapVariableChangeFun_surjective W C⟩
 
-lemma pointEquivVariableChange_some {x y : F} (h : (C • W).toAffine.Nonsingular x y) :
-    pointEquivVariableChange W C (.some x y h)
+lemma Point.equivVariableChange_some {x y : F} (h : (C • W).toAffine.Nonsingular x y) :
+    Point.equivVariableChange W C (.some x y h)
       = .some ((C.u : F) ^ 2 * x + C.r) ((C.u : F) ^ 3 * y + (C.u : F) ^ 2 * C.s * x + C.t)
           (equation_iff_nonsingular.mp
             ((variableChange_equation W C x y).mpr (equation_iff_nonsingular.mpr h))) := rfl

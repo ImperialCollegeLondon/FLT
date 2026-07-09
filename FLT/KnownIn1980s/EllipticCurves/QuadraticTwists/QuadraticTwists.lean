@@ -989,7 +989,7 @@ noncomputable def quadraticTwistPointEquiv :
     ((E.quadraticTwist L)⁄M).Point ≃+ (E⁄M).Point :=
   have : (E.baseChange M).IsElliptic := inferInstanceAs (E.map (algebraMap K M)).IsElliptic
   (Affine.Point.equivOfEq (E.quadraticTwistVarChange_smul_baseChange L M).symm).trans
-    (Affine.pointEquivVariableChange (E.baseChange M) ((E.quadraticTwistVarChange L).baseChange M))
+    (Affine.Point.equivVariableChange (E.baseChange M) ((E.quadraticTwistVarChange L).baseChange M))
 
 /-- Naturality of `quadraticTwistPointEquiv` in `M`: the isomorphisms on `M`-points over varying
 `M ⊇ L` are all induced by a single isomorphism of curves over `L`, so they commute with the
@@ -1013,7 +1013,7 @@ theorem quadraticTwistPointEquiv_map {N : Type*} [Field N] [Algebra K N] [Algebr
   rcases P with _ | ⟨x, y, h⟩
   · simp [← Affine.Point.zero_def]
   · simp only [quadraticTwistPointEquiv, AddEquiv.trans_apply, Affine.Point.equivOfEq_some,
-      Affine.pointEquivVariableChange_some, Affine.Point.map_some]
+      Affine.Point.equivVariableChange_some, Affine.Point.map_some]
     refine Affine.Point.some_eq_some (E.baseChange N) ?_ ?_
     · simp only [map_add, map_mul, map_pow, hu, hr]
     · simp only [map_add, map_mul, map_pow, hu, hs, ht]
@@ -1049,7 +1049,7 @@ theorem quadraticTwistPointEquiv_map_of_not_fixed {σ : M ≃ₐ[K] M}
   rcases P with _ | ⟨x, y, hns⟩
   · simp [← Affine.Point.zero_def]
   · simp only [quadraticTwistPointEquiv, AddEquiv.trans_apply, Affine.Point.equivOfEq_some,
-      Affine.pointEquivVariableChange_some, Affine.Point.map_some, Affine.Point.neg_some]
+      Affine.Point.equivVariableChange_some, Affine.Point.map_some, Affine.Point.neg_some]
     refine Affine.Point.some_eq_some (E.baseChange M) ?_ ?_
     · simp only [map_add, map_mul, map_pow, hu, hr]
       ring
