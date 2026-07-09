@@ -10,7 +10,7 @@ public import Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveDescent
 
 import Mathlib.NumberTheory.TsumDivisorsAntidiagonal
-import FLT.Mathlib.NumberTheory.TsumDivisorsAntidiagonal
+import FLT.Slop.NumberTheory.TsumDivisorsAntidiagonal
 import Mathlib.Topology.Algebra.InfiniteSum.Nonarchimedean
 
 /-!

@@ -9,7 +9,7 @@ public import FLT.KnownIn1980s.EllipticCurves.TateCurveEquation
 public import FLT.Mathlib.Topology.Algebra.ValuativeRel.ValuativeTopology
 
 import Mathlib.NumberTheory.TsumDivisorsAntidiagonal
-import FLT.Mathlib.NumberTheory.TsumDivisorsAntidiagonal
+import FLT.Slop.NumberTheory.TsumDivisorsAntidiagonal
 import Mathlib.Topology.Algebra.InfiniteSum.Nonarchimedean
 
 /-!
