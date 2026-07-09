@@ -5,8 +5,8 @@ Authors: Kevin Buzzard, Claude
 -/
 module
 
-public import FLT.KnownIn1980s.EllipticCurves.Aut
-public import FLT.KnownIn1980s.EllipticCurves.VariableChangeEquiv
+public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.Aut
+public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.VariableChangeEquiv
 public import Mathlib.RingTheory.Trace.Basic
 
 import Mathlib.RingTheory.Norm.Transitivity
@@ -71,7 +71,7 @@ generator of `L/K` (`exists_smul_quadraticTwistBy_eq`), the invariance of the `j
 (`exists_smul_quadraticTwist_quadraticTwist_eq`), together with the Galois-theoretic
 statements: the isomorphism on points over `L` and its `χ`-twisted equivariance, and the
 classification of forms of `E`. The reduction-theoretic statements are in
-`FLT.KnownIn1980s.EllipticCurves.SplitMultiplicativeReduction`.
+`FLT.KnownIn1980s.EllipticCurves.QuadraticTwists.SplitMultiplicativeReduction`.
 
 * `quadraticCharacter K L M` : the quadratic character `Aut(M/K) →* {±1} = ℤˣ` attached to a
   separable quadratic subextension `K ⊆ L ⊆ M`.

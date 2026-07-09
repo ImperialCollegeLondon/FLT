@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kevin Buzzard, Claude
+Authors: Michael Stoll, Claude
 -/
 module
 
@@ -54,17 +54,16 @@ taken as explicit data (rather than a bare `Nat.card G = 2`) so the isomorphism 
 def mulEquivMultiplicativeZModTwo {G : Type*} [Group G] [DecidableEq G] (g : G) (hg : g ≠ 1)
     (key : ∀ x : G, x = 1 ∨ x = g) : G ≃* Multiplicative (ZMod 2) :=
   have hgg : g * g = 1 := (key (g * g)).resolve_right fun h ↦ hg (mul_eq_right.mp h)
-  have keyM : ∀ x : Multiplicative (ZMod 2), x = 1 ∨ x = Multiplicative.ofAdd 1 := by decide
-  have hM1 : (Multiplicative.ofAdd 1 : Multiplicative (ZMod 2)) ≠ 1 := by decide
-  have hMM : (Multiplicative.ofAdd 1 : Multiplicative (ZMod 2)) * Multiplicative.ofAdd 1 = 1 := by
+  have keyM : ∀ x : Multiplicative (ZMod 2), x = 1 ∨ x = .ofAdd 1 := by decide
+  have hM1 : (.ofAdd 1 : Multiplicative (ZMod 2)) ≠ 1 := by decide
+  have hMM : (.ofAdd 1 : Multiplicative (ZMod 2)) * .ofAdd 1 = 1 := by
     decide
-  { toFun x := if x = 1 then 1 else Multiplicative.ofAdd 1
+  { toFun x := if x = 1 then 1 else .ofAdd 1
     invFun x := if x = 1 then 1 else g
-    left_inv x := by rcases key x with h | h <;> subst h <;> simp [hg, hM1]
-    right_inv x := by rcases keyM x with h | h <;> subst h <;> simp [hg, hM1]
-    map_mul' a b := by
-      rcases key a with ha | ha <;> rcases key b with hb | hb <;> subst ha <;> subst hb <;>
-        simp [hg, hgg, hMM] }
+    left_inv x := by rcases key x <;> grind
+    right_inv x := by rcases keyM x <;> grind
+    map_mul' a b := by rcases key a <;> rcases key b <;> grind
+  }
 
 end API
 
@@ -110,8 +109,7 @@ Throughout, `C • E = E` is an automorphism of `E`; the nonvanishing of `c₄` 
 makes the partial derivative `∂/∂y = 2y + a₁x + a₃` vanish identically, so `Δ = 0`. -/
 lemma a₁_ne_zero_or_a₃_ne_zero_of_two_eq_zero (hΔ : E.Δ ≠ 0) (h2 : (2 : K) = 0) :
     E.a₁ ≠ 0 ∨ E.a₃ ≠ 0 := by
-  by_contra h
-  rw [not_or, not_not, not_not] at h
+  by_contra! h
   exact hΔ (by rw [Δ, b₈, b₆, b₄, b₂, h.1, h.2]; grobner)
 
 /-- The negation automorphism is nontrivial for a curve with `Δ ≠ 0`: in characteristic `≠ 2` it
@@ -120,28 +118,25 @@ with `Δ ≠ 0` in characteristic `2` cannot have `a₁ = a₃ = 0`. -/
 lemma negVariableChange_ne_one (hΔ : E.Δ ≠ 0) : E.negVariableChange ≠ 1 := by
   intro h
   rcases eq_or_ne (2 : K) 0 with h2 | h2
-  · have ha1 : E.a₁ = 0 := by
-      simpa [negVariableChange, VariableChange.one_def, neg_eq_zero]
-        using congrArg VariableChange.s h
-    have ha3 : E.a₃ = 0 := by
-      simpa [negVariableChange, VariableChange.one_def, neg_eq_zero]
-        using congrArg VariableChange.t h
+  · have hs := congrArg VariableChange.s h
+    have ht := congrArg VariableChange.t h
+    simp [negVariableChange, VariableChange.one_def] at hs ht
     grind [a₁_ne_zero_or_a₃_ne_zero_of_two_eq_zero]
-  · refine h2 ?_
+  · contrapose h2
     have hv : (-1 : K) = 1 := by
       simpa [VariableChange.one_def] using congrArg (fun C : VariableChange K ↦ (C.u : K)) h
     linear_combination -hv
 
 /-- An automorphism `C` of `E` with `C.u = 1` has no `x`-translation: `C.r = 0`. Splitting on
 whether `6 = 0`, this uses `c₄ ≠ 0` in characteristic `2` or `3` and `c₆ ≠ 0` otherwise. -/
-lemma r_eq_zero_of_u_eq_one (hc6 : E.c₆ ≠ 0) {C : VariableChange K}
-    (hu : C.u = 1) (hCE : C • E = E) : C.r = 0 := by
+lemma r_eq_zero_of_u_eq_one (hc6 : E.c₆ ≠ 0) {C : VariableChange K} (hu : C.u = 1)
+    (hCE : C • E = E) :
+    C.r = 0 := by
+  rw [c₆] at hc6
   have eb4 := congrArg WeierstrassCurve.b₄ hCE
   have eb6 := congrArg WeierstrassCurve.b₆ hCE
   have eb8 := congrArg WeierstrassCurve.b₈ hCE
-  simp only [variableChange_b₄, variableChange_b₆, variableChange_b₈, hu, inv_one, Units.val_one,
-    one_pow, one_mul] at eb4 eb6 eb8
-  rw [c₆] at hc6
+  simp [variableChange_b₄, variableChange_b₆, variableChange_b₈, hu] at eb4 eb6 eb8
   grobner
 
 /-- An automorphism `C` of `E` with `C.u = 1` is either the identity or `negVariableChange E`.
@@ -163,22 +158,15 @@ lemma eq_one_or_eq_negVariableChange_of_u_eq_one (hc4 : E.c₄ ≠ 0) (hc6 : E.c
     have hq4 : C.s * E.a₃ + C.t * E.a₁ = 0 := by
       linear_combination -e4 + (2 * E.a₂ - C.s * E.a₁ + 3 * C.r) * hr - C.s * C.t * h2
     rcases (mul_eq_zero.mp hq2).imp id eq_neg_of_add_eq_zero_right with hs | hs
-    · have ht : C.t = 0 :=
-        (mul_eq_zero.mp
-          (show C.t * E.a₁ = 0 by linear_combination hq4 - E.a₃ * hs)).resolve_right ha1
-      exact Or.inl (by rw [VariableChange.one_def]; exact VariableChange.ext hu hr hs ht)
-    · have ht : C.t = -E.a₃ := eq_neg_of_add_eq_zero_left
-        ((mul_eq_zero.mp (show E.a₁ * (C.t + E.a₃) = 0 by
-          linear_combination hq4 - E.a₃ * hs + E.a₁ * E.a₃ * h2)).resolve_left ha1)
-      have hu1neg : (1 : Kˣ) = -1 :=
-        Units.ext (by rw [Units.val_one, Units.val_neg, Units.val_one]; linear_combination h2)
-      exact Or.inr (VariableChange.ext (hu.trans hu1neg) hr hs ht)
+    · have ht : C.t = 0 := by grobner
+      exact .inl (VariableChange.ext hu hr hs ht)
+    · have ht : C.t = -E.a₃ := by grobner
+      have hu1neg : (1 : Kˣ) = -1 := by ext; push_cast; linear_combination h2
+      exact .inr (VariableChange.ext (hu.trans hu1neg) hr hs ht)
   · -- characteristic `≠ 2`: `2s = 2t = 0`, so `s = t = 0` and `C = 1`.
-    have hs : C.s = 0 :=
-      (mul_eq_zero.mp (show 2 * C.s = 0 by linear_combination e1)).resolve_left h2
-    have ht : C.t = 0 :=
-      (mul_eq_zero.mp (show 2 * C.t = 0 by linear_combination e3 - E.a₁ * hr)).resolve_left h2
-    exact Or.inl (by rw [VariableChange.one_def]; exact VariableChange.ext hu hr hs ht)
+    have hs : C.s = 0 := by grobner
+    have ht : C.t = 0 := by grobner
+    exact .inl (VariableChange.ext hu hr hs ht)
 
 /-- The `u`-coefficient of an automorphism `C` of `E` (with `c₄, c₆ ≠ 0`) satisfies `u² = 1`:
 the `c₄` and `c₆` laws give `u⁴ = u⁶ = 1`. -/
@@ -186,19 +174,14 @@ lemma u_eq_one_or_eq_neg_one (hc4 : E.c₄ ≠ 0) (hc6 : E.c₆ ≠ 0) {C : Vari
     (hCE : C • E = E) : C.u = 1 ∨ C.u = -1 := by
   have hu4 : (C.u : K) ^ 4 = 1 := by
     have h := congrArg WeierstrassCurve.c₄ hCE
-    rw [variableChange_c₄, Units.val_inv_eq_inv_val] at h
-    have h1 : ((C.u : K)⁻¹) ^ 4 = 1 := mul_right_cancel₀ hc4 (h.trans (one_mul E.c₄).symm)
-    rwa [inv_pow, inv_eq_one] at h1
+    rwa [variableChange_c₄, Units.val_inv_eq_inv_val, mul_eq_right₀ hc4, inv_pow, inv_eq_one] at h
   have hu6 : (C.u : K) ^ 6 = 1 := by
     have h := congrArg WeierstrassCurve.c₆ hCE
-    rw [variableChange_c₆, Units.val_inv_eq_inv_val] at h
-    have h1 : ((C.u : K)⁻¹) ^ 6 = 1 := mul_right_cancel₀ hc6 (h.trans (one_mul E.c₆).symm)
-    rwa [inv_pow, inv_eq_one] at h1
-  have hu2 : (C.u : K) * (C.u : K) = 1 := by
-    linear_combination hu6 - (C.u : K) ^ 2 * hu4
+    rwa [variableChange_c₆, Units.val_inv_eq_inv_val, mul_eq_right₀ hc6, inv_pow, inv_eq_one] at h
+  have hu2 : (C.u : K) * (C.u : K) = 1 := by linear_combination hu6 - (C.u : K) ^ 2 * hu4
   rcases mul_self_eq_one_iff.mp hu2 with h | h
-  · exact Or.inl (Units.val_eq_one.mp h)
-  · exact Or.inr (Units.ext (by rw [Units.val_neg, Units.val_one]; exact h))
+  · exact .inl (Units.val_eq_one.mp h)
+  · exact .inr (Units.ext h)
 
 /-- If `j(E) ≠ 1728` then `c₆(E) ≠ 0`, since `c₆ = 0` forces `1728·Δ = c₄³`, i.e. `j = 1728`. -/
 lemma c₆_ne_zero_of_j_ne_1728 [E.IsElliptic] (hj : E.j ≠ 1728) : E.c₆ ≠ 0 := by
