@@ -79,7 +79,8 @@ are power series in `q` with integer coefficients, together with a uniformisatio
 no choices whatsoever, and commuting on the nose with every valuative morphism of fields.
 The uniformisation of a general `E` with split multiplicative reduction is obtained by
 transporting this one along an isomorphism `E_{q(E)} ≅ E` of Weierstrass curves
-(`exists_variableChange_tateCurve` below), and *that* is the only choice in the theory:
+(`exists_variableChange_tateCurve_charUniform`, in the downstream file
+`SplitMultiplicativeDescent`), and *that* is the only choice in the theory:
 there are exactly two such isomorphisms, differing by negation.
 -/
 
@@ -245,9 +246,11 @@ noncomputable def WeierstrassCurve.tateEquiv :
 -- exactly *two* such `C`, differing by negation. `tateEquiv` is `tateCurveEquiv` transported
 -- along a choice of one of them; this binary choice, for each `E`, is the only choice in
 -- the whole theory, and it cannot be made functorially in `E` — see `tateEquiv_baseChange`.
-theorem WeierstrassCurve.exists_variableChange_tateCurve :
-    ∃ C : VariableChange k, C • tateCurve E.q = E :=
-  sorry
+--
+-- The existence of such a change of variables — `∃ C : VariableChange k, C • tateCurve E.q = E`
+-- — is proved characteristic-uniformly as `exists_variableChange_tateCurve_charUniform` in
+-- `FLT.KnownIn1980s.EllipticCurves.SplitMultiplicativeDescent` (downstream of this file, so the
+-- statement lives there rather than here to keep the import direction acyclic).
 
 open scoped ArithmeticFunction.sigma in
 /-- The Lambert series rearrangement `∑_{n≥1} n³qⁿ/(1-qⁿ) = ∑_{n≥1} σ₃(n)qⁿ` for
