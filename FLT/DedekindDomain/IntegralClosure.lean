@@ -43,7 +43,7 @@ lemma mk_count_factors_map
     (hAB : Function.Injective (algebraMap A B))
     (w : HeightOneSpectrum B) (I : Ideal A) :
     (Associates.mk w.asIdeal).count (Associates.mk (Ideal.map (algebraMap A B) I)).factors =
-    Ideal.ramificationIdx (under A w).asIdeal w.asIdeal *
+    Ideal.ramificationIdx' (under A w).asIdeal w.asIdeal *
       (Associates.mk (under A w).asIdeal).count (Associates.mk I).factors := by
   classical
   induction I using UniqueFactorizationMonoid.induction_on_prime with
@@ -74,7 +74,7 @@ lemma mk_count_factors_map
       simp only [Multiset.nodup_singleton, Multiset.mem_singleton, Multiset.count_eq_one_of_mem,
         mul_one]
       rw [Ideal.count_associates_factors_eq hp_bot' w.2 w.3,
-        Ideal.IsDedekindDomain.ramificationIdx_eq_normalizedFactors_count hp_bot' w.2 w.3]
+        Ideal.IsDedekindDomain.ramificationIdx'_eq_normalizedFactors_count hp_bot' w.2 w.3]
     · have : (Associates.mk (under A w).asIdeal).count (Associates.mk p).factors = 0 :=
         Associates.count_eq_zero_of_ne (associates_irreducible _)
           (Associates.irreducible_mk.mpr hp.irreducible)
@@ -88,15 +88,15 @@ lemma mk_count_factors_map
 
 lemma ramificationIdx_ne_zero (hAB : Function.Injective (algebraMap A B))
     (w : HeightOneSpectrum B) :
-    Ideal.ramificationIdx (under A w).asIdeal w.asIdeal ≠ 0 :=
-  Ideal.IsDedekindDomain.ramificationIdx_ne_zero
+    Ideal.ramificationIdx' (under A w).asIdeal w.asIdeal ≠ 0 :=
+  Ideal.IsDedekindDomain.ramificationIdx'_ne_zero
     ((Ideal.map_eq_bot_iff_of_injective hAB).not.mpr (under A w).3) w.2 Ideal.map_comap_le
 
 /-- If w | v then for a ∈ A we have w(a)=v(a)^e where e is the ramification index. -/
 lemma intValuation_comap (hAB : Function.Injective (algebraMap A B))
     (w : HeightOneSpectrum B) (x : A) :
     (under A w).intValuation x ^
-    (Ideal.ramificationIdx (under A w).asIdeal w.asIdeal) =
+    (Ideal.ramificationIdx' (under A w).asIdeal w.asIdeal) =
     w.intValuation (algebraMap A B x) := by
   classical
   have h_ne_zero := ramificationIdx_ne_zero A B hAB w
@@ -112,10 +112,10 @@ omit [IsIntegralClosure B A L] in
 /-- If w | v then for x ∈ K we have w(x)=v(x)^e where e is the ramification index. -/
 lemma valuation_comap (w : HeightOneSpectrum B) (x : K) :
     (under A w).valuation K x ^
-      (Ideal.ramificationIdx (under A w).asIdeal w.asIdeal) =
+      (Ideal.ramificationIdx' (under A w).asIdeal w.asIdeal) =
     w.valuation L (algebraMap K L x) := by
   obtain ⟨x, y, hy, rfl⟩ := IsFractionRing.div_surjective (A := A) x
-  simp [valuation, ← IsScalarTower.algebraMap_apply A K L, IsScalarTower.algebraMap_apply A B L,
+  simp [valuation_def, ← IsScalarTower.algebraMap_apply A K L, IsScalarTower.algebraMap_apply A B L,
     ← intValuation_comap A B (algebraMap_injective_of_field_isFractionRing A B K L), div_pow]
 
 include K L in
@@ -169,8 +169,8 @@ omit [IsIntegralClosure B A L] in
 /-- `Ideal.sum_ramification_inertia`, rewritten as a sum over extensions. -/
 lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
     letI := Extension.fintype A K L B v
-    ∑ (w : Extension B v), Ideal.ramificationIdx v.asIdeal w.val.asIdeal
-      * (v.asIdeal).inertiaDeg (w.val.asIdeal) = Module.finrank K L := by
+    ∑ (w : Extension B v), Ideal.ramificationIdx' v.asIdeal w.val.asIdeal
+      * (v.asIdeal).inertiaDeg' (w.val.asIdeal) = Module.finrank K L := by
   have := v.isMaximal
   have := isTorsionFree A K L B
   -- Use Ideal.sum_ramification_inertia to make this an equivalence of two sums.

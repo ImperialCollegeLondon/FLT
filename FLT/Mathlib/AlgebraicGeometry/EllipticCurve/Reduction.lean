@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kevin Buzzard, Claude
+Authors: Kevin Buzzard, William Coram, Claude
 -/
 module
 
@@ -45,6 +45,17 @@ lemma nodePoly_map {A : Type*} [CommRing A] {B : Type*} [CommRing B] (φ : A →
       - .C (φ (54 * W.b₆ - 3 * W.b₂ * W.b₄ + W.a₂ * W.c₄)) := by
   simp only [nodePoly, Polynomial.map_sub, Polynomial.map_add, Polynomial.map_mul,
     Polynomial.map_pow, Polynomial.map_C, Polynomial.map_X]
+
+/-- The node polynomial is natural in the coefficient ring: it commutes with base change of the
+Weierstrass equation along any ring homomorphism, since every coefficient is a polynomial in the
+`aᵢ` and `Polynomial.map` is a ring homomorphism on each. -/
+lemma map_nodePoly {A : Type*} [CommRing A] {B : Type*} [CommRing B] (φ : A →+* B)
+    (W : WeierstrassCurve A) :
+    (W.map φ).nodePoly = W.nodePoly.map φ := by
+  simp only [nodePoly, WeierstrassCurve.map_c₄, WeierstrassCurve.map_a₁, WeierstrassCurve.map_b₂,
+    WeierstrassCurve.map_b₄, WeierstrassCurve.map_b₆, WeierstrassCurve.map_a₂, Polynomial.map_add,
+    Polynomial.map_sub, Polynomial.map_mul, Polynomial.map_pow, Polynomial.map_C, Polynomial.map_X,
+    Polynomial.map_ofNat, map_add, map_sub, map_mul, map_ofNat]
 
 /-- The root of the (base-changed) node polynomial satisfies its defining quadratic relation. -/
 lemma aeval_root_nodePoly_map {A : Type*} [CommRing A] {B : Type*} [CommRing B] (φ : A →+* B)
@@ -283,25 +294,24 @@ open IsDiscreteValuationRing IsDedekindDomain.HeightOneSpectrum in
 (equivalently, `valuation c₄ = 1`) is already minimal: any change of variables `C` keeping the
 equation integral must have `valuation C.u ≥ 1` (else `valuation (C • W).c₄ = valuation C.u⁻⁴ > 1`,
 contradicting integrality), so `valuation (C • W).Δ = valuation C.u⁻¹² · valuation W.Δ ≤ valuation
-W.Δ`. This is the tool that shows the twist `W` we build is minimal without minimising by hand. -/
-theorem isMinimal_of_valuation_c₄_eq_one (W : WeierstrassCurve K) [hint : IsIntegral R W]
+W.Δ`. This is the tool that shows the twist `W` we build is minimal without minimising by hand.
+
+This is the unit-`c₄` case of the Kraus–Laska criterion: the special case "`v(c₄) < 4` or
+`v(Δ) < 12` implies minimal" of Silverman, *The Arithmetic of Elliptic Curves*, Remark VII.1.1,
+restricted to `v(c₄) = 0`. The hypothesis is stated at the field level — via the adic valuation
+of `W.c₄ : K` — to match mathlib's phrasing of `WeierstrassCurve.HasMultiplicativeReduction`,
+whose `multiplicativeReduction` field is exactly `(maximalIdeal R).valuation K W.c₄ = 1`. -/
+theorem isMinimal_of_valuation_c₄_eq_one (W : WeierstrassCurve K) [IsIntegral R W]
     (hc₄ : valuation K (maximalIdeal R) W.c₄ = 1) : IsMinimal R W := by
-  refine ⟨⟨by simpa using hint, fun C hC _ ↦ ?_⟩⟩
-  have hCi : IsIntegral R (C • W) := hC
-  simp only [← Subtype.coe_le_coe, one_smul, valuation_Δ_aux_eq_of_isIntegral R (C • W),
+  refine ⟨⟨by simpa using ‹IsIntegral R W›, ?_⟩⟩
+  intro C hC _
+  simp only [one_smul, ← Subtype.coe_le_coe, valuation_Δ_aux_eq_of_isIntegral R (C • W),
     valuation_Δ_aux_eq_of_isIntegral R W]
-  set v := valuation K (maximalIdeal R)
-  set y := v ((C.u⁻¹ : Kˣ) : K) with hy
-  -- From integrality, `valuation (C • W).c₄ = y⁴ · valuation W.c₄ = y⁴ ≤ 1`, hence `y ≤ 1`.
-  have huc : v ((C • W).c₄) ≤ 1 := by
-    rw [← integralModel_c₄_eq R (C • W)]; exact valuation_le_one (maximalIdeal R) _
-  rw [variableChange_c₄, map_mul, map_pow, ← hy, hc₄, mul_one] at huc
-  have hy1 : y ≤ 1 := by
-    by_contra hgt
-    exact absurd (one_lt_pow₀ (lt_of_not_ge hgt) (by norm_num)) (not_lt.mpr huc)
-  -- Therefore `valuation (C • W).Δ = y¹² · valuation W.Δ ≤ valuation W.Δ`.
-  rw [variableChange_Δ, map_mul, map_pow, ← hy]
-  exact mul_le_of_le_one_left zero_le (pow_le_one₀ zero_le hy1)
+  have hint : valuation K (maximalIdeal R) (C • W).c₄ ≤ 1 := by
+    simpa [← integralModel_c₄_eq R (C • W)] using valuation_le_one _ _
+  rw [variableChange_c₄, map_mul, map_pow, hc₄, mul_one] at hint
+  simpa [variableChange_Δ, map_mul, map_pow] using mul_le_of_le_one_left'
+    (pow_le_one' ((pow_le_one_iff (by norm_num)).mp hint) 12)
 
 /-- For a minimal Weierstrass model `W`, no integral change of variables increases the valuation
 of the discriminant. -/
