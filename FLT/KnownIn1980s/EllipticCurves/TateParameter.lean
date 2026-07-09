@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kevin Buzzard, William Coram
+Authors: Kevin Buzzard, William Coram, Samuel Yin
 -/
 module
 
@@ -569,18 +569,15 @@ variable {k : Type*} [Field k] [TopologicalSpace k]
 a topological field (junk value if the series does not converge). -/
 noncomputable def evalInt (q : k) (F : ℤ⟦X⟧) : k := ∑' n : ℕ, ((coeff n F : ℤ) : k) * q ^ n
 
-@[simp]
 theorem evalInt_X (q : k) : evalInt q (X : ℤ⟦X⟧) = q := by
   simp [evalInt, coeff_X]
 
-@[simp]
 theorem evalInt_C (q : k) (m : ℤ) : evalInt q (C m) = m := by
   simp only [evalInt]
   rw [tsum_eq_single 0 fun n hn ↦ by rw [coeff_C, if_neg hn]; simp]
   rw [coeff_C]
   simp
 
-@[simp]
 theorem evalInt_one (q : k) : evalInt q (1 : ℤ⟦X⟧) = 1 := by
   rw [← map_one (C : ℤ →+* ℤ⟦X⟧), evalInt_C, Int.cast_one]
 
