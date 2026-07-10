@@ -123,8 +123,14 @@ set_option backward.isDefEq.respectTransparency false in
 lemma adicCompletion.padicEquiv_norm_eq
     (v : IsDedekindDomain.HeightOneSpectrum (𝓞 ℚ)) (x : v.adicCompletion ℚ) :
     ‖(padicEquiv v) x‖ = ‖x‖ := by
+  obtain ⟨x, rfl⟩ := adicCompletion.ofCompletion_surjective ℚ v x
   induction x using induction_on with
-  | hp => apply isClosed_eq <;> fun_prop
-  | ih => simp [padicEquiv_norm_coe_eq v, UniformSpace.Completion.algebraMap_def]
+  | hp =>
+    apply isClosed_eq
+    · exact continuous_norm.comp ((padicEquiv v).continuous.comp (continuous_ofCompletion ℚ v))
+    · exact continuous_norm.comp (continuous_ofCompletion ℚ v)
+  | ih a =>
+    rw [padicEquiv_norm_coe_eq v]
+    congr 1
 
 end Rat.HeightOneSpectrum
