@@ -60,6 +60,8 @@ ambient module never changes.
 
 @[expose] public section
 
+namespace Slop
+
 open CategoryTheory Submodule LinearMap
 
 namespace FilteredComplex
@@ -1113,3 +1115,5 @@ theorem Hom.mapPage_dPageAux (f : K ⟶ K') (r p q n m : ℤ)
 end Functoriality
 
 end FilteredComplex
+
+end Slop

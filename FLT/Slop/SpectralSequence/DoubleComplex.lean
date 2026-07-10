@@ -51,6 +51,8 @@ filtrations).  This is the first result of Vakil, *The Rising Sea*, §1.7.
 
 @[expose] public section
 
+namespace Slop
+
 open CategoryTheory CategoryTheory.Limits
 open Submodule LinearMap DirectSum
 
@@ -1053,3 +1055,5 @@ noncomputable def rowPageOneEquiv (p a : ℤ) :
 end FirstPage
 
 end DoubleComplex
+
+end Slop

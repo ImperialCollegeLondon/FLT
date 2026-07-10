@@ -63,6 +63,8 @@ exact couple, derived couple, spectral sequence
 
 @[expose] public section
 
+namespace Slop
+
 open LinearMap Submodule Function
 
 universe u
@@ -405,3 +407,5 @@ noncomputable def pageSuccEquiv (r : ℕ) :
     (C.pageSuccEquiv r).symm x = x := rfl
 
 end ExactCouple
+
+end Slop

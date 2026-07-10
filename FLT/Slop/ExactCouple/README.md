@@ -52,7 +52,7 @@ degree `(r + 1, -r)` — the familiar bidegree of the classical
   `pageDiff_comp_pageDiff` (`d_r² = 0`) and `pageSuccEquiv`.
 - `Graded.lean` defines `GradedExactCouple R ι` (extending `ExactCouple R` by
   gradings and degree data), proves the homogeneous-image lemma
-  `DirectSum.IsInternal.inf_range_le_map` (a homogeneous element in the
+  `Slop.DirectSum.IsInternal.inf_range_le_map` (a homogeneous element in the
   image of a homogeneous endomorphism is the image of a homogeneous element —
   the reason `j'` drops degree), the homogeneity of the derived maps, the
   bidegree drop `derivedCouple_homog_d`, the facts that `im i` and
@@ -97,10 +97,10 @@ a common universe independent of the universe of `R`:
 no `sorry`, and
 
 ```lean
-#print axioms ExactCouple.derivedCouple
+#print axioms Slop.ExactCouple.derivedCouple
 -- [propext, Classical.choice, Quot.sound]
 
-#print axioms GradedExactCouple.gradedDerived_homog_d
+#print axioms Slop.GradedExactCouple.gradedDerived_homog_d
 -- [propext, Classical.choice, Quot.sound]
 ```
 
@@ -120,10 +120,9 @@ no `sorry`, and
    arbitrary abelian group `ι` rather than `ℤ × ℤ`, so single gradings,
    bigradings, and multigradings are all instances.
 
-The declarations intentionally remain in the root `ExactCouple` and
-`GradedExactCouple` namespaces because this folder mirrors an upstream mathlib
-candidate. If the code becomes FLT-specific rather than upstream-bound, it
-should move under `FLT.Slop` to avoid future name collisions.
+All declarations live under the `Slop` namespace (`Slop.ExactCouple`,
+`Slop.GradedExactCouple`), following the `FLT/Slop` convention and avoiding
+collisions with future mathlib; an upstream mathlib PR would drop the prefix.
 
 ## Relation to existing formalizations
 

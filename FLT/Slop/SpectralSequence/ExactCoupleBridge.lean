@@ -27,7 +27,11 @@ and assembles them into a `GradedExactCouple` on the direct sums
 
 @[expose] public section
 
-open scoped DirectSum
+namespace Slop
+
+-- `_root_` is needed: this file's imports already populate the `Slop.DirectSum`
+-- namespace, which would otherwise shadow mathlib's `DirectSum` here.
+open scoped _root_.DirectSum
 open Submodule LinearMap
 
 namespace FilteredDifferentialModule
@@ -372,27 +376,27 @@ over the filtration degree. -/
 /-! ## The internal gradings -/
 
 /-- The canonical degree-`p` submodule of a direct sum. -/
-def _root_.DirectSum.canonicalGrading {ι : Type*} [DecidableEq ι] {A : ι → Type*}
+def _root_.Slop.DirectSum.canonicalGrading {ι : Type*} [DecidableEq ι] {A : ι → Type*}
     [∀ p, AddCommGroup (A p)] [∀ p, Module R (A p)] (p : ι) :
     Submodule R (⨁ q, A q) :=
   LinearMap.range (DirectSum.lof R ι A p)
 
 /-- The inclusion of one summand, corestricted to its canonical graded submodule. -/
-def _root_.DirectSum.canonicalGradingComponent
+def _root_.Slop.DirectSum.canonicalGradingComponent
     {ι : Type*} [DecidableEq ι] {A : ι → Type*}
     [∀ p, AddCommGroup (A p)] [∀ p, Module R (A p)] (p : ι) :
     A p →ₗ[R] DirectSum.canonicalGrading (R := R) (A := A) p :=
   (DirectSum.lof R ι A p).codRestrict _ fun z => ⟨z, rfl⟩
 
 /-- Decompose a direct sum into its canonical graded submodules. -/
-noncomputable def _root_.DirectSum.canonicalGradingDecompose
+noncomputable def _root_.Slop.DirectSum.canonicalGradingDecompose
     {ι : Type*} [DecidableEq ι] {A : ι → Type*}
     [∀ p, AddCommGroup (A p)] [∀ p, Module R (A p)] :
     (⨁ q, A q) →ₗ[R] ⨁ p, DirectSum.canonicalGrading (R := R) (A := A) p :=
   DirectSum.lmap fun p => DirectSum.canonicalGradingComponent (R := R) (A := A) p
 
 /-- The canonical internal decomposition of a direct sum by its summands. -/
-@[implicit_reducible] noncomputable def _root_.DirectSum.canonicalGradingDecomposition
+@[implicit_reducible] noncomputable def _root_.Slop.DirectSum.canonicalGradingDecomposition
     {ι : Type*} [DecidableEq ι] {A : ι → Type*}
     [∀ p, AddCommGroup (A p)] [∀ p, Module R (A p)] :
     DirectSum.Decomposition (DirectSum.canonicalGrading (R := R) (A := A)) :=
@@ -418,7 +422,7 @@ noncomputable def _root_.DirectSum.canonicalGradingDecompose
     apply Subtype.ext
     exact hy)
 
-theorem _root_.DirectSum.isInternal_canonicalGrading
+theorem _root_.Slop.DirectSum.isInternal_canonicalGrading
     {ι : Type*} [DecidableEq ι] {A : ι → Type*}
     [∀ p, AddCommGroup (A p)] [∀ p, Module R (A p)] :
     DirectSum.IsInternal (DirectSum.canonicalGrading (R := R) (A := A)) := by
@@ -484,3 +488,5 @@ noncomputable def gradedExactCouple : GradedExactCouple R ℤ where
     exact ⟨_, rfl⟩
 
 end FilteredDifferentialModule
+
+end Slop

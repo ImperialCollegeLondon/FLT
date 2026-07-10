@@ -64,6 +64,8 @@ exact couple, graded exact couple, spectral sequence, bidegree
 
 @[expose] public section
 
+namespace Slop
+
 open LinearMap Submodule Function DirectSum
 
 universe u
@@ -288,7 +290,7 @@ theorem derJ_homog (p : ι) :
   -- (y : D) ∈ gradD p and ∈ range i (it is in the subtype derD)
   have hyr : (y : C.D) ∈ LinearMap.range C.i := y.2
   obtain ⟨x', hx'mem, hx'⟩ :=
-    C.internalD.inf_range_le_map C.internalD C.homog_i p ⟨hy, hyr⟩
+    DirectSum.IsInternal.inf_range_le_map C.internalD C.internalD C.homog_i p ⟨hy, hyr⟩
   -- x' ∈ gradD (p - di), i x' = (y : D)
   have hyeq : y = ⟨C.i x', ⟨x', rfl⟩⟩ := Subtype.ext hx'.symm
   rw [hyeq, ExactCouple.derJ_apply]
@@ -487,3 +489,5 @@ theorem pageGrading_homog_diff (r : ℕ) (p : ι) :
   C.gradedDerived_homog_d r p
 
 end GradedExactCouple
+
+end Slop

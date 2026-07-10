@@ -45,6 +45,8 @@ needed to identify `d₂` with the abstract page differentials.
 
 @[expose] public section
 
+namespace Slop
+
 open Submodule LinearMap
 
 namespace FilteredComplex
@@ -235,3 +237,5 @@ theorem five_term_exact (hK : K.IsFirstQuadrant) :
 end FiveTerm
 
 end FilteredComplex
+
+end Slop

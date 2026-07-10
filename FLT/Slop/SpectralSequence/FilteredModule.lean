@@ -82,6 +82,8 @@ statement `exists_pageTransition_eq_zero`.
 
 @[expose] public section
 
+namespace Slop
+
 open Submodule LinearMap
 
 variable (R : Type*) [Ring R] (M : Type*) [AddCommGroup M] [Module R M]
@@ -1342,3 +1344,5 @@ noncomputable def ofComplex
 end FilteredComplex
 
 end FilteredDifferentialModule
+
+end Slop

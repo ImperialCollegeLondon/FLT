@@ -113,18 +113,18 @@ and no `sorry`, and the following all report exactly
 `[propext, Classical.choice, Quot.sound]`:
 
 ```lean
-#print axioms FilteredDifferentialModule.pageSuccEquiv
-#print axioms FilteredDifferentialModule.pageInfEquivGrHomology
-#print axioms FilteredDifferentialModule.gradedExactCouple
-#print axioms FilteredComplex.pageSuccEquiv
-#print axioms FilteredComplex.pageInfEquivGrH
-#print axioms FilteredComplex.toCohomologicalSpectralSequence
-#print axioms FilteredComplex.five_term_exact
-#print axioms DoubleComplex.totalIso
-#print axioms DoubleComplex.colPageOneEquiv
-#print axioms DoubleComplex.rowPageOneEquiv
-#print axioms DoubleComplex.colFiltered_five_term_exact
-#print axioms FilteredDifferentialModule.range_iMap_eq_ker_jMap
+#print axioms Slop.FilteredDifferentialModule.pageSuccEquiv
+#print axioms Slop.FilteredDifferentialModule.pageInfEquivGrHomology
+#print axioms Slop.FilteredDifferentialModule.gradedExactCouple
+#print axioms Slop.FilteredComplex.pageSuccEquiv
+#print axioms Slop.FilteredComplex.pageInfEquivGrH
+#print axioms Slop.FilteredComplex.toCohomologicalSpectralSequence
+#print axioms Slop.FilteredComplex.five_term_exact
+#print axioms Slop.DoubleComplex.totalIso
+#print axioms Slop.DoubleComplex.colPageOneEquiv
+#print axioms Slop.DoubleComplex.rowPageOneEquiv
+#print axioms Slop.DoubleComplex.colFiltered_five_term_exact
+#print axioms Slop.FilteredDifferentialModule.range_iMap_eq_ker_jMap
 ```
 
 ## Sources, and how the formalization deviates from them

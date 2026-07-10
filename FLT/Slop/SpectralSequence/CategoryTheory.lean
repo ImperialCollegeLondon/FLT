@@ -24,6 +24,8 @@ categorical homology of the page complex with the explicit quotient
 
 @[expose] public section
 
+namespace Slop
+
 open CategoryTheory
 open Submodule LinearMap
 
@@ -227,3 +229,5 @@ noncomputable def toCohomologicalSpectralSequence (r₀ : ℤ) :
     exact K.pageHomologyIso r b
 
 end FilteredComplex
+
+end Slop
