@@ -357,15 +357,6 @@ theorem valuation_u_eq_one_of_isMinimal_smul {W₁ W₂ : WeierstrassCurve K} [I
     exact inv_eq_one.mp h1
   exact (pow_eq_one_iff_of_nonneg zero_le (by norm_num)).mp h12
 
-/-- An element annihilated by the monic polynomial `X ^ n + q`, where `deg q < n`, is
-integral. -/
-private theorem isIntegral_of_pow_add_aeval_eq_zero {A B : Type*} [CommRing A] [CommRing B]
-    [Algebra A B] {x : B} {n : ℕ} {q : Polynomial A} (hq : q.degree < n)
-    (h : x ^ n + Polynomial.aeval x q = 0) : _root_.IsIntegral A x :=
-  ⟨Polynomial.X ^ n + q, Polynomial.monic_X_pow_add hq, by
-    rw [← Polynomial.aeval_def]
-    simpa using h⟩
-
 /-- A change of variables `D` relating two integral Weierstrass models whose scaling factor `D.u`
 is the image of a unit of `R` is itself defined over `R`: `r`, `s`, `t` are integral over `R` —
 roots of monic polynomials obtained from the change-of-variables formulas for the
@@ -387,30 +378,30 @@ theorem exists_variableChange_baseChange_eq_of_smul_eq {W₁ W₂ : WeierstrassC
     simp only [Units.val_inv_eq_inv_val]
     field
   obtain ⟨rR, hrR⟩ := IsIntegrallyClosed.isIntegral_iff.mp
-    (isIntegral_of_pow_add_aeval_eq_zero (x := D.r) (n := 4)
-      (q := .C (-(W₁.integralModel R).b₄) * .X ^ 2
+    (⟨.X ^ 4 + (.C (-(W₁.integralModel R).b₄) * .X ^ 2
         + .C (-(2 * (W₁.integralModel R).b₆) - (↑u₀ : R) ^ 6 * (W₂.integralModel R).b₆) * .X
-        + .C ((↑u₀ : R) ^ 8 * (W₂.integralModel R).b₈ - (W₁.integralModel R).b₈))
-      (by compute_degree!) (by
+        + .C ((↑u₀ : R) ^ 8 * (W₂.integralModel R).b₈ - (W₁.integralModel R).b₈)),
+      Polynomial.monic_X_pow_add (by compute_degree!), by
+        rw [← Polynomial.aeval_def]
         simp only [map_add, map_sub, map_neg, map_mul, map_pow, map_ofNat, Polynomial.aeval_X,
           Polynomial.aeval_C]
         rw [integralModel_b₄_eq R W₁, integralModel_b₆_eq R W₁, integralModel_b₈_eq R W₁,
           integralModel_b₆_eq R W₂, integralModel_b₈_eq R W₂, hau]
-        linear_combination hb₈ - D.r * hb₆))
+        linear_combination hb₈ - D.r * hb₆⟩ : _root_.IsIntegral R D.r)
   -- `D.s ∈ R`: a root of the monic quadratic `X² + a₁ X + (u²·a₂' - a₂ - 3r)`.
   have ha₂ : (↑D.u : K) ^ 2 * W₂.a₂ = W₁.a₂ - D.s * W₁.a₁ + 3 * D.r - D.s ^ 2 := by
     rw [← hD, variableChange_a₂]
     simp only [Units.val_inv_eq_inv_val]
     field
   obtain ⟨sR, hsR⟩ := IsIntegrallyClosed.isIntegral_iff.mp
-    (isIntegral_of_pow_add_aeval_eq_zero (x := D.s) (n := 2)
-      (q := .C (W₁.integralModel R).a₁ * .X
-        + .C ((↑u₀ : R) ^ 2 * (W₂.integralModel R).a₂ - (W₁.integralModel R).a₂ - 3 * rR))
-      (by compute_degree!) (by
+    (⟨.X ^ 2 + (.C (W₁.integralModel R).a₁ * .X
+        + .C ((↑u₀ : R) ^ 2 * (W₂.integralModel R).a₂ - (W₁.integralModel R).a₂ - 3 * rR)),
+      Polynomial.monic_X_pow_add (by compute_degree!), by
+        rw [← Polynomial.aeval_def]
         simp only [map_add, map_sub, map_mul, map_pow, map_ofNat, Polynomial.aeval_X,
           Polynomial.aeval_C]
         rw [integralModel_a₁_eq R W₁, integralModel_a₂_eq R W₁, integralModel_a₂_eq R W₂, hau, hrR]
-        linear_combination ha₂))
+        linear_combination ha₂⟩ : _root_.IsIntegral R D.s)
   -- `D.t ∈ R`: a root of the monic quadratic
   -- `X² + (a₃ + r·a₁) X + (u⁶·a₆' - a₆ - r·a₄ - r²·a₂ - r³)`.
   have ha₆ : (↑D.u : K) ^ 6 * W₂.a₆ = W₁.a₆ + D.r * W₁.a₄ + D.r ^ 2 * W₁.a₂ + D.r ^ 3
@@ -419,16 +410,16 @@ theorem exists_variableChange_baseChange_eq_of_smul_eq {W₁ W₂ : WeierstrassC
     simp only [Units.val_inv_eq_inv_val]
     field
   obtain ⟨tR, htR⟩ := IsIntegrallyClosed.isIntegral_iff.mp
-    (isIntegral_of_pow_add_aeval_eq_zero (x := D.t) (n := 2)
-      (q := .C ((W₁.integralModel R).a₃ + rR * (W₁.integralModel R).a₁) * .X
+    (⟨.X ^ 2 + (.C ((W₁.integralModel R).a₃ + rR * (W₁.integralModel R).a₁) * .X
         + .C (-((W₁.integralModel R).a₆ + rR * (W₁.integralModel R).a₄
-          + rR ^ 2 * (W₁.integralModel R).a₂ + rR ^ 3) + (↑u₀ : R) ^ 6 * (W₂.integralModel R).a₆))
-      (by compute_degree!) (by
+          + rR ^ 2 * (W₁.integralModel R).a₂ + rR ^ 3) + (↑u₀ : R) ^ 6 * (W₂.integralModel R).a₆)),
+      Polynomial.monic_X_pow_add (by compute_degree!), by
+        rw [← Polynomial.aeval_def]
         simp only [map_add, map_neg, map_mul, map_pow, Polynomial.aeval_X,
           Polynomial.aeval_C]
         rw [integralModel_a₁_eq R W₁, integralModel_a₂_eq R W₁, integralModel_a₃_eq R W₁,
           integralModel_a₄_eq R W₁, integralModel_a₆_eq R W₁, integralModel_a₆_eq R W₂, hau, hrR]
-        linear_combination ha₆))
+        linear_combination ha₆⟩ : _root_.IsIntegral R D.t)
   exact ⟨⟨u₀, rR, sR, tR⟩, VariableChange.ext (Units.ext hau) hrR hsR htR⟩
 
 open IsDedekindDomain.HeightOneSpectrum IsDiscreteValuationRing IsLocalRing in
