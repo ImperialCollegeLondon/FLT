@@ -5,16 +5,15 @@ Authors: Kevin Buzzard, Bryan Wang Peng Jun
 -/
 module
 
-public import Mathlib.Algebra.Group.End
 public import Mathlib.FieldTheory.Galois.Basic
 public import Mathlib.FieldTheory.IsSepClosed
 public import Mathlib.RingTheory.Bialgebra.Convolution
 public import Mathlib.RingTheory.DiscreteValuationRing.Basic
 public import Mathlib.RingTheory.Etale.Basic
-public import Mathlib.RingTheory.Localization.FractionRing
 public import Mathlib.RingTheory.Flat.Basic
 public import Mathlib.RingTheory.HopfAlgebra.Basic
 public import Mathlib.RingTheory.HopfAlgebra.TensorProduct
+public import Mathlib.RingTheory.Localization.FractionRing
 public import Mathlib.RingTheory.Valuation.RamificationGroup
 
 /-!
@@ -48,6 +47,19 @@ over the base".
   `WeierstrassCurve.torsion_flat_of_good_reduction` is exactly
   `IsFlat R (torsion action on E(Kˢᵉᵖ)[n])`, unfolded.
 
+## Main statements
+
+* `GroupScheme.GaloisModule.IsFlat.prod` (proved) : flat ⊓ flat = flat for a product of two
+  Galois modules; the underlying Hopf algebra is the tensor product `H₁ ⊗[R] H₂` (whose Hopf
+  algebra structure is already in mathlib, `Mathlib.RingTheory.HopfAlgebra.TensorProduct`),
+  and the point is that `Kˢᵉᵖ`-points of a tensor product are pairs of `Kˢᵉᵖ`-points,
+  compatibly with convolution.
+
+* `GroupScheme.GaloisModule.IsFlat.congr` (proved) : flatness transports along an equivariant
+  isomorphism of Galois modules; more of this formal API can be added as needed (e.g. flatness
+  of sub/quotient modules via schematic closure, which is the hard Raynaud-style direction and
+  is *not* formal).
+
 ## Main statements (currently sorried)
 
 * `GroupScheme.GaloisModule.IsFlat.of_isUnramified` : a continuous unramified action on a
@@ -61,19 +73,9 @@ over the base".
   `M`. See [Tate, *Finite flat group schemes*, in *Modular forms and Fermat's Last
   Theorem*, §1.3–1.4] or [Waterhouse, *Introduction to affine group schemes*, §6].
 
-* `GroupScheme.GaloisModule.IsFlat.prod` : flat ⊓ flat = flat for a product of two Galois
-  modules; the underlying Hopf algebra is the tensor product `H₁ ⊗[R] H₂` (whose Hopf
-  algebra structure is already in mathlib, `Mathlib.RingTheory.HopfAlgebra.TensorProduct`),
-  and the point is that `Kˢᵉᵖ`-points of a tensor product are pairs of `Kˢᵉᵖ`-points,
-  compatibly with convolution.
-
 ## TODO
 
-* Prove the two sorried statements.
-* `IsFlat.congr` (proved below) transports flatness along an equivariant isomorphism of
-  Galois modules; more of this formal API can be added as needed (e.g. flatness of
-  sub/quotient modules via schematic closure, which is the hard Raynaud-style direction
-  and is *not* formal).
+* Prove the one remaining sorried statement, `IsFlat.of_isUnramified`.
 
 -/
 
@@ -153,10 +155,9 @@ theorem IsFlat.of_isUnramified [Finite M]
     IsFlat R ρ :=
   sorry
 
-set_option maxHeartbeats 800000 in
 -- This proof assembles the tensor-product Hopf algebra together with the universal property
--- of tensor products of commutative algebras and the convolution-monoid API; the resulting
--- chain of algebra/bialgebra equivalences is elaboration-heavy.
+-- of tensor products of commutative algebras and the convolution-monoid API, chaining the
+-- resulting algebra/bialgebra equivalences.
 omit [IsDomain R] [IsDiscreteValuationRing R] [IsFractionRing R K] [IsSepClosure K Ksep] in
 /-- **Flatness is stable under products.** If the actions `ρ₁` on `M₁` and `ρ₂` on `M₂`
 are flat over `R`, then so is any action `ρ` on `M₁ × M₂` acting componentwise via `ρ₁`
