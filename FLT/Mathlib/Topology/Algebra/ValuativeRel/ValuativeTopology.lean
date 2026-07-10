@@ -8,6 +8,7 @@ module
 public import Mathlib.Topology.Algebra.LinearTopology
 public import Mathlib.Topology.Algebra.ValuativeRel.ValuativeTopology
 public import Mathlib.Topology.Algebra.InfiniteSum.Basic
+public import FLT.Mathlib.RingTheory.Valuation.ValuativeRel.Basic
 
 /-!
 # Valuative topologies
@@ -132,3 +133,41 @@ theorem ValuativeRel.valuation_tsum_le {ι : Type*} {f : ι → R} {B : ValueGro
     (hf : Summable f) (hB : ∀ i, valuation R (f i) ≤ B) : valuation R (∑' i, f i) ≤ B :=
   (isClosed_closedBall B).mem_of_tendsto hf.hasSum <|
     .of_forall fun _ ↦ (valuation R).map_sum_le fun i _ ↦ hB i
+
+section ValuativeExtension
+
+variable (K L : Type*) [Field K] [Field L] [ValuativeRel K] [ValuativeRel L]
+  [TopologicalSpace K] [TopologicalSpace L] [IsValuativeTopology K] [IsValuativeTopology L]
+  [Algebra K L] [ValuativeExtension K L]
+
+/-- A valuative extension of valuatively topologised fields is continuous, provided the
+valuation downstairs is nontrivial and the valuation upstairs is archimedean
+(`IsRankLeOne`): the preimage of the ball of radius `γ` upstairs contains the ball of
+radius `|q₀|^N` downstairs, where `|q₀| < 1` witnesses nontriviality downstairs and `N`
+is chosen (by the archimedean property upstairs, `exists_pow_valuation_lt`) so that the
+image of `|q₀|^N` under `ValuativeExtension.mapValueGroupWithZero` drops below `γ`. -/
+theorem ValuativeExtension.continuous_algebraMap [IsNontrivial K] [IsRankLeOne L] :
+    Continuous (algebraMap K L) := by
+  refine continuous_of_continuousAt_zero (algebraMap K L) ?_
+  rw [ContinuousAt, map_zero, Filter.tendsto_def]
+  intro s hs
+  rw [IsValuativeTopology.mem_nhds_zero_iff] at hs
+  obtain ⟨γ, hγ⟩ := hs
+  -- pick `q₀` with `0 < |q₀| < 1` downstairs
+  obtain ⟨γ₀, hγ₀pos, hγ₀lt⟩ := IsNontrivial.exists_lt_one (R := K)
+  obtain ⟨q₀, hq₀⟩ := valuation_surjective (K := K) γ₀
+  have hq₀lt : valuation K q₀ < 1 := by rw [hq₀]; exact hγ₀lt
+  have hq₀ne : valuation K q₀ ≠ 0 := by rw [hq₀]; exact hγ₀pos.ne'
+  -- its image lies in the open unit disc upstairs
+  have hql : valuation L (algebraMap K L q₀) < 1 := by
+    simpa using ValuativeExtension.mapValueGroupWithZero_strictMono (A := K) (B := L) hq₀lt
+  -- the archimedean step upstairs: some power of the image drops below `γ`
+  obtain ⟨N, hN⟩ := exists_pow_valuation_lt (algebraMap K L q₀) hql γ
+  rw [IsValuativeTopology.mem_nhds_zero_iff]
+  refine ⟨Units.mk0 (valuation K q₀ ^ N) (pow_ne_zero N hq₀ne), fun x hx ↦ hγ ?_⟩
+  have hmap := ValuativeExtension.mapValueGroupWithZero_strictMono (A := K) (B := L) hx
+  rw [Units.val_mk0, map_pow, ValuativeExtension.mapValueGroupWithZero_valuation,
+    ValuativeExtension.mapValueGroupWithZero_valuation] at hmap
+  exact lt_trans hmap hN
+
+end ValuativeExtension

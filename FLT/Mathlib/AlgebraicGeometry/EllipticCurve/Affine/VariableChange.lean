@@ -6,6 +6,7 @@ Authors: William Coram, Samuel Yin
 module
 
 public import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
+public import FLT.KnownIn1980s.EllipticCurves.MaybeMathlib
 
 /-!
 # Admissible changes of variables on affine points
@@ -324,4 +325,51 @@ theorem pointAddEquiv_apply [DecidableEq F] (P : (C • W).toAffine.Point) :
     C.pointAddEquiv W P = C.pointEquiv W P := by
   rfl
 
+@[simp]
+theorem pointAddEquiv_symm_apply [DecidableEq F] (P : W.toAffine.Point) :
+    (C.pointAddEquiv W).symm P = (C.pointEquiv W).symm P := by
+  rfl
+
+@[simp]
+theorem pointEquiv_symm_zero : (C.pointEquiv W).symm 0 = 0 := by
+  rfl
+
+@[simp]
+theorem pointEquiv_symm_some {x y : F} (h : W.toAffine.Nonsingular x y)
+    (h' : (C • W).toAffine.Nonsingular (C⁻¹.mapX x) (C⁻¹.mapY x y)) :
+    (C.pointEquiv W).symm (.some x y h) = .some (C⁻¹.mapX x) (C⁻¹.mapY x y) h' := by
+  rfl
+
 end WeierstrassCurve.VariableChange
+
+namespace WeierstrassCurve
+
+open VariableChange
+
+variable {R : Type*} [CommRing R]
+
+/-- The transformed `x`-coordinate commutes with any ring homomorphism. -/
+theorem map_mapX {A : Type*} [CommRing A] (C : VariableChange R) (φ : R →+* A) (x : R) :
+    φ (C.mapX x) = (C.map φ).mapX (φ x) := by
+  simp [VariableChange.mapX, VariableChange.map]
+
+/-- The transformed `y`-coordinate commutes with any ring homomorphism. -/
+theorem map_mapY {A : Type*} [CommRing A] (C : VariableChange R) (φ : R →+* A) (x y : R) :
+    φ (C.mapY x y) = (C.map φ).mapY (φ x) (φ y) := by
+  simp [VariableChange.mapY, VariableChange.map]
+
+/-- The negation change of variables fixes the `x`-coordinate. -/
+@[simp]
+theorem negVariableChange_mapX (W : WeierstrassCurve R) (x : R) :
+    W.negVariableChange.mapX x = x := by
+  simp [VariableChange.mapX, negVariableChange]
+
+/-- The negation change of variables acts on the `y`-coordinate as the negation
+`Affine.negY` of the curve: it induces negation on affine points. -/
+@[simp]
+theorem negVariableChange_mapY (W : WeierstrassCurve R) (x y : R) :
+    W.negVariableChange.mapY x y = W.toAffine.negY x y := by
+  simp [VariableChange.mapY, negVariableChange, Affine.negY]
+  ring
+
+end WeierstrassCurve

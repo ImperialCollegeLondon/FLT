@@ -83,6 +83,7 @@ public import FLT.KnownIn1980s.EllipticCurves.TateCurveBaseChange
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstruction
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveDescent
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveEquation
+public import FLT.KnownIn1980s.EllipticCurves.TateCurveFunctoriality
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveGroupLaw
 public import FLT.KnownIn1980s.EllipticCurves.TateCurvePoint
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveSeries
