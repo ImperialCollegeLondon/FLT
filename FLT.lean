@@ -80,6 +80,7 @@ public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstructionExperiment
 public import FLT.KnownIn1980s.EllipticCurves.TateParameter
 public import FLT.KnownIn1980s.EllipticCurves.Torsion
 public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
+public import FLT.KnownIn1980s.LCFT.Pairing
 public import FLT.KnownIn1980s.PGL2.Defs
 public import FLT.KnownIn1980s.PGL2.Proofs
 public import FLT.KnownIn1980s.RepresentationTheory.OddAbsIrred
@@ -141,6 +142,9 @@ public import FLT.Mathlib.RepresentationTheory.Continuous.Basic
 public import FLT.Mathlib.RepresentationTheory.Continuous.TopRep
 public import FLT.Mathlib.RepresentationTheory.Homological.ContCohomology.Basic
 public import FLT.Mathlib.RepresentationTheory.Homological.ContCohomology.CupProduct
+public import FLT.Mathlib.RepresentationTheory.Smooth.Basic
+public import FLT.Mathlib.RepresentationTheory.Stabilizer
+public import FLT.Mathlib.RepresentationTheory.Subrepresentation
 public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 public import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas

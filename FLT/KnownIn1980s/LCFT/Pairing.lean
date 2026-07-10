@@ -1,5 +1,6 @@
 module
 
+public import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
 public import FLT.Mathlib.RepresentationTheory.Homological.ContCohomology.CupProduct
 public import FLT.Mathlib.RepresentationTheory.Smooth.Basic
 
