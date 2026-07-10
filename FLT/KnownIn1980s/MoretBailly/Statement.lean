@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2026 Kevin Buzzard. All rights reserved.
+Copyright (c) 2026 Justus Springer. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Justus Springer
 -/
