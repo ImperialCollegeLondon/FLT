@@ -103,8 +103,6 @@ open scoped NumberField.LiesOver
 
 variable [NumberField K] [NumberField L]
 
-attribute [local instance 9999] Algebra.toModule
-
 /-- The $K_{\infty}$-linear homeomorphism $K_{\infty}^{[L:K]} \cong L_{\infty}$. -/
 noncomputable def piEquiv [Algebra K∞ L∞]
     [Pi.FiberwiseSMul (fun a : InfinitePlace L => a.comap (algebraMap K L)) Completion Completion] :
