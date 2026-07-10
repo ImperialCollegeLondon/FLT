@@ -82,14 +82,14 @@ a common universe independent of the universe of `R`:
 
 - No concrete exact couple is constructed in this folder (no instance from a
   filtered complex, a double complex, or a Bockstein short exact sequence).
-  The sibling `FLT/Slop/SpectralSequence/ExactCoupleBridge.lean` proves the
-  per-degree maps and exactness statements for a filtered differential module
-  (`D^p = H(F^p M)`, `E^p = E₁^p`). Assembling them into a
-  `GradedExactCouple` on `⨁_p H(F^p M)` and reconciling its derived pages with
-  the classical `Z_r/B_r` description remains the natural next step.
+  The sibling `FLT/Slop/SpectralSequence/ExactCoupleBridge.lean` constructs
+  the exact couple of a filtered differential module and assembles it into a
+  `GradedExactCouple` on `⨁_p H(F^p M)`. Reconciling its derived pages with the
+  classical `Z_r/B_r` description remains future work.
 - Nothing about convergence or abutments.
 - No morphisms of exact couples or functoriality of the derived pages.
-- No comparison with Mathlib's abstract `SpectralObject` framework.
+- No comparison between the iterated exact-couple pages and Mathlib's abstract
+  `SpectralObject` framework.
 
 ## Verification
 
@@ -136,14 +136,14 @@ has an abstract `CategoryTheory.SpectralSequence` structure
 (`Mathlib/Algebra/Homology/SpectralSequence/Basic.lean`) recording pages
 together with isomorphisms `E_{r+1} ≅ H(E_r)`. Neither development contains
 exact couples, and no spectral sequence of a filtered complex of modules is
-derived from them in mathlib. This folder is independent of both; packaging
-the pages of an `ExactCouple` as a `CategoryTheory.SpectralSequence` in
-`ModuleCat R` would be a natural compatibility layer when upstreaming.
+derived from them in mathlib. This folder is independent of both. The sibling
+`FLT/Slop/SpectralSequence/CategoryTheory.lean` packages the concrete filtered-
+complex construction in `CategoryTheory.SpectralSequence`; packaging the pages
+of an arbitrary `ExactCouple` remains a separate compatibility layer.
 
 ## Possible next steps
 
-- The exact couple of a filtered differential module / filtered complex, as a
-  `GradedExactCouple` over `ι = ℤ`, and the identification of its pages with
-  the classical `Z_r^p / B_r^p`.
+- Identify the pages of the filtered differential module's graded exact couple
+  with the classical `Z_r^p / B_r^p` construction.
 - The Bockstein exact couple of `0 → ℤ/p → ℤ/p² → ℤ/p → 0`.
 - Convergence statements (bounded filtrations, `E_∞` and the abutment).

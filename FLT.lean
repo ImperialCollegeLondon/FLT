@@ -230,6 +230,7 @@ public import FLT.Slop.PGL2.FiniteSubgroups.WildClassification
 public import FLT.Slop.RepresentationTheory.OddAbsIrredOrig
 public import FLT.Slop.RepresentationTheory.OddAbsIrredSlop
 public import FLT.Slop.SpectralSequence
+public import FLT.Slop.SpectralSequence.CategoryTheory
 public import FLT.Slop.SpectralSequence.DoubleComplex
 public import FLT.Slop.SpectralSequence.ExactCoupleBridge
 public import FLT.Slop.SpectralSequence.FilteredComplex

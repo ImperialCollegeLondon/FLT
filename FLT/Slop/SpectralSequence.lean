@@ -5,6 +5,7 @@ Authors: Akhil Mathew
 -/
 module
 
+public import FLT.Slop.SpectralSequence.CategoryTheory
 public import FLT.Slop.SpectralSequence.DoubleComplex
 public import FLT.Slop.SpectralSequence.ExactCoupleBridge
 
@@ -28,6 +29,9 @@ following the Stacks Project (tags 012A and 012K).
   `DoubleComplex.rowPageOneEquiv`, `DoubleComplex.colFiltered_five_term_exact`).
 * `FLT.Slop.SpectralSequence.ExactCoupleBridge` — the exact couple of a
   filtered differential module
-  (`FilteredDifferentialModule.range_iMap_eq_ker_jMap` and companions),
-  bridging to `FLT.Slop.ExactCouple`.
+  (`FilteredDifferentialModule.gradedExactCouple`), bridging to
+  `FLT.Slop.ExactCouple`.
+* `FLT.Slop.SpectralSequence.CategoryTheory` — packages the concrete pages as
+  mathlib's `CategoryTheory.CohomologicalSpectralSequence` via
+  `FilteredComplex.toCohomologicalSpectralSequence`.
 -/

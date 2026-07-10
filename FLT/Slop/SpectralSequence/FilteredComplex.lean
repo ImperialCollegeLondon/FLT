@@ -6,8 +6,13 @@ Authors: Akhil Mathew
 module
 
 public import Mathlib.LinearAlgebra.Isomorphisms
-public import Mathlib.Tactic.Abel
-public import Mathlib.Tactic.Ring
+public import Mathlib.Algebra.Category.ModuleCat.Basic
+public import Mathlib.Algebra.Homology.HomologicalComplex
+public import Mathlib.Algebra.Homology.ShortComplex.HomologicalComplex
+public import Mathlib.Algebra.Homology.ShortComplex.ModuleCat
+import Mathlib.CategoryTheory.EqToHom
+import Mathlib.Tactic.Abel
+import Mathlib.Tactic.Ring
 
 /-!
 # The graded spectral sequence of a filtered cochain complex
@@ -27,11 +32,12 @@ This is exactly what the spectral sequences of a double complex require.
 
 ## Design
 
-A complex is stored with an "all-pairs" differential `d : ∀ i j, X i →ₗ[R] X j`
-(only the consecutive components are ever used; `d² = 0` and filtration
-compatibility are hypotheses about consecutive indices, stated with flexible
-index equalities discharged by `omega`/`ring`).  This avoids all dependent-type
-transport along equalities like `(n - 1) + 1 = n`: the cocycles and boundaries
+The underlying complex is a standard
+`CochainComplex (ModuleCat R) ℤ`.  We use its all-pairs differential API, whose
+shape axiom makes every nonconsecutive component zero and whose square-zero
+axiom supplies all differential identities.  Flexible auxiliary indices keep
+the submodule calculations independent of transports such as
+`(n - 1) + 1 = n`: the cocycles and boundaries
 
 * `Z r p n m = F^p_n ⊓ (d n m)⁻¹(F^{p+r}_m)`   (intended `m = n + 1`),
 * `B r p l n m = (F^{p+1}_n ⊓ (d n m)⁻¹(F^{p+r}_m)) + d l n (F^{p-r+1}_l ⊓ (d l n)⁻¹(F^p_n))`
@@ -47,12 +53,16 @@ ambient module never changes.
 * `pageSuccEquiv` : `E_{r+1}^{p,n} ≅ ker(d_r)/im(d_r)` — the main theorem;
 * `pageEquivGrHOfBounded` : **graded convergence** — if `F^{p+r}_{n+1} = ⊥` and
   `F^{p-r+1}_{n-1} = ⊤` (one spot at a time!), then `E_r^{p,n} ≅ gr^p H^n`, the
-  associated graded of the cohomology of the complex at degree `n`.
+  associated graded of the cohomology of the complex at degree `n`;
+* `pageInfEquivGrH` : under the same local bounds, the actual limit term
+  `E_∞^{p,n}` is also isomorphic to `gr^p H^n`.
 -/
 
 @[expose] public section
 
-open Submodule LinearMap
+open CategoryTheory Submodule LinearMap
+
+namespace FilteredComplex
 
 section HomologyEquiv
 
@@ -120,41 +130,53 @@ noncomputable def homologyEquivOfSquares
 
 end HomologyEquiv
 
-/-- A **filtered cochain complex** of modules: a `ℤ`-indexed family with an
-all-pairs differential (only consecutive components matter), squaring to zero,
-and a decreasing filtration compatible with the differential. -/
-structure FilteredComplex (R : Type*) [Ring R] where
-  /-- The modules of the complex. -/
-  X : ℤ → Type*
-  [addCommGroup : ∀ n, AddCommGroup (X n)]
-  [module : ∀ n, Module R (X n)]
-  /-- The differential; only the components `d n (n+1)` are meaningful. -/
-  d : ∀ i j : ℤ, X i →ₗ[R] X j
-  /-- The differential squares to zero (on consecutive components). -/
-  d_comp_d : ∀ (i j k : ℤ), j = i + 1 → k = j + 1 → ∀ x : X i, d j k (d i j x) = 0
-  /-- The filtration. -/
-  F : ℤ → ∀ n : ℤ, Submodule R (X n)
-  /-- The filtration is decreasing. -/
-  F_le : ∀ (p n : ℤ), F (p + 1) n ≤ F p n
-  /-- The differential preserves the filtration. -/
-  d_mem_F : ∀ (p i j : ℤ), j = i + 1 → ∀ x ∈ F p i, d i j x ∈ F p j
+end FilteredComplex
 
-attribute [instance] FilteredComplex.addCommGroup FilteredComplex.module
+universe u v
+
+/-- A **filtered cochain complex** of modules: a standard mathlib cochain complex
+with a decreasing filtration by subcomplexes. -/
+structure FilteredComplex (R : Type u) [Ring R] where
+  /-- The underlying cochain complex. -/
+  toCochainComplex : CochainComplex (ModuleCat.{v} R) ℤ
+  /-- The filtration. -/
+  F : ℤ → ∀ n : ℤ, Submodule R (toCochainComplex.X n)
+  /-- The filtration is decreasing. -/
+  antitone_F : ∀ n, Antitone fun p ↦ F p n
+  /-- The differential preserves the filtration. -/
+  map_d_le : ∀ (p i j : ℤ), (F p i).map (toCochainComplex.d i j).hom ≤ F p j
 
 namespace FilteredComplex
 
-variable {R : Type*} [Ring R] (K : FilteredComplex R)
+variable {R : Type u} [Ring R] (K : FilteredComplex.{u, v} R)
+
+/-- The module in cohomological degree `n`. -/
+abbrev X (n : ℤ) : Type _ := K.toCochainComplex.X n
+
+/-- The underlying linear map of the differential from degree `i` to degree `j`.
+It is zero unless `j = i + 1`, by the shape axiom of the cochain complex. -/
+abbrev d (i j : ℤ) : K.X i →ₗ[R] K.X j := (K.toCochainComplex.d i j).hom
+
+/-- Any two differential components compose to zero; the shape axiom makes this
+automatic when either component is nonconsecutive. -/
+@[simp] lemma d_comp_d (i j k : ℤ) (x : K.X i) :
+    K.d j k (K.d i j x) = 0 := by
+  have h := DFunLike.congr_fun
+    (ModuleCat.hom_ext_iff.mp (K.toCochainComplex.d_comp_d i j k)) x
+  simpa only [ModuleCat.hom_comp, LinearMap.comp_apply, ModuleCat.hom_zero,
+    LinearMap.zero_apply] using h
+
+/-- The successor step of the decreasing filtration. -/
+lemma F_le (p n : ℤ) : K.F (p + 1) n ≤ K.F p n :=
+  K.antitone_F n (by omega)
+
+/-- Every differential component carries each filtration step into itself. -/
+lemma d_mem_F (p i j : ℤ) (x : K.X i) (hx : x ∈ K.F p i) :
+    K.d i j x ∈ K.F p j :=
+  K.map_d_le p i j (Submodule.mem_map_of_mem hx)
 
 lemma F_mono {p q : ℤ} (h : p ≤ q) (n : ℤ) : K.F q n ≤ K.F p n := by
-  obtain ⟨k, rfl⟩ := Int.le.dest h
-  clear h
-  induction k with
-  | zero => simp
-  | succ m ih =>
-    refine le_trans ?_ ih
-    have e : (p + (m + 1 : ℕ) : ℤ) = (p + m) + 1 := by push_cast; ring
-    rw [e]
-    exact K.F_le (p + m) n
+  exact K.antitone_F n h
 
 /-! ## Cocycles, boundaries, and the graded pages -/
 
@@ -192,12 +214,11 @@ lemma B_cases {r p l n m : ℤ} {x : K.X n} (hx : x ∈ K.B r p l n m) :
   obtain ⟨hv1, hv2⟩ := Submodule.mem_inf.mp hv
   exact ⟨u, v, hu1, Submodule.mem_comap.mp hu2, hv1, Submodule.mem_comap.mp hv2, rfl⟩
 
-lemma B_le_Z {r p l n m : ℤ} (hl : n = l + 1) (hm : m = n + 1) :
-    K.B r p l n m ≤ K.Z r p n m := by
+lemma B_le_Z {r p l n m : ℤ} : K.B r p l n m ≤ K.Z r p n m := by
   intro x hx
   obtain ⟨u, v, hu1, hu2, hv, hdv, rfl⟩ := K.B_cases hx
   refine add_mem (K.mem_Z.mpr ⟨K.F_le p n hu1, hu2⟩) (K.mem_Z.mpr ⟨hdv, ?_⟩)
-  rw [K.d_comp_d l n m hl hm v]
+  rw [K.d_comp_d l n m v]
   exact zero_mem _
 
 lemma Z_succ_le (r p n m : ℤ) : K.Z (r + 1) p n m ≤ K.Z r p n m := by
@@ -219,7 +240,7 @@ lemma d_mem_Z {r p n : ℤ} {x : K.X n} (hx : x ∈ K.Z r p n (n + 1)) :
     K.d n (n + 1) x ∈ K.Z r (p + r) (n + 1) (n + 1 + 1) := by
   obtain ⟨h1, h2⟩ := K.mem_Z.mp hx
   refine K.mem_Z.mpr ⟨h2, ?_⟩
-  rw [K.d_comp_d n (n + 1) (n + 1 + 1) rfl rfl x]
+  rw [K.d_comp_d n (n + 1) (n + 1 + 1) x]
   exact zero_mem _
 
 lemma d_mem_B {r p n : ℤ} {x : K.X n} (hx : x ∈ K.B r p (n - 1) n (n + 1)) :
@@ -229,7 +250,7 @@ lemma d_mem_B {r p n : ℤ} {x : K.X n} (hx : x ∈ K.B r p (n - 1) n (n + 1)) :
   refine add_mem ?_ ?_
   · refine K.mem_B_right ?_ hu2
     rwa [show p + r - r + 1 = p + 1 by ring]
-  · rw [K.d_comp_d (n - 1) n (n + 1) (by ring) rfl v]
+  · rw [K.d_comp_d (n - 1) n (n + 1) v]
     exact zero_mem _
 
 /-- The differential restricted to the cocycles, with flexible indices
@@ -265,7 +286,7 @@ lemma dZ_comp_dZ (r p q s n m t : ℤ) (hq : q = p + r) (hs : s = q + r)
   ext x
   simp only [LinearMap.comp_apply, dZ_coe, LinearMap.zero_apply, ZeroMemClass.coe_zero]
   subst hm ht
-  exact K.d_comp_d n (n + 1) (n + 1 + 1) rfl rfl x
+  exact K.d_comp_d n (n + 1) (n + 1 + 1) x
 
 /-- The composite of two consecutive graded page differentials vanishes. -/
 theorem dPageAux_comp (r p q s n m t : ℤ) (hq : q = p + r) (hs : s = q + r)
@@ -314,7 +335,7 @@ def toKer : ↥(K.Z (r + 1) p n (n + 1)) →ₗ[R] ↥(ker (K.dPage r p n)) :=
       refine K.mem_B_left ?_ ?_
       · rw [show p + r + 1 = p + (r + 1) by ring]
         exact hz.2
-      · rw [K.d_comp_d n (n + 1) (n + 1 + 1) rfl rfl]
+      · rw [K.d_comp_d n (n + 1) (n + 1 + 1)]
         exact zero_mem _
 
 @[simp] lemma toKer_coe (z : ↥(K.Z (r + 1) p n (n + 1))) :
@@ -419,7 +440,7 @@ lemma mem_B_succ_of {z : K.X n} (hz : z ∈ K.Z (r + 1) p n (n + 1))
     abel
   have hdu : K.d n (n + 1) u ∈ K.F (p + (r + 1)) (n + 1) := by
     have hdu_eq : K.d n (n + 1) u = -K.d n (n + 1) z := by
-      rw [← hu_eq, map_sub, K.d_comp_d (n - 1) n (n + 1) (by ring) rfl (y - t), zero_sub]
+      rw [← hu_eq, map_sub, K.d_comp_d (n - 1) n (n + 1) (y - t), zero_sub]
     rw [hdu_eq]
     exact neg_mem (K.mem_Z.mp hz).2
   rw [hz_eq]
@@ -464,30 +485,37 @@ end MainTheorem
 
 /-! ## Graded convergence
 
-The convergence theory of `Basic.lean`, refined by degree: the boundedness
+The convergence theory of `FilteredModule.lean`, refined by degree: the boundedness
 hypotheses are now *per spot* — `F^{p+r}_{n+1} = ⊥` and `F^{p-r+1}_{n-1} = ⊤` —
 which is what first-quadrant-type double complexes satisfy even though their
-total filtration is globally unbounded. -/
+total filtration is globally unbounded.
+
+The limit term is formed in `E₀`: its numerator is the intersection of
+`Z_r^{p,n} + F^{p+1}_n`, and its denominator is the union of
+`B_r^{p,n} + F^{p+1}_n`.  The sums with `F^{p+1}_n` are necessary because the
+raw ambient `Z_r` and `B_r` are not nested across arbitrary pages. -/
 
 section Convergence
 
-/-- The infinite cocycles `Z_∞^{p,n} = F^p_n ⊓ ker d`. -/
-def Zinf (p n : ℤ) : Submodule R (K.X n) := K.F p n ⊓ ker (K.d n (n + 1))
+/-- The cycle submodule used to present the associated-graded cohomology target,
+`F^p_n ⊓ ker d`.  This is not the limit-cycle submodule without convergence
+hypotheses. -/
+def abutmentZ (p n : ℤ) : Submodule R (K.X n) := K.F p n ⊓ ker (K.d n (n + 1))
 
-/-- The infinite boundaries `B_∞^{p,n} = (F^{p+1}_n ⊓ ker d) + d(d⁻¹ F^p_n)`;
-`l` is intended to be `n - 1`. -/
-def Binf (p l n : ℤ) : Submodule R (K.X n) :=
+/-- The boundary submodule used to present the associated-graded cohomology target,
+`(F^{p+1}_n ⊓ ker d) + d(d⁻¹ F^p_n)`; `l` is intended to be `n - 1`. -/
+def abutmentB (p l n : ℤ) : Submodule R (K.X n) :=
   (K.F (p + 1) n ⊓ ker (K.d n (n + 1))) ⊔ ((K.F p n).comap (K.d l n)).map (K.d l n)
 
-lemma mem_Binf_left {p l n : ℤ} {u : K.X n} (h1 : u ∈ K.F (p + 1) n)
-    (h2 : K.d n (n + 1) u = 0) : u ∈ K.Binf p l n :=
+lemma mem_abutmentB_left {p l n : ℤ} {u : K.X n} (h1 : u ∈ K.F (p + 1) n)
+    (h2 : K.d n (n + 1) u = 0) : u ∈ K.abutmentB p l n :=
   Submodule.mem_sup_left (Submodule.mem_inf.mpr ⟨h1, LinearMap.mem_ker.mpr h2⟩)
 
-lemma mem_Binf_right {p l n : ℤ} {w : K.X l} (hdw : K.d l n w ∈ K.F p n) :
-    K.d l n w ∈ K.Binf p l n :=
+lemma mem_abutmentB_right {p l n : ℤ} {w : K.X l} (hdw : K.d l n w ∈ K.F p n) :
+    K.d l n w ∈ K.abutmentB p l n :=
   Submodule.mem_sup_right (Submodule.mem_map_of_mem (Submodule.mem_comap.mpr hdw))
 
-lemma Binf_cases {p l n : ℤ} {x : K.X n} (hx : x ∈ K.Binf p l n) :
+lemma abutmentB_cases {p l n : ℤ} {x : K.X n} (hx : x ∈ K.abutmentB p l n) :
     ∃ (u : K.X n) (w : K.X l), u ∈ K.F (p + 1) n ∧ K.d n (n + 1) u = 0 ∧
       K.d l n w ∈ K.F p n ∧ x = u + K.d l n w := by
   obtain ⟨u, hu, y, hy, rfl⟩ := Submodule.mem_sup.mp hx
@@ -495,35 +523,205 @@ lemma Binf_cases {p l n : ℤ} {x : K.X n} (hx : x ∈ K.Binf p l n) :
   obtain ⟨w, hw, rfl⟩ := Submodule.mem_map.mp hy
   exact ⟨u, w, hu1, LinearMap.mem_ker.mp hu2, Submodule.mem_comap.mp hw, rfl⟩
 
-lemma Binf_le_Zinf {p l n : ℤ} (hl : n = l + 1) : K.Binf p l n ≤ K.Zinf p n := by
+lemma abutmentB_le_abutmentZ {p l n : ℤ} : K.abutmentB p l n ≤ K.abutmentZ p n := by
   intro x hx
-  obtain ⟨u, w, hu1, hu2, hdw, rfl⟩ := K.Binf_cases hx
+  obtain ⟨u, w, hu1, hu2, hdw, rfl⟩ := K.abutmentB_cases hx
   refine add_mem (Submodule.mem_inf.mpr ⟨K.F_le p n hu1, LinearMap.mem_ker.mpr hu2⟩) ?_
   refine Submodule.mem_inf.mpr ⟨hdw, LinearMap.mem_ker.mpr ?_⟩
-  exact K.d_comp_d l n (n + 1) hl rfl w
+  exact K.d_comp_d l n (n + 1) w
 
-/-- The limit page `E_∞^{p,n}`. -/
+/-- The associated-graded cohomology target, presented inside `X n`. -/
+abbrev associatedGradedHomology (p n : ℤ) :=
+  ↥(K.abutmentZ p n) ⧸ (K.abutmentB p (n - 1) n).comap (K.abutmentZ p n).subtype
+
+/-- The numerator of the limit term, represented before quotienting by
+`F^{p+1}_n`: `⋂_{r ≥ 0} (Z_r^{p,n} + F^{p+1}_n)`. -/
+def limitZ (p n : ℤ) : Submodule R (K.X n) :=
+  ⨅ r : ℕ, K.Z (r : ℤ) p n (n + 1) ⊔ K.F (p + 1) n
+
+/-- The denominator of the limit term, represented before quotienting by
+`F^{p+1}_n`: `⋃_{r ≥ 0} (B_r^{p,n} + F^{p+1}_n)`. -/
+def limitB (p n : ℤ) : Submodule R (K.X n) :=
+  ⨆ r : ℕ, K.B (r : ℤ) p (n - 1) n (n + 1) ⊔ K.F (p + 1) n
+
+lemma Z_mono {r s p n : ℤ} (h : r ≤ s) :
+    K.Z s p n (n + 1) ≤ K.Z r p n (n + 1) := by
+  intro x hx
+  obtain ⟨hxF, hdx⟩ := K.mem_Z.mp hx
+  exact K.mem_Z.mpr ⟨hxF, K.F_mono (by omega) (n + 1) hdx⟩
+
+lemma normalizedZ_antitone (p n : ℤ) :
+    Antitone fun r : ℕ ↦ K.Z (r : ℤ) p n (n + 1) ⊔ K.F (p + 1) n := by
+  intro r s h
+  exact sup_le_sup (K.Z_mono (by exact_mod_cast h)) le_rfl
+
+lemma normalizedB_monotone (p n : ℤ) :
+    Monotone fun r : ℕ ↦
+      K.B (r : ℤ) p (n - 1) n (n + 1) ⊔ K.F (p + 1) n := by
+  intro r s h
+  refine sup_le ?_ le_sup_right
+  intro x hx
+  obtain ⟨u, v, hu1, -, hv, hdv, rfl⟩ := K.B_cases hx
+  refine add_mem (Submodule.mem_sup_right hu1) (Submodule.mem_sup_left ?_)
+  exact K.mem_B_right (K.F_mono (by omega) (n - 1) hv) hdv
+
+lemma B_sup_F_le_Z_sup_F (r s p n : ℤ) :
+    K.B r p (n - 1) n (n + 1) ⊔ K.F (p + 1) n ≤
+      K.Z s p n (n + 1) ⊔ K.F (p + 1) n := by
+  refine sup_le ?_ le_sup_right
+  intro x hx
+  obtain ⟨u, v, hu1, -, -, hdv, rfl⟩ := K.B_cases hx
+  refine add_mem (Submodule.mem_sup_right hu1) (Submodule.mem_sup_left ?_)
+  refine K.mem_Z.mpr ⟨hdv, ?_⟩
+  rw [K.d_comp_d (n - 1) n (n + 1) v]
+  exact zero_mem _
+
+lemma limitB_le_limitZ (p n : ℤ) : K.limitB p n ≤ K.limitZ p n := by
+  refine iSup_le fun r ↦ le_iInf fun s ↦ ?_
+  exact K.B_sup_F_le_Z_sup_F (r : ℤ) (s : ℤ) p n
+
+lemma limitZ_le_F (p n : ℤ) : K.limitZ p n ≤ K.F p n := by
+  refine le_trans
+    (iInf_le (fun r : ℕ ↦ K.Z (r : ℤ) p n (n + 1) ⊔ K.F (p + 1) n) 0) ?_
+  exact sup_le inf_le_left (K.F_le p n)
+
+lemma F_le_limitB (p n : ℤ) : K.F (p + 1) n ≤ K.limitB p n :=
+  le_trans le_sup_right
+    (le_iSup (fun r : ℕ ↦
+      K.B (r : ℤ) p (n - 1) n (n + 1) ⊔ K.F (p + 1) n) 0)
+
+/-- The limit term `E_∞^{p,n}`.  It need not be equal to any finite page
+without a stabilization hypothesis. -/
 abbrev pageInf (p n : ℤ) :=
-  ↥(K.Zinf p n) ⧸ (K.Binf p (n - 1) n).comap (K.Zinf p n).subtype
+  ↥(K.limitZ p n) ⧸ (K.limitB p n).comap (K.limitZ p n).subtype
 
-lemma Z_eq_Zinf {r p n : ℤ} (hbot : K.F (p + r) (n + 1) = ⊥) :
-    K.Z r p n (n + 1) = K.Zinf p n := by
-  unfold Z Zinf
+lemma Z_eq_abutmentZ {r p n : ℤ} (hbot : K.F (p + r) (n + 1) = ⊥) :
+    K.Z r p n (n + 1) = K.abutmentZ p n := by
+  unfold Z abutmentZ
   rw [hbot, Submodule.comap_bot]
 
-lemma B_eq_Binf {r p n : ℤ} (hbot : K.F (p + r) (n + 1) = ⊥)
+lemma B_eq_abutmentB {r p n : ℤ} (hbot : K.F (p + r) (n + 1) = ⊥)
     (htop : K.F (p - r + 1) (n - 1) = ⊤) :
-    K.B r p (n - 1) n (n + 1) = K.Binf p (n - 1) n := by
-  unfold B Binf
+    K.B r p (n - 1) n (n + 1) = K.abutmentB p (n - 1) n := by
+  unfold B abutmentB
   rw [hbot, htop, Submodule.comap_bot, top_inf_eq]
 
-/-- **Graded stabilization**: once `F^{p+r}_{n+1} = ⊥` and `F^{p-r+1}_{n-1} = ⊤`,
-the `r`-th page at `(p, n)` is the limit page. -/
-noncomputable def pageEquivPageInf {r p n : ℤ} (hbot : K.F (p + r) (n + 1) = ⊥)
+/-- Once the cocycles have stabilized at `(p,n)`, the numerator of the limit
+term is the cycle numerator of the associated-graded target, together with the
+copy of `F^{p+1}_n` used to represent submodules of `E₀^{p,n}`. -/
+lemma limitZ_eq_abutmentZ_sup_F {r p n : ℤ} (hbot : K.F (p + r) (n + 1) = ⊥) :
+    K.limitZ p n = K.abutmentZ p n ⊔ K.F (p + 1) n := by
+  let N := r.toNat
+  have hrN : r ≤ (N : ℤ) := Int.self_le_toNat r
+  have hbotN : K.F (p + (N : ℤ)) (n + 1) = ⊥ :=
+    le_bot_iff.mp (hbot ▸ K.F_mono (by omega) (n + 1))
+  apply le_antisymm
+  · refine le_trans
+      (iInf_le (fun s : ℕ ↦ K.Z (s : ℤ) p n (n + 1) ⊔ K.F (p + 1) n) N) ?_
+    rw [K.Z_eq_abutmentZ hbotN]
+  · refine le_iInf fun s ↦ sup_le ?_ le_sup_right
+    intro x hx
+    exact Submodule.mem_sup_left (K.mem_Z.mpr ⟨hx.1, by
+      rw [LinearMap.mem_ker.mp hx.2]
+      exact zero_mem _⟩)
+
+/-- Once both sides have stabilized at `(p,n)`, the denominator of the limit
+term is the boundary denominator of the associated-graded target, together
+with the copy of `F^{p+1}_n` used to represent submodules of `E₀^{p,n}`. -/
+lemma limitB_eq_abutmentB_sup_F {r p n : ℤ} (hbot : K.F (p + r) (n + 1) = ⊥)
     (htop : K.F (p - r + 1) (n - 1) = ⊤) :
-    K.page r p n ≃ₗ[R] K.pageInf p n :=
-  Submodule.Quotient.equiv _ _ (LinearEquiv.ofEq _ _ (K.Z_eq_Zinf hbot)) (by
-    have hB := K.B_eq_Binf hbot htop
+    K.limitB p n = K.abutmentB p (n - 1) n ⊔ K.F (p + 1) n := by
+  let N := r.toNat
+  have hrN : r ≤ (N : ℤ) := Int.self_le_toNat r
+  have hbotN : K.F (p + (N : ℤ)) (n + 1) = ⊥ :=
+    le_bot_iff.mp (hbot ▸ K.F_mono (by omega) (n + 1))
+  have htopN : K.F (p - (N : ℤ) + 1) (n - 1) = ⊤ :=
+    top_le_iff.mp (htop ▸ K.F_mono (by omega) (n - 1))
+  apply le_antisymm
+  · refine iSup_le fun s ↦ sup_le ?_ le_sup_right
+    intro x hx
+    obtain ⟨u, w, hu1, -, -, hdw, rfl⟩ := K.B_cases hx
+    refine add_mem (Submodule.mem_sup_right hu1) (Submodule.mem_sup_left ?_)
+    exact K.mem_abutmentB_right hdw
+  · refine le_trans ?_
+      (le_iSup (fun s : ℕ ↦
+        K.B (s : ℤ) p (n - 1) n (n + 1) ⊔ K.F (p + 1) n) N)
+    rw [K.B_eq_abutmentB hbotN htopN]
+
+/-- Intersecting the associated-graded cycle numerator with the normalized
+boundary denominator recovers the unnormalized boundary denominator. -/
+lemma abutmentZ_inf_abutmentB_sup_F_eq_abutmentB (p n : ℤ) :
+    K.abutmentZ p n ⊓ (K.abutmentB p (n - 1) n ⊔ K.F (p + 1) n) =
+      K.abutmentB p (n - 1) n := by
+  have hBZ : K.abutmentB p (n - 1) n ≤ K.abutmentZ p n := K.abutmentB_le_abutmentZ
+  apply le_antisymm
+  · rintro x ⟨hxZ, hx⟩
+    obtain ⟨b, hb, f, hf, rfl⟩ := Submodule.mem_sup.mp hx
+    refine add_mem hb ?_
+    have hfker : K.d n (n + 1) f = 0 := by
+      have hbker : K.d n (n + 1) b = 0 := LinearMap.mem_ker.mp (hBZ hb).2
+      have hxker : K.d n (n + 1) (b + f) = 0 := LinearMap.mem_ker.mp hxZ.2
+      simpa [map_add, hbker] using hxker
+    exact K.mem_abutmentB_left hf hfker
+  · exact le_inf hBZ le_sup_left
+
+/-- The associated-graded cohomology target in its normalized presentation
+inside `E₀^{p,n}`: adjoining `F^{p+1}_n` to both numerator and denominator
+does not change the quotient. -/
+noncomputable def associatedGradedHomologyEquivNormalized (p n : ℤ) :
+    K.associatedGradedHomology p n ≃ₗ[R]
+      (↥(K.abutmentZ p n ⊔ K.F (p + 1) n) ⧸
+        ((K.abutmentB p (n - 1) n ⊔ K.F (p + 1) n).comap
+          (K.abutmentZ p n ⊔ K.F (p + 1) n).subtype)) := by
+  let e := LinearMap.quotientInfEquivSupQuotient (K.abutmentZ p n)
+    (K.abutmentB p (n - 1) n ⊔ K.F (p + 1) n)
+  have hdom :
+      (K.abutmentB p (n - 1) n).comap (K.abutmentZ p n).subtype =
+        (K.abutmentZ p n).comap (K.abutmentZ p n).subtype ⊓
+          (K.abutmentB p (n - 1) n ⊔ K.F (p + 1) n).comap (K.abutmentZ p n).subtype := by
+    ext x
+    change (x : K.X n) ∈ K.abutmentB p (n - 1) n ↔
+      (x : K.X n) ∈ K.abutmentZ p n ∧
+        (x : K.X n) ∈ K.abutmentB p (n - 1) n ⊔ K.F (p + 1) n
+    rw [← Submodule.mem_inf, K.abutmentZ_inf_abutmentB_sup_F_eq_abutmentB]
+  have hnum : K.abutmentZ p n ⊔ (K.abutmentB p (n - 1) n ⊔ K.F (p + 1) n) =
+      K.abutmentZ p n ⊔ K.F (p + 1) n := by
+    rw [← sup_assoc, sup_eq_left.mpr K.abutmentB_le_abutmentZ]
+  rw [hnum] at e
+  exact (Submodule.quotEquivOfEq _ _ hdom).trans e
+
+/-- Under two-sided local bounds at `(p,n)`, the actual limit term is
+canonically isomorphic to the associated-graded cohomology target. -/
+noncomputable def pageInfEquivAssociatedGradedHomology {r p n : ℤ}
+    (hbot : K.F (p + r) (n + 1) = ⊥)
+    (htop : K.F (p - r + 1) (n - 1) = ⊤) :
+    K.pageInf p n ≃ₗ[R] K.associatedGradedHomology p n := by
+  let e₁ : K.pageInf p n ≃ₗ[R]
+      (↥(K.abutmentZ p n ⊔ K.F (p + 1) n) ⧸
+        ((K.abutmentB p (n - 1) n ⊔ K.F (p + 1) n).comap
+          (K.abutmentZ p n ⊔ K.F (p + 1) n).subtype)) :=
+    Submodule.Quotient.equiv _ _
+      (LinearEquiv.ofEq _ _ (K.limitZ_eq_abutmentZ_sup_F hbot)) (by
+        have hB := K.limitB_eq_abutmentB_sup_F hbot htop
+        ext x
+        simp only [Submodule.mem_map, Submodule.mem_comap, Submodule.coe_subtype]
+        constructor
+        · rintro ⟨y, hy, rfl⟩
+          simpa [hB] using hy
+        · intro hx
+          refine ⟨(LinearEquiv.ofEq _ _ (K.limitZ_eq_abutmentZ_sup_F hbot)).symm x, ?_,
+            (LinearEquiv.ofEq _ _ (K.limitZ_eq_abutmentZ_sup_F hbot)).apply_symm_apply x⟩
+          simpa [hB] using hx)
+  exact e₁.trans (K.associatedGradedHomologyEquivNormalized p n).symm
+
+/-- Once `F^{p+r}_{n+1} = ⊥` and `F^{p-r+1}_{n-1} = ⊤`, the `r`-th page
+at `(p,n)` is the associated-graded cohomology target. -/
+noncomputable def pageEquivAssociatedGradedHomology {r p n : ℤ}
+    (hbot : K.F (p + r) (n + 1) = ⊥)
+    (htop : K.F (p - r + 1) (n - 1) = ⊤) :
+    K.page r p n ≃ₗ[R] K.associatedGradedHomology p n :=
+  Submodule.Quotient.equiv _ _ (LinearEquiv.ofEq _ _ (K.Z_eq_abutmentZ hbot)) (by
+    have hB := K.B_eq_abutmentB hbot htop
     ext ξ
     simp only [Submodule.mem_map, Submodule.mem_comap, Submodule.coe_subtype]
     constructor
@@ -531,10 +729,19 @@ noncomputable def pageEquivPageInf {r p n : ℤ} (hbot : K.F (p + r) (n + 1) = �
       rw [← hB]
       simpa using hη
     · intro hξ
-      refine ⟨(LinearEquiv.ofEq _ _ (K.Z_eq_Zinf hbot)).symm ξ, ?_,
-        (LinearEquiv.ofEq _ _ (K.Z_eq_Zinf hbot)).apply_symm_apply ξ⟩
+      refine ⟨(LinearEquiv.ofEq _ _ (K.Z_eq_abutmentZ hbot)).symm ξ, ?_,
+        (LinearEquiv.ofEq _ _ (K.Z_eq_abutmentZ hbot)).apply_symm_apply ξ⟩
       rw [hB]
       simpa using hξ)
+
+/-- Under two-sided local bounds at `(p,n)`, the finite `r`-th page has
+stabilized to the limit term. -/
+noncomputable def pageEquivPageInf {r p n : ℤ}
+    (hbot : K.F (p + r) (n + 1) = ⊥)
+    (htop : K.F (p - r + 1) (n - 1) = ⊤) :
+    K.page r p n ≃ₗ[R] K.pageInf p n :=
+  (K.pageEquivAssociatedGradedHomology hbot htop).trans
+    (K.pageInfEquivAssociatedGradedHomology hbot htop).symm
 
 /-- Beyond the bound of the filtration, the graded differential leaving `(p, n)`
 vanishes. -/
@@ -567,15 +774,42 @@ theorem dPageFrom_eq_zero {r p n : ℤ} (htop : K.F (p - r + 1) (n - 1) = ⊤) :
   rw [htop]
   exact Submodule.mem_top
 
-/-! ### The limit page is the associated graded of the cohomology -/
+/-! ### The associated-graded cohomology target -/
 
 /-- The cohomology of the complex at degree `n`, `H^n = ker(d^n)/im(d^{n-1})`. -/
 abbrev homology (n : ℤ) :=
   ↥(ker (K.d n (n + 1))) ⧸ (range (K.d (n - 1) n)).comap (ker (K.d n (n + 1))).subtype
 
+/-- The canonical isomorphism from mathlib's categorical cohomology object to
+the explicit quotient `ker(d n (n + 1)) / range(d (n - 1) n)`. -/
+noncomputable def categoricalHomologyIso (n : ℤ) :
+    K.toCochainComplex.homology n ≅ ModuleCat.of R (K.homology n) := by
+  let a := n - 1
+  let b := n
+  let c := n + 1
+  let shape := ComplexShape.up ℤ
+  have hab : shape.Rel a b := by
+    change n - 1 + 1 = n
+    omega
+  have hbc : shape.Rel b c := by
+    change n + 1 = n + 1
+    rfl
+  let S := K.toCochainComplex.sc' a b c
+  refine K.toCochainComplex.homologyIsoSc' a b c
+      (shape.prev_eq' hab) (shape.next_eq' hbc) ≪≫
+    S.moduleCatHomologyIso ≪≫ ?_
+  refine eqToIso ?_
+  change ModuleCat.of R
+      (LinearMap.ker S.g.hom ⧸ LinearMap.range S.moduleCatToCycles) =
+    ModuleCat.of R
+      (↥(ker (K.d n (n + 1))) ⧸
+        (range (K.d (n - 1) n)).comap (ker (K.d n (n + 1))).subtype)
+  rw [LinearMap.range_codRestrict]
+  rfl
+
 /-- The filtration induced on the cohomology: `F^p H^n = im(F^p_n ⊓ ker d → H^n)`. -/
 def FH (p n : ℤ) : Submodule R (K.homology n) :=
-  ((K.Zinf p n).comap (ker (K.d n (n + 1))).subtype).map
+  ((K.abutmentZ p n).comap (ker (K.d n (n + 1))).subtype).map
     ((range (K.d (n - 1) n)).comap (ker (K.d n (n + 1))).subtype).mkQ
 
 lemma mem_FH_iff {p n : ℤ} {h : K.homology n} :
@@ -590,18 +824,18 @@ lemma mem_FH_iff {p n : ℤ} {h : K.homology n} :
     exact Submodule.mem_map.mpr
       ⟨z, Submodule.mem_comap.mpr (Submodule.mem_inf.mpr ⟨hz, z.2⟩), rfl⟩
 
-lemma Zinf_le_ker (p n : ℤ) : K.Zinf p n ≤ ker (K.d n (n + 1)) := inf_le_right
+lemma abutmentZ_le_ker (p n : ℤ) : K.abutmentZ p n ≤ ker (K.d n (n + 1)) := inf_le_right
 
-/-- The natural map `Z_∞^{p,n} ⟶ F^p H^n`. -/
-def toFH (p n : ℤ) : ↥(K.Zinf p n) →ₗ[R] ↥(K.FH p n) :=
+/-- The natural map from filtered cocycles `F^p_n ∩ ker d` to `F^p H^n`. -/
+def toFH (p n : ℤ) : ↥(K.abutmentZ p n) →ₗ[R] ↥(K.FH p n) :=
   LinearMap.codRestrict _
     (((range (K.d (n - 1) n)).comap (ker (K.d n (n + 1))).subtype).mkQ.comp
-      (Submodule.inclusion (K.Zinf_le_ker p n)))
+      (Submodule.inclusion (K.abutmentZ_le_ker p n)))
     fun x ↦ Submodule.mem_map_of_mem (Submodule.mem_comap.mpr x.2)
 
-@[simp] lemma toFH_coe (p n : ℤ) (x : ↥(K.Zinf p n)) :
+@[simp] lemma toFH_coe (p n : ℤ) (x : ↥(K.abutmentZ p n)) :
     (K.toFH p n x : K.homology n) =
-      Submodule.Quotient.mk (Submodule.inclusion (K.Zinf_le_ker p n) x) := rfl
+      Submodule.Quotient.mk (Submodule.inclusion (K.abutmentZ_le_ker p n) x) := rfl
 
 lemma toFH_surjective (p n : ℤ) : Function.Surjective (K.toFH p n) := by
   rintro ⟨h, hmem⟩
@@ -618,8 +852,8 @@ side.) -/
 abbrev grH (p n : ℤ) : Type _ :=
   ↥(K.FH p n) ⧸ (K.FH (p + 1) n).comap (K.FH p n).subtype
 
-/-- The composite `Z_∞^{p,n} ⟶ F^p H^n ⟶ gr^p H^n`. -/
-def toGrH (p n : ℤ) : ↥(K.Zinf p n) →ₗ[R] K.grH p n :=
+/-- The composite from filtered cocycles to `F^p H^n ⟶ gr^p H^n`. -/
+def toGrH (p n : ℤ) : ↥(K.abutmentZ p n) →ₗ[R] K.grH p n :=
   ((K.FH (p + 1) n).comap (K.FH p n).subtype).mkQ.comp (K.toFH p n)
 
 lemma toGrH_surjective (p n : ℤ) : Function.Surjective (K.toGrH p n) := by
@@ -628,7 +862,7 @@ lemma toGrH_surjective (p n : ℤ) : Function.Surjective (K.toGrH p n) := by
   simpa [toGrH, LinearMap.coe_comp] using h
 
 lemma ker_toGrH (p n : ℤ) :
-    ker (K.toGrH p n) = (K.Binf p (n - 1) n).comap (K.Zinf p n).subtype := by
+    ker (K.toGrH p n) = (K.abutmentB p (n - 1) n).comap (K.abutmentZ p n).subtype := by
   ext ξ
   obtain ⟨x, hx⟩ := ξ
   have hxF : x ∈ K.F p n := (Submodule.mem_inf.mp hx).1
@@ -641,19 +875,19 @@ lemma ker_toGrH (p n : ℤ) :
     have hd : (z : K.X n) - x ∈ range (K.d (n - 1) n) := by
       simpa using hzeq
     obtain ⟨m, hm⟩ := hd
-    have h1 : (z : K.X n) ∈ K.Binf p (n - 1) n :=
-      K.mem_Binf_left hzF (LinearMap.mem_ker.mp z.2)
-    have h2 : -((z : K.X n) - x) ∈ K.Binf p (n - 1) n := by
+    have h1 : (z : K.X n) ∈ K.abutmentB p (n - 1) n :=
+      K.mem_abutmentB_left hzF (LinearMap.mem_ker.mp z.2)
+    have h2 : -((z : K.X n) - x) ∈ K.abutmentB p (n - 1) n := by
       refine neg_mem ?_
       rw [← hm]
-      refine K.mem_Binf_right ?_
+      refine K.mem_abutmentB_right ?_
       rw [hm]
       exact sub_mem (K.F_le p n hzF) hxF
     have h3 := add_mem h1 h2
     have heq : (z : K.X n) + -((z : K.X n) - x) = x := by abel
     rwa [heq] at h3
   · intro hxB
-    obtain ⟨u, w, hu1, hu2, hdw, hsum⟩ := K.Binf_cases hxB
+    obtain ⟨u, w, hu1, hu2, hdw, hsum⟩ := K.abutmentB_cases hxB
     refine ⟨⟨u, LinearMap.mem_ker.mpr hu2⟩, hu1, ?_⟩
     rw [Submodule.Quotient.eq]
     simp only [Submodule.mem_comap, Submodule.coe_subtype, AddSubgroupClass.coe_sub,
@@ -664,11 +898,21 @@ lemma ker_toGrH (p n : ℤ) :
     rw [heq]
     exact neg_mem ⟨w, rfl⟩
 
-/-- **Identification of the graded limit page**: `E_∞^{p,n} ≅ gr^p H^n`. -/
-noncomputable def pageInfEquivGrH (p n : ℤ) :
-    K.pageInf p n ≃ₗ[R] K.grH p n :=
+/-- Identification of the associated-graded target with `gr^p H^n`.  This does
+not identify the limit term `pageInf` without convergence hypotheses. -/
+noncomputable def associatedGradedHomologyEquivGrH (p n : ℤ) :
+    K.associatedGradedHomology p n ≃ₗ[R] K.grH p n :=
   (Submodule.quotEquivOfEq _ _ (K.ker_toGrH p n).symm).trans
     ((K.toGrH p n).quotKerEquivOfSurjective (K.toGrH_surjective p n))
+
+/-- Under two-sided local bounds at `(p,n)`, the limit term is the associated
+graded of the induced filtration on cohomology. -/
+noncomputable def pageInfEquivGrH {r p n : ℤ}
+    (hbot : K.F (p + r) (n + 1) = ⊥)
+    (htop : K.F (p - r + 1) (n - 1) = ⊤) :
+    K.pageInf p n ≃ₗ[R] K.grH p n :=
+  (K.pageInfEquivAssociatedGradedHomology hbot htop).trans
+    (K.associatedGradedHomologyEquivGrH p n)
 
 /-- **Graded convergence** (the statement consumed by the double-complex spectral
 sequences): if `F^{p+r}_{n+1} = ⊥` and `F^{p-r+1}_{n-1} = ⊤` — bounds required only
@@ -676,7 +920,8 @@ at the spot `(p, n)` — then `E_r^{p,n} ≅ gr^p H^n`. -/
 noncomputable def pageEquivGrHOfBounded {r p n : ℤ} (hbot : K.F (p + r) (n + 1) = ⊥)
     (htop : K.F (p - r + 1) (n - 1) = ⊤) :
     K.page r p n ≃ₗ[R] K.grH p n :=
-  (K.pageEquivPageInf hbot htop).trans (K.pageInfEquivGrH p n)
+  (K.pageEquivAssociatedGradedHomology hbot htop).trans
+    (K.associatedGradedHomologyEquivGrH p n)
 
 end Convergence
 
@@ -688,7 +933,7 @@ lemma Z_zero (p n : ℤ) : K.Z 0 p n (n + 1) = K.F p n := by
   refine le_antisymm inf_le_left fun x hx ↦ ?_
   refine K.mem_Z.mpr ⟨hx, ?_⟩
   rw [show p + (0 : ℤ) = p by ring]
-  exact K.d_mem_F p n (n + 1) rfl x hx
+  exact K.d_mem_F p n (n + 1) x hx
 
 lemma B_zero (p n : ℤ) : K.B 0 p (n - 1) n (n + 1) = K.F (p + 1) n := by
   apply le_antisymm
@@ -697,11 +942,11 @@ lemma B_zero (p n : ℤ) : K.B 0 p (n - 1) n (n + 1) = K.F (p + 1) n := by
     obtain ⟨v, hv, rfl⟩ := Submodule.mem_map.mp hx
     obtain ⟨hv1, _⟩ := Submodule.mem_inf.mp hv
     rw [show p - 0 + 1 = p + 1 by ring] at hv1
-    exact K.d_mem_F (p + 1) (n - 1) n (by ring) v hv1
+    exact K.d_mem_F (p + 1) (n - 1) n v hv1
   · intro x hx
     refine K.mem_B_left hx ?_
     rw [show p + (0 : ℤ) = p by ring]
-    exact K.d_mem_F p n (n + 1) rfl x (K.F_le p n hx)
+    exact K.d_mem_F p n (n + 1) x (K.F_le p n hx)
 
 /-- **The zeroth page is the associated graded of the filtration**:
 `E_0^{p,n} ≅ F^p_n / F^{p+1}_n`.  (Consequently `E_1 = H(gr)` by the main
@@ -722,5 +967,150 @@ noncomputable def pageZeroEquiv (p n : ℤ) :
       simpa using hξ)
 
 end PageZero
+
+/-! ## Functoriality
+
+A morphism of filtered complexes is a cochain map which preserves every step of
+the filtration.  Such a morphism induces maps on cocycles, boundaries, and all
+pages, compatible with the page differentials. -/
+
+section Functoriality
+
+open CategoryTheory
+
+variable {K K' K'' : FilteredComplex.{u, v} R}
+
+/-- A morphism of filtered cochain complexes: a cochain map which preserves the
+filtration. -/
+@[ext]
+structure Hom (K K' : FilteredComplex.{u, v} R) where
+  /-- The underlying morphism of cochain complexes. -/
+  toHom : K.toCochainComplex ⟶ K'.toCochainComplex
+  /-- Each component of the cochain map preserves the filtration. -/
+  map_F : ∀ (p n : ℤ), (K.F p n).map (toHom.f n).hom ≤ K'.F p n
+
+namespace Hom
+
+/-- The identity morphism of a filtered complex. -/
+def id (K : FilteredComplex.{u, v} R) : Hom K K where
+  toHom := 𝟙 K.toCochainComplex
+  map_F p n := by simp
+
+/-- The composite of two morphisms of filtered complexes. -/
+def comp (f : Hom K K') (g : Hom K' K'') : Hom K K'' where
+  toHom := f.toHom ≫ g.toHom
+  map_F p n := by
+    rw [HomologicalComplex.comp_f, ModuleCat.hom_comp, Submodule.map_comp]
+    exact le_trans (Submodule.map_mono (f.map_F p n)) (g.map_F p n)
+
+end Hom
+
+instance : Category (FilteredComplex.{u, v} R) where
+  Hom := Hom
+  id := Hom.id
+  comp := Hom.comp
+
+@[simp] lemma id_toHom (K : FilteredComplex.{u, v} R) :
+    (Hom.toHom (𝟙 K : K ⟶ K)) = 𝟙 K.toCochainComplex := rfl
+
+@[simp] lemma comp_toHom (f : K ⟶ K') (g : K' ⟶ K'') :
+    (f ≫ g).toHom = f.toHom ≫ g.toHom := rfl
+
+/-- Two filtered cochain maps are equal if their underlying cochain maps are
+equal. -/
+@[ext]
+lemma Hom.hom_ext (f g : K ⟶ K') (h : f.toHom = g.toHom) : f = g := by
+  cases f
+  cases g
+  cases h
+  rfl
+
+/-- The component of a filtered cochain map commutes with every differential. -/
+lemma Hom.comm_d (f : K ⟶ K') (i j : ℤ) (x : K.X i) :
+    K'.d i j ((f.toHom.f i).hom x) = (f.toHom.f j).hom (K.d i j x) := by
+  have h := DFunLike.congr_fun
+    (ModuleCat.hom_ext_iff.mp (f.toHom.comm i j)) x
+  simpa only [ModuleCat.hom_comp, LinearMap.comp_apply] using h
+
+/-- A filtered cochain map carries each filtration step into the corresponding
+filtration step. -/
+lemma Hom.map_mem_F (f : K ⟶ K') (p n : ℤ) {x : K.X n} (hx : x ∈ K.F p n) :
+    (f.toHom.f n).hom x ∈ K'.F p n :=
+  f.map_F p n (Submodule.mem_map_of_mem hx)
+
+lemma Hom.map_Z (f : K ⟶ K') {r p n m : ℤ} {x : K.X n}
+    (hx : x ∈ K.Z r p n m) : (f.toHom.f n).hom x ∈ K'.Z r p n m := by
+  obtain ⟨hxF, hdx⟩ := K.mem_Z.mp hx
+  refine K'.mem_Z.mpr ⟨f.map_mem_F p n hxF, ?_⟩
+  rw [f.comm_d]
+  exact f.map_mem_F (p + r) m hdx
+
+lemma Hom.map_B (f : K ⟶ K') {r p l n m : ℤ} {x : K.X n}
+    (hx : x ∈ K.B r p l n m) : (f.toHom.f n).hom x ∈ K'.B r p l n m := by
+  obtain ⟨a, b, haF, hda, hbF, hdb, rfl⟩ := K.B_cases hx
+  rw [map_add, ← f.comm_d l n b]
+  refine add_mem (K'.mem_B_left (f.map_mem_F (p + 1) n haF) ?_) ?_
+  · rw [f.comm_d]
+    exact f.map_mem_F (p + r) m hda
+  · refine K'.mem_B_right (f.map_mem_F (p - r + 1) l hbF) ?_
+    rw [f.comm_d]
+    exact f.map_mem_F p n hdb
+
+/-- The map on boundary submodules induced by a filtered cochain map. -/
+def Hom.mapB (f : K ⟶ K') (r p l n m : ℤ) :
+    ↥(K.B r p l n m) →ₗ[R] ↥(K'.B r p l n m) :=
+  (f.toHom.f n).hom.restrict fun _ hx ↦ f.map_B hx
+
+@[simp] lemma Hom.mapB_coe (f : K ⟶ K') (r p l n m : ℤ)
+    (x : ↥(K.B r p l n m)) :
+    (f.mapB r p l n m x : K'.X n) = (f.toHom.f n).hom x := rfl
+
+/-- The map on cocycles induced by a filtered cochain map. -/
+def Hom.mapZ (f : K ⟶ K') (r p n m : ℤ) :
+    ↥(K.Z r p n m) →ₗ[R] ↥(K'.Z r p n m) :=
+  (f.toHom.f n).hom.restrict fun _ hx ↦ f.map_Z hx
+
+@[simp] lemma Hom.mapZ_coe (f : K ⟶ K') (r p n m : ℤ) (x : ↥(K.Z r p n m)) :
+    (f.mapZ r p n m x : K'.X n) = (f.toHom.f n).hom x := rfl
+
+/-- The map on an `r`-page induced by a filtered cochain map. -/
+def Hom.mapPage (f : K ⟶ K') (r p n : ℤ) : K.page r p n →ₗ[R] K'.page r p n :=
+  Submodule.mapQ _ _ (f.mapZ r p n (n + 1)) (by
+    intro x hx
+    simp only [Submodule.mem_comap, Submodule.coe_subtype, Hom.mapZ_coe] at hx ⊢
+    exact f.map_B hx)
+
+@[simp] lemma Hom.mapPage_mk (f : K ⟶ K') (r p n : ℤ)
+    (x : ↥(K.Z r p n (n + 1))) :
+    f.mapPage r p n (Submodule.Quotient.mk x) =
+      Submodule.Quotient.mk (f.mapZ r p n (n + 1) x) :=
+  Submodule.mapQ_apply _ _ _ x
+
+@[simp] lemma Hom.mapPage_id (K : FilteredComplex.{u, v} R) (r p n : ℤ) :
+    (𝟙 K : K ⟶ K).mapPage r p n = LinearMap.id := by
+  apply Submodule.linearMap_qext
+  ext x
+  rfl
+
+@[simp] lemma Hom.mapPage_comp (f : K ⟶ K') (g : K' ⟶ K'') (r p n : ℤ) :
+    (f ≫ g).mapPage r p n = (g.mapPage r p n).comp (f.mapPage r p n) := by
+  apply Submodule.linearMap_qext
+  ext x
+  simp only [Hom.mapPage_mk, LinearMap.comp_apply, Submodule.mkQ_apply]
+  congr 1
+
+/-- Naturality of page differentials with respect to filtered cochain maps. -/
+theorem Hom.mapPage_dPageAux (f : K ⟶ K') (r p q n m : ℤ)
+    (hq : q = p + r) (hm : m = n + 1) :
+    (f.mapPage r q m).comp (K.dPageAux r p q n m hq hm) =
+      (K'.dPageAux r p q n m hq hm).comp (f.mapPage r p n) := by
+  apply Submodule.linearMap_qext
+  ext x
+  simp only [LinearMap.comp_apply, Submodule.mkQ_apply, dPageAux_mk, Hom.mapPage_mk]
+  congr 1
+  apply Subtype.ext
+  simpa only [Hom.mapZ_coe, dZ_coe] using (f.comm_d n m x).symm
+
+end Functoriality
 
 end FilteredComplex

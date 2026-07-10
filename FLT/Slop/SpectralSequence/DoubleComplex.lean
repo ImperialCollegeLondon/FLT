@@ -6,6 +6,8 @@ Authors: Akhil Mathew
 module
 
 public import FLT.Slop.SpectralSequence.FiveTerm
+public import Mathlib.Algebra.Category.ModuleCat.Colimits
+public import Mathlib.Algebra.Homology.TotalComplex
 public import Mathlib.Algebra.DirectSum.Module
 
 /-!
@@ -22,8 +24,8 @@ filtrations).  This is the first result of Vakil, *The Rising Sea*, §1.7.
 
 ## Main definitions
 
-* `DoubleComplex` : a double complex of modules, with all-pairs differentials
-  (only the consecutive components are meaningful) and anticommuting `dh`, `dv`.
+* `DoubleComplex` : mathlib's `HomologicalComplex₂` of modules, presented with
+  horizontal and signed vertical differentials `dh`, `dv` that anticommute.
 * `DoubleComplex.Tot`, `DoubleComplex.totalD` : the total complex and its total
   differential.
 * `DoubleComplex.colF`, `DoubleComplex.rowF` and `DoubleComplex.colFiltered`,
@@ -37,7 +39,7 @@ filtrations).  This is the first result of Vakil, *The Rising Sea*, §1.7.
 * `DoubleComplex.colPageOneEquiv`, `DoubleComplex.rowPageOneEquiv` :
   `ᴵE₁ ≅ ker(dv)/im(dv)` and `ᴵᴵE₁ ≅ ker(dh)/im(dh)` — the first pages are the
   vertical/horizontal cohomology (FOAG §1.7), built via the reusable
-  `homologyEquivOfSquares`.
+  `FilteredComplex.homologyEquivOfSquares`.
 * `DoubleComplex.colPageEquivGrH`, `DoubleComplex.rowPageEquivGrH` :
   **convergence** — for a first-quadrant double complex both spectral sequences
   converge to the associated graded of `H^n(Tot)`.
@@ -49,40 +51,127 @@ filtrations).  This is the first result of Vakil, *The Rising Sea*, §1.7.
 
 @[expose] public section
 
+open CategoryTheory CategoryTheory.Limits
 open Submodule LinearMap DirectSum
 
-/-- A **double complex** of modules, with all-pairs differentials: only the
-components `dh i (i+1) j j` (horizontal) and `dv i i j (j+1)` (vertical) are
-meaningful; the flexible index slots avoid dependent-type transport when forming
-the total complex.  The differentials anticommute, so the total differential
-squares to zero on the nose. -/
-structure DoubleComplex (R : Type*) [Ring R] where
-  /-- The modules. -/
-  A : ℤ → ℤ → Type*
-  [addCommGroup : ∀ i j, AddCommGroup (A i j)]
-  [module : ∀ i j, Module R (A i j)]
-  /-- The horizontal differential; only `dh i (i+1) j j` is meaningful. -/
-  dh : ∀ i i' j j' : ℤ, A i j →ₗ[R] A i' j'
-  /-- The vertical differential; only `dv i i j (j+1)` is meaningful. -/
-  dv : ∀ i i' j j' : ℤ, A i j →ₗ[R] A i' j'
-  /-- The horizontal differential squares to zero. -/
-  dh_dh : ∀ (i i' i'' j j' j'' : ℤ), i' = i + 1 → i'' = i' + 1 → j' = j → j'' = j →
-    ∀ x : A i j, dh i' i'' j' j'' (dh i i' j j' x) = 0
-  /-- The vertical differential squares to zero. -/
-  dv_dv : ∀ (i j j' j'' : ℤ), j' = j + 1 → j'' = j' + 1 →
-    ∀ x : A i j, dv i i j' j'' (dv i i j j' x) = 0
-  /-- The horizontal and vertical differentials anticommute. -/
-  anticomm : ∀ (i i' j jh jv jt : ℤ), i' = i + 1 → jh = j → jv = j + 1 → jt = j + 1 →
-    ∀ x : A i j, dv i' i' jh jt (dh i i' j jh x) + dh i i' jv jt (dv i i j jv x) = 0
+universe u v
 
-attribute [instance] DoubleComplex.addCommGroup DoubleComplex.module
+/-- A **double cochain complex** of `R`-modules, using mathlib's standard bicomplex API.
+
+The two native differentials commute.  Mathlib's total-complex convention multiplies
+the vertical differential in column `i` by `(-1)^i`, so the resulting horizontal and
+signed vertical differentials anticommute. -/
+abbrev DoubleComplex (R : Type u) [Ring R] :=
+  HomologicalComplex₂ (ModuleCat.{v} R) (ComplexShape.up ℤ) (ComplexShape.up ℤ)
 
 namespace DoubleComplex
 
-variable {R : Type*} [Ring R] (K : DoubleComplex R)
+variable {R : Type u} [Ring R] (K : DoubleComplex.{u, v} R)
+
+/-- The module in bidegree `(i,j)`. -/
+abbrev A (i j : ℤ) : Type v := (K.X i).X j
+
+/-- The horizontal differential, with a second row index for convenient transport.
+It is zero unless the two row indices agree. -/
+noncomputable def dh (i i' j j' : ℤ) : K.A i j →ₗ[R] K.A i' j' :=
+  if h : j = j' then
+    ((K.d i i').f j ≫
+      (HomologicalComplex₂.XXIsoOfEq (ModuleCat R) (ComplexShape.up ℤ)
+        (ComplexShape.up ℤ) K rfl h).hom).hom
+  else 0
+
+/-- The signed vertical differential, with a second column index for convenient
+transport.  The sign `(-1)^i` is exactly mathlib's standard total-complex sign;
+this differential anticommutes with `dh`. -/
+noncomputable def dv (i i' j j' : ℤ) : K.A i j →ₗ[R] K.A i' j' :=
+  if h : i = i' then
+    (i.negOnePow • ((K.X i).d j j' ≫
+      (HomologicalComplex₂.XXIsoOfEq (ModuleCat R) (ComplexShape.up ℤ)
+        (ComplexShape.up ℤ) K h rfl).hom)).hom
+  else 0
+
+@[simp]
+lemma dh_eq (i i' j : ℤ) : K.dh i i' j j = ((K.d i i').f j).hom := by
+  simp [dh]
+
+@[simp]
+lemma dv_eq (i j j' : ℤ) : K.dv i i j j' = (i.negOnePow • (K.X i).d j j').hom := by
+  simp [dv]
+
+/-- The standard total-complex sign does not change the kernel of a vertical
+differential. -/
+lemma ker_dv_eq_native (i j j' : ℤ) :
+    LinearMap.ker (K.dv i i j j') = LinearMap.ker ((K.X i).d j j').hom := by
+  rw [dv_eq]
+  ext x
+  simp only [LinearMap.mem_ker]
+  constructor
+  · intro hx
+    have := congr_arg (fun y ↦ i.negOnePow • y) hx
+    have hs : (↑i.negOnePow : ℤ) * ↑i.negOnePow = 1 := by
+      exact congr_arg Units.val (Int.units_mul_self i.negOnePow)
+    simpa only [Units.smul_def, ModuleCat.hom_zsmul, LinearMap.smul_apply, smul_zero,
+      smul_smul, hs, one_smul] using this
+  · intro hx
+    simp [hx]
+
+/-- The standard total-complex sign does not change the range of a vertical
+differential. -/
+lemma range_dv_eq_native (i j j' : ℤ) :
+    LinearMap.range (K.dv i i j j') = LinearMap.range ((K.X i).d j j').hom := by
+  rw [dv_eq]
+  apply le_antisymm
+  · rintro y ⟨x, rfl⟩
+    exact ⟨i.negOnePow • x, by simp⟩
+  · rintro y ⟨x, rfl⟩
+    exact ⟨i.negOnePow • x, by simp [smul_smul]⟩
+
+/-- The horizontal differential squares to zero. -/
+lemma dh_dh (i i' i'' j j' j'' : ℤ) (hi' : i' = i + 1) (hi'' : i'' = i' + 1)
+    (hj' : j' = j) (hj'' : j'' = j) (x : K.A i j) :
+    K.dh i' i'' j' j'' (K.dh i i' j j' x) = 0 := by
+  subst i' i'' j' j''
+  simp only [dh_eq]
+  have h := ModuleCat.hom_ext_iff.mp (K.d_f_comp_d_f i (i + 1) (i + 1 + 1) j)
+  simpa only [ModuleCat.hom_comp, LinearMap.comp_apply, ModuleCat.hom_zero,
+    LinearMap.zero_apply] using DFunLike.congr_fun h x
+
+/-- The signed vertical differential squares to zero. -/
+lemma dv_dv (i j j' j'' : ℤ) (hj' : j' = j + 1) (hj'' : j'' = j' + 1)
+    (x : K.A i j) : K.dv i i j' j'' (K.dv i i j j' x) = 0 := by
+  subst j' j''
+  simp only [dv_eq]
+  have hcat :
+      (i.negOnePow • (K.X i).d j (j + 1)) ≫
+          (i.negOnePow • (K.X i).d (j + 1) (j + 1 + 1)) = 0 := by
+    rw [Linear.units_smul_comp, Linear.comp_units_smul, smul_smul,
+      Int.units_mul_self, one_smul, (K.X i).d_comp_d]
+  have hx := DFunLike.congr_fun (ModuleCat.hom_ext_iff.mp hcat) x
+  simpa only [ModuleCat.hom_comp, LinearMap.comp_apply, ModuleCat.hom_zero,
+    LinearMap.zero_apply] using hx
+
+/-- The horizontal and signed vertical differentials anticommute. -/
+lemma anticomm (i i' j jh jv jt : ℤ) (hi' : i' = i + 1) (hjh : jh = j)
+    (hjv : jv = j + 1) (hjt : jt = j + 1) (x : K.A i j) :
+    K.dv i' i' jh jt (K.dh i i' j jh x) + K.dh i i' jv jt (K.dv i i j jv x) = 0 := by
+  subst i' jh jv jt
+  simp only [dh_eq, dv_eq]
+  have hcat :
+      (K.d i (i + 1)).f j ≫ ((i + 1).negOnePow • (K.X (i + 1)).d j (j + 1)) +
+          (i.negOnePow • (K.X i).d j (j + 1)) ≫ (K.d i (i + 1)).f (j + 1) = 0 := by
+    rw [Linear.comp_units_smul, Linear.units_smul_comp, Int.negOnePow_succ,
+      Units.neg_smul, K.d_comm, neg_add_cancel]
+  have hx := DFunLike.congr_fun (ModuleCat.hom_ext_iff.mp hcat) x
+  simpa only [ModuleCat.hom_add, LinearMap.add_apply, ModuleCat.hom_comp,
+    LinearMap.comp_apply, ModuleCat.hom_zero, LinearMap.zero_apply] using hx
 
 /-- The total module `Tot^n = ⊕_i A^{i, n-i}`. -/
 abbrev Tot (n : ℤ) := ⨁ i : ℤ, K.A i (n - i)
+
+/-- Mathlib's categorical coproduct total complex.  The explicit direct-sum model
+below is canonically identified with it by `totalIso`. -/
+noncomputable abbrev standardTotal : CochainComplex (ModuleCat.{v} R) ℤ :=
+  HomologicalComplex₂.total K (ComplexShape.up ℤ)
 
 /-- The total differential `dh + dv` (meaningful for `m = n + 1`). -/
 noncomputable def totalD (n m : ℤ) : K.Tot n →ₗ[R] K.Tot m :=
@@ -97,6 +186,32 @@ noncomputable def totalD (n m : ℤ) : K.Tot n →ₗ[R] K.Tot m :=
           (K.dh i (i + 1) (n - i) (m - (i + 1)) x)
         + DirectSum.lof R ℤ (fun i' ↦ K.A i' (m - i')) i (K.dv i i (n - i) (m - i) x) := by
   simp [totalD]
+
+lemma totalD_shape (n m : ℤ) (h : ¬ (ComplexShape.up ℤ).Rel n m) :
+    K.totalD n m = 0 := by
+  apply DirectSum.linearMap_ext
+  intro i
+  ext x
+  rw [LinearMap.comp_apply, totalD_lof]
+  have hnm : m ≠ n + 1 := by simpa only [ComplexShape.up_Rel, eq_comm] using h
+  have hh : K.dh i (i + 1) (n - i) (m - (i + 1)) = 0 := by
+    rw [dh]
+    split_ifs with heq
+    · exfalso
+      apply hnm
+      omega
+    · rfl
+  have hv : K.dv i i (n - i) (m - i) = 0 := by
+    rw [dv, dif_pos rfl]
+    have hs : ¬ (ComplexShape.up ℤ).Rel (n - i) (m - i) := by
+      intro hs
+      apply hnm
+      simp only [ComplexShape.up_Rel] at hs
+      omega
+    rw [(K.X i).shape _ _ hs]
+    simp
+  rw [hh, hv]
+  simp
 
 lemma totalD_totalD (n m t : ℤ) (hm : m = n + 1) (ht : t = m + 1) (x : K.Tot n) :
     K.totalD m t (K.totalD n m x) = 0 := by
@@ -113,6 +228,186 @@ lemma totalD_totalD (n m t : ℤ) (hm : m = n + 1) (ht : t = m + 1) (x : K.Tot n
     rw [map_zero]
   | add x y hx hy =>
     rw [map_add, map_add, hx, hy, add_zero]
+
+/-- A concrete direct-sum total complex using mathlib's standard sign convention. -/
+noncomputable def totalCochainComplex : CochainComplex (ModuleCat.{v} R) ℤ where
+  X n := ModuleCat.of R (K.Tot n)
+  d n m := ModuleCat.ofHom (K.totalD n m)
+  shape n m h := by
+    rw [K.totalD_shape n m h]
+    rfl
+  d_comp_d' n m t hm ht := by
+    apply ModuleCat.hom_ext
+    apply LinearMap.ext
+    intro x
+    exact K.totalD_totalD n m t (by simpa only [ComplexShape.up_Rel] using hm.symm)
+      (by simpa only [ComplexShape.up_Rel] using ht.symm) x
+
+@[simp]
+lemma totalCochainComplex_d_hom (n m : ℤ) :
+    (K.totalCochainComplex.d n m).hom = K.totalD n m := rfl
+
+/-- The canonical map from the concrete direct-sum total in degree `n` to
+mathlib's categorical coproduct total. -/
+noncomputable def totToStandardTotal (n : ℤ) :
+    ModuleCat.of R (K.Tot n) ⟶ (K.standardTotal).X n :=
+  ModuleCat.ofHom <| DirectSum.toModule R ℤ _ fun i ↦
+    (HomologicalComplex₂.ιTotal K (ComplexShape.up ℤ) i (n - i) n (by
+      change i + (n - i) = n
+      omega)).hom
+
+/-- The canonical map from mathlib's categorical coproduct total in degree `n`
+to the concrete direct sum. -/
+noncomputable def standardTotalToTot (n : ℤ) :
+    (K.standardTotal).X n ⟶ ModuleCat.of R (K.Tot n) :=
+  HomologicalComplex₂.totalDesc K fun i j h ↦
+    (HomologicalComplex₂.XXIsoOfEq (ModuleCat R) (ComplexShape.up ℤ)
+      (ComplexShape.up ℤ) K rfl (by
+        change i + j = n at h
+        omega)).hom ≫
+      ModuleCat.ofHom (DirectSum.lof R ℤ (fun i' ↦ K.A i' (n - i')) i)
+
+/-- A concrete direct-sum inclusion followed by `totToStandardTotal` is
+mathlib's corresponding total-complex inclusion. -/
+@[reassoc (attr := simp)]
+lemma lof_totToStandardTotal (n i : ℤ) :
+    ModuleCat.ofHom (DirectSum.lof R ℤ (fun i' ↦ K.A i' (n - i')) i) ≫
+        K.totToStandardTotal n =
+      HomologicalComplex₂.ιTotal K (ComplexShape.up ℤ) i (n - i) n (by
+        change i + (n - i) = n
+        omega) := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  change (DirectSum.toModule R ℤ _
+      (fun i ↦ (HomologicalComplex₂.ιTotal K (ComplexShape.up ℤ) i (n - i) n (by
+        change i + (n - i) = n
+        omega)).hom))
+      (DirectSum.lof R ℤ (fun i' ↦ K.A i' (n - i')) i x) =
+    (HomologicalComplex₂.ιTotal K (ComplexShape.up ℤ) i (n - i) n (by
+      change i + (n - i) = n
+      omega)).hom x
+  apply DirectSum.toModule_lof
+
+/-- A mathlib total-complex inclusion followed by `standardTotalToTot` is the
+corresponding concrete direct-sum inclusion, up to the canonical index transport. -/
+@[reassoc (attr := simp)]
+lemma ιTotal_standardTotalToTot (n i j : ℤ)
+    (h : ComplexShape.π (ComplexShape.up ℤ) (ComplexShape.up ℤ)
+      (ComplexShape.up ℤ) (i, j) = n) :
+    HomologicalComplex₂.ιTotal K (ComplexShape.up ℤ) i j n h ≫
+        K.standardTotalToTot n =
+      (HomologicalComplex₂.XXIsoOfEq (ModuleCat R) (ComplexShape.up ℤ)
+        (ComplexShape.up ℤ) K rfl (by
+          change i + j = n at h
+          omega)).hom ≫
+        ModuleCat.ofHom (DirectSum.lof R ℤ (fun i' ↦ K.A i' (n - i')) i) := by
+  apply HomologicalComplex₂.ι_totalDesc
+
+/-- The canonical isomorphism between the concrete and categorical total objects
+in a fixed degree. -/
+noncomputable def totalIsoX (n : ℤ) :
+    ModuleCat.of R (K.Tot n) ≅ (K.standardTotal).X n where
+  hom := K.totToStandardTotal n
+  inv := K.standardTotalToTot n
+  hom_inv_id := by
+    apply ModuleCat.hom_ext
+    apply DirectSum.linearMap_ext
+    intro i
+    change (ModuleCat.ofHom (DirectSum.lof R ℤ (fun i' ↦ K.A i' (n - i')) i) ≫
+      K.totToStandardTotal n ≫ K.standardTotalToTot n).hom =
+        (ModuleCat.ofHom (DirectSum.lof R ℤ (fun i' ↦ K.A i' (n - i')) i) ≫
+          𝟙 (ModuleCat.of R (K.Tot n))).hom
+    rw [K.lof_totToStandardTotal_assoc, K.ιTotal_standardTotalToTot]
+    simp
+  inv_hom_id := by
+    apply HomologicalComplex₂.total.hom_ext (ComplexShape.up ℤ)
+    intro i j h
+    rw [← Category.assoc, K.ιTotal_standardTotalToTot, Category.assoc,
+      K.lof_totToStandardTotal]
+    simp
+
+/-- The concrete total differential on a direct-sum inclusion, expressed
+categorically. -/
+@[reassoc]
+lemma lof_totalCochainComplex_d (n m i : ℤ) :
+    ModuleCat.ofHom (DirectSum.lof R ℤ (fun i' ↦ K.A i' (n - i')) i) ≫
+        K.totalCochainComplex.d n m =
+      ModuleCat.ofHom (K.dh i (i + 1) (n - i) (m - (i + 1))) ≫
+          ModuleCat.ofHom (DirectSum.lof R ℤ (fun i' ↦ K.A i' (m - i')) (i + 1)) +
+        ModuleCat.ofHom (K.dv i i (n - i) (m - i)) ≫
+          ModuleCat.ofHom (DirectSum.lof R ℤ (fun i' ↦ K.A i' (m - i')) i) := by
+  apply ModuleCat.hom_ext
+  apply LinearMap.ext
+  intro x
+  exact K.totalD_lof n m i x
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The horizontal contribution to mathlib's total differential agrees with
+the horizontal contribution in the concrete direct-sum model. -/
+lemma d₁_eq_concrete (n m i : ℤ) (hm : m = n + 1) :
+    HomologicalComplex₂.d₁ K (ComplexShape.up ℤ) i (n - i) m =
+      ModuleCat.ofHom (K.dh i (i + 1) (n - i) (m - (i + 1))) ≫
+        HomologicalComplex₂.ιTotal K (ComplexShape.up ℤ) (i + 1) (m - (i + 1)) m (by
+          change (i + 1) + (m - (i + 1)) = m
+          omega) := by
+  have hi : (ComplexShape.up ℤ).Rel i (i + 1) := by simp
+  have htarget : ComplexShape.π (ComplexShape.up ℤ) (ComplexShape.up ℤ)
+      (ComplexShape.up ℤ) (i + 1, n - i) = m := by
+    change (i + 1) + (n - i) = m
+    omega
+  rw [HomologicalComplex₂.d₁_eq K (ComplexShape.up ℤ) hi (n - i) m htarget]
+  have hj : n - i = m - (i + 1) := by omega
+  rw [dh, dif_pos hj]
+  change (1 : ℤˣ) • ((K.d i (i + 1)).f (n - i) ≫
+      HomologicalComplex₂.ιTotal K (ComplexShape.up ℤ) (i + 1) (n - i) m htarget) = _
+  rw [one_smul]
+  simp only [ModuleCat.ofHom_hom, Category.assoc]
+  rw [HomologicalComplex₂.XXIsoOfEq_hom_ιTotal]
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The vertical contribution to mathlib's total differential agrees with the
+signed vertical contribution in the concrete direct-sum model. -/
+lemma d₂_eq_concrete (n m i : ℤ) (hm : m = n + 1) :
+    HomologicalComplex₂.d₂ K (ComplexShape.up ℤ) i (n - i) m =
+      ModuleCat.ofHom (K.dv i i (n - i) (m - i)) ≫
+        HomologicalComplex₂.ιTotal K (ComplexShape.up ℤ) i (m - i) m (by
+          change i + (m - i) = m
+          omega) := by
+  have hj : (ComplexShape.up ℤ).Rel (n - i) (m - i) := by
+    simp only [ComplexShape.up_Rel]
+    omega
+  have htarget : ComplexShape.π (ComplexShape.up ℤ) (ComplexShape.up ℤ)
+      (ComplexShape.up ℤ) (i, m - i) = m := by
+    change i + (m - i) = m
+    omega
+  rw [HomologicalComplex₂.d₂_eq K (ComplexShape.up ℤ) i hj m htarget]
+  rw [dv_eq]
+  change i.negOnePow • ((K.X i).d (n - i) (m - i) ≫
+      HomologicalComplex₂.ιTotal K (ComplexShape.up ℤ) i (m - i) m htarget) =
+    (i.negOnePow • (K.X i).d (n - i) (m - i)) ≫
+      HomologicalComplex₂.ιTotal K (ComplexShape.up ℤ) i (m - i) m _
+  rw [Linear.units_smul_comp]
+
+set_option backward.isDefEq.respectTransparency false in
+/-- The concrete direct-sum total complex is canonically isomorphic to mathlib's
+categorical coproduct total complex. -/
+noncomputable def totalIso : K.totalCochainComplex ≅ K.standardTotal :=
+  HomologicalComplex.Hom.isoOfComponents (K.totalIsoX) (fun n m h ↦ by
+    apply ModuleCat.hom_ext
+    apply DirectSum.linearMap_ext
+    intro i
+    change (ModuleCat.ofHom (DirectSum.lof R ℤ (fun i' ↦ K.A i' (n - i')) i) ≫
+        (K.totalIsoX n).hom ≫ K.standardTotal.d n m).hom =
+      (ModuleCat.ofHom (DirectSum.lof R ℤ (fun i' ↦ K.A i' (n - i')) i) ≫
+        K.totalCochainComplex.d n m ≫ (K.totalIsoX m).hom).hom
+    apply congr_arg ModuleCat.Hom.hom
+    dsimp only [totalIsoX]
+    rw [K.lof_totToStandardTotal_assoc, HomologicalComplex₂.total_d]
+    simp only [Preadditive.comp_add, HomologicalComplex₂.ι_D₁, HomologicalComplex₂.ι_D₂]
+    rw [← Category.assoc, K.lof_totalCochainComplex_d, Preadditive.add_comp,
+      Category.assoc, K.lof_totToStandardTotal, Category.assoc, K.lof_totToStandardTotal]
+    rw [K.d₁_eq_concrete n m i h.symm, K.d₂_eq_concrete n m i h.symm])
 
 /-- The **column filtration** `F_I^p Tot^n = ⊕_{i ≥ p} A^{i, n-i}`. -/
 def colF (p n : ℤ) : Submodule R (K.Tot n) :=
@@ -161,27 +456,33 @@ lemma totalD_mem_rowF (p n m : ℤ) (hm : m = n + 1) {x : K.Tot n} (hx : x ∈ K
 
 /-- The filtered complex given by the column filtration on the total complex. -/
 noncomputable def colFiltered : FilteredComplex R where
-  X := K.Tot
-  d := K.totalD
-  d_comp_d := fun i j k hj hk x ↦ K.totalD_totalD i j k hj hk x
+  toCochainComplex := K.totalCochainComplex
   F := K.colF
-  F_le := fun p n ↦ by
+  antitone_F := fun n p q hp ↦ by
     refine iSup₂_le fun i hi ↦ ?_
     exact le_iSup₂ (f := fun i' _ ↦
-      LinearMap.range (DirectSum.lof R ℤ (fun i'' ↦ K.A i'' (n - i'')) i')) i (by omega)
-  d_mem_F := fun p i j _ x hx ↦ K.totalD_mem_colF p i j hx
+      LinearMap.range (DirectSum.lof R ℤ (fun i'' ↦ K.A i'' (n - i'')) i')) i
+      (hp.trans hi)
+  map_d_le := fun p i j ↦ by
+    rintro y ⟨x, hx, rfl⟩
+    exact K.totalD_mem_colF p i j hx
 
 /-- The filtered complex given by the row filtration on the total complex. -/
 noncomputable def rowFiltered : FilteredComplex R where
-  X := K.Tot
-  d := K.totalD
-  d_comp_d := fun i j k hj hk x ↦ K.totalD_totalD i j k hj hk x
+  toCochainComplex := K.totalCochainComplex
   F := K.rowF
-  F_le := fun p n ↦ by
+  antitone_F := fun n p q hp ↦ by
     refine iSup₂_le fun i hi ↦ ?_
     exact le_iSup₂ (f := fun i' _ ↦
-      LinearMap.range (DirectSum.lof R ℤ (fun i'' ↦ K.A i'' (n - i'')) i')) i (by omega)
-  d_mem_F := fun p i j hj x hx ↦ K.totalD_mem_rowF p i j hj hx
+      LinearMap.range (DirectSum.lof R ℤ (fun i'' ↦ K.A i'' (n - i'')) i')) i
+      (hp.trans hi)
+  map_d_le := fun p i j ↦ by
+    change (K.rowF p i).map (K.totalD i j) ≤ K.rowF p j
+    by_cases hj : j = i + 1
+    · rintro y ⟨x, hx, rfl⟩
+      exact K.totalD_mem_rowF p i j hj hx
+    · rw [K.totalD_shape i j (by simpa only [ComplexShape.up_Rel, eq_comm] using hj)]
+      simp
 
 /-- The two filtered complexes share the underlying complex, hence they have the
 same cohomology: both spectral sequences abut to `H^n(Tot)`. -/
@@ -347,7 +648,7 @@ end GradedPieces
 
 /-! ### First-quadrant boundedness -/
 
-section FirstQuadrant
+section IsFirstQuadrant
 
 variable (hfq : ∀ i j : ℤ, i < 0 ∨ j < 0 → Subsingleton (K.A i j))
 
@@ -419,37 +720,37 @@ noncomputable def rowPageEquivGrH {r p n : ℤ} (hr1 : n + 1 < p + r) (hr2 : p -
         (K.rowFiltered.FH (p + 1) n).comap (K.rowFiltered.FH p n).subtype) :=
   K.rowFiltered.pageEquivGrHOfBounded (K.rowF_eq_bot hfq hr1) (K.rowF_eq_top hfq hr2)
 
-/-- The column filtration of a first-quadrant double complex is `FirstQuadrant`. -/
-theorem colFiltered_firstQuadrant : K.colFiltered.FirstQuadrant :=
+/-- The column filtration of a first-quadrant double complex is `IsFirstQuadrant`. -/
+theorem colFiltered_isFirstQuadrant : K.colFiltered.IsFirstQuadrant :=
   ⟨fun h ↦ K.colF_eq_bot hfq h, fun h ↦ K.colF_eq_top hfq h⟩
 
-/-- The row filtration of a first-quadrant double complex is `FirstQuadrant`. -/
-theorem rowFiltered_firstQuadrant : K.rowFiltered.FirstQuadrant :=
+/-- The row filtration of a first-quadrant double complex is `IsFirstQuadrant`. -/
+theorem rowFiltered_isFirstQuadrant : K.rowFiltered.IsFirstQuadrant :=
   ⟨fun h ↦ K.rowF_eq_bot hfq h, fun h ↦ K.rowF_eq_top hfq h⟩
 
 /-- **Five-term exact sequence of the first (column) spectral sequence** of a
 first-quadrant double complex:
 `0 → ᴵE_2^{1,0} → H¹(Tot) → ᴵE_2^{0,1} →^{d₂} ᴵE_2^{2,0} → H²(Tot)`. -/
 theorem colFiltered_five_term_exact :
-    Function.Injective (FilteredComplex.f1 (K.colFiltered_firstQuadrant hfq)) ∧
-    Function.Exact (FilteredComplex.f1 (K.colFiltered_firstQuadrant hfq))
-      (FilteredComplex.f2 (K.colFiltered_firstQuadrant hfq)) ∧
-    Function.Exact (FilteredComplex.f2 (K.colFiltered_firstQuadrant hfq)) K.colFiltered.d2 ∧
-    Function.Exact K.colFiltered.d2 (FilteredComplex.f4 (K.colFiltered_firstQuadrant hfq)) :=
-  K.colFiltered.five_term_exact (K.colFiltered_firstQuadrant hfq)
+    Function.Injective (FilteredComplex.f1 (K.colFiltered_isFirstQuadrant hfq)) ∧
+    Function.Exact (FilteredComplex.f1 (K.colFiltered_isFirstQuadrant hfq))
+      (FilteredComplex.f2 (K.colFiltered_isFirstQuadrant hfq)) ∧
+    Function.Exact (FilteredComplex.f2 (K.colFiltered_isFirstQuadrant hfq)) K.colFiltered.d2 ∧
+    Function.Exact K.colFiltered.d2 (FilteredComplex.f4 (K.colFiltered_isFirstQuadrant hfq)) :=
+  K.colFiltered.five_term_exact (K.colFiltered_isFirstQuadrant hfq)
 
 /-- **Five-term exact sequence of the second (row) spectral sequence** of a
 first-quadrant double complex:
 `0 → ᴵᴵE_2^{1,0} → H¹(Tot) → ᴵᴵE_2^{0,1} →^{d₂} ᴵᴵE_2^{2,0} → H²(Tot)`. -/
 theorem rowFiltered_five_term_exact :
-    Function.Injective (FilteredComplex.f1 (K.rowFiltered_firstQuadrant hfq)) ∧
-    Function.Exact (FilteredComplex.f1 (K.rowFiltered_firstQuadrant hfq))
-      (FilteredComplex.f2 (K.rowFiltered_firstQuadrant hfq)) ∧
-    Function.Exact (FilteredComplex.f2 (K.rowFiltered_firstQuadrant hfq)) K.rowFiltered.d2 ∧
-    Function.Exact K.rowFiltered.d2 (FilteredComplex.f4 (K.rowFiltered_firstQuadrant hfq)) :=
-  K.rowFiltered.five_term_exact (K.rowFiltered_firstQuadrant hfq)
+    Function.Injective (FilteredComplex.f1 (K.rowFiltered_isFirstQuadrant hfq)) ∧
+    Function.Exact (FilteredComplex.f1 (K.rowFiltered_isFirstQuadrant hfq))
+      (FilteredComplex.f2 (K.rowFiltered_isFirstQuadrant hfq)) ∧
+    Function.Exact (FilteredComplex.f2 (K.rowFiltered_isFirstQuadrant hfq)) K.rowFiltered.d2 ∧
+    Function.Exact K.rowFiltered.d2 (FilteredComplex.f4 (K.rowFiltered_isFirstQuadrant hfq)) :=
+  K.rowFiltered.five_term_exact (K.rowFiltered_isFirstQuadrant hfq)
 
-end FirstQuadrant
+end IsFirstQuadrant
 
 /-! ### The first page: `E₁` is the vertical/horizontal cohomology
 
@@ -458,8 +759,10 @@ The zeroth page of the column spectral sequence is the double complex itself
 under that identification to the *vertical* differential `dv`.  Consequently the
 first page `ᴵE₁^{p,n}` is the vertical cohomology of the `p`-th column.  Dually,
 the row spectral sequence has `d₀ = dh` (horizontal), so `ᴵᴵE₁` is horizontal
-cohomology.  This is the differential-level half of Vakil, *The Rising Sea*,
-§1.7 (`E₁ = H(gr)` made concrete for a double complex). -/
+cohomology.  Here `dv` includes mathlib's `(-1)^p` total-complex sign; the lemmas
+`ker_dv_eq_native` and `range_dv_eq_native` identify its homology with that of the
+native vertical differential.  This is the differential-level half of Vakil,
+*The Rising Sea*, §1.7 (`E₁ = H(gr)` made concrete for a double complex). -/
 
 section FirstPage
 
@@ -572,7 +875,7 @@ noncomputable def colPageOneEquiv (p a : ℤ) :
     K.colFiltered.page 1 p a ≃ₗ[R]
       (↥(ker (K.dvOut p a)) ⧸ (range (K.dvIn p a)).comap (ker (K.dvOut p a)).subtype) :=
   (K.colFiltered.pageSuccEquiv' 0 p p p a (by ring) (by ring)).trans <|
-    homologyEquivOfSquares
+    FilteredComplex.homologyEquivOfSquares
       (e := K.colPageZeroEquiv p a)
       (fout := K.colFiltered.dPageAux 0 p p a (a + 1) (by ring) rfl)
       (gout := K.dvOut p a)
@@ -729,7 +1032,7 @@ noncomputable def rowPageOneEquiv (p a : ℤ) :
     K.rowFiltered.page 1 p a ≃ₗ[R]
       (↥(ker (K.dhOut p a)) ⧸ (range (K.dhIn p a)).comap (ker (K.dhOut p a)).subtype) :=
   (K.rowFiltered.pageSuccEquiv' 0 p p p a (by ring) (by ring)).trans <|
-    homologyEquivOfSquares
+    FilteredComplex.homologyEquivOfSquares
       (e := K.rowPageZeroEquiv p a)
       (fout := K.rowFiltered.dPageAux 0 p p a (a + 1) (by ring) rfl)
       (gout := K.dhOut p a)
