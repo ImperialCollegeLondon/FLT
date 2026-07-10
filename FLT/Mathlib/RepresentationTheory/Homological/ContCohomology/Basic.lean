@@ -111,8 +111,8 @@ def resolutionXCast (X : TopRep k G) {i j : ℕ} (h : i = j) :
 
 lemma resolutionXCast_apply (X : TopRep k G) {i j : ℕ} (h : i + 1 = j + 1)
     (F : ↥(resolutionX X (i + 1))) (x : G) :
-    resolutionXCast X h F x = resolutionXCast X (by omega : i = j) (F x) := by
-  obtain rfl : i = j := by omega
+    resolutionXCast X h F x = resolutionXCast X (by lia : i = j) (F x) := by
+  obtain rfl : i = j := by lia
   rfl
 
 lemma resolutionXCast_trans (X : TopRep k G) {i j l : ℕ} (h1 : i = j) (h2 : j = l)
@@ -122,7 +122,7 @@ lemma resolutionXCast_trans (X : TopRep k G) {i j l : ℕ} (h1 : i = j) (h2 : j 
 
 lemma d_hom_resolutionXCast (X : TopRep k G) {i j : ℕ} (h : i = j) (y : ↥(resolutionX X i)) :
     (d X j).hom (resolutionXCast X h y) =
-      resolutionXCast X (by omega : i + 1 = j + 1) ((d X i).hom y) := by
+      resolutionXCast X (by lia : i + 1 = j + 1) ((d X i).hom y) := by
   subst h; rfl
 
 /-- The zeroth differential of the standard resolution is the constant-function embedding. -/
