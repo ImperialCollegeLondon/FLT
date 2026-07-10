@@ -38,9 +38,6 @@ Material destined for `Mathlib.RepresentationTheory.Homological.ContCohomology.B
 
 @[expose] public section
 
-set_option allowUnsafeReducibility true in
-attribute [local reducible] CategoryTheory.Functor.mapHomologicalComplex
-
 universe u v w
 
 open CategoryTheory ContinuousLinearMap.CompactOpen
