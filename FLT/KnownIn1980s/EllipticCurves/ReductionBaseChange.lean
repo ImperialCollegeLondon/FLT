@@ -85,7 +85,7 @@ valuation chase along the chain *adic over `k` → canonical over `k` → canoni
    coefficient of `E.baseChange l` is `algebraMap k l` of the corresponding coefficient
    of `E`, and `valuation_algebraMap_le_one` keeps it integral
    (`isIntegral_of_exists_lift`). For the splitness clause we also record
-   `integralModel_baseChange`: the integral model of the base change is the
+   `integralModel_baseChange_map`: the integral model of the base change is the
    `integerMap`-image of the integral model, by uniqueness of lifts along the injective
    map `𝒪[l] → l`.
 
@@ -106,7 +106,7 @@ valuation chase along the chain *adic over `k` → canonical over `k` → canoni
    (`IsLocalRing.ResidueField.map (integerMap k l)`), and a split polynomial stays split
    under any ring map (`Polynomial.Splits.map`). Splitness can only be gained, never
    lost, when the residue field grows. This is the only step that uses `integerMap`,
-   `residueMap` and `integralModel_baseChange`.
+   `residueMap` and `integralModel_baseChange_map`.
 
 The base-change transfer is packaged as `theorem`s here rather than `instance`s, so that
 the consuming instances live in `FLT.KnownIn1980s.EllipticCurves.TateCurve`, where this file
@@ -165,7 +165,7 @@ maps it into `(valuation l).integer`.
 
 Implementation note: it may be worth defining the `Algebra 𝒪[k] 𝒪[l]` instance directly
 instead, so that `WeierstrassCurve.baseChange` (rather than `map`) can be used on
-integral models in `integralModel_baseChange` below; whichever is chosen, this is the
+integral models in `integralModel_baseChange_map` below; whichever is chosen, this is the
 underlying ring homomorphism. -/
 noncomputable def integerMap : 𝒪[k] →+* 𝒪[l] :=
   (algebraMap k l).restrict 𝒪[k] 𝒪[l] fun _ hx ↦
@@ -274,7 +274,7 @@ Both sides are lifts of `E.baseChange l` along the *injective* map `𝒪[l] → 
 (injectivity from `IsFractionRing`), and lifts along an injective map are unique:
 compare coefficientwise via `integralModel_a₁_eq` on both sides and the commuting square
 `algebraMap_integerMap`. (Only the splitness clause of step 5 consumes this.) -/
-theorem integralModel_baseChange [IsIntegral 𝒪[k] E] :
+theorem integralModel_baseChange_map [IsIntegral 𝒪[k] E] :
     integralModel 𝒪[l] (E.baseChange l) =
       (integralModel 𝒪[k] E).map (integerMap k l) := by
   -- both sides base change to `E.baseChange l`; `𝒪[l] → l` is injective, so `map` is
@@ -350,38 +350,17 @@ theorem hasMultiplicativeReduction_baseChange [HasMultiplicativeReduction 𝒪[k
   badReduction := valuation_Δ_baseChange_lt_one E
   multiplicativeReduction := valuation_c₄_baseChange_eq_one E
 
-open Polynomial in
-/-- The tangent-cone quadratic `c₄T² + a₁c₄T - (54b₆ - 3b₂b₄ + a₂c₄)` whose splitting over
-the residue field defines split multiplicative reduction (Silverman AEC, VII, and mathlib's
-`HasSplitMultiplicativeReduction.splitMultiplicativeReduction`). Factored out so that its
-naturality `splitQuadratic_map` can drive the base-change argument. -/
-private noncomputable def splitQuadratic {A : Type*} [CommRing A] (W : WeierstrassCurve A) :
-    A[X] :=
-  C W.c₄ * X ^ 2 + C (W.a₁ * W.c₄) * X - C (54 * W.b₆ - 3 * W.b₂ * W.b₄ + W.a₂ * W.c₄)
-
-/-- The tangent-cone quadratic is natural in the coefficient ring: it commutes with any
-ring homomorphism, since every coefficient is a polynomial in the `aᵢ` and `map` is a ring
-homomorphism on each. -/
-private lemma splitQuadratic_map {A B : Type*} [CommRing A] [CommRing B]
-    (W : WeierstrassCurve A) (ψ : A →+* B) :
-    splitQuadratic (W.map ψ) = (splitQuadratic W).map ψ := by
-  simp only [splitQuadratic, WeierstrassCurve.map_c₄, WeierstrassCurve.map_a₁,
-    WeierstrassCurve.map_b₆, WeierstrassCurve.map_b₂, WeierstrassCurve.map_b₄,
-    WeierstrassCurve.map_a₂, Polynomial.map_add, Polynomial.map_sub, Polynomial.map_mul,
-    Polynomial.map_pow, Polynomial.map_C, Polynomial.map_X, Polynomial.map_ofNat, map_add,
-    map_sub, map_mul, map_ofNat]
-
 /-- Base change along a valuative extension preserves *split* multiplicative reduction:
 the residue field only grows, and a split quadratic stays split under any ring map.
 
 Proof: multiplicative reduction is `hasMultiplicativeReduction_baseChange`. For splitness, by
-`integralModel_baseChange` the integral model over `𝒪[l]` is `integerMap` of the one over
-`𝒪[k]`, so the tangent-cone quadratic transfers as `splitQuadratic_map`. The residue square
+`integralModel_baseChange_map` the integral model over `𝒪[l]` is `integerMap` of the one over
+`𝒪[k]`, so the node polynomial transfers as `map_nodePoly`. The residue square
 `residue 𝒪[l] ∘ integerMap = residueMap ∘ residue 𝒪[k]`
 (`IsLocalRing.ResidueField.map_residue`) and `Polynomial.map_map` identify the reduced
 quadratic over `𝓀[l]` with the `residueMap`-image of the reduced quadratic over `𝓀[k]`,
 which splits by hypothesis; conclude with `Polynomial.Splits.map`. This is the only place
-`integerMap`, `residueMap` and `integralModel_baseChange` are used.
+`integerMap`, `residueMap` and `integralModel_baseChange_map` are used.
 
 Stated as a `theorem` rather than an `instance` so that the *consuming* instance lives in
 `FLT.KnownIn1980s.EllipticCurves.TateCurve`; use it there via
@@ -393,7 +372,7 @@ theorem hasSplitMultiplicativeReduction_baseChange [HasSplitMultiplicativeReduct
     -- the `k`-quadratic splits over `𝓀[k]` by hypothesis
     have hsplit : Polynomial.Splits (Polynomial.map
         (algebraMap 𝒪[k] (IsLocalRing.ResidueField 𝒪[k]))
-        (splitQuadratic (integralModel 𝒪[k] E))) :=
+        (integralModel 𝒪[k] E).nodePoly) :=
       HasSplitMultiplicativeReduction.splitMultiplicativeReduction (R := 𝒪[k]) (W := E)
     -- the residue square `residue 𝒪[l] ∘ integerMap = residueMap ∘ residue 𝒪[k]`
     have hcomp : (IsLocalRing.residue 𝒪[l]).comp (integerMap k l)
@@ -401,8 +380,8 @@ theorem hasSplitMultiplicativeReduction_baseChange [HasSplitMultiplicativeReduct
       RingHom.ext fun x ↦ IsLocalRing.ResidueField.map_residue (integerMap k l) x
     -- push the `l`-quadratic through the square onto the `k`-quadratic and transfer splitting
     change Polynomial.Splits (Polynomial.map (algebraMap 𝒪[l] (IsLocalRing.ResidueField 𝒪[l]))
-      (splitQuadratic (integralModel 𝒪[l] (E.baseChange l))))
-    rw [integralModel_baseChange E, splitQuadratic_map, Polynomial.map_map,
+      (integralModel 𝒪[l] (E.baseChange l)).nodePoly)
+    rw [integralModel_baseChange_map E, map_nodePoly, Polynomial.map_map,
       IsLocalRing.ResidueField.algebraMap_eq, hcomp, ← IsLocalRing.ResidueField.algebraMap_eq,
       ← Polynomial.map_map]
     exact hsplit.map (residueMap k l)
