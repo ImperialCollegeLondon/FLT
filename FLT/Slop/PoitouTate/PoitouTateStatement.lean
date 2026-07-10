@@ -10,6 +10,7 @@ public import FLT.Slop.PoitouTate.GKSDefn
 public import FLT.Slop.PoitouTate.LocalGlobalMaps
 public import FLT.Slop.PoitouTate.DualModule
 public import FLT.Slop.PoitouTate.LocalTateDuality
+public import FLT.Slop.PoitouTate.KerPairing
 
 /-!
 # The statement of Poitou–Tate (blueprint §§2–5)
@@ -118,7 +119,7 @@ noncomputable def kerAlpha (X : TopRep 𝔽 (unramifiedOutsideGaloisGroup F S)) 
     Submodule 𝔽 ↥(continuousCohomology i X) :=
   LinearMap.ker (alpha 𝔽 F S X i)
 
-variable (M : TopRep 𝔽 (unramifiedOutsideGaloisGroup F S)) [Finite M] [DiscreteTopology M]
+variable (M : TopRep.{u} 𝔽 (unramifiedOutsideGaloisGroup F S)) [Finite M] [DiscreteTopology M]
 
 /-- Restricting the global dual `M* = Hom_ℤ(M, K_S^×)` to `G_v` agrees with the local dual
 `Hom_ℤ(M, K̄ᵥ^×)` of the restriction of `M`. The blueprint glosses this identification; it
@@ -151,12 +152,28 @@ noncomputable def beta (i j : ℕ) (hij : i + j = 2)
 so `f ∪ g = dh` for a `2`-cochain `h`; local triviality gives `res_v f = dφ_v` and
 `res_v g = dψ_v`; then `x_v := f_v ∪ ψ_v − h_v` is a local `2`-cocycle and
 `⟨f, g⟩ := ∑_{v ∈ S} inv_v(x_v)`. The cochain-level cup products are those of `cupprod.lean`;
-the construction is left as `sorry` here. -/
+the construction is `NumberField.PoitouTate.kerPairingFun` of `KerPairing.lean`, whose
+well-definedness (`pairingValue_congr`) and biadditivity rest on the reciprocity input
+`sum_localInvariantMap_map_eq_zero`. -/
 noncomputable def kerPairing
     (hS : ∀ w : HeightOneSpectrum (RingOfIntegers F),
       (Nat.card ↥M : RingOfIntegers F) ∈ w.asIdeal → w ∈ S) :
     ↥(kerAlpha 𝔽 F S M 2) →+ ↥(kerAlpha 𝔽 F S (dualRep 𝔽 F S M) 1) →+ AddCircle (1 : ℚ) :=
-  sorry
+  AddMonoidHom.mk'
+    (fun f => AddMonoidHom.mk'
+      (fun g => kerPairingFun hS f.1 g.1
+        (fun v => congrFun (LinearMap.mem_ker.mp g.2) v))
+      (fun g₁ g₂ => kerPairingFun_add_right hS f.1 g₁.1 g₂.1
+        (fun v => congrFun (LinearMap.mem_ker.mp f.2) v)
+        (fun v => congrFun (LinearMap.mem_ker.mp g₁.2) v)
+        (fun v => congrFun (LinearMap.mem_ker.mp g₂.2) v)
+        (fun v => congrFun (LinearMap.mem_ker.mp (g₁ + g₂).2) v)))
+    (fun f₁ f₂ => AddMonoidHom.ext fun g =>
+      kerPairingFun_add_left hS f₁.1 f₂.1 g.1
+        (fun v => congrFun (LinearMap.mem_ker.mp f₁.2) v)
+        (fun v => congrFun (LinearMap.mem_ker.mp f₂.2) v)
+        (fun v => congrFun (LinearMap.mem_ker.mp (f₁ + f₂).2) v)
+        (fun v => congrFun (LinearMap.mem_ker.mp g.2) v))
 
 /-- **Blueprint Proposition "perfect-pairing"**, left half: `⟨·,·⟩` identifies `Ker²(G_S, M)`
 with the `ℚ/ℤ`-dual of `Ker¹(G_S, M*)` (nondegeneracy plus finiteness). Needs `p ≠ 2`, stated

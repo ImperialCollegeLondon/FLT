@@ -10,7 +10,6 @@ public import Mathlib.LinearAlgebra.Basis.Defs
 public import Mathlib.FieldTheory.Finite.Basic
 public import Mathlib.Topology.Algebra.Group.Quotient
 public import Mathlib.Topology.Instances.ZMod
-public import FLT.Slop.PoitouTate.actionof
 public import FLT.Slop.PoitouTate.phipmap
 
 /-!
@@ -44,7 +43,21 @@ Current state: this file defines `MazurFinite` (the condition `Φ_p`) and states
 
 @[expose] public noncomputable section
 
-open CategoryTheory TopModuleCat ContinuousMap
+open CategoryTheory ContinuousMap
+
+/-- A topological `R`-module `M` with a continuous (in the module variable) linear `G`-action,
+as a topological representation `TopRep R G`. The action of `g` is `m ↦ g • m`. Continuous
+analogue of `Representation.ofDistribMulAction`. -/
+abbrev TopRep.ofDistribMulAction (G R M : Type*)
+    [Monoid G] [CommRing R] [TopologicalSpace R]
+    [AddCommGroup M] [Module R M] [TopologicalSpace M]
+    [IsTopologicalAddGroup M] [ContinuousSMul R M]
+    [DistribMulAction G M] [SMulCommClass G R M] [ContinuousConstSMul G M] : TopRep R G :=
+  .of (X := M)
+    { toMonoidHom :=
+      { toFun g := ⟨DistribSMul.toLinearMap R M g, continuous_const_smul g⟩
+        map_one' := by ext m; exact one_smul G m
+        map_mul' g₁ g₂ := by ext m; exact mul_smul g₁ g₂ m } }
 
 /-- **Mazur's finiteness condition `Φ_p`** (Mazur, *Deforming Galois representations*, §1.1):
 every open subgroup `N ≤ G` admits only finitely many continuous homomorphisms to `ℤ/p`.
@@ -68,6 +81,6 @@ variable [CompactSpace G]
 theorem finite_oneCocycles_of_mazurFinite [MazurFinite p G]
     {S : Type u} [AddCommGroup S] [Module (ZMod p) S] [Finite S] [TopologicalSpace S]
     [DiscreteTopology S] [DistribMulAction G S] [ContinuousSMul G S] :
-    Finite (oneCocycles (actionOf G ℤ S)) := sorry
+    Finite (oneCocycles (TopRep.ofDistribMulAction G ℤ S)) := sorry
 
 end ContinuousCohomology

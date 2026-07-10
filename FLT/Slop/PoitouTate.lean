@@ -7,7 +7,6 @@ module
 
 public import FLT.Slop.PoitouTate.GKSDefn
 public import FLT.Slop.PoitouTate.H1GSfinite
-public import FLT.Slop.PoitouTate.actionof
 public import FLT.Slop.PoitouTate.cupprod
 public import FLT.Slop.PoitouTate.inflmap
 public import FLT.Slop.PoitouTate.phipmap
@@ -16,6 +15,8 @@ public import FLT.Slop.PoitouTate.LocalGlobalMaps
 public import FLT.Slop.PoitouTate.DualModule
 public import FLT.Slop.PoitouTate.LocalTateDuality
 public import FLT.Slop.PoitouTate.InfRes
+public import FLT.Slop.PoitouTate.CochainLemmas
+public import FLT.Slop.PoitouTate.KerPairing
 public import FLT.Slop.PoitouTate.PoitouTateStatement
 
 /-!
