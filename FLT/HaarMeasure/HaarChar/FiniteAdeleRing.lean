@@ -270,7 +270,7 @@ lemma basis_repr_eq_global {x : (FiniteAdeleRing (𝓞 K) K) ⊗[K] B} :
     (bGlobal K B).repr x
     = (ContinuousLinearEquiv.chooseBasisPiScalarRight' K (FiniteAdeleRing (𝓞 K) K) B) x := by
   refine TensorProduct.induction_on x (by simp) (fun _ _ ↦ ?_) (fun _ _ ↦ by simp +contextual)
-  ext; simp; rfl
+  ext; simp [-FiniteAdeleRing.smul_apply]; rfl
 
 lemma basis_eq_single (v : HeightOneSpectrum (𝓞 K))
     {j : Module.Free.ChooseBasisIndex K B} {x : adicCompletion K v} :

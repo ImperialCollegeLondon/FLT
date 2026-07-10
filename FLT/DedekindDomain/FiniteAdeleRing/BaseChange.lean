@@ -149,11 +149,11 @@ def tensorEquivRestrictedProduct : B ⊗[A] 𝔸ᶠ[A, K] ≃ₗ[B] Πʳ v, [B �
       exact Algebra.smul_def a (x v) |>.symm
   }
 
-set_option backward.isDefEq.respectTransparency false in
 omit [IsFractionRing B L] in
 lemma tensorEquivRestrictedProduct_tmul (b : B) (x : 𝔸ᶠ[A, K]) (v : HeightOneSpectrum A) :
     tensorEquivRestrictedProduct A K L B (b ⊗ₜ[A] x) v = b ⊗ₜ[A] (x v) := by
   simp [tensorEquivRestrictedProduct]
+  rfl
 
 /-- The `B`-linear isomorphism `∏'_v [B ⊗[A] K_v, B ⊗[A] 𝓞_v] ≅ ∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w]`
 given by `adicCompletionComapIntegerLinearEquiv`. -/
@@ -307,7 +307,6 @@ noncomputable local instance : Module 𝔸ᶠ[A, K]
     ↑(piAdicIntegerSubmodule A K L B v)] :=
   RestrictedProduct.instModuleCoe_fLT
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The continuous `𝔸 K`-Linear equivalence between `∏'_v ∏_{w∣v} L_w` and `𝔸 L` given by
 reaindexing the elements. -/
 noncomputable def restrictedProductPiEquiv :
@@ -321,8 +320,7 @@ noncomputable def restrictedProductPiEquiv :
     map_add' x y := rfl
     map_smul' r x := by
       ext w
-      rw [RingHom.id_apply, Algebra.smul_def, RestrictedProduct.mul_apply,
-        BaseChange.algebraMap_apply]
+      rw [RingHom.id_apply, Algebra.smul_def, mul_apply, BaseChange.algebraMap_apply]
       rfl
   }
 
