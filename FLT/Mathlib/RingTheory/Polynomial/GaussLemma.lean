@@ -21,7 +21,7 @@ open Polynomial
 the image of a monic polynomial `P ∈ R[X]` is itself the image of a monic polynomial over `R`
 (a form of Gauss's lemma, packaging `IsIntegrallyClosed.eq_map_mul_C_of_dvd`). -/
 theorem Polynomial.Monic.exists_monic_map_eq_of_monic_dvd_map {R : Type*} [CommRing R]
-    [IsDomain R] [IsIntegrallyClosed R] {K : Type*} [Field K] [Algebra R K] [IsFractionRing R K]
+    [IsIntegrallyClosed R] {K : Type*} [Field K] [Algebra R K] [IsFractionRing R K]
     {P : R[X]} (hP : P.Monic) {q : K[X]} (hq : q.Monic) (hdvd : q ∣ P.map (algebraMap R K)) :
     ∃ Q : R[X], Q.Monic ∧ Q.map (algebraMap R K) = q := by
   obtain ⟨Q, hQ⟩ := IsIntegrallyClosed.eq_map_mul_C_of_dvd K hP hdvd

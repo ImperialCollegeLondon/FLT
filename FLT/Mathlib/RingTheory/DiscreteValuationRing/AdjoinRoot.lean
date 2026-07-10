@@ -148,7 +148,6 @@ hypothesis `hmap` records that `algebraMap S L` reduces `mk P` to `mk (P·K) ∘
 theorem AdjoinRoot.exists_nonZeroDivisor_mul_eq_algebraMap {R : Type*} [CommRing R] {K : Type*}
     [Field K] [Algebra R K] [IsFractionRing R K] {P : R[X]}
     [Algebra (AdjoinRoot P) (AdjoinRoot (P.map (algebraMap R K)))]
-    [IsScalarTower R (AdjoinRoot P) (AdjoinRoot (P.map (algebraMap R K)))]
     (hmap : (algebraMap (AdjoinRoot P) (AdjoinRoot (P.map (algebraMap R K)))).comp (mk P)
       = (mk (P.map (algebraMap R K))).comp (Polynomial.mapRingHom (algebraMap R K)))
     (z : AdjoinRoot (P.map (algebraMap R K))) :

@@ -24,7 +24,8 @@ universe u
 
 /-- Two admissible changes of variables agree iff their four coefficients do; this makes equality
 of changes of variables decidable over a commutative ring with decidable equality. -/
-instance {R : Type*} [CommRing R] [DecidableEq R] : DecidableEq (VariableChange R) :=
+instance VariableChange.instDecidableEq {R : Type*} [CommRing R] [DecidableEq R] :
+    DecidableEq (VariableChange R) :=
   fun _ _ ↦ decidable_of_iff _ VariableChange.ext_iff.symm
 
 variable {K : Type u} [Field K] (E : WeierstrassCurve K)

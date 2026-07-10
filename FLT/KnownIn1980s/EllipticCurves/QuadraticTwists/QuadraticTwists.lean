@@ -545,7 +545,7 @@ automorphism group is larger and there can be more forms; the statement includin
 left as a further target.) Together with `not_exists_smul_quadraticTwist_eq` this pins down
 `E.quadraticTwist L` up to `K`-isomorphism. -/
 theorem exists_smul_eq_or_exists_smul_eq_quadraticTwist (hj₀ : E.j ≠ 0) (hj₁₇₂₈ : E.j ≠ 1728)
-    (E' : WeierstrassCurve K) [E'.IsElliptic]
+    (E' : WeierstrassCurve K)
     (h : ∃ C : VariableChange L, C • E'.baseChange L = E.baseChange L) :
     (∃ C : VariableChange K, C • E' = E) ∨ ∃ C : VariableChange K, C • E' = E.quadraticTwist L := by
   obtain ⟨ρ, hρ⟩ := h
