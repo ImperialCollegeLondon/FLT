@@ -137,8 +137,6 @@ lemma baseChangeAlgEquiv_snd_apply (l : L) (x : 𝔸 K) :
 
 open scoped NumberField.LiesOver
 
-attribute [local instance 9999] Algebra.toModule
-
 -- TODO: abstract this to a general result `Biscalar × Biscalar → Biscalar` if `Prod.IsProdSMul`?
 open TensorProduct.RightActions in
 /-- Take arbitrary `Algebra K L∞`, `Algebra K∞ L∞`, `Algebra 𝔸ᶠ[K] 𝔸ᶠ[L]`, Algebra K 𝔸ᶠ[L]`,
@@ -303,8 +301,6 @@ noncomputable def ModuleBaseChangeLinearEquiv :
 
 open scoped NumberField.LiesOver
 
-attribute [local instance 9999] Algebra.toModule
-
 open TensorProduct.RightActions in
 instance [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
     [Pi.FiberwiseSMul (fun a => a.comap (algebraMap K L)) Completion Completion]
@@ -360,8 +356,6 @@ variable {K L : Type*} [Field K] [Field L] [NumberField K] [NumberField L] [Alge
 
 /-- The `K∞`-algebra on `L∞`, induced by `InfiniteAdeleRing.baseChange K L`. -/
 scoped instance : Algebra K∞ L∞ := (InfiniteAdeleRing.baseChange K L).toAlgebra
-
-attribute [local instance 9999] Algebra.toModule
 
 /-- Ensures that `Algebra K∞ L∞` is built out of local algebras
 `Algebra v.Completion wv.Completion`. -/
@@ -422,11 +416,6 @@ theorem Rat.AdeleRing.integral_and_norm_lt_one (x : ℚ)
   -- We could also make `omega` more robust against accidental appearances of `negSucc`.
   rw [Int.negSucc_eq] at h1
   omega
-
--- shortcut to make next proof work
-variable (v : HeightOneSpectrum (𝓞 ℚ)) in
-instance : ZeroMemClass (ValuationSubring (HeightOneSpectrum.adicCompletion ℚ v))
-  (HeightOneSpectrum.adicCompletion ℚ v) := inferInstance
 
 set_option backward.isDefEq.respectTransparency false in
 theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
@@ -616,10 +605,6 @@ theorem Rat.InfiniteAdeleRing.exists_sub_norm_le_one (a : InfiniteAdeleRing ℚ)
 instance (v : InfinitePlace K) : ProperSpace v.Completion :=
   ProperSpace.of_locallyCompactSpace v.Completion
 
--- needed to make next proof not time
-variable (i : HeightOneSpectrum (𝓞 ℚ)) in
-noncomputable instance : NonAssocRing (adicCompletion ℚ i) := inferInstance
-
 set_option backward.isDefEq.respectTransparency false in
 open Metric IsDedekindDomain.FiniteAdeleRing AdeleRing in
 theorem Rat.AdeleRing.cocompact :
@@ -691,7 +676,7 @@ lemma Rat.AdeleRing.mem_fundamentalDomain (a : AdeleRing (𝓞 ℚ) ℚ) :
   · rw [Set.mem_range]
     use fun p ↦ ⟨a.2 p + algebraMap ℚ _ (-q - r), ?_⟩
     · rw [add_comm]
-      ext v
+      ext1 v
       change _ = a.2 _ + _
       push_cast
       rfl
