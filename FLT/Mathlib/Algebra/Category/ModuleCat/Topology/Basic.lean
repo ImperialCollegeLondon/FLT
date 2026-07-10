@@ -66,9 +66,8 @@ def homOfBilinear {A B C : TopModuleCat k} (F : ↥A → (↥B →L[k] ↥C))
     { toFun := F
       map_add' a a' := ContinuousLinearMap.ext fun b ↦ hadd a a' b
       map_smul' c a := ContinuousLinearMap.ext fun b ↦ hsmul c a b
-      cont := by
-        refine continuous_induced_rng.2 (ContinuousMap.continuous_of_continuous_uncurry _ ?_)
-        exact hF }
+      cont := continuous_induced_rng.2 (ContinuousMap.continuous_of_continuous_uncurry _ hF)
+    }
 
 @[simp]
 lemma homOfBilinear_apply {A B C : TopModuleCat k} (F : ↥A → (↥B →L[k] ↥C))
