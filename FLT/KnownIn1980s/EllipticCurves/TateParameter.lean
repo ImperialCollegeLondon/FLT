@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2026 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kevin Buzzard, William Coram
+Authors: Kevin Buzzard, William Coram, Samuel Yin
 -/
 module
 
@@ -15,6 +15,10 @@ public import Mathlib.Topology.Instances.Int
 public import FLT.Mathlib.RingTheory.Valuation.ValuativeRel.Basic
 public import FLT.Mathlib.Topology.Algebra.ValuativeRel.ValuativeTopology
 
+import Mathlib.Analysis.Calculus.Deriv.Polynomial
+import Mathlib.Analysis.Calculus.IteratedDeriv.Lemmas
+import Mathlib.NumberTheory.ModularForms.LevelOne.GradedRing
+import Mathlib.Topology.MetricSpace.Algebra
 import Mathlib.Topology.Algebra.InfiniteSum.Nonarchimedean
 
 /-!
@@ -87,6 +91,8 @@ open scoped ArithmeticFunction.sigma -- `σ k n` notation for the sum of the `k`
 open scoped PowerSeries.WithPiTopology -- the `X`-adic (coefficientwise) topology on
                                        -- `ℤ⟦X⟧`, giving meaning to `∏'`
 open ValuativeRel -- `𝒪[k]` notation for the ring of integers of `k`, and `valuation`
+open Filter UpperHalfPlane ModularForm EisensteinSeries
+open scoped MatrixGroups CongruenceSubgroup Real Topology
 
 namespace TateCurve
 
@@ -152,6 +158,399 @@ theorem constantCoeff_jInvReverse : constantCoeff jInvReverse = 0 := constantCoe
 theorem coeff_one_jInvReverse : coeff 1 jInvReverse = 1 := by
   simpa [jInvReverse, coeff_one_substInv] using invOf_eq_right_inv (by rw [coeff_one_jInv, mul_one])
 
+/-! ### Coefficients of the formal `η`-product
+
+The formal infinite product `∏(1 - Xⁿ⁺¹)` is determined coefficientwise by its finite
+partial products: the `m`-th coefficient is already computed by the partial product over
+`Finset.range (m + 1)`, since every further factor is `≡ 1 mod X^(m+1)`. These lemmas
+feed the evaluation of `ΔFormal` on the open unit disc of a nonarchimedean local field
+(`TateCurve.evalInt_ΔFormal`).
+-/
+
+/-- A finite product of factors `1 - X^(n+1)` with all indices `n ≥ m` is
+`1 + O(X^(m+1))`. -/
+theorem exists_prod_one_sub_X_pow_eq_one_add {m : ℕ} :
+    ∀ {u : Finset ℕ}, (∀ n ∈ u, m ≤ n) →
+      ∃ B : ℤ⟦X⟧, ∏ n ∈ u, ((1 : ℤ⟦X⟧) - X ^ (n + 1)) = 1 + X ^ (m + 1) * B := by
+  intro u
+  induction u using Finset.cons_induction with
+  | empty => exact fun _ ↦ ⟨0, by simp⟩
+  | cons a u ha ih =>
+    intro hu
+    obtain ⟨B, hB⟩ := ih fun n hn ↦ hu n (Finset.mem_cons.mpr (Or.inr hn))
+    obtain ⟨d, rfl⟩ := Nat.exists_eq_add_of_le (hu a (Finset.mem_cons_self ..))
+    exact ⟨B - X ^ d * (1 + X ^ (m + 1) * B), by rw [Finset.prod_cons, hB]; ring⟩
+
+/-- Enlarging a partial product of `∏(1 - Xⁿ⁺¹)` beyond `Finset.range m` does not change
+the `m`-th coefficient. -/
+theorem coeff_prod_one_sub_X_pow_stable {m : ℕ} {s t : Finset ℕ}
+    (hs : Finset.range m ⊆ s) (hst : s ⊆ t) :
+    coeff m (∏ n ∈ t, ((1 : ℤ⟦X⟧) - X ^ (n + 1))) =
+      coeff m (∏ n ∈ s, ((1 : ℤ⟦X⟧) - X ^ (n + 1))) := by
+  obtain ⟨B, hB⟩ := exists_prod_one_sub_X_pow_eq_one_add (m := m) (u := t \ s)
+    fun n hn ↦ by
+      by_contra hlt
+      exact (Finset.mem_sdiff.mp hn).2 (hs (Finset.mem_range.mpr (lt_of_not_ge hlt)))
+  rw [← Finset.prod_sdiff hst, hB, add_mul, one_mul, map_add,
+    show X ^ (m + 1) * B * ∏ n ∈ s, ((1 : ℤ⟦X⟧) - X ^ (n + 1)) =
+      (B * ∏ n ∈ s, ((1 : ℤ⟦X⟧) - X ^ (n + 1))) * X ^ (m + 1) from by ring,
+    PowerSeries.coeff_mul_X_pow']
+  simp
+
+/-- The `m`-th coefficient of the formal product `∏(1 - Xⁿ⁺¹)` equals that of the finite
+partial product over `Finset.range (m + 1)`: the tail factors are `≡ 1 mod X^(m+1)`. -/
+theorem coeff_tprod_one_sub_X_pow (m : ℕ) :
+    coeff m (∏' n : ℕ, ((1 : ℤ⟦X⟧) - X ^ (n + 1))) =
+      coeff m (∏ n ∈ Finset.range (m + 1), ((1 : ℤ⟦X⟧) - X ^ (n + 1))) := by
+  have h1 : Filter.Tendsto
+      (fun s : Finset ℕ ↦ coeff m (∏ n ∈ s, ((1 : ℤ⟦X⟧) - X ^ (n + 1))))
+      Filter.atTop (nhds (coeff m (∏' n : ℕ, ((1 : ℤ⟦X⟧) - X ^ (n + 1))))) := by
+    have hP := (WithPiTopology.multipliable_one_sub_X_pow ℤ).hasProd
+    simp only [HasProd, SummationFilter.unconditional_filter] at hP
+    exact ((WithPiTopology.continuous_coeff ℤ m).tendsto _).comp hP
+  have h2 : Filter.Tendsto
+      (fun s : Finset ℕ ↦ coeff m (∏ n ∈ s, ((1 : ℤ⟦X⟧) - X ^ (n + 1))))
+      Filter.atTop
+      (nhds (coeff m (∏ n ∈ Finset.range (m + 1), ((1 : ℤ⟦X⟧) - X ^ (n + 1))))) := by
+    refine Filter.Tendsto.congr' ?_ tendsto_const_nhds
+    filter_upwards [Filter.eventually_ge_atTop (Finset.range (m + 1))] with s hs
+    exact (coeff_prod_one_sub_X_pow_stable
+      (Finset.range_subset_range.mpr (Nat.le_succ m)) hs).symm
+  exact tendsto_nhds_unique h1 h2
+
+/-- The constant coefficient of the formal product `∏(1 - Xⁿ⁺¹)` is `1`. -/
+theorem constantCoeff_tprod_one_sub_X_pow :
+    constantCoeff (∏' n : ℕ, ((1 : ℤ⟦X⟧) - X ^ (n + 1))) = 1 := by
+  rw [(WithPiTopology.multipliable_one_sub_X_pow ℤ).map_tprod _
+    (WithPiTopology.continuous_constantCoeff ℤ)]
+  simp
+
+@[simp]
+theorem constantCoeff_c₄Formal : constantCoeff c₄Formal = 1 := by
+  simp [c₄Formal, sInt]
+
+@[simp]
+theorem constantCoeff_ΔFormal : constantCoeff ΔFormal = 0 := by
+  simp [ΔFormal]
+
+theorem coeff_one_ΔFormal : coeff 1 ΔFormal = 1 := by
+  have key : coeff 1 ΔFormal =
+      constantCoeff ((∏' n : ℕ, ((1 : ℤ⟦X⟧) - X ^ (n + 1))) ^ 24) := by
+    simp only [ΔFormal]
+    exact (coeff_succ_X_mul 0 _).trans (coeff_zero_eq_constantCoeff_apply _)
+  rw [key, map_pow, constantCoeff_tprod_one_sub_X_pow, one_pow]
+
+private noncomputable abbrev ΔPartial (N : ℕ) (q : ℂ) : ℂ :=
+  q * (∏ i ∈ Finset.range N, (1 - q ^ (i + 1))) ^ 24
+
+private noncomputable abbrev ΔAnalyticProduct (q : ℂ) : ℂ :=
+  q * (∏' i : ℕ, (1 - q ^ (i + 1))) ^ 24
+
+private noncomputable def ΔPartialℤ (N : ℕ) : ℤ⟦X⟧ :=
+  PowerSeries.X * (∏ i ∈ Finset.range N, (1 - PowerSeries.X ^ (i + 1))) ^ 24
+
+private noncomputable def ΔPartialPoly (N : ℕ) : Polynomial ℂ :=
+  Polynomial.X * (∏ i ∈ Finset.range N, (1 - Polynomial.X ^ (i + 1))) ^ 24
+
+private lemma tendstoLocallyUniformlyOn_id_ball :
+    TendstoLocallyUniformlyOn (fun _ : ℕ => fun q : ℂ => q) (fun q : ℂ => q) atTop
+      (Metric.ball 0 1) := by
+  refine (show TendstoUniformlyOn (fun _ : ℕ => fun q : ℂ => q) (fun q : ℂ => q)
+      atTop (Metric.ball (0 : ℂ) 1) from ?_).tendstoLocallyUniformlyOn
+  intro u hu
+  exact Filter.Eventually.of_forall fun _ q _ => refl_mem_uniformity hu
+
+private lemma tendstoLocallyUniformlyOn_const_one_ball :
+    TendstoLocallyUniformlyOn (fun _ : ℕ => fun _ : ℂ => (1 : ℂ)) (fun _ : ℂ => 1)
+      atTop (Metric.ball 0 1) := by
+  refine (show TendstoUniformlyOn (fun _ : ℕ => fun _ : ℂ => (1 : ℂ)) (fun _ : ℂ => 1)
+      atTop (Metric.ball (0 : ℂ) 1) from ?_).tendstoLocallyUniformlyOn
+  intro u hu
+  exact Filter.Eventually.of_forall fun _ q _ => refl_mem_uniformity hu
+
+private lemma tendstoLocallyUniformlyOn_pow_partial_product_ball (n : ℕ) :
+    TendstoLocallyUniformlyOn
+      (fun N (q : ℂ) => (∏ i ∈ Finset.range N, (1 - q ^ (i + 1))) ^ n)
+      (fun q : ℂ => (∏' i : ℕ, (1 - q ^ (i + 1))) ^ n)
+      atTop (Metric.ball 0 1) := by
+  have hprod :=
+    ModularForm.multipliableLocallyUniformlyOn_one_sub_pow.hasProdLocallyUniformlyOn
+      |>.tendstoLocallyUniformlyOn_finsetRange
+  induction n with
+  | zero => simpa using tendstoLocallyUniformlyOn_const_one_ball
+  | succ n ih =>
+      have hcont : ContinuousOn (fun q : ℂ => ∏' i : ℕ, (1 - q ^ (i + 1)))
+          (Metric.ball 0 1) :=
+        ModularForm.differentiableOn_tprod_one_sub_pow.continuousOn
+      have hcontn : ContinuousOn (fun q : ℂ => (∏' i : ℕ, (1 - q ^ (i + 1))) ^ n)
+          (Metric.ball 0 1) :=
+        hcont.fun_pow n
+      convert hprod.mul₀ ih hcont hcontn using 2
+      · funext q
+        rw [pow_succ']
+        rfl
+      · rw [pow_succ']
+        rfl
+
+private lemma tendstoLocallyUniformlyOn_ΔPartial :
+    TendstoLocallyUniformlyOn ΔPartial ΔAnalyticProduct atTop (Metric.ball 0 1) := by
+  have hq := tendstoLocallyUniformlyOn_id_ball
+  have hp := tendstoLocallyUniformlyOn_pow_partial_product_ball 24
+  have hcontq : ContinuousOn (fun q : ℂ => q) (Metric.ball 0 1) :=
+    continuous_id.continuousOn
+  have hcontp : ContinuousOn (fun q : ℂ => (∏' i : ℕ, (1 - q ^ (i + 1))) ^ 24)
+      (Metric.ball 0 1) :=
+    ModularForm.differentiableOn_tprod_one_sub_pow.continuousOn.fun_pow 24
+  convert hq.mul₀ hp hcontq hcontp using 2
+  · funext q
+    rfl
+  · rfl
+
+private lemma tendstoLocallyUniformlyOn_iteratedDeriv_ΔPartial (m : ℕ) :
+    TendstoLocallyUniformlyOn (fun N => iteratedDeriv m (ΔPartial N))
+      (iteratedDeriv m ΔAnalyticProduct) atTop (Metric.ball 0 1) := by
+  induction m with
+  | zero => simpa using tendstoLocallyUniformlyOn_ΔPartial
+  | succ m ih =>
+      have hdiff : ∀ᶠ N in atTop,
+          DifferentiableOn ℂ (iteratedDeriv m (ΔPartial N)) (Metric.ball 0 1) := by
+        exact Filter.Eventually.of_forall fun N => by
+          have hf : ContDiff ℂ ⊤ (ΔPartial N) := by
+            unfold ΔPartial
+            fun_prop
+          exact (hf.differentiable_iteratedDeriv m (by simp)).differentiableOn
+      have hder := ih.deriv hdiff Metric.isOpen_ball
+      simpa [Function.comp_def, iteratedDeriv_succ] using hder
+
+private lemma coeff_prod_tprod_eq_coeff_prod_range_of_le {k N : ℕ} (hN : k + 1 ≤ N) :
+    coeff k (∏' i : ℕ, ((1 : ℤ⟦X⟧) - X ^ (i + 1))) =
+      coeff k (∏ i ∈ Finset.range N, ((1 : ℤ⟦X⟧) - X ^ (i + 1))) := by
+  rw [coeff_tprod_one_sub_X_pow k]
+  exact (coeff_prod_one_sub_X_pow_stable
+    (m := k)
+    (s := Finset.range (k + 1))
+    (t := Finset.range N)
+    (Finset.range_subset_range.mpr (Nat.le_succ k))
+    (Finset.range_subset_range.mpr hN)).symm
+
+private lemma coeff_tprod_pow_eq_coeff_range_pow_of_le {k N : ℕ} (hN : k + 1 ≤ N) :
+    coeff k ((∏' i : ℕ, ((1 : ℤ⟦X⟧) - X ^ (i + 1))) ^ 24) =
+      coeff k ((∏ i ∈ Finset.range N, ((1 : ℤ⟦X⟧) - X ^ (i + 1))) ^ 24) := by
+  rw [PowerSeries.coeff_pow, PowerSeries.coeff_pow]
+  apply Finset.sum_congr rfl
+  intro l hl
+  apply Finset.prod_congr rfl
+  intro i hi
+  have hli : l i ≤ k := by
+    have hsum := (Finset.mem_finsuppAntidiag.mp hl).1
+    rw [← hsum]
+    exact Finset.single_le_sum (fun j _ => Nat.zero_le (l j)) hi
+  exact coeff_prod_tprod_eq_coeff_prod_range_of_le (k := l i) (N := N) (by omega)
+
+private lemma coeff_ΔPartialℤ_eq_coeff_ΔFormal_of_le {m N : ℕ} (hN : m + 1 ≤ N) :
+    coeff m (ΔPartialℤ N) = coeff m ΔFormal := by
+  cases m with
+  | zero => simp [ΔPartialℤ, ΔFormal]
+  | succ m =>
+      simp only [ΔPartialℤ, ΔFormal]
+      rw [coeff_succ_X_mul, coeff_succ_X_mul]
+      symm
+      apply coeff_tprod_pow_eq_coeff_range_pow_of_le (k := m) (N := N)
+      omega
+
+private lemma ΔPartialPoly_toPowerSeries (N : ℕ) :
+    (ΔPartialPoly N : ℂ⟦X⟧) =
+      (PowerSeries.X * (∏ i ∈ Finset.range N, (1 - PowerSeries.X ^ (i + 1))) ^ 24 :
+        ℂ⟦X⟧) := by
+  change Polynomial.coeToPowerSeries.ringHom (ΔPartialPoly N) = _
+  simp only [ΔPartialPoly, map_mul, map_pow, Polynomial.coeToPowerSeries.ringHom_apply,
+    Polynomial.coe_X]
+  congr 2
+  rw [← Polynomial.coeToPowerSeries.ringHom_apply
+    (φ := ∏ i ∈ Finset.range N, (1 - Polynomial.X ^ (i + 1) : Polynomial ℂ))]
+  rw [map_prod]
+  simp
+
+private lemma map_ΔPartialℤ_eq_ΔPartialPoly (N : ℕ) :
+    PowerSeries.map (Int.castRingHom ℂ) (ΔPartialℤ N) = (ΔPartialPoly N : ℂ⟦X⟧) := by
+  rw [ΔPartialPoly_toPowerSeries]
+  simp [ΔPartialℤ, map_prod]
+
+private lemma ΔPartialPoly_coeff_eq_map_ΔFormal_coeff_of_le {m N : ℕ} (hN : m + 1 ≤ N) :
+    (ΔPartialPoly N).coeff m = coeff m (PowerSeries.map (Int.castRingHom ℂ) ΔFormal) := by
+  have hmap := congrArg (PowerSeries.coeff m) (map_ΔPartialℤ_eq_ΔPartialPoly N)
+  rw [PowerSeries.coeff_map, Polynomial.coeff_coe] at hmap
+  rw [← hmap, PowerSeries.coeff_map, coeff_ΔPartialℤ_eq_coeff_ΔFormal_of_le hN]
+
+private lemma ΔPartialPoly_eval (N : ℕ) (q : ℂ) :
+    (ΔPartialPoly N).eval q = ΔPartial N q := by
+  simp [ΔPartialPoly, ΔPartial, Polynomial.eval_mul, Polynomial.eval_pow, Polynomial.eval_prod,
+    Polynomial.eval_sub]
+
+private lemma iteratedDeriv_poly_eval_eq_factorial_coeff (p : Polynomial ℂ) (m : ℕ) :
+    iteratedDeriv m (fun x : ℂ => p.eval x) 0 = (m.factorial : ℂ) * p.coeff m := by
+  rw [show iteratedDeriv m (fun x : ℂ => p.eval x) =
+      (fun x => (Polynomial.derivative^[m] p).eval x) by
+    induction m with
+    | zero => simp
+    | succ m ih =>
+        rw [iteratedDeriv_succ, ih]
+        funext x
+        rw [Polynomial.deriv]
+        rw [Function.iterate_succ_apply']]
+  change ((Polynomial.derivative^[m] p).eval 0) = _
+  rw [Polynomial.eval_eq_sum_range]
+  rw [Finset.sum_eq_single 0]
+  · rw [Polynomial.coeff_iterate_derivative]
+    simp [Nat.descFactorial_self, nsmul_eq_mul]
+  · intro b hb hne
+    simp [hne]
+  · intro h0
+    simp at h0
+
+private lemma iteratedDeriv_ΔPartial_eq_factorial_coeff (N m : ℕ) :
+    iteratedDeriv m (ΔPartial N) 0 = (m.factorial : ℂ) * (ΔPartialPoly N).coeff m := by
+  rw [show ΔPartial N = fun x : ℂ => (ΔPartialPoly N).eval x by
+    funext x
+    exact (ΔPartialPoly_eval N x).symm]
+  exact iteratedDeriv_poly_eval_eq_factorial_coeff (ΔPartialPoly N) m
+
+private lemma iteratedDeriv_ΔAnalyticProduct_eq_factorial_coeff (m : ℕ) :
+    iteratedDeriv m ΔAnalyticProduct 0 =
+      (m.factorial : ℂ) * coeff m (PowerSeries.map (Int.castRingHom ℂ) ΔFormal) := by
+  have hmem : (0 : ℂ) ∈ Metric.ball (0 : ℂ) 1 := Metric.mem_ball_self one_pos
+  have hlim := (tendstoLocallyUniformlyOn_iteratedDeriv_ΔPartial m).tendsto_at hmem
+  let c : ℂ := (m.factorial : ℂ) * coeff m (PowerSeries.map (Int.castRingHom ℂ) ΔFormal)
+  have hconst : (fun N => iteratedDeriv m (ΔPartial N) 0) =ᶠ[atTop] fun _ : ℕ => c := by
+    filter_upwards [Filter.eventually_ge_atTop (m + 1)] with N hN
+    rw [iteratedDeriv_ΔPartial_eq_factorial_coeff,
+      ΔPartialPoly_coeff_eq_map_ΔFormal_coeff_of_le hN]
+  have hlimc : Tendsto (fun N : ℕ => iteratedDeriv m (ΔPartial N) 0) atTop (𝓝 c) := by
+    exact (tendsto_const_nhds (x := c)).congr' (Filter.EventuallyEq.symm hconst)
+  exact tendsto_nhds_unique hlim hlimc
+
+private lemma map_ΔFormal_eq_discriminant_qExpansion :
+    PowerSeries.map (Int.castRingHom ℂ) ΔFormal = qExpansion 1 ModularForm.discriminant := by
+  ext m
+  symm
+  rw [UpperHalfPlane.qExpansion_coeff]
+  have hmem : (0 : ℂ) ∈ Metric.ball (0 : ℂ) 1 := Metric.mem_ball_self one_pos
+  have heqOn : Set.EqOn (cuspFunction 1 ModularForm.discriminant) ΔAnalyticProduct
+      (Metric.ball 0 1) := by
+    intro q hq
+    rw [ModularForm.discriminant_cuspFunction_eqOn hq]
+    unfold ΔAnalyticProduct
+    change q * (∏' i : ℕ, (1 - q ^ (i + 1)) ^ 24) =
+      q * (∏' i : ℕ, (1 - q ^ (i + 1))) ^ 24
+    rw [← (ModularForm.multipliable_one_sub_pow (by simpa using hq)).tprod_pow 24]
+  have heq : cuspFunction 1 ModularForm.discriminant =ᶠ[𝓝 (0 : ℂ)] ΔAnalyticProduct :=
+    heqOn.eventuallyEq_of_mem (Metric.isOpen_ball.mem_nhds hmem)
+  rw [Filter.EventuallyEq.iteratedDeriv_eq m heq]
+  rw [iteratedDeriv_ΔAnalyticProduct_eq_factorial_coeff]
+  field_simp [Nat.cast_ne_zero.mpr (Nat.factorial_ne_zero m : m.factorial ≠ 0)]
+
+private lemma coeff_c₄Formal_of_ne_zero (n : ℕ) (hn : n ≠ 0) :
+    coeff n c₄Formal = 240 * (σ 3 n : ℤ) := by
+  rw [c₄Formal, map_add]
+  simp only [PowerSeries.coeff_one, if_neg hn, zero_add]
+  change coeff n (C (240 : ℤ) * sInt 3) = _
+  rw [coeff_C_mul]
+  simp [sInt]
+
+private lemma coeff_E₆Formal_of_ne_zero (n : ℕ) (hn : n ≠ 0) :
+    coeff n (1 - 504 * sInt 5) = -504 * (σ 5 n : ℤ) := by
+  rw [map_sub]
+  simp only [PowerSeries.coeff_one, if_neg hn, zero_sub]
+  change -(coeff n (C (504 : ℤ) * sInt 5)) = _
+  rw [coeff_C_mul]
+  simp [sInt]
+
+private lemma map_c₄Formal_eq_qExpansion_E₄ :
+    PowerSeries.map (Int.castRingHom ℂ) c₄Formal = qExpansion 1 ModularForm.E₄ := by
+  ext n
+  by_cases hn : n = 0
+  · subst n
+    rw [PowerSeries.coeff_map, coeff_zero_eq_constantCoeff, constantCoeff_c₄Formal,
+      EisensteinSeries.E_qExpansion_coeff_zero (by norm_num : 3 ≤ 4) ⟨2, rfl⟩]
+    norm_num
+  · rw [PowerSeries.coeff_map, coeff_c₄Formal_of_ne_zero n hn]
+    rw [EisensteinSeries.E_qExpansion_coeff (by norm_num : 3 ≤ 4) ⟨2, rfl⟩]
+    simp [hn]
+    norm_num [show (bernoulli 4 : ℚ) = -1 / 30 by decide +kernel]
+
+private lemma map_E₆Formal_eq_qExpansion_E₆ :
+    PowerSeries.map (Int.castRingHom ℂ) (1 - 504 * sInt 5) =
+      qExpansion 1 ModularForm.E₆ := by
+  ext n
+  by_cases hn : n = 0
+  · subst n
+    rw [PowerSeries.coeff_map, coeff_zero_eq_constantCoeff,
+      EisensteinSeries.E_qExpansion_coeff_zero (by norm_num : 3 ≤ 6) ⟨3, rfl⟩]
+    simp [sInt]
+  · rw [PowerSeries.coeff_map, coeff_E₆Formal_of_ne_zero n hn]
+    rw [EisensteinSeries.E_qExpansion_coeff (by norm_num : 3 ≤ 6) ⟨3, rfl⟩]
+    simp [hn]
+    norm_num [show (bernoulli 6 : ℚ) = 1 / 42 by decide +kernel]
+
+private noncomputable def E₄CubeSubE₆SqForm : ModularForm 𝒮ℒ 12 :=
+  ModularForm.mcast (by decide) (ModularForm.E₄.pow 3) -
+    ModularForm.mcast (by decide) (ModularForm.E₆.pow 2)
+
+private lemma E₄CubeSubE₆SqForm_apply (z : ℍ) :
+    E₄CubeSubE₆SqForm z = ModularForm.E₄ z ^ 3 - ModularForm.E₆ z ^ 2 := by
+  simp only [E₄CubeSubE₆SqForm, ModularForm.coe_mcast, ModularForm.coe_pow, sub_apply,
+    Pi.pow_apply]
+
+private lemma E₄CubeSubE₆SqForm_qExpansion_eq :
+    qExpansion 1 E₄CubeSubE₆SqForm =
+      (qExpansion 1 ModularForm.E₄) ^ 3 - (qExpansion 1 ModularForm.E₆) ^ 2 := by
+  simp only [E₄CubeSubE₆SqForm, ModularForm.coe_sub, ModularForm.coe_mcast,
+    ModularForm.qExpansion_sub one_pos one_mem_strictPeriods_SL,
+    ModularForm.qExpansion_pow one_pos one_mem_strictPeriods_SL]
+
+private lemma discriminant_qExpansion_eq_E₄_E₆ :
+    qExpansion 1 ModularForm.discriminant =
+      (1 / 1728 : ℂ) •
+        ((qExpansion 1 ModularForm.E₄) ^ 3 - (qExpansion 1 ModularForm.E₆) ^ 2) := by
+  have hfun : ModularForm.discriminant = (1 / 1728 : ℂ) • E₄CubeSubE₆SqForm := by
+    ext z
+    change ModularForm.discriminant z = (1 / 1728 : ℂ) * E₄CubeSubE₆SqForm z
+    rw [E₄CubeSubE₆SqForm_apply, ModularForm.discriminant_eq_E₄_cube_sub_E₆_sq z]
+    ring_nf
+  rw [hfun]
+  rw [ModularForm.qExpansion_smul one_pos one_mem_strictPeriods_SL]
+  rw [E₄CubeSubE₆SqForm_qExpansion_eq]
+
+/-- **Jacobi's discriminant formula** `E₄³ - E₆² = 1728·η²⁴`, as an identity of formal
+power series over `ℤ`: here `c₄Formal = E₄ = 1 + 240s₃(q)`, `1 - 504s₅(q) = E₆` are the
+normalised Eisenstein series and `ΔFormal = q∏_{n≥1}(1 - qⁿ)²⁴` is the `η²⁴`-product.
+This is the one deep classical input to the discriminant computation of the Tate curve
+(Silverman, ATAEC V.1.1(b)), stripped of all elliptic-curve bookkeeping.
+
+Route to a proof: over `ℂ`, `E₄³ - E₆²` is a cusp form of weight `12` for `SL₂(ℤ)`, and
+the space of such is one-dimensional, spanned by `Δ = η²⁴` (whose `q`-expansion is the
+`ΔFormal`-product); comparing first coefficients gives the analytic identity, which
+descends to `ℤ⟦q⟧` coefficientwise as in `TateCurve.weierstrass_equation`. The analytic
+ingredients are being developed in `FLT.KnownIn1980s.EllipticCurves.TateJ`. -/
+theorem jacobi_discriminant :
+    c₄Formal ^ 3 - (1 - 504 * sInt 5) ^ 2 = 1728 * ΔFormal := by
+  apply PowerSeries.map_injective (Int.castRingHom ℂ) Int.cast_injective
+  rw [map_sub, map_pow, map_pow, map_mul, map_c₄Formal_eq_qExpansion_E₄,
+    map_E₆Formal_eq_qExpansion_E₆, map_ΔFormal_eq_discriminant_qExpansion,
+    discriminant_qExpansion_eq_E₄_E₆]
+  let A : ℂ⟦X⟧ := (qExpansion 1 ModularForm.E₄) ^ 3 - (qExpansion 1 ModularForm.E₆) ^ 2
+  change A = PowerSeries.map (Int.castRingHom ℂ) (1728 : ℤ⟦X⟧) * ((1 / 1728 : ℂ) • A)
+  rw [show PowerSeries.map (Int.castRingHom ℂ) (1728 : ℤ⟦X⟧) = C (1728 : ℂ) by
+    change PowerSeries.map (Int.castRingHom ℂ) (C (1728 : ℤ)) = C (1728 : ℂ)
+    rw [map_C]
+    norm_num]
+  ext n
+  simp [PowerSeries.coeff_C_mul]
+
+/-- The defining relation of `jInv`: `(1/j)·c₄³ = Δ` as formal power series. -/
+theorem jInv_mul_c₄Formal : jInv * c₄Formal ^ 3 = ΔFormal := by
+  rw [jInv, mul_assoc, PowerSeries.invOfUnit_mul _ _ (by simp), mul_one]
+
 /-! ### Evaluation of integral power series
 
 The bridge from the formal world to a topological field `k`: `evalInt q F = ∑ₙ Fₙqⁿ`.
@@ -170,13 +569,26 @@ variable {k : Type*} [Field k] [TopologicalSpace k]
 a topological field (junk value if the series does not converge). -/
 noncomputable def evalInt (q : k) (F : ℤ⟦X⟧) : k := ∑' n : ℕ, ((coeff n F : ℤ) : k) * q ^ n
 
-@[simp]
 theorem evalInt_X (q : k) : evalInt q (X : ℤ⟦X⟧) = q := by
   simp [evalInt, coeff_X]
+
+theorem evalInt_C (q : k) (m : ℤ) : evalInt q (C m) = m := by
+  simp only [evalInt]
+  rw [tsum_eq_single 0 fun n hn ↦ by rw [coeff_C, if_neg hn]; simp]
+  rw [coeff_C]
+  simp
+
+theorem evalInt_one (q : k) : evalInt q (1 : ℤ⟦X⟧) = 1 := by
+  rw [← map_one (C : ℤ →+* ℤ⟦X⟧), evalInt_C, Int.cast_one]
 
 section
 
 variable [IsTopologicalRing k] [T2Space k]
+
+theorem evalInt_C_mul (q : k) (m : ℤ) (F : ℤ⟦X⟧) :
+    evalInt q (C m * F) = m * evalInt q F := by
+  simp only [evalInt, coeff_C_mul, Int.cast_mul, mul_assoc]
+  exact tsum_mul_left
 
 theorem evalInt_add {q : k} {F G : ℤ⟦X⟧} (hF : Summable fun n ↦ ((coeff n F : ℤ) : k) * q ^ n)
     (hG : Summable fun n ↦ ((coeff n G : ℤ) : k) * q ^ n) :
@@ -329,9 +741,9 @@ continuous inclusion `𝒪[k] → k` carries its defining sum (`PowerSeries.hasS
 the sum defining `evalInt`. Multiplicativity is then `map_mul` of `eval₂Hom`. -/
 theorem evalInt_mul (q : k) (hq : valuation k q < 1) (F G : ℤ⟦X⟧) :
     evalInt q (F * G) = evalInt q F * evalInt q G := by
-  letI : UniformSpace k := IsTopologicalAddGroup.rightUniformSpace k
-  haveI : IsUniformAddGroup k := isUniformAddGroup_of_addCommGroup
-  haveI : IsUniformAddGroup 𝒪[k] := inferInstanceAs (IsUniformAddGroup 𝒪[k].toAddSubgroup)
+  let : UniformSpace k := IsTopologicalAddGroup.rightUniformSpace k
+  have : IsUniformAddGroup k := isUniformAddGroup_of_addCommGroup
+  have : IsUniformAddGroup 𝒪[k] := inferInstanceAs (IsUniformAddGroup 𝒪[k].toAddSubgroup)
   have hind : Topology.IsInducing ((↑) : 𝒪[k] → k) := ⟨rfl⟩
   have hφ : Continuous (Int.castRingHom 𝒪[k]) := continuous_of_discreteTopology
   have ha : PowerSeries.HasEval (⟨q, hq.le⟩ : 𝒪[k]) :=

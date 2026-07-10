@@ -1,12 +1,14 @@
 /-
 Copyright (c) 2026 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kevin Buzzard
+Authors: Kevin Buzzard, William Coram, Samuel Yin
 -/
 module
 
 public import FLT.KnownIn1980s.EllipticCurves.TateParameter
 
+import Mathlib.Data.ZMod.Basic
+import Mathlib.Tactic.LinearCombination
 import FLT.Slop.NumberTheory.TsumDivisorsAntidiagonal
 import Mathlib.Topology.Algebra.InfiniteSum.Nonarchimedean
 
@@ -69,6 +71,55 @@ theorem coeff_a₄Formal (n : ℕ) : coeff n a₄Formal = -5 * σ 3 n := by
 theorem coeff_a₆Formal (n : ℕ) :
     coeff n a₆Formal = -((5 * σ 3 n + 7 * σ 5 n : ℤ) / 12) := by
   simp only [a₆Formal, coeff_mk]
+
+/-- The exact divisibility making sense of the division by `12` in `a₆Formal`:
+`12 ∣ 5σ₃(n) + 7σ₅(n)`, because `12 ∣ 5d³ + 7d⁵` for every divisor `d` (a computation
+modulo `12`). -/
+theorem twelve_dvd_sigma (n : ℕ) : (12 : ℤ) ∣ 5 * (σ 3 n : ℤ) + 7 * (σ 5 n : ℤ) := by
+  have h12 : ∀ d : ℤ, (12 : ℤ) ∣ 5 * d ^ 3 + 7 * d ^ 5 := by
+    intro d
+    have hz : ((5 * d ^ 3 + 7 * d ^ 5 : ℤ) : ZMod 12) = 0 := by
+      push_cast
+      generalize (d : ZMod 12) = r
+      revert r
+      decide
+    exact_mod_cast (ZMod.intCast_zmod_eq_zero_iff_dvd _ 12).mp hz
+  have hσ : 5 * (σ 3 n : ℤ) + 7 * (σ 5 n : ℤ)
+      = ∑ d ∈ n.divisors, (5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5) := by
+    rw [Finset.sum_add_distrib, ← Finset.mul_sum, ← Finset.mul_sum,
+      ArithmeticFunction.sigma_apply, ArithmeticFunction.sigma_apply]
+    push_cast
+    ring
+  rw [hσ]
+  exact Finset.dvd_sum fun d _ ↦ h12 d
+
+/-- Jacobi's discriminant formula in Weierstrass form (the formal heart of Silverman,
+ATAEC V.1.1(b)): the Weierstrass discriminant `a₄² - a₆ - 64a₄³ + 72a₄a₆ - 432a₆²` of the
+Tate curve `y² + xy = x³ + a₄(q)x + a₆(q)` equals `q∏_{n≥1}(1 - qⁿ)²⁴`, as an identity in
+`ℤ⟦q⟧`. Deduced from `jacobi_discriminant` (`E₄³ - E₆² = 1728η²⁴`) by pure algebra: the
+Tate curve has `c₄ = E₄` and `c₆ = -E₆`, and `1728Δ = c₄³ - c₆²` for any Weierstrass
+equation; the exact division by `12` in `a₆` is handled by `twelve_dvd_sigma`, and the
+factor `1728` cancels since `ℤ⟦q⟧` is a domain. -/
+theorem ΔFormal_eq :
+    ΔFormal = a₄Formal ^ 2 - a₆Formal - C 64 * a₄Formal ^ 3 +
+      C 72 * (a₄Formal * a₆Formal) - C 432 * a₆Formal ^ 2 := by
+  -- clear the exact division by `12` from `a₆Formal`
+  have h6 : (12 : ℤ⟦X⟧) * a₆Formal = -(5 * sInt 3 + 7 * sInt 5) := by
+    have h : C (12 : ℤ) * a₆Formal = -(C (5 : ℤ) * sInt 3 + C (7 : ℤ) * sInt 5) := by
+      ext n
+      simp only [coeff_C_mul, coeff_a₆Formal, map_neg, map_add, sInt, coeff_mk]
+      rw [mul_neg, Int.mul_ediv_cancel' (twelve_dvd_sigma n)]
+    simpa only [map_ofNat] using h
+  -- cancel the factor `1728` (`ℤ⟦q⟧` is a domain)
+  have h1728 : (1728 : ℤ⟦X⟧) ≠ 0 := fun h ↦ by
+    have := congrArg constantCoeff h
+    rw [map_ofNat, map_zero] at this
+    exact absurd this (by norm_num)
+  apply mul_left_cancel₀ h1728
+  rw [← jacobi_discriminant]
+  -- now it is a polynomial identity in `s₃`, `s₅` and `a₆Formal` modulo `h6`
+  simp only [map_ofNat, c₄Formal, a₄Formal]
+  linear_combination (144 + 25920 * sInt 3 - 36288 * sInt 5 + 62208 * a₆Formal) * h6
 
 /-! ### Subtraction of evaluations -/
 
