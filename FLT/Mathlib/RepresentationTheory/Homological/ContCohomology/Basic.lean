@@ -19,9 +19,9 @@ cochain complexes computing continuous group cohomology.
 
 ## Main definitions
 
-* `ContRepresentation.resolutionCLM ρ2 ρ3 u i`: the functorial extension of a (not necessarily
-  equivariant) continuous linear map `u : M2 →L[k] M3` to the `i`-th level of the standard
-  resolutions.
+* `ContRepresentation.resolutionCLM ρ2 ρ3 u i`: the continuous linear map between objects of the
+  underlying objects of the resolutions induced by a continuous linear map `u : M2 →L[k] M3` where
+  `M2` and `M3` are the underlying module of `ρ2` and `ρ3` respectively.
 * `ContRepresentation.resolutionXCast X h`: transport between two levels of the standard
   resolution along an equality of indices, as a continuous linear map.
 * `ContRepresentation.invariantsObjIHom ρ2 ρ3 n r`: the comparison morphism from the invariants

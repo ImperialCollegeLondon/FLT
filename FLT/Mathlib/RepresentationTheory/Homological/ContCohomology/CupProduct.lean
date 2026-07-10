@@ -131,7 +131,7 @@ lemma continuous_cupSucc_uncurry (F : π₁ →ⁱL linHom π₂ π₃)
 
 end CupSucc
 
-variable (hp : Continuous fun p : M2 × M1 ↦ f p.2 p.1)
+variable (hp : Continuous fun p : M1 × M2 ↦ f p.1 p.2)
 
 section
 
@@ -143,7 +143,7 @@ uncurried pairing of `f` propagates through the levels of the resolution. -/
 def cupZeroSuccAux (n : ℕ) : C(resolutionX (of ρ2) n × M1, resolutionX (of ρ3) n) :=
   ⟨fun p ↦ resolutionCLM ρ2 ρ3 (f p.2) n p.1, by
     induction n with
-    | zero => exact hp
+    | zero => exact hp.comp continuous_swap
     | succ i ih =>
       have h : (fun p : ↥(resolutionX (of ρ2) (i + 1)) × M1 ↦
           resolutionCLM ρ2 ρ3 (f p.2) (i + 1) p.1) = fun p ↦
@@ -301,7 +301,7 @@ variable {M1 M2 M3 : Type v}
   [TopologicalSpace G] [IsTopologicalGroup G]
   (ρ1 : ContRepresentation k G M1) (ρ2 : ContRepresentation k G M2)
   (ρ3 : ContRepresentation k G M3) (f : ρ1 →ⁱL linHom ρ2 ρ3)
-  (hp : Continuous fun p : M2 × M1 ↦ f p.2 p.1)
+  (hp : Continuous fun p : M1 × M2 ↦ f p.1 p.2)
 
 variable {ρ1 ρ2 ρ3} in
 /-- The cup product pairing on homogeneous cochains, obtained from the cup product pairing
@@ -467,7 +467,7 @@ lemma continuous_cupKerCLM_uncurry (m n r : ℕ) (hr : r = m + n) :
 variable {ρ1 ρ2 ρ3} in
 /-- The cup product bundled as a morphism from the kernel of the differential into the
 internal hom of the kernel models. -/
-noncomputable def cupKerHom (f : ρ1 →ⁱL ρ2.linHom ρ3) (hp : Continuous fun p : M2 × M1 ↦ f p.2 p.1)
+noncomputable def cupKerHom (f : ρ1 →ⁱL ρ2.linHom ρ3) (hp : Continuous fun p : M1 × M2 ↦ f p.1 p.2)
     (m n r : ℕ) (hr : r = m + n) :
     TopModuleCat.ker ((homogeneousCochains (.of ρ1)).d m (m + 1)) ⟶
       TopModuleCat.linHom (TopModuleCat.ker ((homogeneousCochains (.of ρ2)).d n (n + 1)))
@@ -480,7 +480,7 @@ noncomputable def cupKerHom (f : ρ1 →ⁱL ρ2.linHom ρ3) (hp : Continuous fu
 /-- The cup product of two cocycles, as a cocycle: by the Leibniz rule `cup_d_comm`, the
 differential of `σ ∪ τ` vanishes when `d σ = 0` and `d τ = 0`. -/
 noncomputable abbrev cupCocyclesAux (f : ρ1 →ⁱL ρ2.linHom ρ3)
-    (hp : Continuous fun p : M2 × M1 ↦ f p.2 p.1) (m n r : ℕ) (hr : r = m + n)
+    (hp : Continuous fun p : M1 × M2 ↦ f p.1 p.2) (m n r : ℕ) (hr : r = m + n)
     (σ : (homogeneousCochains (.of ρ1)).cycles m)
     (τ : (homogeneousCochains (.of ρ2)).cycles n) :
     (homogeneousCochains (.of ρ3)).cycles r :=
@@ -494,7 +494,7 @@ noncomputable abbrev cupCocyclesAux (f : ρ1 →ⁱL ρ2.linHom ρ3)
 /-- The cup product pairing on the cycles of the homogeneous cochain complexes, transporting
 `cupKerHom` along the identification `cyclesIsoKer` of the cycles with the kernel models. -/
 noncomputable def cupCocycles (f : ρ1 →ⁱL ρ2.linHom ρ3)
-    (hp : Continuous fun p : M2 × M1 ↦ f p.2 p.1) (m n r : ℕ) (hr : r = m + n) :
+    (hp : Continuous fun p : M1 × M2 ↦ f p.1 p.2) (m n r : ℕ) (hr : r = m + n) :
     (homogeneousCochains (.of ρ1)).cycles m ⟶
       TopModuleCat.linHom ((homogeneousCochains (.of ρ2)).cycles n)
         ((homogeneousCochains (.of ρ3)).cycles r) :=
@@ -506,7 +506,7 @@ noncomputable def cupCocycles (f : ρ1 →ⁱL ρ2.linHom ρ3)
 
 variable {ρ1 ρ2 ρ3} in
 @[simp]
-lemma cupCocycles_apply (f : ρ1 →ⁱL ρ2.linHom ρ3) (hp : Continuous fun p : M2 × M1 ↦ f p.2 p.1)
+lemma cupCocycles_apply (f : ρ1 →ⁱL ρ2.linHom ρ3) (hp : Continuous fun p : M1 × M2 ↦ f p.1 p.2)
     (m n r : ℕ) (hr : r = m + n)
     (σ : (homogeneousCochains (.of ρ1)).cycles m)
     (τ : (homogeneousCochains (.of ρ2)).cycles n) :
@@ -565,7 +565,7 @@ lemma cokerπ_cupKerCLM_bdryKer_right (m n r : ℕ) (hr : r = m + n)
 /-- The cup product on continuous group cohomology induced by an intertwining map
 `f : ρ1 →ⁱL linHom ρ2 ρ3`: descend the kernel-model cup product `cupKerHom` to the quotients
 by the coboundaries on all three slots, and transport along `cohomologyIsoQuot`. -/
-noncomputable def cup (f : ρ1 →ⁱL ρ2.linHom ρ3) (hp : Continuous fun p : M2 × M1 ↦ f p.2 p.1)
+noncomputable def cup (f : ρ1 →ⁱL ρ2.linHom ρ3) (hp : Continuous fun p : M1 × M2 ↦ f p.1 p.2)
     (m n r : ℕ) (hr : r = m + n) :
     (continuousCohomology m (of ρ1)) ⟶
       TopModuleCat.linHom ((continuousCohomology n (of ρ2)))
