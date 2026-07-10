@@ -330,6 +330,7 @@ noncomputable def xCocycle (c : PairingChoices 𝔽 F S M x y) (v : S) :
       (c.psi v)
     - (ContinuousCohomology.cochainsMap (localToGlobal F S v.1) (ksUnitsGlue F S v.1)).f 2 c.h2
 
+omit [Finite 𝔽] [Finite M] in
 /-- The `ℤ`-side restriction of the representative of `f` is a cocycle. -/
 lemma d_cochainsMap_toInt_f2 (c : PairingChoices 𝔽 F S M x y) (v : S) :
     (homogeneousCochains (TopRep.res (locToGlob F S v.1) (toInt M))).d 2 3
@@ -342,6 +343,7 @@ lemma d_cochainsMap_toInt_f2 (c : PairingChoices 𝔽 F S M x y) (v : S) :
 
 set_option maxHeartbeats 3200000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
 set_option synthInstance.maxHeartbeats 400000 in
+omit [Finite 𝔽] [Finite M] in
 /-- **Blueprint §4, claim 1**: `x_v` is a `2`-cocycle. -/
 lemma d_xCocycle (c : PairingChoices 𝔽 F S M x y) (v : S) :
     (homogeneousCochains (algClosureUnitsRep F v.1)).d 2 3 (xCocycle c v) = 0 := by
@@ -396,7 +398,7 @@ noncomputable def pairingValue (c : PairingChoices 𝔽 F S M x y) : AddCircle (
   ∑ v ∈ S.attach, localInvariantMap F v.1
     (cocycleClass (algClosureUnitsRep F v.1) 2 (xCocycle c v) (d_xCocycle c v))
 
-omit [Finite M] in
+omit [Finite 𝔽] [Finite M] in
 /-- Local triviality of `x` gives a local primitive for the restriction of its
 representative: `res_v f₂ = d φ_v`. -/
 lemma exists_local_primitive (c : PairingChoices 𝔽 F S M x y) (v : S)
@@ -411,6 +413,7 @@ lemma exists_local_primitive (c : PairingChoices 𝔽 F S M x y) (v : S)
   rw [c.hf2x, hxv] at h
   exact (cocycleClass_eq_zero_iff _ 2 _ _).mp h.symm
 
+omit [Finite 𝔽] [Finite M] in
 /-- The `ℤ`-side restricted representative of `f` is a coboundary when `x` is locally
 trivial. -/
 lemma exists_local_primitive_int (c : PairingChoices 𝔽 F S M x y) (v : S)
@@ -449,6 +452,7 @@ lemma cocycleClass_cup_d_left (v : S)
 
 set_option maxHeartbeats 1600000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
 set_option synthInstance.maxHeartbeats 400000 in
+omit [Finite 𝔽] [Finite M] in
 /-- The value does not depend on the choice of the global primitive `h₂` (given the other
 choices are equal): the difference is a global `2`-cocycle in `K_S^×`, whose local
 invariants sum to zero by the reciprocity input. -/
@@ -501,6 +505,7 @@ lemma pairingValue_congr_h (c c' : PairingChoices 𝔽 F S M x y)
 
 set_option maxHeartbeats 3200000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
 set_option synthInstance.maxHeartbeats 400000 in
+omit [Finite 𝔽] [Finite M] in
 /-- The value does not depend on the choice of the local primitives `ψ_v` (given the other
 choices are equal): the local cocycles change by `f_v ∪ θ_v` with `θ_v` a `0`-cocycle and
 `f_v` a coboundary (local triviality of `x`), hence by a coboundary. -/
@@ -627,18 +632,22 @@ noncomputable def PairingChoices.moveG (c : PairingChoices 𝔽 F S M x y)
     rw [hadd, c.hpsi v, hdres]
     abel
 
+omit [Finite 𝔽] [Finite M] in
 @[simp] lemma PairingChoices.moveG_f2 (c : PairingChoices 𝔽 F S M x y) (g1' hg1' hg1y' η hη) :
     (c.moveG g1' hg1' hg1y' η hη).f2 = c.f2 := rfl
 
+omit [Finite 𝔽] [Finite M] in
 @[simp] lemma PairingChoices.moveG_g1 (c : PairingChoices 𝔽 F S M x y) (g1' hg1' hg1y' η hη) :
     (c.moveG g1' hg1' hg1y' η hη).g1 = g1' := rfl
 
+omit [Finite 𝔽] [Finite M] in
 @[simp] lemma PairingChoices.moveG_h2 (c : PairingChoices 𝔽 F S M x y) (g1' hg1' hg1y' η hη) :
     (c.moveG g1' hg1' hg1y' η hη).h2 =
       c.h2 + cupCochain (evalIntertwiner 𝔽 F S M) 2 0 2 rfl
         ((toIntCochainEquiv M 2).symm c.f2)
         ((toIntCochainEquiv (dualRep 𝔽 F S M) 0).symm η) := rfl
 
+omit [Finite 𝔽] [Finite M] in
 @[simp] lemma PairingChoices.moveG_psi (c : PairingChoices 𝔽 F S M x y) (g1' hg1' hg1y' η hη)
     (v : S) :
     (c.moveG g1' hg1' hg1y' η hη).psi v =
@@ -648,6 +657,7 @@ noncomputable def PairingChoices.moveG (c : PairingChoices 𝔽 F S M x y)
 
 set_option maxHeartbeats 3200000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
 set_option synthInstance.maxHeartbeats 400000 in
+omit [Finite 𝔽] [Finite M] in
 /-- The local cocycles, hence the value, are unchanged by `moveG`. -/
 lemma pairingValue_moveG (c : PairingChoices 𝔽 F S M x y)
     (g1' : ↥((homogeneousCochains (dualRep 𝔽 F S M)).X 1))
@@ -747,23 +757,28 @@ noncomputable def PairingChoices.moveF (c : PairingChoices 𝔽 F S M x y)
   psi := c.psi
   hpsi := c.hpsi
 
+omit [Finite 𝔽] [Finite M] in
 @[simp] lemma PairingChoices.moveF_f2 (c : PairingChoices 𝔽 F S M x y) (f2' hf2' hf2x' ξ hξ) :
     (c.moveF f2' hf2' hf2x' ξ hξ).f2 = f2' := rfl
 
+omit [Finite 𝔽] [Finite M] in
 @[simp] lemma PairingChoices.moveF_g1 (c : PairingChoices 𝔽 F S M x y) (f2' hf2' hf2x' ξ hξ) :
     (c.moveF f2' hf2' hf2x' ξ hξ).g1 = c.g1 := rfl
 
+omit [Finite 𝔽] [Finite M] in
 @[simp] lemma PairingChoices.moveF_h2 (c : PairingChoices 𝔽 F S M x y) (f2' hf2' hf2x' ξ hξ) :
     (c.moveF f2' hf2' hf2x' ξ hξ).h2 =
       c.h2 + cupCochain (evalIntertwiner 𝔽 F S M) 1 1 2 rfl
         ((toIntCochainEquiv M 1).symm ξ)
         ((toIntCochainEquiv (dualRep 𝔽 F S M) 1).symm c.g1) := rfl
 
+omit [Finite 𝔽] [Finite M] in
 @[simp] lemma PairingChoices.moveF_psi (c : PairingChoices 𝔽 F S M x y) (f2' hf2' hf2x' ξ hξ) :
     (c.moveF f2' hf2' hf2x' ξ hξ).psi = c.psi := rfl
 
 set_option maxHeartbeats 3200000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
 set_option synthInstance.maxHeartbeats 400000 in
+omit [Finite 𝔽] [Finite M] in
 /-- The local cocycles change by a coboundary under `moveF`, so the value is unchanged. -/
 lemma pairingValue_moveF (c : PairingChoices 𝔽 F S M x y)
     (f2' : ↥((homogeneousCochains M).X 2))
@@ -907,6 +922,7 @@ lemma pairingValue_congr
 
 set_option maxHeartbeats 3200000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
 set_option synthInstance.maxHeartbeats 400000 in
+omit [Finite 𝔽] [Finite M] in
 /-- **Blueprint §4** (existence of the choices): given that the primes dividing `#M` lie in
 `S` (so that the `H³` lemma applies) and that `y` is locally trivial, the cochain-level
 choices underlying the pairing exist. -/
@@ -1142,7 +1158,7 @@ lemma kerPairingFun_add_left
       (Nat.card ↥M : RingOfIntegers F) ∈ w.asIdeal → w ∈ S)
     (x₁ x₂ : ↥(continuousCohomology 2 M))
     (y₀ : ↥(continuousCohomology 1 (dualRep 𝔽 F S M)))
-    (hx₁ : ∀ v : S, ContinuousCohomology.map (localToGlobal F S v.1)
+    (_ : ∀ v : S, ContinuousCohomology.map (localToGlobal F S v.1)
       (𝟙 (TopRep.res (locToGlob F S v.1) M)) 2 x₁ = 0)
     (hx₂ : ∀ v : S, ContinuousCohomology.map (localToGlobal F S v.1)
       (𝟙 (TopRep.res (locToGlob F S v.1) M)) 2 x₂ = 0)
