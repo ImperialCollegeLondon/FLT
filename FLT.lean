@@ -74,9 +74,11 @@ public import FLT.HenselianLocalRing.Stuff
 public import FLT.KnownIn1980s.EllipticCurves.Flat
 public import FLT.KnownIn1980s.EllipticCurves.GoodReduction
 public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists
+public import FLT.KnownIn1980s.EllipticCurves.ReductionBaseChange
 public import FLT.KnownIn1980s.EllipticCurves.TateCurve
+public import FLT.KnownIn1980s.EllipticCurves.TateCurveBaseChange
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstruction
-public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstructionExperiment
+public import FLT.KnownIn1980s.EllipticCurves.TateParameter
 public import FLT.KnownIn1980s.EllipticCurves.Torsion
 public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
 public import FLT.KnownIn1980s.PGL2.Defs
@@ -93,6 +95,7 @@ public import FLT.Mathlib.Algebra.IsDirectLimit
 public import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 public import FLT.Mathlib.Algebra.Module.Submodule.Basic
 public import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
+public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
 public import FLT.Mathlib.Analysis.Normed.Ring.WithAbs
 public import FLT.Mathlib.Data.Fin.Basic
 public import FLT.Mathlib.Data.Real.Archimedean
@@ -144,6 +147,7 @@ public import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct
 public import FLT.Mathlib.RingTheory.TensorProduct.Basis
 public import FLT.Mathlib.RingTheory.TensorProduct.Pi
 public import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
+public import FLT.Mathlib.RingTheory.Valuation.ValuativeRel.Basic
 public import FLT.Mathlib.Topology.Algebra.Algebra.Hom
 public import FLT.Mathlib.Topology.Algebra.ContinuousAlgEquiv
 public import FLT.Mathlib.Topology.Algebra.ContinuousMonoidHom
@@ -166,6 +170,7 @@ public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Equiv
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.Module
 public import FLT.Mathlib.Topology.Algebra.RestrictedProduct.TopologicalSpace
 public import FLT.Mathlib.Topology.Algebra.UniformRing
+public import FLT.Mathlib.Topology.Algebra.ValuativeRel.ValuativeTopology
 public import FLT.Mathlib.Topology.Algebra.Valued.ValuationTopology
 public import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
 public import FLT.Mathlib.Topology.Bases
@@ -206,6 +211,7 @@ public import FLT.Slop.DimensionTheorem.DimLeGrowth
 public import FLT.Slop.DimensionTheorem.GrowthLeDelta
 public import FLT.Slop.DimensionTheorem.Main
 public import FLT.Slop.DimensionTheorem.Numeric
+public import FLT.Slop.NumberTheory.TsumDivisorsAntidiagonal
 public import FLT.Slop.PGL2.FiniteSubgroups.CyclicPartition
 public import FLT.Slop.PGL2.FiniteSubgroups.DicksonClassification
 public import FLT.Slop.PGL2.FiniteSubgroups.FieldReconstruction
