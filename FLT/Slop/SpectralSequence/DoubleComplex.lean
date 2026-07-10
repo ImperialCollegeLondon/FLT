@@ -344,7 +344,6 @@ lemma lof_totalCochainComplex_d (n m i : ℤ) :
   intro x
   exact K.totalD_lof n m i x
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The horizontal contribution to mathlib's total differential agrees with
 the horizontal contribution in the concrete direct-sum model. -/
 lemma d₁_eq_concrete (n m i : ℤ) (hm : m = n + 1) :
@@ -367,7 +366,6 @@ lemma d₁_eq_concrete (n m i : ℤ) (hm : m = n + 1) :
   simp only [ModuleCat.ofHom_hom, Category.assoc]
   rw [HomologicalComplex₂.XXIsoOfEq_hom_ιTotal]
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The vertical contribution to mathlib's total differential agrees with the
 signed vertical contribution in the concrete direct-sum model. -/
 lemma d₂_eq_concrete (n m i : ℤ) (hm : m = n + 1) :
@@ -391,6 +389,8 @@ lemma d₂_eq_concrete (n m i : ℤ) (hm : m = n + 1) :
       HomologicalComplex₂.ιTotal K (ComplexShape.up ℤ) i (m - i) m _
   rw [Linear.units_smul_comp]
 
+-- The `set_option` is required here: without it the `isoOfComponents`
+-- compatibility proof leaves metavariables that the kernel rejects.
 set_option backward.isDefEq.respectTransparency false in
 /-- The concrete direct-sum total complex is canonically isomorphic to mathlib's
 categorical coproduct total complex. -/
