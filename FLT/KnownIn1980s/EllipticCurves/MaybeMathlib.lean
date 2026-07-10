@@ -62,7 +62,6 @@ theorem Subgroup.zpow_mul_mem_zpowers_iff {G : Type*} [CommGroup G] (g w : G) (j
 /-! ## → `Mathlib.Algebra.GroupWithZero.Units.Basic` -/
 
 /-- The coercion `Mˣ → M` applied to `g ^ j * w`. -/
-@[simp]
 theorem Units.val_zpow_mul {M : Type*} [DivisionRing M] (g w : Mˣ) (j : ℤ) :
     ((g ^ j * w : Mˣ) : M) = (g : M) ^ j * (w : M) := by
   simp only [Units.val_mul, Units.val_zpow_eq_zpow_val]
