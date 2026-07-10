@@ -67,14 +67,68 @@ Throughout, `𝔽` is a finite field, `F` a number field, `S` a finite set of fi
 * All maps in the sequence are `𝔽`-linear; the pairings into `ℚ/ℤ` are additive (as they must
   be — `ℚ/ℤ` is not an `𝔽`-module).
 
-All theorem bodies are `sorry`; this file only fixes the statements.
+Theorem bodies are `sorry` except where noted; genuine constructions in this file:
+`kerPairing`, the `Kerⁱ`-transport `kerAlphaMap`/`kerAlphaCongr` (from
+`ContinuousCohomology.map_comp`), the `𝔽`-linear adjoint `kerPairingFlip` of the pairing
+(modulo the deferred balancedness lemma `kerPairingFun_smul`), and `psi` (which consumes
+`doubleDualIso` of `DualModule.lean` and the sorried `kerPairing_bijective_right`).
 -/
 
 @[expose] public section
 
-universe u w
+universe u v w
 
 open IsDedekindDomain CategoryTheory CategoryTheory.Limits
+
+namespace ContinuousCohomology
+
+variable {k : Type*} {G H : Type v} [Ring k] [TopologicalSpace k]
+  [Group G] [TopologicalSpace G] [IsTopologicalGroup G]
+  [Group H] [TopologicalSpace H] [IsTopologicalGroup H]
+  {X Y : TopRep k G}
+
+/-- Naturality of restriction along `φ : H →ₜ* G` in the coefficient module: transporting a
+class along `f : X ⟶ Y` commutes with restriction. Both composites are
+`ContinuousCohomology.map` along `φ` with coefficient morphism `(resFunctor φ).map f`, by
+`ContinuousCohomology.map_comp` applied to each path.
+
+Stated over abstract groups on purpose: the identifications `res (id H) (res φ X) = res φ X`
+and `(id G).comp φ = φ = φ.comp (id H)` are cheap definitional checks here, but time out when
+the elaborator first meets them at a concrete `H` like the absolute Galois group of a local
+field (a concrete `alpha_map` naturality statement at `localToGlobal` was unelaborable even
+at 6400000 heartbeats). Instantiating this lemma substitutes the concrete groups into an
+already-elaborated statement, so those checks never re-run. -/
+theorem map_restrict_naturality (φ : H →ₜ* G) (f : X ⟶ Y) (n : ℕ) :
+    ContinuousCohomology.map (ContinuousMonoidHom.id G) f n ≫
+      ContinuousCohomology.map φ (𝟙 (TopRep.res (φ : H →* G) Y)) n =
+    ContinuousCohomology.map φ (𝟙 (TopRep.res (φ : H →* G) X)) n ≫
+      ContinuousCohomology.map (ContinuousMonoidHom.id H)
+        ((TopRep.resFunctor (φ : H →* G)).map f) n := by
+  have h1 := ContinuousCohomology.map_comp (X := X) (Y := Y)
+    (ContinuousMonoidHom.id G) φ f (𝟙 (TopRep.res (φ : H →* G) Y)) n
+  have h2 := ContinuousCohomology.map_comp (X := X) (Y := TopRep.res (φ : H →* G) X)
+    (Z := TopRep.res (φ : H →* G) Y) φ (ContinuousMonoidHom.id H)
+    (𝟙 (TopRep.res (φ : H →* G) X))
+    ((TopRep.resFunctor (φ : H →* G)).map f) n
+  exact h1.symm.trans h2
+
+/-- Elementwise consequence of `map_restrict_naturality`: if the restriction of `x` along `φ`
+vanishes, so does the restriction of its transport along `f : X ⟶ Y`. -/
+theorem map_restrict_eq_zero (φ : H →ₜ* G) (f : X ⟶ Y) (n : ℕ)
+    {x : ↥(continuousCohomology n X)}
+    (hx : ContinuousCohomology.map φ (𝟙 (TopRep.res (φ : H →* G) X)) n x = 0) :
+    ContinuousCohomology.map φ (𝟙 (TopRep.res (φ : H →* G) Y)) n
+      (ContinuousCohomology.map (ContinuousMonoidHom.id G) f n x) = 0 := by
+  have h : ContinuousCohomology.map φ (𝟙 (TopRep.res (φ : H →* G) Y)) n
+      (ContinuousCohomology.map (ContinuousMonoidHom.id G) f n x) =
+    ContinuousCohomology.map (ContinuousMonoidHom.id H)
+      ((TopRep.resFunctor (φ : H →* G)).map f) n
+      (ContinuousCohomology.map φ (𝟙 (TopRep.res (φ : H →* G) X)) n x) :=
+    congr($(map_restrict_naturality φ f n).hom x)
+  rw [h, hx]
+  exact map_zero _
+
+end ContinuousCohomology
 
 namespace NumberField.PoitouTate
 
@@ -118,6 +172,65 @@ noncomputable def alpha (X : TopRep 𝔽 (unramifiedOutsideGaloisGroup F S)) (i 
 noncomputable def kerAlpha (X : TopRep 𝔽 (unramifiedOutsideGaloisGroup F S)) (i : ℕ) :
     Submodule 𝔽 ↥(continuousCohomology i X) :=
   LinearMap.ker (alpha 𝔽 F S X i)
+
+section KerAlphaTransport
+
+variable {X Y Z : TopRep 𝔽 (unramifiedOutsideGaloisGroup F S)}
+
+omit [Finite 𝔽] [DiscreteTopology 𝔽] [NumberField F] in
+/-- Transport of cohomology along `f : X ⟶ Y` (the group fixed) preserves the composite:
+`map g ∘ map f = map (f ≫ g)` elementwise. -/
+theorem map_id_comp_apply (f : X ⟶ Y) (g : Y ⟶ Z) (i : ℕ)
+    (x : ↥(continuousCohomology i X)) :
+    ContinuousCohomology.map (ContinuousMonoidHom.id (unramifiedOutsideGaloisGroup F S)) g i
+      (ContinuousCohomology.map
+        (ContinuousMonoidHom.id (unramifiedOutsideGaloisGroup F S)) f i x) =
+    ContinuousCohomology.map (ContinuousMonoidHom.id (unramifiedOutsideGaloisGroup F S))
+      (f ≫ g) i x := by
+  have h := ContinuousCohomology.map_comp (X := X) (Y := Y) (Z := Z)
+    (ContinuousMonoidHom.id (unramifiedOutsideGaloisGroup F S))
+    (ContinuousMonoidHom.id (unramifiedOutsideGaloisGroup F S)) f g i
+  exact (congr($(h).hom x)).symm
+
+omit [Finite 𝔽] [DiscreteTopology 𝔽] in
+/-- Transport along `f : X ⟶ Y` sends locally trivial classes to locally trivial classes. -/
+theorem kerAlphaMap_mem (f : X ⟶ Y) (i : ℕ) {x : ↥(continuousCohomology i X)}
+    (hx : x ∈ kerAlpha 𝔽 F S X i) :
+    ContinuousCohomology.map (ContinuousMonoidHom.id (unramifiedOutsideGaloisGroup F S)) f i
+      x ∈ kerAlpha 𝔽 F S Y i := by
+  refine LinearMap.mem_ker.mpr (funext fun v ↦ ?_)
+  rw [Pi.zero_apply]
+  exact ContinuousCohomology.map_restrict_eq_zero (localToGlobal F S v.1) f i
+    (congrFun (LinearMap.mem_ker.mp hx) v)
+
+/-- Transport along a morphism of representations `f : X ⟶ Y`, restricted to the locally
+trivial classes: `Kerⁱ(G_S, X) →ₗ Kerⁱ(G_S, Y)`. -/
+noncomputable def kerAlphaMap (f : X ⟶ Y) (i : ℕ) :
+    ↥(kerAlpha 𝔽 F S X i) →ₗ[𝔽] ↥(kerAlpha 𝔽 F S Y i) :=
+  LinearMap.restrict
+    (ContinuousCohomology.map (ContinuousMonoidHom.id (unramifiedOutsideGaloisGroup F S))
+      f i).hom.toLinearMap
+    (fun _ hx ↦ kerAlphaMap_mem 𝔽 F S f i hx)
+
+/-- Transport of `Kerⁱ(G_S, ·)` along an isomorphism of representations. Applied to
+`doubleDualIso` (i.e. `M ≅ M**`) in `psi`. -/
+noncomputable def kerAlphaCongr (e : X ≅ Y) (i : ℕ) :
+    ↥(kerAlpha 𝔽 F S X i) ≃ₗ[𝔽] ↥(kerAlpha 𝔽 F S Y i) :=
+  LinearEquiv.ofLinear (kerAlphaMap 𝔽 F S e.hom i) (kerAlphaMap 𝔽 F S e.inv i)
+    (LinearMap.ext fun y ↦ Subtype.ext
+      (((map_id_comp_apply 𝔽 F S e.inv e.hom i y.1).trans
+        (congrArg (fun t : Y ⟶ Y ↦ ContinuousCohomology.map
+          (ContinuousMonoidHom.id (unramifiedOutsideGaloisGroup F S)) t i y.1)
+          e.inv_hom_id)).trans
+        (congr($(ContinuousCohomology.map_id Y i).hom y.1))))
+    (LinearMap.ext fun x ↦ Subtype.ext
+      (((map_id_comp_apply 𝔽 F S e.hom e.inv i x.1).trans
+        (congrArg (fun t : X ⟶ X ↦ ContinuousCohomology.map
+          (ContinuousMonoidHom.id (unramifiedOutsideGaloisGroup F S)) t i x.1)
+          e.hom_inv_id)).trans
+        (congr($(ContinuousCohomology.map_id X i).hom x.1))))
+
+end KerAlphaTransport
 
 variable (M : TopRep.{u} 𝔽 (unramifiedOutsideGaloisGroup F S)) [Finite M] [DiscreteTopology M]
 
@@ -192,6 +305,48 @@ theorem kerPairing_bijective_right (h2 : (2 : 𝔽) ≠ 0)
     Function.Bijective (kerPairing 𝔽 F S M hS).flip :=
   sorry
 
+/-- **`𝔽`-balancedness of the kernel pairing** (deferred): the scalar slides between the two
+slots, `⟨c • x, y⟩ = ⟨x, c • y⟩`. This is what makes the adjoint of `kerPairing` `𝔽`-linear
+for the transpose (`CharacterModule`) module structure — `ℚ/ℤ` itself is not an `𝔽`-module,
+so this is the only bilinearity statement available beyond biadditivity. It is elementary
+(no arithmetic input): at the cochain level the evaluation `M × M* → K_S^×` is balanced by
+the very definition of the `𝔽`-action on `M*` (`smul_addMonoidHom_apply`), so
+`(c • f₂) ∪ g₁` and `f₂ ∪ (c • g₁)` are literally equal cochains, and the `PairingChoices`
+of the two sides can be chosen to share their `h₂` and `ψ_v`; provable by the
+`moveF`/`moveG` technique of `KerPairing.lean`. -/
+theorem kerPairingFun_smul (c : 𝔽)
+    (hS : ∀ w : HeightOneSpectrum (RingOfIntegers F),
+      (Nat.card ↥M : RingOfIntegers F) ∈ w.asIdeal → w ∈ S)
+    (x₀ : ↥(continuousCohomology 2 M)) (y₀ : ↥(continuousCohomology 1 (dualRep 𝔽 F S M)))
+    (hx : ∀ v : S, ContinuousCohomology.map (localToGlobal F S v.1)
+      (𝟙 (TopRep.res (locToGlob F S v.1) M)) 2 x₀ = 0)
+    (hcx : ∀ v : S, ContinuousCohomology.map (localToGlobal F S v.1)
+      (𝟙 (TopRep.res (locToGlob F S v.1) M)) 2 (c • x₀) = 0)
+    (hy : ∀ v : S, ContinuousCohomology.map (localToGlobal F S v.1)
+      (𝟙 (TopRep.res (locToGlob F S v.1) (dualRep 𝔽 F S M))) 1 y₀ = 0)
+    (hcy : ∀ v : S, ContinuousCohomology.map (localToGlobal F S v.1)
+      (𝟙 (TopRep.res (locToGlob F S v.1) (dualRep 𝔽 F S M))) 1 (c • y₀) = 0) :
+    kerPairingFun hS (c • x₀) y₀ hy = kerPairingFun hS x₀ (c • y₀) hcy :=
+  sorry
+
+/-- The adjoint of the kernel pairing in its second slot, as an `𝔽`-linear map into the
+character module: `g ↦ ⟨·, g⟩ : Ker¹(G_S, M*) →ₗ (Ker²(G_S, M))^∨`. Additivity is
+`kerPairing`'s; `𝔽`-linearity — for the transpose action `(c • φ) f = φ (c • f)` on
+characters — is exactly the balancedness `kerPairingFun_smul`. -/
+noncomputable def kerPairingFlip
+    (hS : ∀ w : HeightOneSpectrum (RingOfIntegers F),
+      (Nat.card ↥M : RingOfIntegers F) ∈ w.asIdeal → w ∈ S) :
+    ↥(kerAlpha 𝔽 F S (dualRep 𝔽 F S M) 1) →ₗ[𝔽]
+      CharacterModule ↥(kerAlpha 𝔽 F S M 2) where
+  toFun g := (kerPairing 𝔽 F S M hS).flip g
+  map_add' g₁ g₂ := map_add (kerPairing 𝔽 F S M hS).flip g₁ g₂
+  map_smul' c g := AddMonoidHom.ext fun f ↦
+    (kerPairingFun_smul 𝔽 F S M c hS f.1 g.1
+      (fun v ↦ congrFun (LinearMap.mem_ker.mp f.2) v)
+      (fun v ↦ congrFun (LinearMap.mem_ker.mp (c • f).2) v)
+      (fun v ↦ congrFun (LinearMap.mem_ker.mp g.2) v)
+      (fun v ↦ congrFun (LinearMap.mem_ker.mp (c • g).2) v)).symm
+
 /-- **Blueprint §"Connecting maps", step 1**: the surjection
 `ι^∨ : H²(G_S, M*)^∨ ↠ Ker²(G_S, M*)^∨` dual to the inclusion
 `ι : Ker²(G_S, M*) ↪ H²(G_S, M*)`. -/
@@ -202,12 +357,21 @@ noncomputable def dualShaInclusion :
 
 /-- **Blueprint §"Connecting maps", step 2**: the isomorphism
 `ψ : Ker²(G_S, M*)^∨ ≅ Ker¹(G_S, M)` induced by the perfect pairing applied to `M*` (together
-with the identification `M** ≅ M`, which holds since `#M` is a unit in `R_{F,S}`). -/
+with the identification `M** ≅ M`, which holds since `#M` is a unit in `R_{F,S}`).
+
+Construction: the flipped pairing for `M*` is an `𝔽`-linear map
+`Ker¹(G_S, M**) →ₗ Ker²(G_S, M*)^∨` (`kerPairingFlip`, fed with `hS_dualRep`), bijective by
+`kerPairing_bijective_right`; invert it, then transport `Ker¹(G_S, M**) ≃ Ker¹(G_S, M)`
+along the evaluation isomorphism `doubleDualIso` via `kerAlphaCongr`. -/
 noncomputable def psi (h2 : (2 : 𝔽) ≠ 0)
     (hS : ∀ w : HeightOneSpectrum (RingOfIntegers F),
       (Nat.card ↥M : RingOfIntegers F) ∈ w.asIdeal → w ∈ S) :
     CharacterModule ↥(kerAlpha 𝔽 F S (dualRep 𝔽 F S M) 2) →ₗ[𝔽] ↥(kerAlpha 𝔽 F S M 1) :=
-  sorry
+  (kerAlphaCongr 𝔽 F S (doubleDualIso 𝔽 F S M hS).symm 1).toLinearMap ∘ₗ
+    (LinearEquiv.ofBijective
+      (kerPairingFlip 𝔽 F S (dualRep 𝔽 F S M) (hS_dualRep 𝔽 F S M hS))
+      (kerPairing_bijective_right 𝔽 F S (dualRep 𝔽 F S M) h2
+        (hS_dualRep 𝔽 F S M hS))).symm.toLinearMap
 
 /-- **Blueprint §"Connecting maps"**: the first connecting map
 `H²(G_S, M*)^∨ → H¹(G_S, M)` of the nine-term sequence, the composite

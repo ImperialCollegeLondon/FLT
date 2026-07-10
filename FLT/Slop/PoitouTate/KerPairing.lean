@@ -50,13 +50,6 @@ blueprint's `H³` lemma), and local primitives `ψ_v` with `res_v g = dψ_v`; th
 set_option allowUnsafeReducibility true in
 attribute [local reducible] CategoryTheory.Functor.mapHomologicalComplex
 
--- The cochain-level computations in this file unify large types across the
--- `TopRep.of`/named-representation and `𝔽`/`ℤ` seams in almost every declaration; the
--- default heartbeat budgets are far too small for them, so they are raised file-wide.
-set_option linter.style.maxHeartbeats false
-set_option maxHeartbeats 1600000
-set_option synthInstance.maxHeartbeats 400000
-
 universe u
 
 open IsDedekindDomain CategoryTheory ContRepresentation TopRep TopCup
@@ -98,35 +91,7 @@ instance : DiscreteTopology ↥(ksUnitsRep F S) := ⟨rfl⟩
 instance (v : HeightOneSpectrum (RingOfIntegers F)) :
     DiscreteTopology ↥(algClosureUnitsRep F v) := ⟨rfl⟩
 
-section SmulCancel
-
-variable {G : Type*} [Group G] {L : Type*} [Field L] [MulSemiringAction G L]
-
-/-- Cancellation for the additive units action. -/
-lemma toAdditive_unitsMap_smul_inv_smul (g : G) (y : Additive Lˣ) :
-    (MonoidHom.toAdditive (Units.map (MulSemiringAction.toRingHom G L g).toMonoidHom))
-      ((MonoidHom.toAdditive
-        (Units.map (MulSemiringAction.toRingHom G L g⁻¹).toMonoidHom)) y) = y := by
-  refine Additive.toMul.injective (Units.ext ?_)
-  change g • (g⁻¹ • ((y.toMul : Lˣ) : L)) = ((y.toMul : Lˣ) : L)
-  exact smul_inv_smul g _
-
-end SmulCancel
-
 variable (M : TopRep.{u} 𝔽 (unramifiedOutsideGaloisGroup F S))
-
-/-- Evaluation of an element of the dual module `M* = Hom_ℤ(M, K_S^×)`, unfolding the
-carrier of `dualRep`. -/
-noncomputable def dualEval (x : ↥(dualRep 𝔽 F S M)) :
-    ↥M →+ Additive (↥(maximalUnramifiedOutside F S))ˣ := x
-
-lemma dualRep_ρ_apply (g : unramifiedOutsideGaloisGroup F S) (x : ↥(dualRep 𝔽 F S M))
-    (m : ↥M) :
-    dualEval 𝔽 F S M ((dualRep 𝔽 F S M).ρ g x) m =
-      (MonoidHom.toAdditive (Units.map (MulSemiringAction.toRingHom
-        (unramifiedOutsideGaloisGroup F S) ↥(maximalUnramifiedOutside F S) g).toMonoidHom))
-        (dualEval 𝔽 F S M x (M.ρ g⁻¹ m)) :=
-  rfl
 
 lemma ksUnitsRep_ρ_apply (g : unramifiedOutsideGaloisGroup F S) (u : ↥(ksUnitsRep F S)) :
     (ksUnitsRep F S).ρ g u =
@@ -288,6 +253,7 @@ noncomputable def evalIntertwinerLoc (v : HeightOneSpectrum (RingOfIntegers F)) 
     rw [dualRep_ρ_apply, ksUnitsGlue_toAdditive_comm, algClosureUnitsRep_ρ_apply,
       toAdditive_unitsMap_smul_inv_smul, map_inv (localToGlobal F S v) σ, inv_inv]
 
+omit [Finite 𝔽] [Finite M] in
 /-- The compatibility between the global and local evaluation intertwiners through the
 coefficient glue, feeding `cochainsMap_cupCochain`. -/
 lemma ksUnitsGlue_evalIntertwiner (v : HeightOneSpectrum (RingOfIntegers F)) (m : ↥M)
@@ -340,12 +306,14 @@ structure PairingChoices (x : ↥(continuousCohomology 2 M))
 variable {𝔽 F S M} {x : ↥(continuousCohomology 2 M)}
   {y : ↥(continuousCohomology 1 (dualRep 𝔽 F S M))}
 
+omit [Finite 𝔽] [DiscreteTopology 𝔽] [NumberField F] [Finite M] [DiscreteTopology M] in
 /-- The `ℤ`-side representative of `f` is a cocycle. -/
 lemma d_toInt_f2 (f2 : ↥((homogeneousCochains M).X 2))
     (hf2 : (homogeneousCochains M).d 2 3 f2 = 0) :
     (homogeneousCochains (toInt M)).d 2 3 ((toIntCochainEquiv M 2).symm f2) = 0 := by
   rw [toIntCochainEquiv_symm_d, hf2, (toIntCochainEquiv M 3).symm.map_zero]
 
+omit [Finite 𝔽] [NumberField F] [Finite M] [DiscreteTopology M] in
 /-- The `ℤ`-side representative of `g` is a cocycle. -/
 lemma d_toInt_g1 (g1 : ↥((homogeneousCochains (dualRep 𝔽 F S M)).X 1))
     (hg1 : (homogeneousCochains (dualRep 𝔽 F S M)).d 1 2 g1 = 0) :
@@ -372,8 +340,8 @@ lemma d_cochainsMap_toInt_f2 (c : PairingChoices 𝔽 F S M x y) (v : S) :
   exact ((ContinuousCohomology.cochainsMap (localToGlobal F S v.1)
     (𝟙 (TopRep.res (locToGlob F S v.1) (toInt M)))).f 3).hom.map_zero
 
-set_option maxHeartbeats 3200000 in
--- the cochain-level computation unifies large types across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option maxHeartbeats 3200000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option synthInstance.maxHeartbeats 400000 in
 /-- **Blueprint §4, claim 1**: `x_v` is a `2`-cocycle. -/
 lemma d_xCocycle (c : PairingChoices 𝔽 F S M x y) (v : S) :
     (homogeneousCochains (algClosureUnitsRep F v.1)).d 2 3 (xCocycle c v) = 0 := by
@@ -428,6 +396,7 @@ noncomputable def pairingValue (c : PairingChoices 𝔽 F S M x y) : AddCircle (
   ∑ v ∈ S.attach, localInvariantMap F v.1
     (cocycleClass (algClosureUnitsRep F v.1) 2 (xCocycle c v) (d_xCocycle c v))
 
+omit [Finite M] in
 /-- Local triviality of `x` gives a local primitive for the restriction of its
 representative: `res_v f₂ = d φ_v`. -/
 lemma exists_local_primitive (c : PairingChoices 𝔽 F S M x y) (v : S)
@@ -458,6 +427,7 @@ lemma exists_local_primitive_int (c : PairingChoices 𝔽 F S M x y) (v : S)
   have h2 := toIntCochainEquiv_symm_cochainsMap (localToGlobal F S v.1) M 2 c.f2
   exact h1.trans ((congrArg _ hφ1).trans h2.symm)
 
+omit [Finite 𝔽] [Finite M] in
 /-- The class of the cup of a coboundary with a `0`-cochain vanishes. -/
 lemma cocycleClass_cup_d_left (v : S)
     (φ1 : ↥((homogeneousCochains (TopRep.res (locToGlob F S v.1) (toInt M))).X 1))
@@ -477,6 +447,8 @@ lemma cocycleClass_cup_d_left (v : S)
   exact (ContRepresentation.d_cupCochain_of_d_eq_zero (evalIntertwinerLoc 𝔽 F S M v.1)
     1 0 1 rfl φ1 hθ).symm
 
+set_option maxHeartbeats 1600000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option synthInstance.maxHeartbeats 400000 in
 /-- The value does not depend on the choice of the global primitive `h₂` (given the other
 choices are equal): the difference is a global `2`-cocycle in `K_S^×`, whose local
 invariants sum to zero by the reciprocity input. -/
@@ -527,8 +499,8 @@ lemma pairingValue_congr_h (c c' : PairingChoices 𝔽 F S M x y)
     (hsum.trans (sum_localInvariantMap_map_eq_zero F S
       (cocycleClass (ksUnitsRep F S) 2 (c'.h2 - c.h2) hzd)))
 
-set_option maxHeartbeats 3200000 in
--- the cochain-level computation unifies large types across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option maxHeartbeats 3200000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option synthInstance.maxHeartbeats 400000 in
 /-- The value does not depend on the choice of the local primitives `ψ_v` (given the other
 choices are equal): the local cocycles change by `f_v ∪ θ_v` with `θ_v` a `0`-cocycle and
 `f_v` a coboundary (local triviality of `x`), hence by a coboundary. -/
@@ -570,6 +542,8 @@ lemma pairingValue_congr_psi (c c' : PairingChoices 𝔽 F S M x y)
   rw [hf, hh2]
   abel
 
+set_option maxHeartbeats 1600000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option synthInstance.maxHeartbeats 400000 in
 /-- Modify the choices along a change of representative of `g`: for `g₁' = g₁ + dη`, the new
 global primitive is `h₂ + f₂ ∪ η` and the new local primitives are `ψ_v + res_v η`. The
 local cocycles `x_v` are unchanged **on the nose**. -/
@@ -672,8 +646,8 @@ noncomputable def PairingChoices.moveG (c : PairingChoices 𝔽 F S M x y)
         (𝟙 (TopRep.res (locToGlob F S v.1) (toInt (dualRep 𝔽 F S M))))).f 0
           ((toIntCochainEquiv (dualRep 𝔽 F S M) 0).symm η) := rfl
 
-set_option maxHeartbeats 3200000 in
--- the cochain-level computation unifies large types across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option maxHeartbeats 3200000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option synthInstance.maxHeartbeats 400000 in
 /-- The local cocycles, hence the value, are unchanged by `moveG`. -/
 lemma pairingValue_moveG (c : PairingChoices 𝔽 F S M x y)
     (g1' : ↥((homogeneousCochains (dualRep 𝔽 F S M)).X 1))
@@ -731,6 +705,8 @@ lemma pairingValue_moveG (c : PairingChoices 𝔽 F S M x y)
     abel
   exact cocycleClass_congr (algClosureUnitsRep F v.1) 2 hxeq _
 
+set_option maxHeartbeats 1600000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option synthInstance.maxHeartbeats 400000 in
 /-- Modify the choices along a change of representative of `f`: for `f₂' = f₂ + dξ`, the new
 global primitive is `h₂ + ξ ∪ g₁`. The local cocycles change by a coboundary. -/
 noncomputable def PairingChoices.moveF (c : PairingChoices 𝔽 F S M x y)
@@ -786,8 +762,8 @@ noncomputable def PairingChoices.moveF (c : PairingChoices 𝔽 F S M x y)
 @[simp] lemma PairingChoices.moveF_psi (c : PairingChoices 𝔽 F S M x y) (f2' hf2' hf2x' ξ hξ) :
     (c.moveF f2' hf2' hf2x' ξ hξ).psi = c.psi := rfl
 
-set_option maxHeartbeats 3200000 in
--- the cochain-level computation unifies large types across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option maxHeartbeats 3200000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option synthInstance.maxHeartbeats 400000 in
 /-- The local cocycles change by a coboundary under `moveF`, so the value is unchanged. -/
 lemma pairingValue_moveF (c : PairingChoices 𝔽 F S M x y)
     (f2' : ↥((homogeneousCochains M).X 2))
@@ -889,8 +865,8 @@ lemma pairingValue_moveF (c : PairingChoices 𝔽 F S M x y)
     hleib, hdξv, hcup_split, hdψ]
   abel
 
-set_option maxHeartbeats 3200000 in
--- the cochain-level computation unifies large types across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option maxHeartbeats 3200000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option synthInstance.maxHeartbeats 400000 in
 /-- **Well-definedness of the pairing** (blueprint §4, glossed there): the value depends
 only on the classes `x` and `y`, not on the choices of representatives and primitives. Uses
 the local triviality of `x` (for the `ψ`-step) and global reciprocity (for the `h`-step). -/
@@ -929,8 +905,8 @@ lemma pairingValue_congr
     _ = pairingValue S c₃ := pairingValue_congr_psi c₂ c₃ hx rfl rfl rfl
     _ = pairingValue S c' := pairingValue_congr_h c₃ c' rfl rfl rfl
 
-set_option maxHeartbeats 3200000 in
--- the cochain-level computation unifies large types across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option maxHeartbeats 3200000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option synthInstance.maxHeartbeats 400000 in
 /-- **Blueprint §4** (existence of the choices): given that the primes dividing `#M` lie in
 `S` (so that the `H³` lemma applies) and that `y` is locally trivial, the cochain-level
 choices underlying the pairing exist. -/
@@ -1027,8 +1003,8 @@ lemma kerPairingFun_eq
     kerPairingFun hS x₀ y₀ hy = pairingValue S c :=
   pairingValue_congr hx _ c
 
-set_option maxHeartbeats 3200000 in
--- the cochain-level computation unifies large types across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option maxHeartbeats 3200000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option synthInstance.maxHeartbeats 400000 in
 /-- The pairing is additive in the second argument. -/
 lemma kerPairingFun_add_right
     (hS : ∀ w : HeightOneSpectrum (RingOfIntegers F),
@@ -1132,7 +1108,7 @@ lemma kerPairingFun_add_right
           (ksUnitsGlue F S v.1)).f 2 c₂'.h2 :=
       ((ContinuousCohomology.cochainsMap (localToGlobal F S v.1)
         (ksUnitsGlue F S v.1)).f 2).hom.map_add _ _
-    show cupCochain (evalIntertwinerLoc 𝔽 F S M v.1) 2 0 2 rfl
+    change cupCochain (evalIntertwinerLoc 𝔽 F S M v.1) 2 0 2 rfl
         ((ContinuousCohomology.cochainsMap (localToGlobal F S v.1)
           (𝟙 (TopRep.res (locToGlob F S v.1) (toInt M)))).f 2
             ((toIntCochainEquiv M 2).symm c₁.f2))
@@ -1158,8 +1134,8 @@ lemma kerPairingFun_add_right
         rw [pairingValue_moveF c₂ c₁.f2 c₁.hf2 c₁.hf2x ξ hξ]
     _ = kerPairingFun hS x₀ y₁ hy₁ + kerPairingFun hS x₀ y₂ hy₂ := rfl
 
-set_option maxHeartbeats 6400000 in
--- the cochain-level computation unifies large types across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option maxHeartbeats 6400000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
+set_option synthInstance.maxHeartbeats 400000 in
 /-- The pairing is additive in the first argument. -/
 lemma kerPairingFun_add_left
     (hS : ∀ w : HeightOneSpectrum (RingOfIntegers F),
@@ -1264,7 +1240,7 @@ lemma kerPairingFun_add_left
           (ksUnitsGlue F S v.1)).f 2 c₂'.h2 :=
       ((ContinuousCohomology.cochainsMap (localToGlobal F S v.1)
         (ksUnitsGlue F S v.1)).f 2).hom.map_add _ _
-    show cupCochain (evalIntertwinerLoc 𝔽 F S M v.1) 2 0 2 rfl
+    change cupCochain (evalIntertwinerLoc 𝔽 F S M v.1) 2 0 2 rfl
         ((ContinuousCohomology.cochainsMap (localToGlobal F S v.1)
           (𝟙 (TopRep.res (locToGlob F S v.1) (toInt M)))).f 2
             ((toIntCochainEquiv M 2).symm (c₁.f2 + c₂'.f2)))

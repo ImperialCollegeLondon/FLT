@@ -52,22 +52,13 @@ open TopRep
 
 section CocycleClass
 
-/-- Applying a `TopModuleCat`-isomorphism is injective on elements. -/
-lemma _root_.TopModuleCat.iso_hom_apply_injective {A B : TopModuleCat.{w} k} (e : A ≅ B) :
-    Function.Injective (fun a : ↥A ↦ e.hom a) :=
-  (ConcreteCategory.bijective_of_isIso e.hom).injective
-
 /-- The homology projection agrees with the concrete cokernel projection under the
 identification `homologyIsoCoker`. -/
+@[reassoc]
 lemma homologyπ_comp_homologyIsoCoker_hom {ι : Type w} {c : ComplexShape ι}
     (K : HomologicalComplex (TopModuleCat.{v} k) c) (i j : ι) (hij : c.prev j = i) :
-    K.homologyπ j ≫ (K.homologyIsoCoker i j hij).hom =
-      TopModuleCat.cokerπ (K.toCycles i j) := by
-  have h2 := CokernelCofork.π_mapOfIsColimit (K.homologyIsCokernel i j hij)
-    (CokernelCofork.ofπ (TopModuleCat.cokerπ (K.toCycles i j)) (TopModuleCat.comp_cokerπ _))
-    (Iso.refl (Arrow.mk (K.toCycles i j))).hom
-  simp only [Cofork.π_ofπ, Iso.refl_hom, Arrow.id_right, Category.id_comp] at h2
-  exact h2
+    K.homologyπ j ≫ (K.homologyIsoCoker i j hij).hom = TopModuleCat.cokerπ (K.toCycles i j) :=
+  CokernelCofork.π_mapOfIsColimit (φ := (Iso.refl (Arrow.mk (K.toCycles i j))).hom) _ _
 
 /-- The natural map from cocycles to continuous cohomology agrees, under `cohomologyIsoQuot`,
 with the cokernel projection of the kernel model. -/
@@ -75,18 +66,8 @@ lemma π_comp_cohomologyIsoQuot_hom (X : TopRep k G) (j : ℕ) :
     ContinuousCohomology.π X j ≫ (cohomologyIsoQuot X j).hom =
       ((homogeneousCochains X).cyclesIsoKer j (j + 1) (by simp)).hom ≫
         TopModuleCat.cokerπ (bdryKer X j) := by
-  unfold cohomologyIsoQuot
-  rw [Iso.trans_hom, ← Category.assoc, homologyπ_comp_homologyIsoCoker_hom,
-    TopModuleCat.cokerπ_cokerCongr_hom]
-
-/-- The differential of the homogeneous cochain complex, applied to an element, is the
-differential of the standard resolution (ConcreteCategory-application spelling). -/
-lemma homogeneousCochains_d_apply' (X : TopRep k G) (i : ℕ)
-    (σ : ↥((homogeneousCochains X).X i)) :
-    ((homogeneousCochains X).d i (i + 1) σ : ↥(resolutionX X (i + 1 + 1))) =
-      (TopRep.d X (i + 1)).hom σ.1 := by
-  rw [TopRep.homogeneousCochains.d_eq]
-  rfl
+  simp only [cohomologyIsoQuot]
+  rw [Iso.trans_hom, homologyπ_comp_homologyIsoCoker_hom_assoc, TopModuleCat.cokerπ_cokerCongr_hom]
 
 variable (X : TopRep k G) (j : ℕ)
 
@@ -165,7 +146,7 @@ lemma cocycleClass_surjective (x : ↥(continuousCohomology j X)) :
       (hz : (homogeneousCochains X).d j (j + 1) z = 0), cocycleClass X j z hz = x := by
   obtain ⟨y, hy⟩ := TopModuleCat.cokerπ_surjective' (bdryKer X j) ((cohomologyIsoQuot X j).hom x)
   refine ⟨y.1, LinearMap.mem_ker.1 y.2, ?_⟩
-  refine TopModuleCat.iso_hom_apply_injective (cohomologyIsoQuot X j) ?_
+  refine (ConcreteCategory.bijective_of_isIso (cohomologyIsoQuot X j).hom).injective ?_
   change (cohomologyIsoQuot X j).hom _ = (cohomologyIsoQuot X j).hom x
   rw [cohomologyIsoQuot_hom_cocycleClass, ← hy]
 
@@ -184,7 +165,7 @@ lemma cocycleClass_eq_zero_iff (z : ↥((homogeneousCochains X).X j))
     obtain ⟨y, hy⟩ := h2
     exact ⟨y, congr_arg Subtype.val hy⟩
   · rintro ⟨y, hy⟩
-    refine TopModuleCat.iso_hom_apply_injective (cohomologyIsoQuot X j) ?_
+    refine (ConcreteCategory.bijective_of_isIso (cohomologyIsoQuot X j).hom).injective ?_
     change (cohomologyIsoQuot X j).hom _ = (cohomologyIsoQuot X j).hom 0
     rw [cohomologyIsoQuot_hom_cocycleClass]
     have h0 : (cohomologyIsoQuot X j).hom 0 = 0 := (cohomologyIsoQuot X j).hom.hom.map_zero
@@ -250,9 +231,8 @@ lemma map_cocycleClass {X : TopRep k G} {Y : TopRep k H} (φ : H →ₜ* G)
   rw [CategoryTheory.comp_apply, CategoryTheory.comp_apply] at hπ
   rw [hπ]
   congr 1
-  -- It remains to identify the two cocycles; compare through the kernel model.
-  refine TopModuleCat.iso_hom_apply_injective
-    (((homogeneousCochains Y).cyclesIsoKer j (j + 1) (by simp))) (Subtype.ext ?_)
+  refine (ConcreteCategory.bijective_of_isIso
+    ((homogeneousCochains Y).cyclesIsoKer j (j + 1) (by simp)).hom).injective (Subtype.ext ?_)
   change (((homogeneousCochains Y).cyclesIsoKer j (j + 1) (by simp)).hom _).1 =
     (((homogeneousCochains Y).cyclesIsoKer j (j + 1) (by simp)).hom _).1
   rw [HomologicalComplex.cyclesIsoKer_hom_apply_coe, HomologicalComplex.cyclesIsoKer_hom_apply_coe]
@@ -389,8 +369,8 @@ lemma toIntCochainEquiv_d (X : TopRep k G) (i : ℕ)
     (homogeneousCochains X).d i (i + 1) (toIntCochainEquiv X i σ) =
       toIntCochainEquiv X (i + 1) ((homogeneousCochains (toInt X)).d i (i + 1) σ) := by
   refine Subtype.ext ?_
-  rw [ContRepresentation.homogeneousCochains_d_apply', toIntCochainEquiv_coe,
-    toIntCochainEquiv_coe, ContRepresentation.homogeneousCochains_d_apply']
+  rw [homogeneousCochains.d_apply, toIntCochainEquiv_coe,
+    toIntCochainEquiv_coe, homogeneousCochains.d_apply]
   exact (toIntResolutionEquiv_d X (i + 1) σ.1).symm
 
 /-- The cochain-level identification commutes with the differentials, `symm` version. -/
