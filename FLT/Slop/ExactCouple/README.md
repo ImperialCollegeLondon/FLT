@@ -25,7 +25,7 @@ noncomputable def ExactCouple.pageSuccEquiv (r : ℕ) :
 
 In the graded upgrade, `D` and `E` carry gradings by an arbitrary abelian
 group `ι` of degrees (`ℤ`, `ℤ × ℤ`, …), with `i, j, k` homogeneous of degrees
-`di, dj, dk` and the `D`-grading internally direct. Then each derived couple
+`di, dj, dk`, with both gradings internal direct sums. Then each derived couple
 is again graded, `j'` drops degree by `di`, and
 
 ```lean
@@ -55,10 +55,11 @@ degree `(r + 1, -r)` — the familiar bidegree of the classical
   `DirectSum.IsInternal.inf_range_le_map` (a homogeneous element in the
   image of a homogeneous endomorphism is the image of a homogeneous element —
   the reason `j'` drops degree), the homogeneity of the derived maps, the
-  bidegree drop `derivedCouple_homog_d`, the fact that `im i` is a graded
-  submodule (`isInternal_derGradD` — what makes the construction iterable),
-  and the iteration `gradedDerived` with the closed form
-  `gradedDerived_homog_d`. The graded and ungraded iterations agree
+  bidegree drop `derivedCouple_homog_d`, the facts that `im i` and
+  `ker d / im d` inherit internal gradings (`isInternal_derGradD` and
+  `isInternal_derGradE`), and the iteration `gradedDerived` with the closed form
+  `gradedDerived_homog_d`. `pageGrading` exposes the resulting internal grading
+  on every page. The graded and ungraded iterations agree
   (`gradedDerived_toExactCouple`), so the degree information applies to the
   pages of the underlying couple.
 
@@ -72,21 +73,22 @@ a common universe independent of the universe of `R`:
 - The iterated pages form a spectral sequence in the literal sense that
   `E_{r+1}` **is** (definitionally) the homology `ker d_r / im d_r` of the
   previous page.
-- In the graded setting, only internal directness of the `D`-grading is
-  needed; the `E`-grading may be arbitrary. Each derivation preserves the
-  degrees of `i` and `k`, drops the degree of `j` by `di`, and the `r`-th
-  differential is homogeneous of degree `(dj + dk) - r • di`.
+- In the graded setting, both modules are internal direct sums. The derived
+  homology inherits an internal grading; each derivation preserves the degrees
+  of `i` and `k`, drops the degree of `j` by `di`, and the `r`-th differential
+  is homogeneous of degree `(dj + dk) - r • di`.
 
 ## What Is Not Proved Here
 
 - No concrete exact couple is constructed in this folder (no instance from a
   filtered complex, a double complex, or a Bockstein short exact sequence).
-  A construction of the per-degree exact couple of a filtered differential
-  module (`D^p = H(F^p M)`, `E^p = E₁^p`, with the three exactness
-  statements) exists in draft form outside this repository; assembling it
-  into a `GradedExactCouple` on `⨁_p H(F^p M)` and reconciling the resulting
-  pages with the classical `Z_r/B_r` description is the natural next step.
+  The sibling `FLT/Slop/SpectralSequence/ExactCoupleBridge.lean` proves the
+  per-degree maps and exactness statements for a filtered differential module
+  (`D^p = H(F^p M)`, `E^p = E₁^p`). Assembling them into a
+  `GradedExactCouple` on `⨁_p H(F^p M)` and reconciling its derived pages with
+  the classical `Z_r/B_r` description remains the natural next step.
 - Nothing about convergence or abutments.
+- No morphisms of exact couples or functoriality of the derived pages.
 - No comparison with Mathlib's abstract `SpectralObject` framework.
 
 ## Verification
@@ -106,19 +108,22 @@ no `sorry`, and
 
 1. W. S. Massey, *Exact couples in algebraic topology*, Ann. of Math. 56
    (1952), 363–396 — the origin of exact couples and the derived couple.
-2. Stacks Project, tag 011P (exact couples and their spectral sequences); the
-   construction here follows the Stacks presentation at module level, and
-   `ExactCouple.derivedCouple` carries the `@[stacks 011P]` attribute.
+2. Stacks Project, section tag 011P (exact couples and their spectral
+   sequences); the construction here follows the Stacks presentation at module
+   level, and `ExactCouple.derivedCouple` carries the `@[stacks 011R]` attribute
+   for the derived-couple lemma.
 3. C. Weibel, *An Introduction to Homological Algebra*, §5.9; J. McCleary,
    *A User's Guide to Spectral Sequences*, §2.2 — for the graded/bidegree
    bookkeeping.
 4. Deviations: the couple is ungraded by default, with the grading added as a
    layer (`GradedExactCouple`) rather than baked in; degrees live in an
    arbitrary abelian group `ι` rather than `ℤ × ℤ`, so single gradings,
-   bigradings, and multigradings are all instances. Only the `D`-grading is
-   required to be internally direct — the textbooks assume both, but the
-   derived-couple degree bookkeeping never uses directness of the
-   `E`-grading, and weakening the hypothesis makes the iteration cleaner.
+   bigradings, and multigradings are all instances.
+
+The declarations intentionally remain in the root `ExactCouple` and
+`GradedExactCouple` namespaces because this folder mirrors an upstream mathlib
+candidate. If the code becomes FLT-specific rather than upstream-bound, it
+should move under `FLT.Slop` to avoid future name collisions.
 
 ## Relation to existing formalizations
 

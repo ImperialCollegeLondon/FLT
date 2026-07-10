@@ -24,9 +24,9 @@ spectral sequence: two modules `D`, `E` and three maps
 ```
       i
   D ─────→ D
-   ↖      ╱
-  k ╲    ╱ j
-     ╲  ↙
+   ↖      /
+  k  \    / j
+      \  ↙
       E
 ```
 
@@ -38,7 +38,8 @@ which are exact at each of the three vertices (`im i = ker j`, `im j = ker k`,
 * `E' = ker d / im d = H(E, d)`,
 
 is again an exact couple.  Iterating produces the pages `E, E', E'', …` of a
-spectral sequence, with `E_{r+1}` the homology of `(E_r, d_r)` by construction.
+spectral sequence, with each page the homology of the preceding one.  Our
+zero-based `page r` is the conventionally indexed `E_{r+1}` page.
 
 ## Main definitions and results
 
@@ -51,7 +52,7 @@ spectral sequence, with `E_{r+1}` the homology of `(E_r, d_r)` by construction.
 * `ExactCouple.derived : ℕ → ExactCouple R`, `ExactCouple.page`,
   `ExactCouple.pageDiff` : the spectral sequence obtained by iterating, with
   `pageDiff_comp_pageDiff` (`d_r ∘ d_r = 0`) and `pageSuccEquiv`
-  (`E_{r+1} ≃ₗ ker d_r / im d_r`, definitionally the identity).
+  (`page (r + 1) ≃ₗ ker d_r / im d_r`, definitionally the identity).
 
 Everything is at the level of modules over an arbitrary ring `R`.
 
@@ -105,11 +106,11 @@ variable {R : Type*} [Ring R] (C : ExactCouple.{u} R)
 
 @[simp] lemma i_k (x : C.E) : C.i (C.k x) = 0 := C.exact_ki.apply_apply_eq_zero x
 
-lemma j_comp_i : C.j ∘ₗ C.i = 0 := by ext x; simp
+@[simp] lemma j_comp_i : C.j ∘ₗ C.i = 0 := by ext x; simp
 
-lemma k_comp_j : C.k ∘ₗ C.j = 0 := by ext x; simp
+@[simp] lemma k_comp_j : C.k ∘ₗ C.j = 0 := by ext x; simp
 
-lemma i_comp_k : C.i ∘ₗ C.k = 0 := by ext x; simp
+@[simp] lemma i_comp_k : C.i ∘ₗ C.k = 0 := by ext x; simp
 
 /-! ## The differential `d = j ∘ k` on `E` -/
 
@@ -122,6 +123,29 @@ def d : C.E →ₗ[R] C.E := C.j ∘ₗ C.k
 lemma d_d (x : C.E) : C.d (C.d x) = 0 := by simp [d]
 
 lemma d_comp_d : C.d ∘ₗ C.d = 0 := by ext x; simp
+
+/-- The image of `d` is contained in its kernel. -/
+lemma range_d_le_ker_d : LinearMap.range C.d ≤ LinearMap.ker C.d := by
+  rintro _ ⟨x, rfl⟩
+  simp [LinearMap.mem_ker]
+
+/-- The cycles are the inverse image under `k` of `range i = ker j`. -/
+lemma ker_d_eq_comap_range_i : LinearMap.ker C.d =
+    (LinearMap.range C.i).comap C.k := by
+  ext x
+  change C.k x ∈ LinearMap.ker C.j ↔ C.k x ∈ LinearMap.range C.i
+  rw [← LinearMap.exact_iff.mp C.exact_ij]
+
+/-- The boundaries are the image under `j` of `ker i = range k`. -/
+lemma range_d_eq_map_ker_i : LinearMap.range C.d =
+    (LinearMap.ker C.i).map C.j := by
+  ext x
+  constructor
+  · rintro ⟨e, rfl⟩
+    exact ⟨C.k e, (C.exact_ki _).mpr ⟨e, rfl⟩, rfl⟩
+  · rintro ⟨y, hy, rfl⟩
+    obtain ⟨e, rfl⟩ := (C.exact_ki y).mp hy
+    exact ⟨e, rfl⟩
 
 /-! ## The pieces of the derived couple
 
@@ -222,9 +246,14 @@ lemma imd_le_ker_derKAux : C.imd ≤ LinearMap.ker C.derKAux := by
 def derK : C.derE →ₗ[R] C.derD :=
   Submodule.liftQ C.imd C.derKAux C.imd_le_ker_derKAux
 
-@[simp] lemma derK_mk (e : LinearMap.ker C.d) :
+lemma coe_derK_mk (e : LinearMap.ker C.d) :
     (C.derK (Submodule.Quotient.mk e) : C.D) = C.k (e : C.E) := by
   rw [derK, Submodule.liftQ_apply, derKAux_coe]
+
+/-- The derived `k'` agrees with its auxiliary map on representatives. -/
+@[simp] lemma derK_mk (e : LinearMap.ker C.d) :
+    C.derK (Submodule.Quotient.mk e) = C.derKAux e := by
+  rw [derK, Submodule.liftQ_apply]
 
 /-! ## The derived couple is exact
 
@@ -267,7 +296,7 @@ theorem derived_exact_jk : Function.Exact C.derJ C.derK := by
     rw [LinearMap.mem_ker] at hξ
     have hke : C.k (e : C.E) = 0 := by
       have := congrArg (Subtype.val) hξ
-      rwa [derK_mk, Submodule.coe_zero] at this
+      rwa [coe_derK_mk, Submodule.coe_zero] at this
     obtain ⟨a, ha⟩ := (C.exact_jk (e : C.E)).mp hke
     refine ⟨a, ?_⟩
     rw [derJAux_apply]
@@ -277,7 +306,7 @@ theorem derived_exact_jk : Function.Exact C.derJ C.derK := by
     rintro _ ⟨a, rfl⟩
     rw [LinearMap.mem_ker, derJAux_apply]
     apply Subtype.ext
-    rw [derK_mk, Submodule.coe_zero]
+    rw [coe_derK_mk, Submodule.coe_zero]
     simp
 
 /-- Exactness of the derived couple at the source `D'`:  `im k' = ker i'`. -/
@@ -297,18 +326,18 @@ theorem derived_exact_ki : Function.Exact C.derK C.derI := by
       rw [LinearMap.mem_ker, d_apply, he]; simp
     refine ⟨Submodule.Quotient.mk ⟨e, hedk⟩, ?_⟩
     apply Subtype.ext
-    rw [derK_mk, he]
+    rw [coe_derK_mk, he]
   · -- im k' ⊆ ker i'
     intro y hy
     obtain ⟨ξ, rfl⟩ := hy
     obtain ⟨e, rfl⟩ := Submodule.Quotient.mk_surjective _ ξ
     rw [LinearMap.mem_ker]
     apply Subtype.ext
-    rw [derI_coe, derK_mk, Submodule.coe_zero]
+    rw [derI_coe, coe_derK_mk, Submodule.coe_zero]
     simp
 
 /-- The **derived couple** of an exact couple. -/
-@[stacks 011P]
+@[stacks 011R]
 noncomputable def derivedCouple : ExactCouple.{u} R where
   D := C.derD
   E := C.derE
@@ -319,10 +348,18 @@ noncomputable def derivedCouple : ExactCouple.{u} R where
   exact_jk := C.derived_exact_jk
   exact_ki := C.derived_exact_ki
 
+@[simp] lemma derivedCouple_i : C.derivedCouple.i = C.derI := rfl
+
+@[simp] lemma derivedCouple_j : C.derivedCouple.j = C.derJ := rfl
+
+@[simp] lemma derivedCouple_k : C.derivedCouple.k = C.derK := rfl
+
 /-! ## The spectral sequence of an exact couple
 
 Iterating the derived-couple construction yields the pages of a spectral
-sequence:  `E_0 = E`, `E_{r+1} = ker d_r / im d_r`. -/
+sequence.  We use zero-based internal indexing: `page 0 = E` and
+`page (r + 1) = ker d_r / im d_r`, so `page r` corresponds to the customary
+page `E_{r+1}`. -/
 
 /-- The `r`-th derived couple (`derived 0 = C`). -/
 noncomputable def derived (C : ExactCouple.{u} R) : ℕ → ExactCouple.{u} R
@@ -346,12 +383,25 @@ noncomputable def pageDiff (r : ℕ) : C.page r →ₗ[R] C.page r := (C.derived
 theorem pageDiff_comp_pageDiff (r : ℕ) : C.pageDiff r ∘ₗ C.pageDiff r = 0 :=
   (C.derived r).d_comp_d
 
-/-- By construction, `E_{r+1}` is the homology of `(E_r, d_r)`: the identity
-map is a linear equivalence `E_{r+1} ≃ₗ ker d_r / im d_r`. -/
+/-- Pointwise, `d_r² = 0`. -/
+@[simp] theorem pageDiff_pageDiff (r : ℕ) (x : C.page r) :
+    C.pageDiff r (C.pageDiff r x) = 0 :=
+  (C.derived r).d_d x
+
+/-- By construction, `page (r + 1)` is the homology of `(page r, d_r)`: the
+identity map is a linear equivalence with `ker d_r / im d_r`. -/
 noncomputable def pageSuccEquiv (r : ℕ) :
     C.page (r + 1) ≃ₗ[R]
       (LinearMap.ker (C.pageDiff r) ⧸
         (LinearMap.range (C.pageDiff r)).comap (LinearMap.ker (C.pageDiff r)).subtype) :=
   LinearEquiv.refl R _
+
+@[simp] lemma pageSuccEquiv_apply (r : ℕ) (x : C.page (r + 1)) :
+    C.pageSuccEquiv r x = x := rfl
+
+@[simp] lemma pageSuccEquiv_symm_apply (r : ℕ)
+    (x : LinearMap.ker (C.pageDiff r) ⧸
+      (LinearMap.range (C.pageDiff r)).comap (LinearMap.ker (C.pageDiff r)).subtype) :
+    (C.pageSuccEquiv r).symm x = x := rfl
 
 end ExactCouple
