@@ -6,24 +6,13 @@ Authors: Duxing Yang
 module
 
 public import FLT.KnownIn1980s.PGL2.Defs
-public import FLT.Slop.PGL2.FiniteSubgroups.CyclicPartition
-public import FLT.Slop.PGL2.FiniteSubgroups.DicksonClassification
-public import FLT.Slop.PGL2.FiniteSubgroups.FieldReconstruction
-public import FLT.Slop.PGL2.FiniteSubgroups.NatClassEquation
-public import FLT.Slop.PGL2.FiniteSubgroups.PGLBasic
-public import FLT.Slop.PGL2.FiniteSubgroups.PSLBasic
-public import FLT.Slop.PGL2.FiniteSubgroups.PSLRecognition
-public import FLT.Slop.PGL2.FiniteSubgroups.PartitionHelpers
-public import FLT.Slop.PGL2.FiniteSubgroups.PartitionProof
-public import FLT.Slop.PGL2.FiniteSubgroups.RecognitionA5
-public import FLT.Slop.PGL2.FiniteSubgroups.TameClassification
-public import FLT.Slop.PGL2.FiniteSubgroups.WildClassification
+import FLT.Slop.PGL2.FiniteSubgroups.DicksonClassification
 
 /-!
 # Proofs for the public PGL2 classification statements
 
-This file imports the moved PGL2 development in `FLT.Slop.PGL2` and proves copies of
-the public statements from `FLT.KnownIn1980s.PGL2.Defs`.
+This file imports the moved PGL2 development through its Dickson-classification endpoint and
+proves copies of the public statements from `FLT.KnownIn1980s.PGL2.Defs`.
 -/
 
 @[expose] public section
