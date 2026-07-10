@@ -10,6 +10,7 @@ public import Mathlib.NumberTheory.LocalField.Basic
 public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
 public import FLT.KnownIn1980s.EllipticCurves.TateParameter
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveBaseChange
+public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.Affine.VariableChange
 public import FLT.KnownIn1980s.EllipticCurves.TateCurveUniformisation
 public import FLT.KnownIn1980s.EllipticCurves.ReductionBaseChange
 
@@ -237,15 +238,6 @@ theorem WeierstrassCurve.valuation_q_lt_one : valuation k E.q < 1 :=
 noncomputable def WeierstrassCurve.qUnit : kˣ :=
   Units.mk0 E.q E.q_ne_zero
 
--- `DecidableEq k` is needed for the group law on `(E⁄k).Point`
-variable [DecidableEq k] in
-/-- Tate's uniformization theorem: if `E/k` is an elliptic curve with split multiplicative
-reduction then `E(k)` is isomorphic to `kˣ/⟨q⟩`.
--/
-noncomputable def WeierstrassCurve.tateEquiv :
-    Additive (kˣ ⧸ Subgroup.zpowers E.qUnit) ≃+ (E⁄k).Point :=
-  sorry
-
 -- Tate's theorem (Silverman, ATAEC V.5.3): an elliptic curve with split multiplicative
 -- reduction is isomorphic, by a change of Weierstrass coordinates, to the Tate curve of its
 -- Tate parameter. Since `j(E)` is non-integral, `Aut` of the curve is `{±1}` and there are
@@ -255,6 +247,21 @@ noncomputable def WeierstrassCurve.tateEquiv :
 theorem WeierstrassCurve.exists_variableChange_tateCurve :
     ∃ C : VariableChange k, C • tateCurve E.q = E :=
   sorry
+
+-- `DecidableEq k` is needed for the group law on `(E⁄k).Point`
+variable [DecidableEq k] in
+/-- Tate's uniformization theorem: if `E/k` is an elliptic curve with split multiplicative
+reduction then `E(k)` is isomorphic to `kˣ/⟨q⟩`.
+-/
+noncomputable def WeierstrassCurve.tateEquiv :
+    Additive (kˣ ⧸ Subgroup.zpowers E.qUnit) ≃+ (E⁄k).Point :=
+  let q : k := E.q
+  let C := E.exists_variableChange_tateCurve.choose
+  (WeierstrassCurve.tateCurveEquiv E.qUnit (by
+      simpa [WeierstrassCurve.qUnit] using E.valuation_q_lt_one)).trans <| by
+    change (WeierstrassCurve.tateCurve q).toAffine.Point ≃+ E.toAffine.Point
+    rw [← E.exists_variableChange_tateCurve.choose_spec]
+    exact (C.pointAddEquiv (WeierstrassCurve.tateCurve q)).symm
 
 /-! ### Functoriality
 
