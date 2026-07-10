@@ -553,17 +553,73 @@ Reference for the resultant identity in short Weierstrass form: M. Ayad, *Points
 S-entiers des courbes elliptiques*, Manuscripta Math. 76 (1992), 305–324.
 -/
 
+/-- The **universal Weierstrass curve** `Y² + a₁XY + a₃Y = X³ + a₂X² + a₄X + a₆` over the
+polynomial ring `ℤ[a₁, a₂, a₃, a₄, a₆] = MvPolynomial (Fin 5) ℤ`, with `aᵢ` the coordinate
+variables `X 0, …, X 4`. Every Weierstrass curve over every commutative ring is the base change
+of this one along the evaluation map sending the variables to its coefficients, so any identity
+between quantities that commute with ring homomorphisms (such as `Φ`, `ΨSq`, `Δ` and the
+resultant with *fixed* degree indices) may be checked on this single curve. -/
+private noncomputable def WeierstrassCurve.universal : WeierstrassCurve (MvPolynomial (Fin 5) ℤ) :=
+  ⟨MvPolynomial.X 0, MvPolynomial.X 1, MvPolynomial.X 2, MvPolynomial.X 3, MvPolynomial.X 4⟩
+
+/-- The resultant identity `Res(Φ n, ΨSq n) = ±Δ ^ ((n⁴ - n²)/6)` for the universal Weierstrass
+curve over `ℤ[a₁, …, a₆]`. This is the sole remaining content of `resultant_Φ_ΨSq`: the general
+case reduces to it by base change (`resultant_Φ_ΨSq`), so it suffices to prove the identity over
+this one integral domain.
+
+The base ring `ℤ[a₁, …, a₆]` is a unique factorisation domain in which the universal discriminant
+`Δ` is (known to be) irreducible, which is the setting Ayad's proof needs. Sketch (Ayad 1992):
+* both `Res(Φ n, ΨSq n)` and `Δ` are isobaric (weighting `aᵢ` by `i`), the resultant of weight
+  `2 · n² · (n² - 1)` and `Δ` of weight `12`, forcing any factorisation `Res = c · Δ ^ k` to have
+  `k = n² (n² - 1) / 6 = (n⁴ - n²)/6` and `c` of weight `0`, i.e. `c ∈ ℤ`;
+* over every field `F` with `Δ ≠ 0` the polynomials `Φ n` and `ΨSq n` are coprime, hence
+  (`Polynomial.resultant_ne_zero`) their resultant is nonzero: a common root would, via the
+  division-polynomial/torsion dictionary
+  (`Point.smul_eq_zero_iff_eval_ΨSq`, `Point.xCoord_smul`) and the identity
+  `Φ n = X · ΨSq n - preΨ (n+1) · preΨ (n-1) · (…)`, be the `x`-coordinate of a nonzero point that
+  is simultaneously `n`- and `(n ± 1)`-torsion, contradicting `gcd(n, n ± 1) = 1`;
+* running this over `𝔽_ℓ` for every prime `ℓ` shows no prime divides the integer content `c`,
+  and primitivity gives `c = ±1`.
+
+Formalising this fully needs the irreducibility of the universal discriminant and an isobaric-weight
+bookkeeping layer that mathlib does not yet have; see the module discussion and the reference
+M. Ayad, *Points S-entiers des courbes elliptiques*, Manuscripta Math. 76 (1992), 305–324. -/
+private theorem WeierstrassCurve.resultant_Φ_ΨSq_universal {n : ℤ} (hn : n ≠ 0) :
+    (WeierstrassCurve.universal.Φ n).resultant (WeierstrassCurve.universal.ΨSq n)
+          (n.natAbs ^ 2) (n.natAbs ^ 2 - 1) =
+        WeierstrassCurve.universal.Δ ^ ((n.natAbs ^ 4 - n.natAbs ^ 2) / 6) ∨
+      (WeierstrassCurve.universal.Φ n).resultant (WeierstrassCurve.universal.ΨSq n)
+          (n.natAbs ^ 2) (n.natAbs ^ 2 - 1) =
+        -WeierstrassCurve.universal.Δ ^ ((n.natAbs ^ 4 - n.natAbs ^ 2) / 6) :=
+  sorry
+
 /-- The resultant of the division polynomials `Φ n` (taken with degree `n²`) and `ΨSq n`
 (taken with degree `n² - 1`) is `±Δ ^ ((n⁴ - n²)/6)`. The sign presumably depends on `n`
 and on the conventions in `Polynomial.resultant`; whoever proves this should pin it down
-and upgrade the statement. -/
+and upgrade the statement.
+
+The proof reduces to the single universal curve `WeierstrassCurve.universal` over
+`ℤ[a₁, …, a₆]` (`resultant_Φ_ΨSq_universal`): the arbitrary curve `W` over `R₀` is the base
+change of `universal` along the evaluation homomorphism sending each variable `aᵢ` to the
+corresponding coefficient of `W`, and `Φ`, `ΨSq`, `Δ` and the resultant with fixed degree
+indices all commute with ring homomorphisms (`map_Φ`, `map_ΨSq`, `map_Δ`,
+`Polynomial.resultant_map_map`), so the identity transports along this map and its sign is
+preserved. -/
 theorem WeierstrassCurve.resultant_Φ_ΨSq {R₀ : Type*} [CommRing R₀] (W : WeierstrassCurve R₀)
     {n : ℤ} (hn : n ≠ 0) :
     (W.Φ n).resultant (W.ΨSq n) (n.natAbs ^ 2) (n.natAbs ^ 2 - 1) =
         W.Δ ^ ((n.natAbs ^ 4 - n.natAbs ^ 2) / 6) ∨
       (W.Φ n).resultant (W.ΨSq n) (n.natAbs ^ 2) (n.natAbs ^ 2 - 1) =
-        -W.Δ ^ ((n.natAbs ^ 4 - n.natAbs ^ 2) / 6) :=
-  sorry
+        -W.Δ ^ ((n.natAbs ^ 4 - n.natAbs ^ 2) / 6) := by
+  -- `W` is the base change of the universal curve along the evaluation map `aᵢ ↦ W.aᵢ`.
+  have hW : W = WeierstrassCurve.universal.map
+      (MvPolynomial.eval₂Hom (Int.castRingHom R₀) ![W.a₁, W.a₂, W.a₃, W.a₄, W.a₆]) := by
+    ext <;> simp [WeierstrassCurve.universal, MvPolynomial.eval₂Hom_X']
+  rw [hW, map_Φ, map_ΨSq, map_Δ, Polynomial.resultant_map_map]
+  -- transport the universal identity along the ring hom, preserving the sign
+  rcases WeierstrassCurve.resultant_Φ_ΨSq_universal hn with h | h
+  · exact Or.inl (by rw [h, map_pow])
+  · exact Or.inr (by rw [h, map_neg, map_pow])
 
 /-- If the discriminant of a Weierstrass curve over a commutative ring is a unit then the
 division polynomials `Φ n` and `ΨSq n` are coprime, i.e. there is a Bézout identity

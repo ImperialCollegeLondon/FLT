@@ -169,10 +169,49 @@ theorem exists_finiteGalois_of_isContinuous [Finite M] (hcont : IsContinuous ρ)
     IntermediateField.fixingSubgroup_le (le_iSup Lm m) h1
   exact (hcont m).choose_spec.2 σ h3
 
+/-- A finite subextension `L/K` of `Kˢᵉᵖ/K` is *unramified over the DVR `R`* if the inertia
+subgroup at every valuation subring of `Kˢᵉᵖ` lying above `R` fixes `L` pointwise (i.e. the
+inertia is contained in the subgroup fixing `L`). Equivalently, the integral closure of `R`
+in `L` is unramified — indeed finite étale, `R` being a DVR — over `R`.
+
+This is a property of the extension `L/K` only (it does not involve the module `M`); it is
+the hypothesis under which the Galois-descent construction of `IsFlat.of_isUnramifiedExtension`
+produces an *étale* — not merely flat — integral model. -/
+def IsUnramifiedExtension (L : IntermediateField K Ksep) : Prop :=
+  ∀ 𝒪 : ValuationSubring Ksep,
+    (𝒪.comap (algebraMap K Ksep)).toSubring = (algebraMap R K).range →
+    ∀ σ ∈ 𝒪.inertiaSubgroup K, (σ : Ksep ≃ₐ[K] Ksep) ∈ L.fixingSubgroup
+
+/-- **The unramified-kernel-field reduction (pure Galois/ramification theory).** Given a
+finite Galois subextension `L/K` through which the action `ρ` factors, and given that `ρ` is
+unramified over `R`, one may *shrink* `L` to a finite Galois subextension `L'/K` that still
+carries the action and is itself unramified over `R`.
+
+Concretely, take `L'` to be the fixed field of the kernel `{σ : ρ σ = 1}` of the action —
+a subgroup of `Gal(Kˢᵉᵖ/K)` containing the (open) fixing subgroup of `L`, hence itself the
+fixing subgroup of a finite subextension `L' ⊆ L`, and normal because the kernel of an action
+on an abelian group is normal, so `L'/K` is Galois. The action factors through `Gal(L'/K)` by
+construction, and `IsUnramified R ρ` says inertia acts trivially on `M`, i.e. inertia lies in
+the kernel `= L'.fixingSubgroup`; thus `L'/K` is unramified over `R`. This is exactly the
+point that `L` itself need not be unramified — only the subextension through which `ρ`
+genuinely factors is. Pure Galois theory, no elliptic curves, no ring structure on `M`.
+
+TODO: prove (currently the only Galois-theoretic gap of the descent). -/
+theorem exists_isUnramifiedExtension [Finite M]
+    (hρ : ∀ σ τ : Ksep ≃ₐ[K] Ksep, ρ (σ * τ) = (ρ τ).trans (ρ σ))
+    (hunr : IsUnramified R ρ)
+    (L : IntermediateField K Ksep) [FiniteDimensional K L] [IsGalois K L]
+    (hL : ∀ σ ∈ L.fixingSubgroup, ∀ m : M, ρ σ m = m) :
+    ∃ L' : IntermediateField K Ksep, FiniteDimensional K L' ∧ IsGalois K L' ∧
+      (∀ σ ∈ L'.fixingSubgroup, ∀ m : M, ρ σ m = m) ∧ IsUnramifiedExtension R L' :=
+  sorry
+
 /-- **Steps B–D: Galois descent of the finite étale group scheme (deep, not yet
 formalised).** Given a finite Galois subextension `L/K` of `Kˢᵉᵖ/K` whose fixing subgroup
-acts trivially on the finite module `M`, and given that the action is unramified over the
-DVR `R`, the module is flat.
+acts trivially on the finite module `M`, and given that `L/K` *itself* is unramified over the
+DVR `R` (`IsUnramifiedExtension R L`), the module is flat. This is the unramified-extension
+case: the reduction to it from a merely unramified *action* is
+`exists_isUnramifiedExtension`.
 
 This packages the genuinely hard part of the construction, which has three ingredients
 (none involving elliptic curves):
@@ -192,13 +231,29 @@ This packages the genuinely hard part of the construction, which has three ingre
 
 See [Tate, *Finite flat group schemes*, §1.3–1.4] or [Waterhouse, *Introduction to affine
 group schemes*, §6]. -/
+theorem IsFlat.of_isUnramifiedExtension [Finite M]
+    (hρ : ∀ σ τ : Ksep ≃ₐ[K] Ksep, ρ (σ * τ) = (ρ τ).trans (ρ σ))
+    (L : IntermediateField K Ksep) [FiniteDimensional K L] [IsGalois K L]
+    (hL : ∀ σ ∈ L.fixingSubgroup, ∀ m : M, ρ σ m = m)
+    (hunr : IsUnramifiedExtension R L) :
+    IsFlat R ρ :=
+  sorry
+
+/-- **A continuous unramified action factoring through a finite Galois `L/K` is flat.**
+Assembled from the unramified-kernel-field reduction `exists_isUnramifiedExtension` (which
+shrinks `L` to a subextension that is genuinely unramified over `R`) and the descent for an
+unramified extension `IsFlat.of_isUnramifiedExtension`. See the two lemmas for the
+mathematical content. -/
 theorem IsFlat.of_finiteGalois_unramified [Finite M]
     (hρ : ∀ σ τ : Ksep ≃ₐ[K] Ksep, ρ (σ * τ) = (ρ τ).trans (ρ σ))
     (hunr : IsUnramified R ρ)
     (L : IntermediateField K Ksep) [FiniteDimensional K L] [IsGalois K L]
     (hL : ∀ σ ∈ L.fixingSubgroup, ∀ m : M, ρ σ m = m) :
-    IsFlat R ρ :=
-  sorry
+    IsFlat R ρ := by
+  obtain ⟨L', hfd, hgal, hL', hunr'⟩ := exists_isUnramifiedExtension R ρ hρ hunr L hL
+  haveI := hfd
+  haveI := hgal
+  exact IsFlat.of_isUnramifiedExtension R ρ hρ L' hL' hunr'
 
 /-- **A continuous unramified Galois module is flat.** If `M` is a finite abelian group
 and the action `ρ` of `Gal(Kˢᵉᵖ/K)` on `M` is continuous and unramified over `R`, then it

@@ -61,6 +61,46 @@ variable (ksep : Type*) [Field ksep] [Algebra k ksep] [IsSepClosure k ksep] [Dec
 -- that it lies above R is `h𝒪` in the theorem below.
 variable (𝒪 : ValuationSubring ksep)
 
+/-- **Reduction of the torsion points (packaged), the geometric core of
+Néron–Ogg–Shafarevich.** Under the standing hypotheses (`E` elliptic with good reduction over
+`R`, `n` invertible in the residue field of `R`, `𝒪` lying above `R`), there is a *reduction
+map* on the `n`-torsion of `E(kˢᵉᵖ)`: an additive homomorphism to a `Gal`-module `A` — morally
+the group `Ẽ(κ)` of points of the reduced curve over the residue field `κ` of `𝒪` — which is
+
+* **injective** on the `n`-torsion (Silverman VII.3: two `n`-torsion points with distinct
+  `x`-coordinates, which are roots of `ΨSqₙ`, stay distinct mod `𝔪_𝒪` because `Φₙ` and `ΨSqₙ`
+  are coprime over `κ`, `Δ` being a unit there by good reduction), and
+
+* **equivariant** for the action of the decomposition subgroup `Gal(kˢᵉᵖ/k)` at `𝒪` on `A`
+  (which acts through its quotient action on `κ`), so that the **inertia subgroup — which by
+  definition acts trivially on `κ` — acts trivially on `A`**.
+
+This bundles the three genuinely-elliptic steps (integrality `E[n] ⊆ E(𝒪)`, construction of
+the reduction map to `Ẽ(κ)`, and its injectivity/equivariance); the deduction that inertia
+fixes the torsion is the elementary group-theoretic `torsion_unramified_of_good_reduction`
+below, proved from this by injectivity. The remaining `sorry` is exactly the missing mathlib
+infrastructure flagged in the sketch: a reduction map `E(kˢᵉᵖ) → Ẽ(κ)` on `Affine.Point` over
+an extension, together with its equivariance and its injectivity on the torsion (the latter
+via `WeierstrassCurve.isCoprime_Φ_ΨSq`, restated over `κ`). No inertia, Hopf algebras or flat
+group schemes enter here: it is a self-contained statement about reduction of points. -/
+theorem WeierstrassCurve.exists_reduction_hom_injective_of_good_reduction
+    (hn : IsUnit (n : IsLocalRing.ResidueField R))
+    (h𝒪 : (𝒪.comap (algebraMap k ksep)).toSubring = (algebraMap R k).range) :
+    ∃ (A : Type _) (_ : AddCommGroup A) (_ : DistribMulAction (𝒪.decompositionSubgroup k) A)
+        (red : AddSubgroup.torsionBy (E⁄ksep).Point (n : ℤ) →+ A),
+      -- the reduction map is injective on the `n`-torsion,
+      Function.Injective red ∧
+      -- it is `Gal`-equivariant (the decomposition group acts on `A` through `κ`),
+      (∀ (σ : 𝒪.decompositionSubgroup k)
+          (P : AddSubgroup.torsionBy (E⁄ksep).Point (n : ℤ)),
+          red ⟨Affine.Point.map (σ : ksep ≃ₐ[k] ksep).toAlgHom (P : (E⁄ksep).Point),
+              (Submodule.mem_torsionBy_iff ..).mpr (by
+                rw [← map_zsmul, (Submodule.mem_torsionBy_iff ..).mp P.2, map_zero])⟩
+            = σ • red P) ∧
+      -- and inertia acts trivially on the target `A` (it acts trivially on `κ`).
+      (∀ σ ∈ 𝒪.inertiaSubgroup k, ∀ a : A, σ • a = a) :=
+  sorry
+
 /-- If `E` is an elliptic curve over `k` (given by a minimal Weierstrass equation)
 with good reduction over `R`, if `n` is invertible in the residue field of `R`, and if
 `𝒪` is a valuation subring of `kˢᵉᵖ` lying above `R`, then the inertia subgroup of
@@ -73,31 +113,20 @@ theorem WeierstrassCurve.torsion_unramified_of_good_reduction
     (h𝒪 : (𝒪.comap (algebraMap k ksep)).toSubring = (algebraMap R k).range) :
     -- Then every element of the inertia subgroup at 𝒪 fixes every n-torsion point of E(ksep)
     ∀ σ ∈ 𝒪.inertiaSubgroup k, ∀ P ∈ AddSubgroup.torsionBy (E⁄ksep).Point (n : ℤ),
-      Affine.Point.map (σ : ksep ≃ₐ[k] ksep).toAlgHom P = P :=
-  -- PROOF SKETCH (the elementary division-polynomial route; Silverman VII.7.1). Let `κ` be
-  -- the residue field of `𝒪`.
-  --
-  -- 1. Integrality: `E[n] ⊆ E(𝒪)`. For a nonzero `n`-torsion point `P = (x, y)`, the
-  --    dictionary lemma `WeierstrassCurve.Affine.Point.eval_ΨSq_eq_zero_of_smul_eq_zero`
-  --    (in `FLT.KnownIn1980s.EllipticCurves.DivisionPolynomialTorsion`) says `x` is a root
-  --    of `ΨSqₙ`. Its leading coefficient `n²` (`leadingCoeff_ΨSq`) is a unit in `R` by
-  --    `hn`, so `x` is integral over `R`, hence lies in `𝒪` (which, via `h𝒪`, contains the
-  --    integral closure of `R` in `kˢᵉᵖ`); the Weierstrass equation then puts `y ∈ 𝒪` too.
-  --
-  -- 2. Reduction is injective on `E[n]`. Reducing coordinates mod the maximal ideal of `𝒪`
-  --    gives a map to `Ẽ(κ)` (`Ẽ = E.reduction`, elliptic by good reduction). By
-  --    `WeierstrassCurve.isCoprime_Φ_ΨSq` (`Δ` is a unit in `κ`), `Φₙ` and `ΨSqₙ` share no
-  --    root mod the maximal ideal, so distinct `n`-torsion `x`-coordinates stay distinct
-  --    after reduction; hence reduction is injective on `E[n]`.
-  --
-  -- 3. Inertia kills the difference. `σ ∈ 𝒪.inertiaSubgroup k` acts trivially on `κ` (this
-  --    is the *definition* of the inertia subgroup, `ValuationSubring.inertiaSubgroup` being
-  --    the kernel of the action on the residue field). Reduction is Galois-equivariant, so
-  --    `(σ • P - P)` reduces to `0`; being also in `E[n]`, step 2 forces `σ • P = P`.
-  --
-  -- REMAINING GAP: steps 1–3 need a *reduction map on points* `E(kˢᵉᵖ) → Ẽ(κ)` compatible
-  -- with the group law and Galois action. Mathlib has `WeierstrassCurve.reduction` of the
-  -- curve but not this map on `Affine.Point` over an extension; constructing it (and its
-  -- equivariance / injectivity-on-torsion lemmas) is the one missing piece. The dictionary
-  -- and `isCoprime_Φ_ΨSq` (now proved modulo `resultant_Φ_ΨSq`) are the other inputs.
-  sorry
+      Affine.Point.map (σ : ksep ≃ₐ[k] ksep).toAlgHom P = P := by
+  -- This is step 3 of the sketch (Silverman VII.7.1), now that the geometric content of
+  -- steps 1–2 is packaged as `exists_reduction_hom_injective_of_good_reduction`.
+  -- Extract the reduction map: an additive hom `red` to a `Gal`-module `A`, injective on the
+  -- `n`-torsion, equivariant, and with inertia acting trivially on `A`.
+  obtain ⟨A, _, _, red, hinj, hequiv, htriv⟩ :=
+    WeierstrassCurve.exists_reduction_hom_injective_of_good_reduction R k E n ksep 𝒪 hn h𝒪
+  intro σ hσ P hP
+  -- The point `P`, packaged as an element of the `n`-torsion subgroup.
+  set Pt : AddSubgroup.torsionBy (E⁄ksep).Point (n : ℤ) := ⟨P, hP⟩ with hPt
+  -- Reduction is Galois-equivariant, and `σ`, being in inertia, acts trivially on `A`; hence
+  -- `red (σ • P) = σ • red P = red P`. Injectivity of `red` on the torsion forces `σ • P = P`.
+  have hfix : red ⟨Affine.Point.map (σ : ksep ≃ₐ[k] ksep).toAlgHom (Pt : (E⁄ksep).Point),
+      (Submodule.mem_torsionBy_iff ..).mpr (by
+        rw [← map_zsmul, (Submodule.mem_torsionBy_iff ..).mp Pt.2, map_zero])⟩ = red Pt :=
+    (hequiv σ Pt).trans (htriv σ hσ (red Pt))
+  exact congrArg Subtype.val (hinj hfix)
