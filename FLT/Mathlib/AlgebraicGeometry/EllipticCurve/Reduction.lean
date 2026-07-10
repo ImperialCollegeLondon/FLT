@@ -9,7 +9,8 @@ public import Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
 public import FLT.Mathlib.Algebra.Polynomial.QuadraticDiscriminant
 public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.Weierstrass
 public import FLT.Mathlib.RingTheory.Valuation.Discrete.IsDiscreteValuationRing
-public import FLT.Mathlib.RingTheory.IntegralClosure.IsIntegral.Basic
+
+import Mathlib.Tactic.ComputeDegree
 
 /-!
 # Complements on reduction of elliptic curves
@@ -355,6 +356,33 @@ theorem valuation_u_eq_one_of_isMinimal_smul {W₁ W₂ : WeierstrassCurve K} [I
     rw [inv_pow] at h1
     exact inv_eq_one.mp h1
   exact (pow_eq_one_iff_of_nonneg zero_le (by norm_num)).mp h12
+
+/-- An element satisfying a monic quadratic relation with coefficients in `A` is integral. -/
+private theorem isIntegral_of_sq_add_mul_add_eq_zero {A B : Type*} [CommRing A] [CommRing B]
+    [Algebra A B]
+    {x : B} (a b : A) (h : x ^ 2 + algebraMap A B a * x + algebraMap A B b = 0) :
+    _root_.IsIntegral A x := by
+  refine ⟨Polynomial.X ^ 2 + (Polynomial.C a * Polynomial.X + Polynomial.C b), ?_, ?_⟩
+  · apply Polynomial.monic_X_pow_add
+    compute_degree!
+  · rw [← Polynomial.aeval_def]
+    simp only [map_add, map_mul, map_pow, Polynomial.aeval_X, Polynomial.aeval_C]
+    linear_combination h
+
+/-- An element satisfying a monic quartic relation (with no cubic term) with coefficients in `A`
+is integral. -/
+private theorem isIntegral_of_pow_four_add_eq_zero {A B : Type*} [CommRing A] [CommRing B]
+    [Algebra A B]
+    {x : B} (a b c : A)
+    (h : x ^ 4 + algebraMap A B a * x ^ 2 + algebraMap A B b * x + algebraMap A B c = 0) :
+    _root_.IsIntegral A x := by
+  refine ⟨Polynomial.X ^ 4 + (Polynomial.C a * Polynomial.X ^ 2 + Polynomial.C b * Polynomial.X
+    + Polynomial.C c), ?_, ?_⟩
+  · apply Polynomial.monic_X_pow_add
+    compute_degree!
+  · rw [← Polynomial.aeval_def]
+    simp only [map_add, map_mul, map_pow, Polynomial.aeval_X, Polynomial.aeval_C]
+    linear_combination h
 
 /-- A change of variables `D` relating two integral Weierstrass models whose scaling factor `D.u`
 is the image of a unit of `R` is itself defined over `R`: `r`, `s`, `t` are integral over `R` —

@@ -425,8 +425,8 @@ theorem quadraticTwist_of_two_ne_zero (h2 : (2 : K) ≠ 0) (ha₁ : E.a₁ = 0) 
       { a₁ := 0, a₂ := d * E.a₂, a₃ := 0, a₄ := d ^ 2 * E.a₄, a₆ := d ^ 3 * E.a₆ } := by
   -- `α` generates `L/K` (`d` is not a square), with trace `0` and norm `-d`.
   have hαK : α ∉ Set.range (algebraMap K L) := notMem_range_algebraMap_of_not_isSquare L hd hα
-  obtain ⟨htr, hnm⟩ :=
-    trace_eq_zero_and_norm_eq_neg_of_sq_eq K L hαK hα
+  have htr := trace_eq_zero_of_sq_eq K L hαK hα
+  have hnm := norm_eq_neg_of_sq_eq K L hαK hα
   -- So `E.quadraticTwistBy α = E.quadraticTwistOf 0 (-d)`; a final scaling by `u = 2` removes
   -- the powers of `4` and yields the classical model.
   obtain ⟨C, hC⟩ := E.exists_smul_quadraticTwist_eq_quadraticTwistBy L hαK

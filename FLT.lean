@@ -157,7 +157,6 @@ public import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
 public import FLT.Mathlib.RingTheory.DiscreteValuationRing.AdjoinRoot
 public import FLT.Mathlib.RingTheory.DiscreteValuationRing.Separable
 public import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
-public import FLT.Mathlib.RingTheory.IntegralClosure.IsIntegral.Basic
 public import FLT.Mathlib.RingTheory.LocalRing.Defs
 public import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
 public import FLT.Mathlib.RingTheory.Localization.BaseChange

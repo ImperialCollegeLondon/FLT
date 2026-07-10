@@ -78,24 +78,25 @@ theorem Algebra.IsQuadraticExtension.discrim_ne_zero {θ : L}
   exact algEquiv_apply_ne K L hσ hθ
     (sub_eq_zero.mp ((pow_eq_zero_iff two_ne_zero).mp h1)).symm
 
-/-- A square root `α ∉ K` of `d ∈ K` has trace `0` and norm `-d`: the nontrivial automorphism
-sends `α` to `-α`. -/
-theorem Algebra.IsQuadraticExtension.trace_eq_zero_and_norm_eq_neg_of_sq_eq {α : L} {d : K}
+/-- A square root `α ∉ K` of an element of `K` has trace `0`: the nontrivial automorphism
+sends `α` to `-α` (`Algebra.IsQuadraticExtension.algEquiv_apply_eq_neg_of_sq_eq`). -/
+theorem Algebra.IsQuadraticExtension.trace_eq_zero_of_sq_eq {α : L} {d : K}
     (hαK : α ∉ Set.range (algebraMap K L)) (hα : α ^ 2 = algebraMap K L d) :
-    Algebra.trace K L α = 0 ∧ Algebra.norm K α = -d := by
+    Algebra.trace K L α = 0 := by
   obtain ⟨σ, hσ⟩ := exists_algEquiv_ne_one K L
-  have hσα : σ α ≠ α := algEquiv_apply_ne K L hσ hαK
-  have hσαα : σ α = -α := by
-    have hσ2 : (σ α) ^ 2 = α ^ 2 := by rw [← map_pow, hα, AlgEquiv.commutes]
-    have h1 : (σ α - α) * (σ α + α) = 0 := by linear_combination hσ2
-    exact eq_neg_of_add_eq_zero_left
-      ((mul_eq_zero.mp h1).resolve_left fun h ↦ hσα (sub_eq_zero.mp h))
-  constructor
-  · apply FaithfulSMul.algebraMap_injective K L
-    rw [algebraMap_trace_eq_add K L hσ, hσαα, map_zero, add_neg_cancel]
-  · apply FaithfulSMul.algebraMap_injective K L
-    rw [algebraMap_norm_eq_mul K L hσ, hσαα, map_neg, ← hα]
-    ring
+  apply FaithfulSMul.algebraMap_injective K L
+  rw [algebraMap_trace_eq_add K L hσ, algEquiv_apply_eq_neg_of_sq_eq K L hσ hαK hα, map_zero,
+    add_neg_cancel]
+
+/-- A square root `α ∉ K` of `d ∈ K` has norm `-d`: the nontrivial automorphism sends `α`
+to `-α` (`Algebra.IsQuadraticExtension.algEquiv_apply_eq_neg_of_sq_eq`). -/
+theorem Algebra.IsQuadraticExtension.norm_eq_neg_of_sq_eq {α : L} {d : K}
+    (hαK : α ∉ Set.range (algebraMap K L)) (hα : α ^ 2 = algebraMap K L d) :
+    Algebra.norm K α = -d := by
+  obtain ⟨σ, hσ⟩ := exists_algEquiv_ne_one K L
+  apply FaithfulSMul.algebraMap_injective K L
+  rw [algebraMap_norm_eq_mul K L hσ, algEquiv_apply_eq_neg_of_sq_eq K L hσ hαK hα, map_neg, ← hα]
+  ring
 
 end
 

@@ -91,6 +91,18 @@ theorem Algebra.IsQuadraticExtension.algEquiv_apply_ne {σ : L ≃ₐ[K] L} (hσ
     (hx : x ∉ Set.range (algebraMap K L)) : σ x ≠ x :=
   fun heq ↦ hx (mem_range_algebraMap_of_apply_eq K L hσ heq)
 
+/-- The nontrivial automorphism of a separable quadratic extension sends a square root
+`α ∉ K` of an element of `K` to `-α`. -/
+theorem Algebra.IsQuadraticExtension.algEquiv_apply_eq_neg_of_sq_eq {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1)
+    {α : L} {d : K} (hαK : α ∉ Set.range (algebraMap K L)) (hα : α ^ 2 = algebraMap K L d) :
+    σ α = -α := by
+  have hσα : σ α ≠ α := algEquiv_apply_ne K L hσ hαK
+  have h1 : (σ α - α) * (σ α + α) = 0 := by
+    have hσ2 : (σ α) ^ 2 = α ^ 2 := by rw [← map_pow, hα, AlgEquiv.commutes]
+    linear_combination hσ2
+  exact eq_neg_of_add_eq_zero_left
+    ((mul_eq_zero.mp h1).resolve_left fun h ↦ hσα (sub_eq_zero.mp h))
+
 open Classical in
 /-- The quadratic character of `Aut(M/K)` attached to a separable quadratic subextension
 `K ⊆ L ⊆ M`: it sends `σ` to `1` if `σ` fixes `L` pointwise, and to `-1` otherwise.
