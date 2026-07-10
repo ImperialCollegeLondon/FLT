@@ -1,6 +1,15 @@
+/-
+Copyright (c) 2026 Jiaxi Mo. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Jiaxi Mo
+-/
 module
 
 public import Mathlib.RepresentationTheory.Subrepresentation
+
+/-!
+## This is in mathlib PR #41525
+-/
 
 @[expose] public section
 
