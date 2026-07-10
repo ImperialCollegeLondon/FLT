@@ -105,7 +105,7 @@ noncomputable def singleLinearMap (j : HeightOneSpectrum R) :
   __ := RestrictedProduct.singleContinuousAddMonoidHom _ j
   map_smul' k x := by
     open RestrictedProduct in
-    ext i
+    ext1 i
     change Pi.single j (k • x) i = _
     obtain rfl | h := eq_or_ne i j
     · simp [Pi.single_eq_same, -mul_eq_mul_right_iff, FiniteAdeleRing, Algebra.smul_def,
@@ -123,7 +123,7 @@ noncomputable def singleMulHom (j : HeightOneSpectrum R) :
     j.adicCompletion K →ₙ* FiniteAdeleRing R K := {
   __ := RestrictedProduct.singleContinuousAddMonoidHom _ j
   map_mul' a b := by
-    ext v
+    ext1 v
     change Pi.single j (a * b) v = Pi.single j a v * Pi.single j b v
     obtain rfl | h := eq_or_ne j v
     · simp
@@ -140,7 +140,7 @@ noncomputable def singleContinuousLinearMap (j : HeightOneSpectrum R) :
   __ := RestrictedProduct.singleContinuousAddMonoidHom _ j
   map_smul' k x := by
     open RestrictedProduct in
-    ext i
+    ext1 i
     change Pi.single j (k • x) i = _
     obtain rfl | h := eq_or_ne i j
     · simp [Pi.single_eq_same, -mul_eq_mul_right_iff, FiniteAdeleRing, Algebra.smul_def,
@@ -190,7 +190,7 @@ lemma singleContinuousAlgebraMap_comp_evalContinuousLinearMap (j : HeightOneSpec
     ((singleContinuousLinearMap R K j).comp
     (evalContinuousAlgebraMap R K j).toContinuousLinearMap).toLinearMap =
     LinearMap.lsmul (FiniteAdeleRing R K) (FiniteAdeleRing R K) (localIdempotent R K j) := by
-  ext x q
+  ext1 x; ext1 q
   change Pi.single _ (x j) _ = Pi.single j _ q * _
   obtain rfl | h := eq_or_ne j q
   · simp [Pi.single_eq_same]
@@ -213,7 +213,7 @@ lemma exists_mul_mem_integralAdeles (x : 𝔸ᶠ[R, K]) :
       rw [structureMap_apply_apply]
       split_ifs <;> simp [hb]
     · refine x.prop.mono (by simp +contextual)
-  · ext v
+  · ext1 v
     dsimp
     split_ifs <;> simp [← hab, hb, mul_div_cancel_left₀, ← mul_div_assoc]
   · refine x.prop.mono (by simp +contextual)

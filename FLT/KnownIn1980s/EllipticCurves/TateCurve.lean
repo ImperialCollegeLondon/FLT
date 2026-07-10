@@ -1,13 +1,22 @@
 /-
 Copyright (c) 2026 Kevin Buzzard. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Kevin Buzzard
+Authors: Kevin Buzzard, William Coram, Samuel Yin
 -/
 module
 
 public import Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
 public import Mathlib.NumberTheory.LocalField.Basic
 public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
+public import FLT.KnownIn1980s.EllipticCurves.TateParameter
+public import FLT.KnownIn1980s.EllipticCurves.TateParameterOfCurve
+public import FLT.KnownIn1980s.EllipticCurves.TateCurveBaseChange
+public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.Affine.VariableChange
+public import FLT.KnownIn1980s.EllipticCurves.MaybeMathlib
+public import FLT.KnownIn1980s.EllipticCurves.TateCurveUniformisation
+public import FLT.KnownIn1980s.EllipticCurves.TateCurveFunctoriality
+public import FLT.KnownIn1980s.EllipticCurves.ReductionBaseChange
+public import FLT.KnownIn1980s.EllipticCurves.SplitMultiplicativeDescent
 
 /-!
 
@@ -74,36 +83,20 @@ For `q` with `0 < |q| < 1` there is an explicit Weierstrass curve `E_q`, whose c
 are power series in `q` with integer coefficients, together with a uniformisation
 `kˣ/qᶻ ≅ E_q(k)` given by explicit power series `X(u, q)`, `Y(u, q)` — all of it involving
 no choices whatsoever, and commuting on the nose with every valuative morphism of fields.
+This is constructed in `FLT.KnownIn1980s.EllipticCurves.TateCurveUniformisation` (imported
+above): the curve `WeierstrassCurve.tateCurve`, the coordinates `tateX`, `tateY`, the map
+`tateCurvePoint : kˣ → E_q(k)` together with its three pillar properties — additivity
+(`tateCurvePoint_mul`), the definitional kernel `qᶻ` (`tateCurvePoint_eq_zero_iff`, whence
+injectivity `tateCurvePoint_eq_iff`), and surjectivity (`exists_tateCurvePoint_eq`) — are
+assembled here into the isomorphism `tateCurveEquiv`.
+
 The uniformisation of a general `E` with split multiplicative reduction is obtained by
 transporting this one along an isomorphism `E_{q(E)} ≅ E` of Weierstrass curves
-(`exists_variableChange_tateCurve` below), and *that* is the only choice in the theory:
-there are exactly two such isomorphisms, differing by negation.
+(`exists_variableChange_tateCurve`, proved characteristic-uniformly in
+`FLT.KnownIn1980s.EllipticCurves.SplitMultiplicativeDescent`, imported above), and *that*
+is the only choice in the theory: there are exactly two such isomorphisms, differing by
+negation.
 -/
-
-section TateCurve
-
--- For the defining series we only need a topology on the field: this section makes sense
--- (and the series converge) over any field complete with respect to a rank 1
--- nonarchimedean valuation, cf. the TODO above.
-variable {k : Type*} [Field k] [TopologicalSpace k]
-
-/-- The coefficient `a₄(q) = -5s₃(q)` of the Tate curve, where
-`sₖ(q) = ∑_{n≥1} nᵏqⁿ/(1-qⁿ)` (Silverman, ATAEC V.3). -/
-noncomputable def WeierstrassCurve.tateA₄ (q : k) : k :=
-  -5 * ∑' n : ℕ, ((n + 1 : ℕ) : k) ^ 3 * q ^ (n + 1) / (1 - q ^ (n + 1))
-
-/-- The coefficient `a₆(q) = -(5s₃(q) + 7s₅(q))/12` of the Tate curve, where
-`sₖ(q) = ∑_{n≥1} nᵏqⁿ/(1-qⁿ)`; the integrality `12 ∣ 5n³ + 7n⁵` makes sense of the
-division by `12` in every characteristic (Silverman, ATAEC V.3). -/
-noncomputable def WeierstrassCurve.tateA₆ (q : k) : k :=
-  ∑' n : ℕ, -(((5 * (n + 1) ^ 3 + 7 * (n + 1) ^ 5) / 12 : ℤ) : k) * q ^ (n + 1) /
-    (1 - q ^ (n + 1))
-
-/-- The Tate curve `E_q : y² + xy = x³ + a₄(q)x + a₆(q)` (Silverman, ATAEC V.3). -/
-noncomputable def WeierstrassCurve.tateCurve (q : k) : WeierstrassCurve k :=
-  ⟨1, 0, 0, tateA₄ q, tateA₆ q⟩
-
-end TateCurve
 
 -- let k be a nonarchimedean local field
 variable {k : Type*} [Field k] [ValuativeRel k] [TopologicalSpace k]
@@ -114,36 +107,64 @@ variable [DecidableEq k] in
 /-- Tate's uniformisation of the Tate curve `E_q`, given by the explicit power series
 `x = X(u, q)`, `y = Y(u, q)` of Silverman, ATAEC V.3. Unlike `tateEquiv` below, this
 involves no choices at all: it commutes on the nose with every valuative field morphism
-(see `tateCurve_baseChange` for the equation-level statement). -/
+(see `tateCurve_baseChange` for the equation-level statement).
+
+The underlying map sends the class of `u ∈ kˣ` to `tateCurvePoint q hq u`; the
+isomorphism is assembled from the three pillars of
+`FLT.KnownIn1980s.EllipticCurves.TateCurveUniformisation`: additivity
+(`tateCurvePoint_mul`), the definitional kernel (`tateCurvePoint_eq_zero_iff`, which
+makes the descended map injective), and surjectivity (`exists_tateCurvePoint_eq`). -/
 noncomputable def WeierstrassCurve.tateCurveEquiv (q : kˣ) (hq : valuation k (q : k) < 1) :
     Additive (kˣ ⧸ Subgroup.zpowers q) ≃+ ((tateCurve (q : k))⁄k).Point :=
-  sorry
+  AddEquiv.ofBijective
+    (AddMonoidHom.mk'
+      (fun m : Additive (kˣ ⧸ Subgroup.zpowers q) ↦
+        Quotient.liftOn' (Additive.toMul m) (tateCurvePoint q hq) fun u v h ↦
+          tateCurvePoint_eq q hq u v (QuotientGroup.leftRel_apply.mp h))
+      (fun m n ↦ by
+        obtain ⟨x, rfl⟩ : ∃ x, Additive.ofMul x = m := ⟨Additive.toMul m, rfl⟩
+        obtain ⟨y, rfl⟩ : ∃ y, Additive.ofMul y = n := ⟨Additive.toMul n, rfl⟩
+        obtain ⟨u, rfl⟩ := QuotientGroup.mk_surjective x
+        obtain ⟨v, rfl⟩ := QuotientGroup.mk_surjective y
+        exact tateCurvePoint_mul q hq u v))
+    ⟨(injective_iff_map_eq_zero _).mpr fun m hm ↦ by
+      obtain ⟨x, rfl⟩ : ∃ x, Additive.ofMul x = m := ⟨Additive.toMul m, rfl⟩
+      obtain ⟨u, rfl⟩ := QuotientGroup.mk_surjective x
+      have hu : u ∈ Subgroup.zpowers q := (tateCurvePoint_eq_zero_iff q hq).mp hm
+      simpa [← QuotientGroup.eq_one_iff] using hu,
+    fun P ↦ by
+      obtain ⟨u, hu⟩ := exists_tateCurvePoint_eq q hq P
+      exact ⟨Additive.ofMul (QuotientGroup.mk u), hu⟩⟩
 
-/-- The Tate parameter of an elliptic curve `E`, given by a minimal Weierstrass equation with
-split multiplicative reduction over a nonarchimedean local field `k`. It is the unique element
-`q` of `k` with `0 < |q| < 1` such that `j(E) = j(q) = q⁻¹ + 744 + 196884q + ⋯`; equivalently,
-the unique `q` such that `E(k̄)` is Galois-equivariantly isomorphic to `k̄ˣ/q^ℤ`. (The bare
-existence of an abstract isomorphism `E(k) ≅ kˣ/q^ℤ` would not pin down `q`: already over
-`ℚ_p` the groups `ℚ_pˣ/p^ℤ` and `ℚ_pˣ/(p(1+p))^ℤ` are isomorphic, even topologically.) -/
-noncomputable def WeierstrassCurve.q (E : WeierstrassCurve k) [E.IsElliptic]
-    [E.IsMinimal 𝒪[k]] [E.HasSplitMultiplicativeReduction 𝒪[k]] : k :=
-  sorry
+variable [DecidableEq k] in
+/-- `tateCurveEquiv` sends the class of a unit `u` to `tateCurvePoint q hq u`. -/
+theorem WeierstrassCurve.tateCurveEquiv_ofMul_mk (q : kˣ) (hq : valuation k (q : k) < 1)
+    (u : kˣ) :
+    tateCurveEquiv q hq (Additive.ofMul (↑u : kˣ ⧸ Subgroup.zpowers q)) =
+      tateCurvePoint q hq u :=
+  rfl
+
+
+-- The Tate parameter `E.q := tateParameter E.j` — with `tateParameter`, the inverse of
+-- `q ↦ j(q)` of Silverman, ATAEC V.5.2, constructed choice-freely in
+-- `FLT.KnownIn1980s.EllipticCurves.TateParameter` — and its interaction with the valuation
+-- (`one_lt_valuation_j`, `q_ne_zero`, `valuation_q_lt_one`) are provided by
+-- `FLT.KnownIn1980s.EllipticCurves.TateParameterOfCurve` (imported above).
 
 -- Let E/k be an elliptic curve, given by a minimal Weierstrass equation,
 -- with split multiplicative reduction
-variable (E : WeierstrassCurve k) [E.IsElliptic] [E.IsMinimal 𝒪[k]]
-  [E.HasSplitMultiplicativeReduction 𝒪[k]]
+variable (E : WeierstrassCurve k) [E.IsElliptic] [E.HasSplitMultiplicativeReduction 𝒪[k]]
+  [E.IsMinimal 𝒪[k]]
 
-theorem WeierstrassCurve.q_ne_zero : E.q ≠ 0 :=
-  sorry
-
-/-- The Tate parameter has norm less than `1`. -/
-theorem WeierstrassCurve.valuation_q_lt_one : valuation k E.q < 1 :=
-  sorry
-
-/-- The Tate parameter as an element of `kˣ`. -/
-noncomputable def WeierstrassCurve.qUnit : kˣ :=
-  Units.mk0 E.q E.q_ne_zero
+-- Tate's theorem (Silverman, ATAEC V.5.3): an elliptic curve with split multiplicative
+-- reduction is isomorphic, by a change of Weierstrass coordinates, to the Tate curve of its
+-- Tate parameter — `exists_variableChange_tateCurve`, proved characteristic-uniformly
+-- (modulo interface sorries from PR #1088) in
+-- `FLT.KnownIn1980s.EllipticCurves.SplitMultiplicativeDescent` (imported above). Since
+-- `j(E)` is non-integral, `Aut` of the curve is `{±1}` and there are exactly *two* such
+-- `C`, differing by negation. `tateEquiv` is `tateCurveEquiv` transported along a choice of
+-- one of them; this binary choice, for each `E`, is the only choice in the whole theory,
+-- and it cannot be made functorially in `E` — see `tateEquiv_baseChange`.
 
 -- `DecidableEq k` is needed for the group law on `(E⁄k).Point`
 variable [DecidableEq k] in
@@ -152,17 +173,72 @@ reduction then `E(k)` is isomorphic to `kˣ/⟨q⟩`.
 -/
 noncomputable def WeierstrassCurve.tateEquiv :
     Additive (kˣ ⧸ Subgroup.zpowers E.qUnit) ≃+ (E⁄k).Point :=
-  sorry
+  (WeierstrassCurve.tateCurveEquiv E.qUnit (by
+      simpa [WeierstrassCurve.qUnit] using E.valuation_q_lt_one)).trans <| by
+    change (WeierstrassCurve.tateCurve E.q).toAffine.Point ≃+ E.toAffine.Point
+    exact (E.tateVariableChange.pointAddEquiv (tateCurve E.q)).symm.trans
+      (Affine.Point.congr E.tateVariableChange_smul)
 
--- Tate's theorem (Silverman, ATAEC V.5.3): an elliptic curve with split multiplicative
--- reduction is isomorphic, by a change of Weierstrass coordinates, to the Tate curve of its
--- Tate parameter. Since `j(E)` is non-integral, `Aut` of the curve is `{±1}` and there are
--- exactly *two* such `C`, differing by negation. `tateEquiv` is `tateCurveEquiv` transported
--- along a choice of one of them; this binary choice, for each `E`, is the only choice in
--- the whole theory, and it cannot be made functorially in `E` — see `tateEquiv_baseChange`.
-theorem WeierstrassCurve.exists_variableChange_tateCurve :
-    ∃ C : VariableChange k, C • tateCurve E.q = E :=
-  sorry
+omit [E.IsMinimal 𝒪[k]] in
+/-- The coordinates of the point of `E` attached by `tateEquiv` to a unit `u ∉ qᶻ` are
+nonsingular: they are the transport along `E.tateVariableChange` of the point
+`(X(u, q), Y(u, q))` of the Tate curve. -/
+theorem WeierstrassCurve.nonsingular_tateVariableChange_inv {u : kˣ}
+    (hu : u ∉ Subgroup.zpowers E.qUnit) :
+    E.toAffine.Nonsingular (E.tateVariableChange⁻¹.mapX (tateX (u : k) E.q))
+      (E.tateVariableChange⁻¹.mapY (tateX (u : k) E.q) (tateY (u : k) E.q)) := by
+  have hq : valuation k ((E.qUnit : kˣ) : k) < 1 := by
+    simpa [WeierstrassCurve.qUnit] using E.valuation_q_lt_one
+  refine (E.tateVariableChange⁻¹.nonsingular_iff E _ _).mp ?_
+  rw [E.tateVariableChange_inv_smul]
+  exact tateCurve_nonsingular E.qUnit hq u hu
+
+variable [DecidableEq k] in
+omit [E.IsMinimal 𝒪[k]] in
+/-- Tate's uniformisation `tateEquiv` sends the class of a unit `u ∈ qᶻ` to the point at
+infinity. -/
+theorem WeierstrassCurve.tateEquiv_ofMul_of_mem {u : kˣ}
+    (hu : u ∈ Subgroup.zpowers E.qUnit) :
+    E.tateEquiv (Additive.ofMul (↑u : kˣ ⧸ Subgroup.zpowers E.qUnit)) = 0 := by
+  simp only [tateEquiv, AddEquiv.trans_apply, tateCurveEquiv_ofMul_mk]
+  rw [show tateCurvePoint E.qUnit _ u = 0 from by rw [tateCurvePoint, dif_pos hu]; rfl,
+    map_zero]
+
+variable [DecidableEq k] in
+omit [E.IsMinimal 𝒪[k]] in
+/-- Tate's uniformisation `tateEquiv` in coordinates: the class of a unit `u ∉ qᶻ` is
+sent to the image of the point `(X(u, q), Y(u, q))` of the Tate curve under the chosen
+change of variables `E.tateVariableChange`. This is the characterisation through which
+all functoriality statements about `tateEquiv` are proved. -/
+theorem WeierstrassCurve.tateEquiv_ofMul_of_notMem {u : kˣ}
+    (hu : u ∉ Subgroup.zpowers E.qUnit) :
+    E.tateEquiv (Additive.ofMul (↑u : kˣ ⧸ Subgroup.zpowers E.qUnit)) =
+      .some (E.tateVariableChange⁻¹.mapX (tateX (u : k) E.q))
+        (E.tateVariableChange⁻¹.mapY (tateX (u : k) E.q) (tateY (u : k) E.q))
+        (E.nonsingular_tateVariableChange_inv hu) := by
+  have hq : valuation k ((E.qUnit : kˣ) : k) < 1 := by
+    simpa [WeierstrassCurve.qUnit] using E.valuation_q_lt_one
+  have hns' : (E.tateVariableChange • tateCurve E.q).toAffine.Nonsingular
+      (E.tateVariableChange⁻¹.mapX (tateX (u : k) E.q))
+      (E.tateVariableChange⁻¹.mapY (tateX (u : k) E.q) (tateY (u : k) E.q)) := by
+    rw [E.tateVariableChange_smul]
+    exact E.nonsingular_tateVariableChange_inv hu
+  have hns0 : (tateCurve E.q).toAffine.Nonsingular (tateX (u : k) E.q) (tateY (u : k) E.q) :=
+    tateCurve_nonsingular E.qUnit hq u hu
+  have key : ((E.tateVariableChange.pointAddEquiv (tateCurve E.q)).symm.trans
+      (Affine.Point.congr E.tateVariableChange_smul))
+        (Affine.Point.some (tateX (u : k) E.q) (tateY (u : k) E.q) hns0) =
+      Affine.Point.some (E.tateVariableChange⁻¹.mapX (tateX (u : k) E.q))
+        (E.tateVariableChange⁻¹.mapY (tateX (u : k) E.q) (tateY (u : k) E.q))
+        (E.nonsingular_tateVariableChange_inv hu) := by
+    rw [AddEquiv.trans_apply, VariableChange.pointAddEquiv_symm_apply,
+      E.tateVariableChange.pointEquiv_symm_some (tateCurve E.q) hns0 hns']
+    exact Affine.Point.congr_some E.tateVariableChange_smul hns'
+      (E.nonsingular_tateVariableChange_inv hu)
+  simp only [tateEquiv, AddEquiv.trans_apply, tateCurveEquiv_ofMul_mk, id_eq]
+  rw [show tateCurvePoint E.qUnit hq u = Affine.Point.some (tateX (u : k) E.q)
+      (tateY (u : k) E.q) hns0 from by rw [tateCurvePoint, dif_neg hu]; rfl]
+  exact key
 
 /-! ### Functoriality
 
@@ -183,29 +259,71 @@ variable {l : Type*} [Field l] [ValuativeRel l] [TopologicalSpace l]
 instance : (E.baseChange l).IsElliptic :=
   inferInstanceAs (E.map (algebraMap k l)).IsElliptic
 
--- The construction of the Tate curve commutes on the nose with any valuative morphism:
--- its coefficients are power series in `q` with *integer* coefficients, and a valuative
--- morphism is continuous, so preserves the sums. The same is true of the uniformisation
--- `tateCurveEquiv` (a statement we defer, as it needs transport along this equality).
-theorem WeierstrassCurve.tateCurve_baseChange (q : k) :
-    (tateCurve q)⁄l = tateCurve (algebraMap k l q) :=
-  sorry
+/-- The construction of the Tate curve commutes on the nose with any valuative morphism:
+its coefficients are power series in `q` with *integer* coefficients, and the partial
+sums converge at matching rates on both sides (`TateCurve.evalInt_map`). The same is true
+of the uniformisation `tateCurveEquiv` (a statement we defer, as it needs transport along
+this equality).
 
--- Claude says that the base change of E to l is still given by a minimal Weierstrass equation.
--- This uses the multiplicative reduction hypothesis (which makes `c₄` a unit): minimality by
--- itself is not preserved by ramified base change — `y² = x³ + p` is minimal over `ℚ_p` but not
--- over `ℚ_p(p^{1/6})`.
+On the hypothesis `|q| < 1`: the coefficient series `tateA₄`, `tateA₆` are `tsum`s, which
+take *junk values* outside the open unit disc (the `tsum` of a non-summable family is
+`0`, and terms with vanishing denominators `1 - qⁿ = 0` are the junk `x/0 = 0`). Without
+the hypothesis this lemma would be a statement about the alignment of junk values across
+two different fields: for `|q| > 1` it would hold by accident — each term of `tateA₄` has
+size `|(n+1)³|`, which does not tend to `0`, so both sides are non-summable and both junk
+to `0` — but for `|q| = 1` summability hinges on how well `qⁿ` approximates `1`, a
+Diophantine condition on `q`, and transferring (non-)summability along `k → l` would
+further require the image of `ValuativeExtension.mapValueGroupWithZero` to be cofinal in
+the value group of `l` (true for local fields, by finiteness of ramification, but yet
+another argument). None of this buys anything: every consumer feeds this lemma a Tate
+parameter, which lies strictly inside the disc (`valuation_q_lt_one`). So the hypothesis
+is free in practice, and keeps the statement the honest identity of convergent series
+that it is in Silverman. -/
+theorem WeierstrassCurve.tateCurve_baseChange (q : k) (hq : valuation k q < 1) :
+    (tateCurve q)⁄l = tateCurve (algebraMap k l q) := by
+  have hq' : valuation l (algebraMap k l q) < 1 := TateCurve.valuation_algebraMap_lt_one hq
+  have h4 : algebraMap k l (tateA₄ q) = tateA₄ (algebraMap k l q) := by
+    rw [tateA₄_eq_evalInt q hq, tateA₄_eq_evalInt _ hq', TateCurve.evalInt_map q hq]
+  have h6 : algebraMap k l (tateA₆ q) = tateA₆ (algebraMap k l q) := by
+    rw [tateA₆_eq_evalInt q hq, tateA₆_eq_evalInt _ hq', TateCurve.evalInt_map q hq]
+  ext <;> simp [WeierstrassCurve.baseChange, tateCurve, h4, h6]
+
+-- The base change of `E` to `l` is still given by a minimal Weierstrass equation. This uses the
+-- multiplicative reduction hypothesis (which makes `c₄` a unit): minimality by itself is not
+-- preserved by ramified base change — `y² = x³ + p` is minimal over `ℚ_p` but not over
+-- `ℚ_p(p^{1/6})`. See `WeierstrassCurve.isMinimal_baseChange` in `ReductionBaseChange`.
 instance : (E.baseChange l).IsMinimal 𝒪[l] :=
-  sorry
+  E.isMinimal_baseChange
 
--- and it still has split multiplicative reduction. (The `IsMinimal` instance argument of
--- `HasSplitMultiplicativeReduction` is found from the preceding instance.)
+-- and it still has split multiplicative reduction, via
+-- `WeierstrassCurve.hasSplitMultiplicativeReduction_baseChange` in `ReductionBaseChange`
+-- (from which the preceding `IsMinimal` also follows by class-parent projection).
 instance : (E.baseChange l).HasSplitMultiplicativeReduction 𝒪[l] :=
-  sorry
+  E.hasSplitMultiplicativeReduction_baseChange
 
--- The Tate parameter pushes forward under base change.
-theorem WeierstrassCurve.q_baseChange : (E.baseChange l).q = algebraMap k l E.q :=
-  sorry
+/-- The Tate parameter series commutes with valuative extensions: it is the evaluation of
+an integral power series at `j⁻¹`, so this is a direct instance of `evalInt_map`. -/
+theorem WeierstrassCurve.tateParameter_map {j : k} (hj : 1 < valuation k j) :
+    tateParameter (algebraMap k l j) = algebraMap k l (tateParameter j) := by
+  have hjinv : valuation k j⁻¹ < 1 := by
+    simpa [map_inv₀] using inv_lt_one_of_one_lt₀ hj
+  simp_rw [WeierstrassCurve.tateParameter_eq, TateCurve.evalInt_map j⁻¹ hjinv, map_inv₀]
+
+omit [E.IsMinimal 𝒪[k]] in
+theorem WeierstrassCurve.q_baseChange : (E.baseChange l).q = algebraMap k l E.q := by
+  rw [show (E.baseChange l).q = tateParameter (E.baseChange l).j from rfl,
+    show E.q = tateParameter E.j from rfl,
+    show (E.baseChange l).j = algebraMap k l E.j from E.map_j (algebraMap k l),
+    tateParameter_map E.one_lt_valuation_j]
+
+omit [E.IsMinimal 𝒪[k]] in
+/-- The Tate parameter of the base change, as a unit, is the image of the Tate
+parameter. -/
+theorem WeierstrassCurve.qUnit_baseChange :
+    (E.baseChange l).qUnit = Units.map (algebraMap k l).toMonoidHom E.qUnit := by
+  ext
+  simp [WeierstrassCurve.qUnit, E.q_baseChange (l := l)]
+
 
 -- The uniformisations of `E` and of its base change fit into a commutative diagram, but only
 -- up to a sign `ε` which cannot in general be removed, whatever choices are made in
@@ -223,14 +341,157 @@ theorem WeierstrassCurve.q_baseChange : (E.baseChange l).q = algebraMap k l E.q 
 -- the diagram anticommutes: `ε = -1` is forced.
 -- (When the morphism is `k`-linear the sign disappears: see `tateEquiv_galois` below.)
 variable [DecidableEq k] [DecidableEq l] in
+omit [E.IsMinimal 𝒪[k]] in
 theorem WeierstrassCurve.tateEquiv_baseChange :
     ∃ ε : ℤˣ, ∀ u : kˣ,
       Affine.Point.baseChange (W' := E) k l (E.tateEquiv (Additive.ofMul ↑u)) =
         (ε : ℤ) • (E.baseChange l).tateEquiv
           (Additive.ofMul
             (Units.map (algebraMap k l).toMonoidHom u :
-              lˣ ⧸ Subgroup.zpowers (E.baseChange l).qUnit)) :=
-  sorry
+              lˣ ⧸ Subgroup.zpowers (E.baseChange l).qUnit)) := by
+  have hφc : Continuous (algebraMap k l) := ValuativeExtension.continuous_algebraMap k l
+  have hq : valuation k E.q < 1 := E.valuation_q_lt_one
+  have hq' : valuation l (algebraMap k l E.q) < 1 := TateCurve.valuation_algebraMap_lt_one hq
+  have hql : algebraMap k l E.q = (E.baseChange l).q := E.q_baseChange.symm
+  -- the transported `k`-choice is a valid `l`-choice
+  have hC₁' : E.tateVariableChange.map (algebraMap k l) • tateCurve (E.baseChange l).q =
+      E.baseChange l := by
+    have h := congrArg (fun W ↦ WeierstrassCurve.map W (algebraMap k l))
+      E.tateVariableChange_smul
+    rwa [← map_variableChange,
+      show (tateCurve E.q).map (algebraMap k l) = tateCurve (E.baseChange l).q from by
+        rw [← hql]; exact tateCurve_baseChange E.q hq] at h
+  -- `tateCurve q_l` is elliptic with non-integral `j`, so its `c₄`, `c₆` are nonzero
+  have hTE : (E.baseChange l).tateVariableChange⁻¹ • E.baseChange l =
+      tateCurve (E.baseChange l).q :=
+    inv_smul_eq_iff.mpr (E.baseChange l).tateVariableChange_smul.symm
+  haveI : (tateCurve (E.baseChange l).q).IsElliptic := by
+    rw [← hTE]; infer_instance
+  have hjT : 1 < valuation l (tateCurve (E.baseChange l).q).j := by
+    have h := (E.baseChange l).one_lt_valuation_j
+    rw [← variableChange_j (W := E.baseChange l)
+      (C := (E.baseChange l).tateVariableChange⁻¹)] at h
+    simpa only [hTE] using h
+  -- the two choices differ by the negation automorphism or agree
+  have hD : ((E.baseChange l).tateVariableChange⁻¹ *
+      E.tateVariableChange.map (algebraMap k l)) • tateCurve (E.baseChange l).q =
+      tateCurve (E.baseChange l).q := by
+    rw [mul_smul, hC₁', hTE]
+  -- membership in `qᶻ` transfers along the (injective) base-change map
+  have hu_iff : ∀ u : kˣ, Units.map (algebraMap k l).toMonoidHom u ∈
+      Subgroup.zpowers (E.baseChange l).qUnit ↔ u ∈ Subgroup.zpowers E.qUnit := by
+    intro u
+    rw [E.qUnit_baseChange]
+    exact MonoidHom.map_mem_zpowers_iff (Units.map_injective (algebraMap k l).injective)
+  -- the coordinate series transport on the nose
+  have hXmap : ∀ u : kˣ, algebraMap k l (tateX (u : k) E.q) =
+      tateX ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l) (E.baseChange l).q := by
+    intro u
+    rw [show ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l) =
+      algebraMap k l (u : k) from rfl, ← hql]
+    exact tateX_map_of_continuous (algebraMap k l) hφc E.qUnit u hq hq'
+  have hYmap : ∀ u : kˣ, algebraMap k l (tateY (u : k) E.q) =
+      tateY ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l) (E.baseChange l).q := by
+    intro u
+    rw [show ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l) =
+      algebraMap k l (u : k) from rfl, ← hql]
+    exact tateY_map_of_continuous (algebraMap k l) hφc E.qUnit u hq hq'
+  rcases (smul_eq_self_iff (c₄_ne_zero_of_one_lt_valuation_j _ hjT)
+      (c₆_ne_zero_of_one_lt_valuation_j _ hjT)).mp hD with h1 | hneg
+  · -- the choices agree: the diagram commutes on the nose, `ε = 1`
+    have hC12 : (E.baseChange l).tateVariableChange =
+        E.tateVariableChange.map (algebraMap k l) := inv_mul_eq_one.mp h1
+    refine ⟨1, fun u ↦ ?_⟩
+    by_cases hu : u ∈ Subgroup.zpowers E.qUnit
+    · simp only [E.tateEquiv_ofMul_of_mem hu, map_zero,
+        (E.baseChange l).tateEquiv_ofMul_of_mem ((hu_iff u).mpr hu), smul_zero]
+      rfl
+    · rw [E.tateEquiv_ofMul_of_notMem hu,
+        (E.baseChange l).tateEquiv_ofMul_of_notMem (fun h ↦ hu ((hu_iff u).mp h)),
+        Affine.Point.map_some]
+      have hX : (Algebra.ofId k l) (E.tateVariableChange⁻¹.mapX (tateX (u : k) E.q)) =
+          (E.baseChange l).tateVariableChange⁻¹.mapX
+            (tateX ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l)
+              (E.baseChange l).q) := by
+        rw [show ((Algebra.ofId k l) : k → l) = ⇑(algebraMap k l) from rfl, map_mapX,
+          hXmap u, show E.tateVariableChange⁻¹.map (algebraMap k l) =
+            (E.baseChange l).tateVariableChange⁻¹ from by
+              rw [hC12]; exact map_inv (VariableChange.mapHom (algebraMap k l)) _]
+      have hY : (Algebra.ofId k l) (E.tateVariableChange⁻¹.mapY (tateX (u : k) E.q)
+          (tateY (u : k) E.q)) =
+          (E.baseChange l).tateVariableChange⁻¹.mapY
+            (tateX ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l)
+              (E.baseChange l).q)
+            (tateY ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l)
+              (E.baseChange l).q) := by
+        rw [show ((Algebra.ofId k l) : k → l) = ⇑(algebraMap k l) from rfl, map_mapY,
+          hXmap u, hYmap u, show E.tateVariableChange⁻¹.map (algebraMap k l) =
+            (E.baseChange l).tateVariableChange⁻¹ from by
+              rw [hC12]; exact map_inv (VariableChange.mapHom (algebraMap k l)) _]
+      simp only [hX, hY, show ((1 : ℤˣ) : ℤ) = 1 from rfl, one_zsmul]
+      rfl
+  · -- the choices differ by negation: the diagram anticommutes, `ε = -1`
+    have hC12 : E.tateVariableChange.map (algebraMap k l) =
+        (E.baseChange l).tateVariableChange *
+          (tateCurve (E.baseChange l).q).negVariableChange := by
+      rw [← hneg, mul_inv_cancel_left]
+    refine ⟨-1, fun u ↦ ?_⟩
+    by_cases hu : u ∈ Subgroup.zpowers E.qUnit
+    · simp only [E.tateEquiv_ofMul_of_mem hu, map_zero,
+        (E.baseChange l).tateEquiv_ofMul_of_mem ((hu_iff u).mpr hu), smul_zero]
+      rfl
+    · have hul : Units.map (algebraMap k l).toMonoidHom u ∉
+          Subgroup.zpowers (E.baseChange l).qUnit := fun h ↦ hu ((hu_iff u).mp h)
+      rw [E.tateEquiv_ofMul_of_notMem hu,
+        (E.baseChange l).tateEquiv_ofMul_of_notMem hul, Affine.Point.map_some]
+      have hCinv : E.tateVariableChange⁻¹.map (algebraMap k l) =
+          (tateCurve (E.baseChange l).q).negVariableChange *
+            (E.baseChange l).tateVariableChange⁻¹ := by
+        rw [show E.tateVariableChange⁻¹.map (algebraMap k l) =
+            (E.tateVariableChange.map (algebraMap k l))⁻¹ from
+              map_inv (VariableChange.mapHom (algebraMap k l)) _, hC12, mul_inv_rev,
+          inv_negVariableChange]
+      have hX : (Algebra.ofId k l) (E.tateVariableChange⁻¹.mapX (tateX (u : k) E.q)) =
+          (E.baseChange l).tateVariableChange⁻¹.mapX
+            (tateX ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l)
+              (E.baseChange l).q) := by
+        rw [show ((Algebra.ofId k l) : k → l) = ⇑(algebraMap k l) from rfl, map_mapX,
+          hXmap u, hCinv, VariableChange.mul_mapX, negVariableChange_mapX]
+      have hY : (Algebra.ofId k l) (E.tateVariableChange⁻¹.mapY (tateX (u : k) E.q)
+          (tateY (u : k) E.q)) =
+          (E.baseChange l).tateVariableChange⁻¹.mapY
+            (tateX ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l)
+              (E.baseChange l).q)
+            ((tateCurve (E.baseChange l).q).toAffine.negY
+              (tateX ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l)
+                (E.baseChange l).q)
+              (tateY ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l)
+                (E.baseChange l).q)) := by
+        rw [show ((Algebra.ofId k l) : k → l) = ⇑(algebraMap k l) from rfl, map_mapY,
+          hXmap u, hYmap u, hCinv, VariableChange.mul_mapY, negVariableChange_mapX,
+          negVariableChange_mapY]
+      have hnegY : (E.baseChange l).toAffine.negY
+          ((E.baseChange l).tateVariableChange⁻¹.mapX
+            (tateX ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l)
+              (E.baseChange l).q))
+          ((E.baseChange l).tateVariableChange⁻¹.mapY
+            (tateX ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l)
+              (E.baseChange l).q)
+            (tateY ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l)
+              (E.baseChange l).q)) =
+          (E.baseChange l).tateVariableChange⁻¹.mapY
+            (tateX ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l)
+              (E.baseChange l).q)
+            ((tateCurve (E.baseChange l).q).toAffine.negY
+              (tateX ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l)
+                (E.baseChange l).q)
+              (tateY ((Units.map (algebraMap k l).toMonoidHom u : lˣ) : l)
+                (E.baseChange l).q)) := by
+        rw [VariableChange.negY_apply, hTE]
+      simp only [hX, hY, show ((-1 : ℤˣ) : ℤ) = -1 from rfl, neg_one_zsmul,
+        Affine.Point.neg_some]
+      congr 1
+      exact hnegY.symm
 
 -- Galois equivariance: for a `k`-*algebra* automorphism `σ` of `l` the diagram commutes
 -- with no sign, because `E` and a choice of uniformisation for it already live over `k`,
@@ -238,12 +499,136 @@ theorem WeierstrassCurve.tateEquiv_baseChange :
 -- torsion of `E`. The continuity hypothesis on `σ` is automatic when `l/k` is algebraic
 -- (e.g. a finite extension), by uniqueness of extensions of valuations.
 variable [DecidableEq l] in
+omit [E.IsMinimal 𝒪[k]] in
 theorem WeierstrassCurve.tateEquiv_galois (σ : l ≃ₐ[k] l) (hσ : Continuous σ) (u : lˣ) :
     Affine.Point.map (W' := E) σ.toAlgHom
         ((E.baseChange l).tateEquiv (Additive.ofMul ↑u) : (E⁄l).Point) =
       (E.baseChange l).tateEquiv
-        (Additive.ofMul ↑(Units.map σ.toAlgHom.toRingHom.toMonoidHom u)) :=
-  sorry
+        (Additive.ofMul ↑(Units.map σ.toAlgHom.toRingHom.toMonoidHom u)) := by
+  have hq : valuation l (E.baseChange l).q < 1 := (E.baseChange l).valuation_q_lt_one
+  have hσq : σ.toAlgHom.toRingHom (E.baseChange l).q = (E.baseChange l).q := by
+    rw [E.q_baseChange (l := l)]
+    exact σ.commutes E.q
+  have hqσ : valuation l (σ.toAlgHom.toRingHom (E.baseChange l).q) < 1 := by
+    rw [hσq]; exact hq
+  -- `σ` fixes the Tate curve over `l` and the base change of `E`
+  have hσT : (tateCurve (E.baseChange l).q).map σ.toAlgHom.toRingHom =
+      tateCurve (E.baseChange l).q := by
+    rw [tateCurve_map_of_continuous σ.toAlgHom.toRingHom hσ hq hqσ, hσq]
+  have hσE : (E.baseChange l).map σ.toAlgHom.toRingHom = E.baseChange l := by
+    rw [show E.baseChange l = E.map (algebraMap k l) from rfl, WeierstrassCurve.map_map,
+      show σ.toAlgHom.toRingHom.comp (algebraMap k l) = algebraMap k l from
+        AlgHom.comp_algebraMap σ.toAlgHom]
+  -- the transported `k`-choice is a valid, `σ`-fixed `l`-choice
+  have hq_k : valuation k E.q < 1 := E.valuation_q_lt_one
+  have hql : algebraMap k l E.q = (E.baseChange l).q := E.q_baseChange.symm
+  have hC₁' : E.tateVariableChange.map (algebraMap k l) • tateCurve (E.baseChange l).q =
+      E.baseChange l := by
+    have h := congrArg (fun W ↦ WeierstrassCurve.map W (algebraMap k l))
+      E.tateVariableChange_smul
+    rwa [← map_variableChange,
+      show (tateCurve E.q).map (algebraMap k l) = tateCurve (E.baseChange l).q from by
+        rw [← hql]; exact tateCurve_baseChange E.q hq_k] at h
+  -- the dichotomy between the two `l`-choices
+  have hTE : (E.baseChange l).tateVariableChange⁻¹ • E.baseChange l =
+      tateCurve (E.baseChange l).q :=
+    inv_smul_eq_iff.mpr (E.baseChange l).tateVariableChange_smul.symm
+  haveI : (tateCurve (E.baseChange l).q).IsElliptic := by
+    rw [← hTE]; infer_instance
+  have hjT : 1 < valuation l (tateCurve (E.baseChange l).q).j := by
+    have h := (E.baseChange l).one_lt_valuation_j
+    rw [← variableChange_j (W := E.baseChange l)
+      (C := (E.baseChange l).tateVariableChange⁻¹)] at h
+    simpa only [hTE] using h
+  have hD : ((E.tateVariableChange.map (algebraMap k l))⁻¹ *
+      (E.baseChange l).tateVariableChange) • tateCurve (E.baseChange l).q =
+      tateCurve (E.baseChange l).q := by
+    rw [mul_smul, (E.baseChange l).tateVariableChange_smul,
+      inv_smul_eq_iff.mpr hC₁'.symm]
+  -- `σ` fixes the chosen `l`-variable-change, since both dichotomy factors are `σ`-fixed
+  have hσC₂ : (E.baseChange l).tateVariableChange.map σ.toAlgHom.toRingHom =
+      (E.baseChange l).tateVariableChange := by
+    have hσC₁' : (E.tateVariableChange.map (algebraMap k l)).map σ.toAlgHom.toRingHom =
+        E.tateVariableChange.map (algebraMap k l) := by
+      rw [VariableChange.map_map,
+        show σ.toAlgHom.toRingHom.comp (algebraMap k l) = algebraMap k l from
+          AlgHom.comp_algebraMap σ.toAlgHom]
+    rcases (smul_eq_self_iff (c₄_ne_zero_of_one_lt_valuation_j _ hjT)
+        (c₆_ne_zero_of_one_lt_valuation_j _ hjT)).mp hD with h1 | hneg
+    · rw [show (E.baseChange l).tateVariableChange =
+        E.tateVariableChange.map (algebraMap k l) from (inv_mul_eq_one.mp h1).symm, hσC₁']
+    · rw [show (E.baseChange l).tateVariableChange =
+          E.tateVariableChange.map (algebraMap k l) *
+            (tateCurve (E.baseChange l).q).negVariableChange from by
+            rw [← hneg, mul_inv_cancel_left],
+        show (E.tateVariableChange.map (algebraMap k l) *
+            (tateCurve (E.baseChange l).q).negVariableChange).map σ.toAlgHom.toRingHom =
+          (E.tateVariableChange.map (algebraMap k l)).map σ.toAlgHom.toRingHom *
+            (tateCurve (E.baseChange l).q).negVariableChange.map σ.toAlgHom.toRingHom from
+          map_mul (VariableChange.mapHom σ.toAlgHom.toRingHom) _ _,
+        hσC₁', map_negVariableChange, hσT]
+  -- `σ` fixes `qᶻ` and its membership
+  have hσqUnit : Units.map σ.toAlgHom.toRingHom.toMonoidHom (E.baseChange l).qUnit =
+      (E.baseChange l).qUnit := by
+    ext
+    simpa [WeierstrassCurve.qUnit] using hσq
+  have hu_iff : Units.map σ.toAlgHom.toRingHom.toMonoidHom u ∈
+      Subgroup.zpowers (E.baseChange l).qUnit ↔ u ∈ Subgroup.zpowers (E.baseChange l).qUnit := by
+    conv_lhs => rw [← hσqUnit]
+    exact MonoidHom.map_mem_zpowers_iff
+      (Units.map_injective σ.toAlgHom.toRingHom.injective)
+  by_cases hu : u ∈ Subgroup.zpowers (E.baseChange l).qUnit
+  · rw [show ((E.baseChange l).tateEquiv (Additive.ofMul (↑u : lˣ ⧸ Subgroup.zpowers
+        (E.baseChange l).qUnit)) : (E⁄l).Point) = 0 from
+        (E.baseChange l).tateEquiv_ofMul_of_mem hu,
+      (E.baseChange l).tateEquiv_ofMul_of_mem (hu_iff.mpr hu)]
+    exact map_zero _
+  · -- the coordinate chase, with no sign
+    have hXσ : σ.toAlgHom.toRingHom (tateX (u : l) (E.baseChange l).q) =
+        tateX ((Units.map σ.toAlgHom.toRingHom.toMonoidHom u : lˣ) : l)
+          (E.baseChange l).q := by
+      have h := tateX_map_of_continuous σ.toAlgHom.toRingHom hσ (E.baseChange l).qUnit u
+        hq hqσ
+      rwa [show σ.toAlgHom.toRingHom (((E.baseChange l).qUnit : lˣ) : l) =
+        (E.baseChange l).q from hσq] at h
+    have hYσ : σ.toAlgHom.toRingHom (tateY (u : l) (E.baseChange l).q) =
+        tateY ((Units.map σ.toAlgHom.toRingHom.toMonoidHom u : lˣ) : l)
+          (E.baseChange l).q := by
+      have h := tateY_map_of_continuous σ.toAlgHom.toRingHom hσ (E.baseChange l).qUnit u
+        hq hqσ
+      rwa [show σ.toAlgHom.toRingHom (((E.baseChange l).qUnit : lˣ) : l) =
+        (E.baseChange l).q from hσq] at h
+    have hCinvσ : (E.baseChange l).tateVariableChange⁻¹.map σ.toAlgHom.toRingHom =
+        (E.baseChange l).tateVariableChange⁻¹ := by
+      rw [show (E.baseChange l).tateVariableChange⁻¹.map σ.toAlgHom.toRingHom =
+          ((E.baseChange l).tateVariableChange.map σ.toAlgHom.toRingHom)⁻¹ from
+          map_inv (VariableChange.mapHom σ.toAlgHom.toRingHom) _, hσC₂]
+    have hX : σ.toAlgHom ((E.baseChange l).tateVariableChange⁻¹.mapX
+        (tateX (u : l) (E.baseChange l).q)) =
+        (E.baseChange l).tateVariableChange⁻¹.mapX
+          (tateX ((Units.map σ.toAlgHom.toRingHom.toMonoidHom u : lˣ) : l)
+            (E.baseChange l).q) := by
+      rw [show (⇑σ.toAlgHom : l → l) = ⇑σ.toAlgHom.toRingHom from rfl, map_mapX, hXσ,
+        hCinvσ]
+    have hY : σ.toAlgHom ((E.baseChange l).tateVariableChange⁻¹.mapY
+        (tateX (u : l) (E.baseChange l).q) (tateY (u : l) (E.baseChange l).q)) =
+        (E.baseChange l).tateVariableChange⁻¹.mapY
+          (tateX ((Units.map σ.toAlgHom.toRingHom.toMonoidHom u : lˣ) : l)
+            (E.baseChange l).q)
+          (tateY ((Units.map σ.toAlgHom.toRingHom.toMonoidHom u : lˣ) : l)
+            (E.baseChange l).q) := by
+      rw [show (⇑σ.toAlgHom : l → l) = ⇑σ.toAlgHom.toRingHom from rfl, map_mapY, hXσ,
+        hYσ, hCinvσ]
+    rw [show ((E.baseChange l).tateEquiv (Additive.ofMul (↑u : lˣ ⧸ Subgroup.zpowers
+        (E.baseChange l).qUnit)) : (E⁄l).Point) =
+        .some ((E.baseChange l).tateVariableChange⁻¹.mapX
+          (tateX (u : l) (E.baseChange l).q))
+        ((E.baseChange l).tateVariableChange⁻¹.mapY (tateX (u : l) (E.baseChange l).q)
+          (tateY (u : l) (E.baseChange l).q))
+        ((E.baseChange l).nonsingular_tateVariableChange_inv hu) from
+        (E.baseChange l).tateEquiv_ofMul_of_notMem hu,
+      (E.baseChange l).tateEquiv_ofMul_of_notMem (fun h ↦ hu (hu_iff.mp h))]
+    exact (Affine.Point.map_some σ.toAlgHom _).trans (by simp only [hX, hY]; rfl)
 
 /-! ### Torsion and the Weil pairing
 

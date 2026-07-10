@@ -115,7 +115,7 @@ lemma valuation_comap (w : HeightOneSpectrum B) (x : K) :
       (Ideal.ramificationIdx' (under A w).asIdeal w.asIdeal) =
     w.valuation L (algebraMap K L x) := by
   obtain ⟨x, y, hy, rfl⟩ := IsFractionRing.div_surjective (A := A) x
-  simp [valuation, ← IsScalarTower.algebraMap_apply A K L, IsScalarTower.algebraMap_apply A B L,
+  simp [valuation_def, ← IsScalarTower.algebraMap_apply A K L, IsScalarTower.algebraMap_apply A B L,
     ← intValuation_comap A B (algebraMap_injective_of_field_isFractionRing A B K L), div_pow]
 
 include K L in
