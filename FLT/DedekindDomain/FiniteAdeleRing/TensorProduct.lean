@@ -75,7 +75,7 @@ lemma TensorProduct.localcomponent_id_apply (p : HeightOneSpectrum R)
       (evalContinuousAlgebraMap R K p).toContinuousLinearMap
         ∘ₗ (singleContinuousLinearMap R K p).toLinearMap
       = LinearMap.id := by
-    ext;
+    ext1
     apply evalContinuousAlgebraMap_singleContinuousLinearMap
   simp [localcomponent, ContinuousLinearMap.rTensor', ← LinearMap.rTensor_comp_apply, this]
 

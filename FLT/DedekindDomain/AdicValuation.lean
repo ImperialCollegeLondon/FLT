@@ -10,11 +10,11 @@ public import Mathlib.NumberTheory.RamificationInertia.Inertia
 public import Mathlib.RingTheory.Valuation.Discrete.Basic
 public import Mathlib.Topology.Path
 public import Mathlib.RingTheory.DedekindDomain.AdicValuation
-import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
-import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
-import Mathlib.Algebra.Group.Int.TypeTags
-import Mathlib.RingTheory.Valuation.Discrete.RankOne
-import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+public import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic
+public import FLT.Mathlib.RingTheory.Valuation.ValuationSubring
+public import Mathlib.Algebra.Group.Int.TypeTags
+public import Mathlib.RingTheory.Valuation.Discrete.RankOne
+public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 
 /-!
 
@@ -156,6 +156,9 @@ lemma exists_adicValued_sub_lt_of_adicValued_le_one {x : (WithVal (v.valuation K
   obtain ⟨a, hval⟩ := exists_adicValued_mul_sub_le v hγ hγv.le hge
   use a
   rw [← eq_div_iff_mul_eq hdz] at hnd
+  rw [← adicCompletion.valued_toCompletion]
+  change Valued.v ((↑((WithVal.equiv (valuation K v)).symm ((algebraMap A K) a)) :
+    (v.valuation K).Completion) - ↑x) < ↑γ
   rw [← UniformSpace.Completion.coe_sub, Valued.valuedCompletion_apply, hnd, sub_div' hdz, map_div₀]
   rw [← Valuation.pos_iff Valued.v, WithVal.algebraMap_right_apply, WithVal.valued_toVal] at hdz
   simp only [WithVal.algebraMap_right_apply, WithVal.equiv_symm_apply,
@@ -189,14 +192,18 @@ theorem closureAlgebraMapIntegers_eq_integers :
     suffices h : closure (f '' (f ⁻¹' (adicCompletionIntegers K v))) ⊆
         closure (algebraMap A (adicCompletion K v)).range by
       apply Set.Subset.trans _ h
+      -- `f = ofCompletion ∘ (↑·)` has dense range: `ofCompletion` is a surjective homeomorphism
+      -- and the completion coercion is dense.
       exact DenseRange.subset_closure_image_preimage_of_isOpen
-        UniformSpace.Completion.denseRange_coe (Valued.isOpen_valuationSubring _)
+        ((adicCompletion.ofCompletion_surjective K v).denseRange.comp
+          UniformSpace.Completion.denseRange_coe (adicCompletion.continuous_ofCompletion K v))
+        (Valued.isOpen_valuationSubring _)
     -- Unfold the topological definitions until we get the result from the previous lemma
     apply closure_minimal _ isClosed_closure
     rintro k ⟨x, hx, rfl⟩
     unfold f at hx
     rw [Set.mem_preimage, SetLike.mem_coe, mem_adicCompletionIntegers,
-        Valued.valuedCompletion_apply] at hx
+        adicCompletion.valued_ofCompletion, Valued.valuedCompletion_apply] at hx
     rw [mem_closure_iff_nhds_zero]
     intro U hU
     rw [Valued.mem_nhds] at hU
@@ -303,8 +310,6 @@ noncomputable def ResidueFieldEquivCompletionResidueField :
     rw [Valuation.Integer.not_isUnit_iff_valuation_lt_one]
   exact exists_adicValued_sub_lt_of_adicCompletionInteger K v x 1
 
--- dirty hack because of v4.29
-attribute [local instance 9999] Algebra.toModule in
 theorem inertiaDeg_asIdeal_completionIdeal :
     Ideal.inertiaDeg' v.asIdeal (v.completionIdeal K) = 1 := by
   rw [Ideal.inertiaDeg'_algebraMap]
@@ -389,7 +394,6 @@ theorem closureAlgebraMapIntegers_eq_prodIntegers {ι : Type*}
         valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective
           (valuedAdicCompletion_surjective K (v w))]
       exact ha w hw
-
 
 lemma adicCompletion.eq_mul_nonZeroDivisor_inv_adicCompletionIntegers (v : HeightOneSpectrum A)
     (x : v.adicCompletion K) :
