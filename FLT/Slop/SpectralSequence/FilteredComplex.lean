@@ -847,8 +847,7 @@ lemma toFH_surjective (p n : ℤ) : Function.Surjective (K.toFH p n) := by
 
 /-- The associated graded piece `gr^p H^n = F^p H^n / F^{p+1} H^n` of the cohomology.
 This is the object the spectral sequence abuts to: the convergence theorems below
-identify `E_r^{p,n}` with `K.grH p n`.  (Mirrors `GradedAbelian.grH` on the abelian
-side.) -/
+identify `E_r^{p,n}` with `K.grH p n`. -/
 abbrev grH (p n : ℤ) : Type _ :=
   ↥(K.FH p n) ⧸ (K.FH (p + 1) n).comap (K.FH p n).subtype
 

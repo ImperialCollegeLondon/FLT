@@ -35,8 +35,7 @@ needed to identify `d₂` with the abstract page differentials.
   complex.
 * `FilteredComplex.d2` : the transgression `d₂ : E_2^{0,1} → E_2^{2,0}`.
 * `FilteredComplex.f1`, `FilteredComplex.f2`, `FilteredComplex.f4` : the edge
-  edge maps `E_2^{1,0} → H¹` and `H¹ → E_2^{0,1}`, and
-  `E_2^{2,0} → H²`.
+  maps `E_2^{1,0} → H¹` and `H¹ → E_2^{0,1}`, and `E_2^{2,0} → H²`.
 * `FilteredComplex.five_term_exact` : the five-term exact sequence — `f1` is
   injective and the sequence is exact at `H¹`, `E_2^{0,1}` and `E_2^{2,0}`.
 * `FilteredComplex.pageSuccEquivOfStable`, `FilteredComplex.quotComapTopEquiv` :
