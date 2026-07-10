@@ -75,6 +75,7 @@ public import FLT.KnownIn1980s.EllipticCurves.DivisionPolynomialTorsion
 public import FLT.KnownIn1980s.EllipticCurves.Flat
 public import FLT.KnownIn1980s.EllipticCurves.FlatImpliesUnramified
 public import FLT.KnownIn1980s.EllipticCurves.GoodReduction
+public import FLT.KnownIn1980s.EllipticCurves.PointReduction
 public import FLT.KnownIn1980s.EllipticCurves.QuadraticTwists
 public import FLT.KnownIn1980s.EllipticCurves.ReductionBaseChange
 public import FLT.KnownIn1980s.EllipticCurves.TateCurve
@@ -128,6 +129,7 @@ public import FLT.Mathlib.MeasureTheory.Group.ModularCharacter
 public import FLT.Mathlib.MeasureTheory.Haar.Extension
 public import FLT.Mathlib.MeasureTheory.Measure.Regular
 public import FLT.Mathlib.MeasureTheory.Measure.Typeclasses.Finite
+public import FLT.Mathlib.NumberTheory.EllipticDivisibilitySequence
 public import FLT.Mathlib.NumberTheory.NumberField.AdeleRing
 public import FLT.Mathlib.NumberTheory.NumberField.Completion
 public import FLT.Mathlib.NumberTheory.NumberField.FiniteAdeleRing
@@ -141,6 +143,7 @@ public import FLT.Mathlib.RepresentationTheory.Basic
 public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 public import FLT.Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
+public import FLT.Mathlib.RingTheory.HopfAlgebra.Pi
 public import FLT.Mathlib.RingTheory.Ideal.Quotient.Basic
 public import FLT.Mathlib.RingTheory.LocalRing.Defs
 public import FLT.Mathlib.RingTheory.LocalRing.MaximalIdeal.Basic

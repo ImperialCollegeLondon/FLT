@@ -593,6 +593,109 @@ private theorem WeierstrassCurve.resultant_Φ_ΨSq_universal {n : ℤ} (hn : n �
         -WeierstrassCurve.universal.Δ ^ ((n.natAbs ^ 4 - n.natAbs ^ 2) / 6) :=
   sorry
 
+open UniqueFactorizationMonoid in
+/-- **UFD radical-to-power bridge.** In a unique factorisation domain, if every prime
+dividing `a` also divides `b`, then `a` divides some power of `b` (concretely `b ^ ω(a)`,
+where `ω(a) = Multiset.card (factors a)` is the number of prime factors of `a` counted with
+multiplicity). This is the elementary commutative-algebra step that turns the geometric
+statement "every prime factor of the resultant divides `Δ`" into the divisibility
+`Res ∣ Δ ^ k` used downstream, removing the need for any isobaric-weight bookkeeping. -/
+private theorem exists_dvd_pow_of_forall_prime_dvd {R : Type*} [CommRing R] [IsDomain R]
+    [UniqueFactorizationMonoid R] {a b : R} (ha : a ≠ 0)
+    (h : ∀ p : R, Prime p → p ∣ a → p ∣ b) :
+    ∃ k : ℕ, a ∣ b ^ k := by
+  -- a product of `card s` elements each dividing `b` divides `b ^ card s`
+  have gen : ∀ s : Multiset R, (∀ x ∈ s, x ∣ b) → s.prod ∣ b ^ Multiset.card s := by
+    intro s
+    refine Multiset.induction_on s ?_ ?_
+    · intro _; simp
+    · intro x t ih hs
+      rw [Multiset.prod_cons, Multiset.card_cons, pow_succ']
+      exact mul_dvd_mul (hs x (Multiset.mem_cons_self x t))
+        (ih fun y hy => hs y (Multiset.mem_cons_of_mem hy))
+  refine ⟨Multiset.card (factors a), ?_⟩
+  have hassoc : Associated (factors a).prod a := factors_prod ha
+  have hdvd : (factors a).prod ∣ b ^ Multiset.card (factors a) :=
+    gen _ fun q hq => h q (prime_of_factor q hq) ((Multiset.dvd_prod hq).trans hassoc.dvd)
+  exact hassoc.symm.dvd.trans hdvd
+
+/-- **Geometric core (Ayad 1992), radical form.** Over the universal ring `ℤ[a₁, …, a₆]`
+the resultant `Res(Φ n, ΨSq n)` (with the fixed degree indices `n²`, `n² - 1`) is nonzero,
+and every prime dividing it divides the universal discriminant `Δ`.
+
+This is the sole remaining critical-path input, and it is a strictly cleaner target than the
+earlier `Res ∣ Δ ^ ((n⁴-n²)/6)`: it drops the isobaric-weight bookkeeping that pins the
+exponent (only the *existence* of an exponent is used downstream, see
+`resultant_Φ_ΨSq_universal_dvd`), reducing the problem to the honest geometric statement.
+
+Proof sketch (Ayad): let `p` be a prime with `p ∣ Res`; assume for contradiction `p ∤ Δ`.
+Pass to the fraction field of `ℤ[a₁, …, a₆] ⧸ (p)` and an algebraic closure `Ω`. There
+`Δ ≠ 0`, so the pushed curve is elliptic (`IsElliptic ↔ IsUnit Δ`) and the
+division-polynomial/torsion dictionary applies. Since `p ∣ Res`, the resultant vanishes in
+`Ω`, forcing (via the root-product description of the resultant over a domain) a common root
+`x₀` of `Φ n` and `ΨSq n`. A `y₀` on the curve above `x₀` exists (`Ω` algebraically closed),
+giving a nonzero point `P` that is `n`-torsion (`Point.smul_eq_zero_iff_eval_ΨSq`, from
+`ΨSqₙ(x₀) = 0`) and, via `Φ n = X · ΨSq n - preΨ(n+1) · preΨ(n-1) · (…)`, also `(n±1)`-torsion;
+then `(n±1)•P = 0` and `n•P = 0` give `P = ((n±1) - n)•(±P) = 0`, contradicting `P ≠ 0`.
+Nonvanishing of `Res` follows from the same no-common-root argument over any specialisation
+with `Δ ≠ 0`. The `char ∣ n` degeneration of the leading coefficient of `ΨSq n` is handled
+inside this argument. See the module discussion and Ayad 1992. -/
+private theorem WeierstrassCurve.resultant_Φ_ΨSq_universal_radical {n : ℤ} (hn : n ≠ 0) :
+    (WeierstrassCurve.universal.Φ n).resultant (WeierstrassCurve.universal.ΨSq n)
+          (n.natAbs ^ 2) (n.natAbs ^ 2 - 1) ≠ 0 ∧
+      ∀ p : MvPolynomial (Fin 5) ℤ, Prime p →
+        p ∣ (WeierstrassCurve.universal.Φ n).resultant (WeierstrassCurve.universal.ΨSq n)
+              (n.natAbs ^ 2) (n.natAbs ^ 2 - 1) →
+          p ∣ WeierstrassCurve.universal.Δ :=
+  sorry
+
+/-- **The honest minimal input on the critical path.** The resultant of `Φ n` and `ΨSq n`
+for the universal curve *divides some power* of the universal discriminant `Δ`. This is
+strictly weaker than the full identity `resultant_Φ_ΨSq_universal` (which pins the divisor to
+be `±Δ ^ k` exactly), and it is all that the consumer `isCoprime_Φ_ΨSq` actually needs: via
+`isUnit_resultant_Φ_ΨSq_of_isUnit_Δ` it upgrades, after any base change sending `Δ` to a
+unit, to invertibility of the resultant, hence to coprimality of `Φ n` and `ΨSq n`.
+
+It is the clean commutative-algebra shadow of the geometric no-common-root argument: over the
+fraction field of `ℤ[a₁, …, a₆][Δ⁻¹]` the polynomials `Φ n` and `ΨSq n` have no common root
+(a common root is the `x`-coordinate of a nonzero point that is simultaneously `n`- and
+`(n ± 1)`-torsion, contradicting `gcd(n, n ± 1) = 1`), so their resultant is inverted by `Δ`,
+i.e. divides a power of `Δ` in the UFD `ℤ[a₁, …, a₆]`. It is deduced here from the radical
+form `resultant_Φ_ΨSq_universal_radical` (every prime factor of `Res` divides `Δ`, and
+`Res ≠ 0`) via the UFD bridge `exists_dvd_pow_of_forall_prime_dvd`; only the *existence* of an
+exponent is used downstream. -/
+private theorem WeierstrassCurve.resultant_Φ_ΨSq_universal_dvd {n : ℤ} (hn : n ≠ 0) :
+    ∃ k : ℕ, (WeierstrassCurve.universal.Φ n).resultant (WeierstrassCurve.universal.ΨSq n)
+          (n.natAbs ^ 2) (n.natAbs ^ 2 - 1) ∣ WeierstrassCurve.universal.Δ ^ k := by
+  obtain ⟨hne, hrad⟩ := WeierstrassCurve.resultant_Φ_ΨSq_universal_radical hn
+  exact exists_dvd_pow_of_forall_prime_dvd hne hrad
+
+/-- **The strictly weaker fact actually needed on the critical path** (consumed by
+`isCoprime_Φ_ΨSq`): if the discriminant `Δ` of a Weierstrass curve over a commutative ring
+is a unit, then the resultant of `Φ n` and `ΨSq n` (with the fixed degree indices `n²`,
+`n² - 1`) is a unit. This is implied by the full identity `resultant_Φ_ΨSq` (`±Δ ^ k` is a
+unit when `Δ` is), but is genuinely weaker: it only needs the resultant to *divide a power
+of* `Δ`, sidestepping both the sign and the exponent. It reduces by base change to the
+universal curve to the divisibility `resultant_Φ_ΨSq_universal_dvd`. -/
+theorem WeierstrassCurve.isUnit_resultant_Φ_ΨSq_of_isUnit_Δ {R₀ : Type*} [CommRing R₀]
+    (W : WeierstrassCurve R₀) {n : ℤ} (hn : n ≠ 0) (hΔ : IsUnit W.Δ) :
+    IsUnit ((W.Φ n).resultant (W.ΨSq n) (n.natAbs ^ 2) (n.natAbs ^ 2 - 1)) := by
+  -- `W` is the base change of the universal curve along the evaluation map `aᵢ ↦ W.aᵢ`.
+  have hW : W = WeierstrassCurve.universal.map
+      (MvPolynomial.eval₂Hom (Int.castRingHom R₀) ![W.a₁, W.a₂, W.a₃, W.a₄, W.a₆]) := by
+    ext <;> simp [WeierstrassCurve.universal, MvPolynomial.eval₂Hom_X']
+  -- the universal discriminant maps to `W.Δ`, hence to a unit
+  have hΔ' : IsUnit ((MvPolynomial.eval₂Hom (Int.castRingHom R₀)
+      ![W.a₁, W.a₂, W.a₃, W.a₄, W.a₆]) WeierstrassCurve.universal.Δ) := by
+    rw [← map_Δ, ← hW]; exact hΔ
+  -- the resultant is the image of the universal resultant, which divides a power of `Δ`;
+  -- its image therefore divides a power of `W.Δ`, a unit, and a divisor of a unit is a unit
+  rw [hW, map_Φ, map_ΨSq, Polynomial.resultant_map_map]
+  obtain ⟨k, hk⟩ := WeierstrassCurve.resultant_Φ_ΨSq_universal_dvd hn
+  refine isUnit_of_dvd_unit ?_ (hΔ'.pow k)
+  rw [← map_pow]
+  exact map_dvd _ hk
+
 /-- The resultant of the division polynomials `Φ n` (taken with degree `n²`) and `ΨSq n`
 (taken with degree `n² - 1`) is `±Δ ^ ((n⁴ - n²)/6)`. The sign presumably depends on `n`
 and on the conventions in `Polynomial.resultant`; whoever proves this should pin it down
@@ -632,13 +735,13 @@ theorem WeierstrassCurve.isCoprime_Φ_ΨSq {R₀ : Type*} [CommRing R₀] (W : W
     {n : ℤ} (hn : n ≠ 0) (hΔ : IsUnit W.Δ) :
     IsCoprime (W.Φ n) (W.ΨSq n) := by
   -- The resultant is a Bézout combination of `Φ n` and `ΨSq n`
-  -- (`Polynomial.exists_mul_add_mul_eq_C_resultant`) and, by `resultant_Φ_ΨSq`, equals
-  -- `±Δ ^ k` — a unit, as `Δ` is. Scaling the identity by its inverse gives coprimality.
+  -- (`Polynomial.exists_mul_add_mul_eq_C_resultant`) and, when `Δ` is a unit, it is a unit
+  -- by `isUnit_resultant_Φ_ΨSq_of_isUnit_Δ` (the strictly weaker critical-path input; the
+  -- full identity `resultant_Φ_ΨSq` is not needed here). Scaling by its inverse gives
+  -- coprimality.
   obtain ⟨p, q, -, -, e⟩ := Polynomial.exists_mul_add_mul_eq_C_resultant (W.Φ n) (W.ΨSq n)
     (W.natDegree_Φ_le n) (W.natDegree_ΨSq_le n) (.inl (pow_ne_zero 2 (Int.natAbs_ne_zero.mpr hn)))
-  obtain ⟨u, hu⟩ : IsUnit ((W.Φ n).resultant (W.ΨSq n) (n.natAbs ^ 2) (n.natAbs ^ 2 - 1)) := by
-    rcases W.resultant_Φ_ΨSq hn with h | h <;> rw [h]
-    exacts [hΔ.pow _, (hΔ.pow _).neg]
+  obtain ⟨u, hu⟩ := W.isUnit_resultant_Φ_ΨSq_of_isUnit_Δ hn hΔ
   rw [← hu] at e
   refine ⟨Polynomial.C (↑(u⁻¹) : R₀) * p, Polynomial.C (↑(u⁻¹) : R₀) * q, ?_⟩
   have hfactor : Polynomial.C (↑(u⁻¹) : R₀) * p * W.Φ n + Polynomial.C (↑(u⁻¹) : R₀) * q * W.ΨSq n

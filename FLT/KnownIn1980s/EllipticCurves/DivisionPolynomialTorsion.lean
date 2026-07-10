@@ -42,15 +42,17 @@ namespace WeierstrassCurve.Affine
 -- Work over a field `F`; `DecidableEq` is needed for the group law on points.
 variable {F : Type*} [Field F] [DecidableEq F] {W : WeierstrassCurve F} [W.IsElliptic]
 
+omit [DecidableEq F] [W.IsElliptic] in
 private lemma bridge_ΨSq {x y : F} (hxy : W.toAffine.polynomial.evalEval x y = 0) (n : ℤ) :
     (W.ψ n).evalEval x y ^ 2 = (W.ΨSq n).eval x := by
   have key := congrArg (AdjoinRoot.evalEval hxy)
-    ((congrArg (· ^ 2) (CoordinateRing.mk_ψ n)).trans (CoordinateRing.mk_Ψ_sq n))
+    ((congrArg (· ^ 2) (CoordinateRing.mk_ψ W n)).trans (CoordinateRing.mk_Ψ_sq W n))
   simpa only [map_pow, AdjoinRoot.evalEval_mk, Polynomial.evalEval_C] using key
 
+omit [DecidableEq F] [W.IsElliptic] in
 private lemma bridge_Φ {x y : F} (hxy : W.toAffine.polynomial.evalEval x y = 0) (n : ℤ) :
     (W.φ n).evalEval x y = (W.Φ n).eval x := by
-  have key := congrArg (AdjoinRoot.evalEval hxy) (CoordinateRing.mk_φ n)
+  have key := congrArg (AdjoinRoot.evalEval hxy) (CoordinateRing.mk_φ W n)
   simpa only [AdjoinRoot.evalEval_mk, Polynomial.evalEval_C] using key
 
 /-- **Positive case of the division-polynomial dictionary.** This is the geometric heart of the

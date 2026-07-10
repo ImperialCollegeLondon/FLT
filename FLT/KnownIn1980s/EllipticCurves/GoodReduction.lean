@@ -9,6 +9,9 @@ public import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
 public import Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
 public import Mathlib.RingTheory.LocalRing.ResidueField.Basic
 public import Mathlib.RingTheory.Valuation.RamificationGroup
+-- the local reduction infrastructure (`integerHom`, `residueFieldHom`, `natCast_isUnit` and the
+-- integrality `xCoord_mem` of the `x`-coordinate of a torsion point) feeding the packaging lemma
+public import FLT.KnownIn1980s.EllipticCurves.PointReduction
 
 /-!
 
@@ -78,15 +81,33 @@ the group `Ẽ(κ)` of points of the reduced curve over the residue field `κ` o
 This bundles the three genuinely-elliptic steps (integrality `E[n] ⊆ E(𝒪)`, construction of
 the reduction map to `Ẽ(κ)`, and its injectivity/equivariance); the deduction that inertia
 fixes the torsion is the elementary group-theoretic `torsion_unramified_of_good_reduction`
-below, proved from this by injectivity. The remaining `sorry` is exactly the missing mathlib
-infrastructure flagged in the sketch: a reduction map `E(kˢᵉᵖ) → Ẽ(κ)` on `Affine.Point` over
-an extension, together with its equivariance and its injectivity on the torsion (the latter
-via `WeierstrassCurve.isCoprime_Φ_ΨSq`, restated over `κ`). No inertia, Hopf algebras or flat
-group schemes enter here: it is a self-contained statement about reduction of points. -/
+below, proved from this by injectivity. No inertia, Hopf algebras or flat group schemes enter
+here: it is a self-contained statement about reduction of points.
+
+The ring-theoretic first half of the construction is now available in
+`FLT.KnownIn1980s.EllipticCurves.PointReduction`, on which this file depends:
+
+* `PointReduction.integerHom : R →+* 𝒪` (the reduction ring map) and its `IsLocalHom` instance;
+* `PointReduction.residueFieldHom : ResidueField R →+* ResidueField 𝒪 =: κ` (this is the `κmap`
+  along which the reduced curve `E.reduction R` over `ResidueField R` is transported to `Ẽ` over
+  `κ`; the decomposition group acts on `κ` through `MulSemiringAction.toRingAut`, and inertia is
+  by definition the kernel of that action — making the inertia clause below transparent);
+* `PointReduction.natCast_isUnit`: `n` is a unit of `𝒪`;
+* `PointReduction.xCoord_mem` (**integrality, Silverman AEC VII.3, proved**): the `x`-coordinate
+  of a nonzero `n`-torsion point lies in `𝒪`.
+
+What remains for the `sorry` below is the geometric packaging on top of this infrastructure,
+decomposing into: (0) the analogous integrality of the `y`-coordinate (it is a root of the monic
+Weierstrass quadratic in `Y` over `𝒪`); (1) the target `A := Ẽ(κ).Point` with its `AddCommGroup`
+and the `DistribMulAction` of the decomposition group via `Affine.Point.map` of the induced
+`κ`-automorphism; (2) the additive reduction map `red` (coordinatewise residue of the integral
+coordinates); (3) its injectivity on the torsion, via a `κ`-restatement of
+`WeierstrassCurve.isCoprime_Φ_ΨSq`; (4) its `Gal`-equivariance; and (5) the inertia clause, which
+is transparent once the action is set up as in `residueFieldHom`. -/
 theorem WeierstrassCurve.exists_reduction_hom_injective_of_good_reduction
     (hn : IsUnit (n : IsLocalRing.ResidueField R))
     (h𝒪 : (𝒪.comap (algebraMap k ksep)).toSubring = (algebraMap R k).range) :
-    ∃ (A : Type _) (_ : AddCommGroup A) (_ : DistribMulAction (𝒪.decompositionSubgroup k) A)
+    ∃ (A : Type*) (_ : AddCommGroup A) (_ : DistribMulAction (𝒪.decompositionSubgroup k) A)
         (red : AddSubgroup.torsionBy (E⁄ksep).Point (n : ℤ) →+ A),
       -- the reduction map is injective on the `n`-torsion,
       Function.Injective red ∧
@@ -119,14 +140,12 @@ theorem WeierstrassCurve.torsion_unramified_of_good_reduction
   -- Extract the reduction map: an additive hom `red` to a `Gal`-module `A`, injective on the
   -- `n`-torsion, equivariant, and with inertia acting trivially on `A`.
   obtain ⟨A, _, _, red, hinj, hequiv, htriv⟩ :=
-    WeierstrassCurve.exists_reduction_hom_injective_of_good_reduction R k E n ksep 𝒪 hn h𝒪
+    WeierstrassCurve.exists_reduction_hom_injective_of_good_reduction.{_, _, _, 0}
+      R k E n ksep 𝒪 hn h𝒪
   intro σ hσ P hP
   -- The point `P`, packaged as an element of the `n`-torsion subgroup.
   set Pt : AddSubgroup.torsionBy (E⁄ksep).Point (n : ℤ) := ⟨P, hP⟩ with hPt
   -- Reduction is Galois-equivariant, and `σ`, being in inertia, acts trivially on `A`; hence
   -- `red (σ • P) = σ • red P = red P`. Injectivity of `red` on the torsion forces `σ • P = P`.
-  have hfix : red ⟨Affine.Point.map (σ : ksep ≃ₐ[k] ksep).toAlgHom (Pt : (E⁄ksep).Point),
-      (Submodule.mem_torsionBy_iff ..).mpr (by
-        rw [← map_zsmul, (Submodule.mem_torsionBy_iff ..).mp Pt.2, map_zero])⟩ = red Pt :=
-    (hequiv σ Pt).trans (htriv σ hσ (red Pt))
-  exact congrArg Subtype.val (hinj hfix)
+  exact congrArg Subtype.val
+    (hinj ((hequiv σ Pt).trans (htriv σ hσ (red Pt))))

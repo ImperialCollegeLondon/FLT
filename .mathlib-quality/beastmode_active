@@ -1,1 +1,0 @@
-FOCUS: in flight — T001a pass 3 (n>=3 EDS induction), T002 (resultant), T003 (GoodReduction/PointReduction). Queued: T004a (L-shrinking), T004b (Tate descent). NOTE: check lake cache-invalidation issue reported by a worker before final verify.

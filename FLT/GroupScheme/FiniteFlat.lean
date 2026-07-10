@@ -182,6 +182,7 @@ def IsUnramifiedExtension (L : IntermediateField K Ksep) : Prop :=
     (𝒪.comap (algebraMap K Ksep)).toSubring = (algebraMap R K).range →
     ∀ σ ∈ 𝒪.inertiaSubgroup K, (σ : Ksep ≃ₐ[K] Ksep) ∈ L.fixingSubgroup
 
+omit [IsDomain R] [IsDiscreteValuationRing R] [IsFractionRing R K] in
 /-- **The unramified-kernel-field reduction (pure Galois/ramification theory).** Given a
 finite Galois subextension `L/K` through which the action `ρ` factors, and given that `ρ` is
 unramified over `R`, one may *shrink* `L` to a finite Galois subextension `L'/K` that still
@@ -203,8 +204,100 @@ theorem exists_isUnramifiedExtension [Finite M]
     (L : IntermediateField K Ksep) [FiniteDimensional K L] [IsGalois K L]
     (hL : ∀ σ ∈ L.fixingSubgroup, ∀ m : M, ρ σ m = m) :
     ∃ L' : IntermediateField K Ksep, FiniteDimensional K L' ∧ IsGalois K L' ∧
-      (∀ σ ∈ L'.fixingSubgroup, ∀ m : M, ρ σ m = m) ∧ IsUnramifiedExtension R L' :=
-  sorry
+      (∀ σ ∈ L'.fixingSubgroup, ∀ m : M, ρ σ m = m) ∧ IsUnramifiedExtension R L' := by
+  classical
+  -- The identity acts trivially, using multiplicativity `hρ`.
+  have hρ1 : ∀ m : M, ρ 1 m = m := by
+    intro m
+    have h := hρ 1 1
+    rw [mul_one] at h
+    have h2 := DFunLike.congr_fun h m
+    rw [AddEquiv.trans_apply] at h2
+    exact ((ρ 1).injective h2).symm
+  -- The kernel of the action is a subgroup of `Gal(Kˢᵉᵖ/K)`.
+  let N : Subgroup (Ksep ≃ₐ[K] Ksep) :=
+    { carrier := {σ | ∀ m : M, ρ σ m = m}
+      mul_mem' := by
+        intro a b ha hb m
+        rw [hρ a b, AddEquiv.trans_apply, hb m, ha m]
+      one_mem' := hρ1
+      inv_mem' := by
+        intro a ha m
+        have h := hρ a a⁻¹
+        rw [mul_inv_cancel] at h
+        have h2 := DFunLike.congr_fun h m
+        rw [AddEquiv.trans_apply, hρ1 m] at h2
+        rw [ha ((ρ a⁻¹) m)] at h2
+        exact h2.symm }
+  have memN : ∀ σ : Ksep ≃ₐ[K] Ksep, σ ∈ N ↔ ∀ m : M, ρ σ m = m := fun _ => Iff.rfl
+  have hLN : L.fixingSubgroup ≤ N := fun τ hτ => (memN τ).mpr (hL τ hτ)
+  -- `N` is normal (kernel of an action).
+  have hNnorm : N.Normal := by
+    refine ⟨fun n hn g => ?_⟩
+    intro m
+    rw [hρ (g * n) g⁻¹, hρ g n, AddEquiv.trans_apply, AddEquiv.trans_apply,
+      (memN n).mp hn ((ρ g⁻¹) m)]
+    have h := hρ g g⁻¹
+    rw [mul_inv_cancel] at h
+    have h2 := DFunLike.congr_fun h m
+    rw [AddEquiv.trans_apply, hρ1 m] at h2
+    exact h2.symm
+  -- Restriction to the finite Galois extension `L/K`.
+  let φ : (Ksep ≃ₐ[K] Ksep) →* (↥L ≃ₐ[K] ↥L) := AlgEquiv.restrictNormalHom ↥L
+  have hφ_apply : ∀ (σ : Ksep ≃ₐ[K] Ksep) (y : ↥L), ((φ σ) y : Ksep) = σ (y : Ksep) :=
+    fun σ y => AlgEquiv.restrictNormalHom_apply L σ y
+  have hkerL : φ.ker = L.fixingSubgroup := IntermediateField.restrictNormalHom_ker L
+  have hsurj : Function.Surjective φ := AlgEquiv.restrictNormalHom_surjective Ksep
+  -- The image of `N` in `Gal(L/K)`, and its (finite) fixed field.
+  let Nbar : Subgroup (↥L ≃ₐ[K] ↥L) := N.map φ
+  let Ff : IntermediateField K ↥L := IntermediateField.fixedField Nbar
+  have hNbarnorm : Nbar.Normal := hNnorm.map φ hsurj
+  haveI := hNbarnorm
+  haveI : IsGalois K ↥Ff := IsGalois.of_fixedField_normal_subgroup Nbar
+  have hfixff : Ff.fixingSubgroup = Nbar := IntermediateField.fixingSubgroup_fixedField Nbar
+  -- `φ σ ∈ Nbar ↔ σ ∈ N`, using `ker φ = L.fixingSubgroup ≤ N`.
+  have hstepC : ∀ σ : Ksep ≃ₐ[K] Ksep, φ σ ∈ Nbar ↔ σ ∈ N := by
+    intro σ
+    constructor
+    · intro hσ
+      obtain ⟨x, hxN, hxeq⟩ := Subgroup.mem_map.mp hσ
+      have hker : x⁻¹ * σ ∈ φ.ker := by
+        rw [MonoidHom.mem_ker, map_mul, map_inv, hxeq, inv_mul_cancel]
+      rw [hkerL] at hker
+      have hmem : x⁻¹ * σ ∈ N := hLN hker
+      have hσeq : σ = x * (x⁻¹ * σ) := by group
+      rw [hσeq]
+      exact N.mul_mem hxN hmem
+    · intro hσ
+      exact Subgroup.mem_map_of_mem φ hσ
+  -- The fixing subgroup of the lifted field is the preimage of `Ff.fixingSubgroup`.
+  have hA : ∀ σ : Ksep ≃ₐ[K] Ksep,
+      σ ∈ (IntermediateField.lift Ff).fixingSubgroup ↔ φ σ ∈ Ff.fixingSubgroup := by
+    intro σ
+    rw [IntermediateField.mem_fixingSubgroup_iff, IntermediateField.mem_fixingSubgroup_iff]
+    constructor
+    · intro h y hy
+      apply Subtype.ext
+      rw [hφ_apply σ y]
+      exact h (↑y) ((IntermediateField.mem_lift y).mpr hy)
+    · intro h x hx
+      have hxL : x ∈ L := IntermediateField.lift_le Ff hx
+      have hcalc := h ⟨x, hxL⟩ ((IntermediateField.mem_lift ⟨x, hxL⟩).mp hx)
+      have h2 := congrArg Subtype.val hcalc
+      rw [hφ_apply σ ⟨x, hxL⟩] at h2
+      exact h2
+  have key : ∀ σ : Ksep ≃ₐ[K] Ksep,
+      σ ∈ (IntermediateField.lift Ff).fixingSubgroup ↔ σ ∈ N := by
+    intro σ
+    rw [hA σ, hfixff]
+    exact hstepC σ
+  refine ⟨IntermediateField.lift Ff, ?_, ?_, ?_, ?_⟩
+  · exact LinearEquiv.finiteDimensional (IntermediateField.liftAlgEquiv Ff).toLinearEquiv
+  · exact IsGalois.of_algEquiv (IntermediateField.liftAlgEquiv Ff)
+  · intro σ hσ m
+    exact (memN σ).mp ((key σ).mp hσ) m
+  · intro 𝒪 h𝒪 σ hσ
+    exact (key σ).mpr ((memN σ).mpr (hunr 𝒪 h𝒪 σ hσ))
 
 /-- **Steps B–D: Galois descent of the finite étale group scheme (deep, not yet
 formalised).** Given a finite Galois subextension `L/K` of `Kˢᵉᵖ/K` whose fixing subgroup
