@@ -303,7 +303,6 @@ noncomputable def toIntResolutionEquiv (X : TopRep k G) :
   | 0 => ContinuousAddEquiv.refl _
   | i + 1 => (toIntResolutionEquiv X i).arrowCongrRight G
 
-@[simp]
 lemma toIntResolutionEquiv_zero_apply (X : TopRep k G) (y : ↥(resolutionX (toInt X) 0)) :
     toIntResolutionEquiv X 0 y = y := rfl
 

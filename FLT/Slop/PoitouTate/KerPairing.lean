@@ -75,7 +75,7 @@ instance : IsTopologicalAddGroup (Additive (↥(maximalUnramifiedOutside F S))ˣ
   continuous_add := continuous_of_discreteTopology
   continuous_neg := continuous_of_discreteTopology
 
-noncomputable instance (v : HeightOneSpectrum (RingOfIntegers F)) :
+noncomputable instance instTopAlgClosureUnitsAdditive (v : HeightOneSpectrum (RingOfIntegers F)) :
     TopologicalSpace (Additive (AlgebraicClosure (v.adicCompletion F))ˣ) := ⊥
 
 instance (v : HeightOneSpectrum (RingOfIntegers F)) :
@@ -93,6 +93,7 @@ instance (v : HeightOneSpectrum (RingOfIntegers F)) :
 
 variable (M : TopRep.{u} 𝔽 (unramifiedOutsideGaloisGroup F S))
 
+omit [NumberField F] in
 lemma ksUnitsRep_ρ_apply (g : unramifiedOutsideGaloisGroup F S) (u : ↥(ksUnitsRep F S)) :
     (ksUnitsRep F S).ρ g u =
       (MonoidHom.toAdditive (Units.map (MulSemiringAction.toRingHom
@@ -882,6 +883,7 @@ lemma pairingValue_moveF (c : PairingChoices 𝔽 F S M x y)
 
 set_option maxHeartbeats 3200000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
 set_option synthInstance.maxHeartbeats 400000 in
+omit [Finite 𝔽] [Finite M] in
 /-- **Well-definedness of the pairing** (blueprint §4, glossed there): the value depends
 only on the classes `x` and `y`, not on the choices of representatives and primitives. Uses
 the local triviality of `x` (for the `ψ`-step) and global reciprocity (for the `h`-step). -/
@@ -1006,6 +1008,7 @@ noncomputable def kerPairingFun
     AddCircle (1 : ℚ) :=
   pairingValue S (pairingChoices_nonempty (x := x₀) (y := y₀) hS hy).some
 
+omit [Finite 𝔽] [Finite M] in
 /-- The pairing value computed at any system of choices. -/
 lemma kerPairingFun_eq
     (hS : ∀ w : HeightOneSpectrum (RingOfIntegers F),
@@ -1021,6 +1024,7 @@ lemma kerPairingFun_eq
 
 set_option maxHeartbeats 3200000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
 set_option synthInstance.maxHeartbeats 400000 in
+omit [Finite 𝔽] [Finite M] in
 /-- The pairing is additive in the second argument. -/
 lemma kerPairingFun_add_right
     (hS : ∀ w : HeightOneSpectrum (RingOfIntegers F),
@@ -1152,6 +1156,7 @@ lemma kerPairingFun_add_right
 
 set_option maxHeartbeats 6400000 in -- type unification across the `TopRep.of` and `𝔽`/`ℤ` seams
 set_option synthInstance.maxHeartbeats 400000 in
+omit [Finite 𝔽] [Finite M] in
 /-- The pairing is additive in the first argument. -/
 lemma kerPairingFun_add_left
     (hS : ∀ w : HeightOneSpectrum (RingOfIntegers F),

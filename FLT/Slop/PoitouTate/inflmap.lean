@@ -78,12 +78,14 @@ lemma _root_.ContRepresentation.coind₁Res_id {A : Type w}
     [ContinuousSMul k A] (π : ContRepresentation k G A) :
     coind₁Res (ContinuousMonoidHom.id G) π = .id := rfl
 
+/-- The morphism between the `i`-th levels of the standard (coinduced) resolutions of `X` and
+`X'` induced by a morphism `f : X ⟶ X'`, applying `f` pointwise under the iterated
+coinduction. -/
 abbrev resolutionMap₁ (f : X ⟶ X') :
     (i : ℕ) → (resolutionX X i) ⟶ (resolutionX X' i)
   | 0 => f
   | i + 1 => ((coind₁Functor k G).map (resolutionMap₁ f i))
 
-@[simp]
 lemma resolutionMap₁_zero (f : X ⟶ X') : resolutionMap₁ f 0 = f := rfl
 
 lemma resolutionMap₁_succ (f : X ⟶ X') (n : ℕ) :
@@ -113,6 +115,9 @@ lemma resolutionMap₁_comp (f : X ⟶ X') (f' : X' ⟶ X'') (i : ℕ) :
       CategoryTheory.Functor.map_comp]
 
 variable (k G)
+/-- The standard (coinduced) resolution `resolution'`, made functorial in the representation: a
+morphism `f : X ⟶ Y` induces the levelwise maps `resolutionMap₁ f`, which commute with the
+differentials. -/
 @[simps] abbrev resolution'Functor : TopRep k G ⥤ CochainComplex (TopRep k G) ℕ where
   obj           := resolution'
   map {X Y} f   := {
@@ -122,15 +127,21 @@ variable (k G)
   map_id _      := HomologicalComplex.hom_ext _ _ <| fun _ ↦ resolutionMap₁_id _
   map_comp _ _  := HomologicalComplex.hom_ext _ _ <| fun _ ↦ resolutionMap₁_comp _ _ _
 
+/-- The homogeneous cochain complex computing continuous cohomology, made functorial in the
+representation: form the standard resolution and take `G`-invariants levelwise. -/
 abbrev homogeneousCochainsFunctor : TopRep k G ⥤ CochainComplex (TopModuleCat k) ℕ :=
     resolution'Functor k G ⋙ (invariantsFunctor k G).mapHomologicalComplex (.up ℕ)
 
 lemma homogeneousCochainsFunctor_obj :
     (homogeneousCochainsFunctor k G).obj = homogeneousCochains := rfl
 
+/-- Continuous cohomology `Hⁿ(G, -)` as a functor from topological representations of `G` to
+topological modules: the `n`-th homology of the homogeneous cochain complex. -/
 noncomputable abbrev Functor (n : ℕ) : TopRep k G ⥤ TopModuleCat k :=
     homogeneousCochainsFunctor k G ⋙ HomologicalComplex.homologyFunctor _ _ n
 
+/-- `Hₜ n` is notation for `continuousCohomology n`, the `n`-th continuous cohomology of a
+topological representation. -/
 notation "Hₜ" => continuousCohomology
 
 lemma Functor_obj (n : ℕ) : (Functor k G n).obj = Hₜ n := rfl
@@ -145,7 +156,6 @@ abbrev _root_.TopRep.resolutionXRes (φ : H →ₜ* G) :
   | 0 => 𝟙 _
   | i + 1 => ofHom (coind₁ResMap φ (resolutionXRes φ i).hom)
 
-@[simp]
 lemma resolutionXRes_zero (φ : H →ₜ* G) : X.resolutionXRes φ 0 = 𝟙 _ := rfl
 
 lemma resolutionXRes_one (φ : H →ₜ* G) : X.resolutionXRes φ 1 = ofHom (coind₁ResMap φ .id) := rfl
@@ -201,6 +211,9 @@ lemma resolutionXRes_naturality (φ : H →ₜ* G) (f : X ⟶ X') (i : ℕ) :
 instance (φ : H →* G) : (resFunctor (k := k) φ).PreservesZeroMorphisms where
   map_zero _ _ := rfl
 
+/-- The cochain map from the restriction along `φ : H →ₜ* G` of the standard resolution of `X`
+to the standard resolution of the restricted representation `res φ X`, given levelwise by
+`resolutionXRes` (`F ↦ F ∘ φ`). -/
 abbrev resolution'Res (φ : H →ₜ* G) :
     ((resFunctor φ.toMonoidHom).mapHomologicalComplex (.up ℕ)).obj (resolution' X)
     ⟶ resolution' (res φ.toMonoidHom X) where
@@ -211,6 +224,9 @@ abbrev resolution'Res (φ : H →ₜ* G) :
       CochainComplex.of_d, resolution'd_eq]
     exact resolutionXRes_comp_d φ _
 
+/-- The cochain maps `resolution'Res φ` assembled into a natural transformation: forming the
+standard resolution over `G` and then restricting along `φ : H →ₜ* G` maps naturally to
+restricting the representation first and then resolving over `H`. -/
 def resolution'ResNatTrans (φ : H →ₜ* G) :
     resolution'Functor k G ⋙ (resFunctor ↑φ).mapHomologicalComplex (.up ℕ)
     ⟶ (resFunctor φ) ⋙ resolution'Functor k H where
@@ -219,10 +235,15 @@ def resolution'ResNatTrans (φ : H →ₜ* G) :
     ext n : 1
     exact resolutionXRes_naturality φ f (n + 1)
 
+/-- A `G`-invariant vector is in particular invariant under the image of `φ : H →* G`: the
+inclusion of the `G`-invariants of `X` into the `H`-invariants of the restriction `X.res φ`. -/
 def _root_.TopRep.invariantsRes (φ : H →* G) (X : TopRep k G) :
     X.invariants ⟶ (X.res φ).invariants :=
   TopModuleCat.ofHom (ContIntertwiningMap.mapInvariantsOfRes φ ContIntertwiningMap.id)
 
+/-- The inclusions `invariantsRes φ` assembled into a natural transformation from the
+`G`-invariants functor to restriction along `φ : H →* G` followed by the `H`-invariants
+functor. -/
 abbrev _root_.TopRep.invariantsResNatTrans (φ : H →* G) :
     invariantsFunctor k G ⟶ resFunctor φ ⋙ invariantsFunctor k H where
   app := invariantsRes φ
@@ -230,6 +251,9 @@ abbrev _root_.TopRep.invariantsResNatTrans (φ : H →* G) :
     (invariantsRes φ X ≫ (resFunctor φ ⋙ invariantsFunctor k H).map f)
     ((invariantsFunctor k G).map f ≫ invariantsRes φ Y) rfl).symm
 
+/-- The degree-`n` component of the restriction map on homogeneous cochains induced by a
+continuous group homomorphism `φ : H →ₜ* G`, sending an invariant cochain
+`σ : C(G, C(G, ⋯))` to `σ ∘ φ`. -/
 def _root_.TopRep.homogeneousCochainsXRes (φ : H →ₜ* G) (X : TopRep k G) (n : ℕ) :
     X.homogeneousCochains.X n ⟶ (X.res φ.toMonoidHom).homogeneousCochains.X n :=
   (X.resolutionX _).invariantsRes φ.toMonoidHom ≫ ((invariantsFunctor (k := k) (G := H)).map
@@ -245,6 +269,9 @@ lemma _root_.TopRep.homogeneousCochainsXRes_succ (φ : H →ₜ* G) (X : TopRep 
     (ofHom (coind₁ResMap φ (X.resolutionXRes φ (n + 1)).hom)) := rfl
 
 variable (k) in
+/-- The restriction maps on homogeneous cochain complexes induced by `φ : H →ₜ* G`, as a natural
+transformation from the cochain complex functor for `G` to restriction along `φ` followed by the
+cochain complex functor for `H`. -/
 def homogeneousCochainsResNatTrans (φ : H →ₜ* G) : homogeneousCochainsFunctor k G
     ⟶ (resFunctor φ.toMonoidHom) ⋙ homogeneousCochainsFunctor k H :=
   (𝟙 (resolution'Functor k G)
@@ -258,6 +285,8 @@ lemma homogeneousCochainsResNatTrans_app_f (φ : H →ₜ* G) (X : TopRep k G) (
     ((homogeneousCochainsResNatTrans k φ).app X).f n = homogeneousCochainsXRes φ X n := rfl
 
 variable (k) in
+/-- The map on continuous cohomology `Hⁿ(G, X) ⟶ Hⁿ(H, res φ X)` induced by a continuous group
+homomorphism `φ : H →ₜ* G`, as a natural transformation between the cohomology functors. -/
 noncomputable abbrev resNatTrans (φ : H →ₜ* G) (n : ℕ) :
     (Functor k G n) ⟶ (resFunctor φ.toMonoidHom ⋙ Functor k H n) :=
   homogeneousCochainsResNatTrans k φ ◫ 𝟙 _
@@ -305,12 +334,17 @@ lemma rho_mem_relInvariants {v : V} (hv : v ∈ ρ.relInvariants N) (g : G) :
     _ = ρ g (ρ (g⁻¹ * n * g) v) := by rw [map_mul, mul_apply_eq_comp]
     _ = ρ g v                   := by rw [hv _ (Subgroup.Normal.conj_mem' hN n hn g)]
 
+/-- For a normal subgroup `N` of `G`, the action of `G` on `V` preserves the `N`-invariants
+(conjugation by `g` keeps elements of `N` in `N`), so `G` acts on `ρ.relInvariants N` by
+restriction. -/
 @[simps] def relInvariantsRho : ContRepresentation R G (ρ.relInvariants N) := ⟨{
   toFun g       := (ρ g).restrict (fun _ hv ↦ ρ.rho_mem_relInvariants N hv g)
   map_one'      := by ext; simp
   map_mul' _ _  := by ext; simp
 }⟩
 
+/-- An intertwining map `f : ρ →ⁱL ρ'` sends `N`-invariant vectors to `N`-invariant vectors, so
+it restricts to an intertwining map between the `G`-representations on the `N`-invariants. -/
 def relInvariantsIntertwining (f : ρ →ⁱL ρ') :
     ρ.relInvariantsRho N →ⁱL ρ'.relInvariantsRho N where
   toContinuousLinearMap := f.toContinuousLinearMap.restrict (by
@@ -329,9 +363,13 @@ lemma le_relInvariantsRho_ker : N ≤ (ρ.relInvariantsRho N).toMonoidHom.ker :=
   ext ⟨_,hv⟩
   apply hv _ hn
 
+/-- Since `N` acts trivially on the `N`-invariants, the `G`-action on `ρ.relInvariants N`
+descends to a continuous representation of the quotient group `G ⧸ N`. -/
 def relInvariantsInfl : ContRepresentation R (G ⧸ N) (ρ.relInvariants N) :=
   ⟨QuotientGroup.lift N (ρ.relInvariantsRho N) (ρ.le_relInvariantsRho_ker N)⟩
 
+/-- The restriction `relInvariantsIntertwining` of an intertwining map `f : ρ →ⁱL ρ'` to the
+`N`-invariants, viewed as an intertwining map of the descended `G ⧸ N`-representations. -/
 def relInvariantsIntertwining' (f : ρ →ⁱL ρ') :
     ρ.relInvariantsInfl N →ⁱL ρ'.relInvariantsInfl N where
   toContinuousLinearMap := (relInvariantsIntertwining ρ ρ' N f).toContinuousLinearMap
@@ -347,11 +385,16 @@ variable {π_G : TopRep R G} {π_H : TopRep R H}
 
 namespace TopRep
 
+/-- Taking `N`-invariants, for `N` a normal subgroup of `G`, as a functor from topological
+representations of `G` to topological representations of the quotient `G ⧸ N`. -/
 def relInvariantsFunctor : TopRep R G ⥤ TopRep R (G ⧸ N) where
   obj rep       := TopRep.of (rep.ρ.relInvariantsInfl N)
   map f         := TopRep.ofHom (relInvariantsIntertwining' _ _ N f.hom)
 
 variable (R) in
+/-- The inclusion of the `N`-invariants — viewed as a `G`-representation by restricting the
+`G ⧸ N`-action along the quotient map — back into the original representation, as a natural
+transformation to the identity functor. -/
 @[simps] def inflι : (relInvariantsFunctor N ⋙ resFunctor (QuotientGroup.mk' N)) ⟶ 𝟭 (TopRep R G)
     where
   app _ := TopRep.ofHom {
@@ -366,6 +409,7 @@ end TopRep
 
 variable [TopologicalSpace G]
 
+/-- The quotient map `G → G ⧸ N` as a continuous group homomorphism. -/
 def QuotientGroup.mk'' : G →ₜ* G ⧸ N where
   toMonoidHom := QuotientGroup.mk' N
   continuous_toFun := by tauto
@@ -377,6 +421,8 @@ variable [IsTopologicalGroup G]
 noncomputable section
 namespace ContinuousCohomology
 
+/-- The inflation map `Hⁿ(G ⧸ N, π^N) ⟶ Hⁿ(G, π)` on continuous cohomology: restrict along the
+quotient map `G → G ⧸ N` and then push forward along the inclusion of the `N`-invariants. -/
 abbrev inflApp (n : ℕ) (π : TopRep R G) :
     (relInvariantsFunctor N ⋙ Functor R (G ⧸ N) n).obj π
     ⟶ (Functor R G n).obj ((𝟭 _).obj π) :=
@@ -395,6 +441,8 @@ lemma inflApp_naturality (n : ℕ) {π₁ π₂ : TopRep R G} (f : π₁ ⟶ π�
   rw [Category.assoc]
   exact whisker_eq _ h
 
+/-- The inflation maps `inflApp N n` assembled into a natural transformation
+`Hⁿ(G ⧸ N, -^N) ⟶ Hⁿ(G, -)` on continuous cohomology. -/
 noncomputable def inflNatTrans (n : ℕ) :
     relInvariantsFunctor N ⋙ Functor R (G ⧸ N) n ⟶ Functor R G n where
   app            := inflApp N n

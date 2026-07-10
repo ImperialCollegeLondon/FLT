@@ -58,7 +58,8 @@ variable {k : Type u} {M1 M2 : Type w} [CommRing k] [TopologicalSpace k]
   [AddCommGroup M1] [Module k M1] [TopologicalSpace M1] [IsTopologicalAddGroup M1]
   [AddCommGroup M2] [Module k M2] [TopologicalSpace M2] [IsTopologicalAddGroup M2]
 
-scoped instance : TopologicalSpace (M1 →L[k] M2) :=
+/-- The compact-open topology on continuous linear maps, induced from `C(M1, M2)`. -/
+scoped instance instTopContinuousLinearMap : TopologicalSpace (M1 →L[k] M2) :=
   TopologicalSpace.induced (fun f ↦ ⟨f.toFun, f.cont⟩ : (M1 →L[k] M2) → C(M1, M2)) inferInstance
 
 scoped instance : IsTopologicalAddGroup (M1 →L[k] M2) :=
@@ -79,6 +80,8 @@ open TopCup
 
 variable {k : Type u} [CommRing k] [TopologicalSpace k]
 
+/-- The internal hom of two topological modules: the space of continuous linear maps
+`M1 →L[k] M2`, carrying the topology induced from the compact-open topology on `C(M1, M2)`. -/
 abbrev linHom (M1 M2 : TopModuleCat k) : TopModuleCat k := .of k (M1 →L[k] M2)
 
 /-- Pre- and post-composition induce a morphism between the internal homs of topological
@@ -486,6 +489,10 @@ def cupPair (n : ℕ) : (m : ℕ) →
 
 end
 
+/-- The degree-`(m, n)` cup product pairing on the coinduced resolutions: the iterated pairing
+`cupPair` bundled as a morphism of topological representations from the `m`-th level of the
+resolution of `ρ1` to the internal hom of the `n`-th level for `ρ2` and the `r`-th level for
+`ρ3`, reindexed along `r = m + n`. -/
 def cupComplex (m n r : ℕ) (hr : r = m + n) :
     (TopRep.resolution' (.of ρ1)).X m ⟶
       iHom ((TopRep.resolution' (.of ρ2)).X n) ((TopRep.resolution' (.of ρ3)).X r) :=
@@ -549,7 +556,7 @@ variable {ρ1 ρ2 ρ3}
 @[simp]
 lemma cupPair_zero (n : ℕ) : (cupPair f n 0).1 = cupZeroSucc f n := rfl
 
-@[simp]
+@[simp, nolint simpNF] -- LHS's `(n + 1).add m` index is the form arising in practice
 lemma cupPair_succ_apply (n m : ℕ) (σ : ↥(resolutionX (of ρ1) (m + 1 + 1)))
     (τ : ↥(resolutionX (of ρ2) (n + 1))) (x : G) :
     (cupPair f n (m + 1)).1 σ τ x = (cupPair f n m).1 (σ x) τ := rfl
@@ -608,6 +615,10 @@ lemma cupPair_d_comm (n m : ℕ) (σ : ↥(resolutionX (of ρ1) (m + 1)))
 
 end
 
+/-- A `G`-invariant continuous linear map between levels of the resolutions restricts to a
+continuous linear map between their `G`-invariants: the comparison morphism from the invariants
+of the internal hom `iHom` of two resolution levels to the internal hom of the corresponding
+homogeneous cochain spaces. -/
 abbrev invariantsObjIHom (n r : ℕ) : (invariantsFunctor k G).obj
     (((of ρ2).resolution'.X n).iHom ((of ρ3).resolution'.X r)) ⟶
     ((of ρ2).homogeneousCochains.X n).linHom ((of ρ3).homogeneousCochains.X r) :=
@@ -642,6 +653,9 @@ lemma eqToHom_iHom_apply (A : TopRep k G) {i j : ℕ} (h : i = j)
   rfl
 
 variable {ρ1 ρ2 ρ3} in
+/-- The cup product pairing on homogeneous cochains: apply the `G`-invariants functor to the
+resolution-level pairing `cupComplex` and restrict via `invariantsObjIHom`, pairing a degree-`m`
+cochain with a degree-`n` cochain to give a degree-`r = m + n` cochain. -/
 abbrev cupCochain (m n r : ℕ) (hr : r = m + n) :
     (homogeneousCochains (.of ρ1)).X m ⟶ TopModuleCat.linHom ((homogeneousCochains (.of ρ2)).X n)
       ((homogeneousCochains (.of ρ3)).X r) :=
@@ -662,7 +676,7 @@ lemma cupCochain_coe (m n r : ℕ) (hr : r = m + n) (σ : (homogeneousCochains (
     (by rw [show n + 1 + m = m + n + 1 from by omega]) ((cupPair f n m).1 σ.1) τ.1
 
 variable {ρ1 ρ2 ρ3} in
-@[simp]
+@[simp, nolint simpNF] -- keeps the one-step rewrite; the linter's derivation needs 7 lemmas
 lemma cupCochain_apply_zero (m n r : ℕ) (hr : r = m + n)
     (σ : (homogeneousCochains (.of ρ1)).X m) :
     cupCochain f m n r hr σ 0 = 0 :=
@@ -683,7 +697,7 @@ lemma cup_d_comm (m n r : ℕ) (hr : r = m + n) (σ : (homogeneousCochains (.of 
 
 variable {ρ1 ρ2 ρ3} in
 /-- `cupCochain` vanishes when its first argument is zero. -/
-@[simp]
+@[simp, nolint simpNF] -- stated LHS is the form arising in practice, before hom-coe unfolding
 lemma cupCochain_zero_apply (m n r : ℕ) (hr : r = m + n)
     (τ : (homogeneousCochains (.of ρ2)).X n) :
     cupCochain f m n r hr 0 τ = 0 :=
@@ -876,6 +890,10 @@ noncomputable abbrev cupCocyclesAux (f : ρ1 →ⁱL ρ2.linHom ρ3) (m n r : �
       LinearMap.mem_ker.2 (d_cupCochain_eq_zero f m n r hr
         (LinearMap.mem_ker.mp σ'.2) (LinearMap.mem_ker.mp τ'.2))⟩
 
+/-- The cup product on cocycles: the kernel-model pairing `cupKerHom` transported along the
+identifications `cyclesIsoKer` of the cycles of the homogeneous cochain complexes with the
+kernels of the differentials, pairing a degree-`m` cocycle with a degree-`n` cocycle to give a
+degree-`r = m + n` cocycle. -/
 noncomputable def cupCocycles (f : ρ1 →ⁱL ρ2.linHom ρ3) (m n r : ℕ) (hr : r = m + n) :
     (homogeneousCochains (.of ρ1)).cycles m ⟶
       TopModuleCat.linHom ((homogeneousCochains (.of ρ2)).cycles n)

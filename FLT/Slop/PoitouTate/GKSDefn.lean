@@ -57,6 +57,11 @@ open IsDedekindDomain
 
 variable (F : Type u) [Field F] [NumberField F]
 
+/-- An intermediate field `M` of `F̄/F` is **unramified outside `S`** if every finite prime
+`v ∉ S` of `𝒪_F` is unramified in `M`: for every maximal ideal `w` of the integral closure of
+`𝒪_F` in `M` lying over `v`, the ramification index `e(w/v)` is `1`. The integral closure is a
+domain even when `M/F` is infinite, so this makes sense for arbitrary `M`; the residue fields are
+finite hence perfect, so `e = 1` is exactly unramifiedness. -/
 def IsUnramifiedOutside (S : Finset (HeightOneSpectrum (RingOfIntegers F)))
     (M : IntermediateField F (AlgebraicClosure F)) : Prop :=
   ∀ v : HeightOneSpectrum (RingOfIntegers F), v ∉ S →
@@ -64,11 +69,18 @@ def IsUnramifiedOutside (S : Finset (HeightOneSpectrum (RingOfIntegers F)))
       v.asIdeal = w.comap (algebraMap (RingOfIntegers F) (integralClosure (RingOfIntegers F) M)) →
       Ideal.ramificationIdx w (RingOfIntegers F) = 1
 
+/-- The field `F_S`, the **maximal** extension of `F` unramified outside `S`, realized as the
+supremum (compositum) inside the fixed algebraic closure `F̄ = AlgebraicClosure F` of all Galois
+intermediate fields unramified outside `S`. -/
 noncomputable def maximalUnramifiedOutside (S : Finset (HeightOneSpectrum (RingOfIntegers F))) :
     IntermediateField F (AlgebraicClosure F) :=
   ⨆ (M : IntermediateField F (AlgebraicClosure F)) (_ : IsUnramifiedOutside F S M) (_ :
     IsGalois F M), M
 
+/-- The group `G_{F,S} = Gal(F_S/F)`, the **absolute Galois group of `F` unramified outside
+`S`**: the automorphism group of the maximal extension of `F` unramified outside `S`, carrying
+the Krull (profinite) topology. It is the finiteness of the continuous `ℤ/p`-cohomology of this
+group (Hermite–Minkowski) that makes the global universal deformation ring noetherian. -/
 abbrev unramifiedOutsideGaloisGroup (S : Finset (HeightOneSpectrum (RingOfIntegers F))) : Type u :=
   Gal(maximalUnramifiedOutside F S/F)
 

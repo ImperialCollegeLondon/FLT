@@ -95,7 +95,7 @@ noncomputable def unitsAddRep (G : Type*) [Group G] (L : Type*) [Field L]
 /-- The units `K_S^×` of the maximal extension of `F` unramified outside `S`, as a discrete
 topological `ℤ`-representation of `G_{F,S}` (blueprint notation item 7: the target of the
 `H³` lemma and of the global pairing). -/
-noncomputable def ksUnitsRep (F : Type u) [Field F] [NumberField F]
+noncomputable def ksUnitsRep (F : Type u) [Field F]
     (S : Finset (HeightOneSpectrum (RingOfIntegers F))) :
     TopRep ℤ (unramifiedOutsideGaloisGroup F S) :=
   unitsAddRep (unramifiedOutsideGaloisGroup F S) ↥(maximalUnramifiedOutside F S)
@@ -113,7 +113,7 @@ omit [Finite 𝔽] [DiscreteTopology 𝔽] [TopologicalSpace G] [MulSemiringActi
 /-- The `𝔽`-module structure on `Hom_ℤ(X, Additive Lˣ)` through the domain:
 `(a • f) (m) = f (a • m)`. As for `CharacterModule`, this is the `DomMulAct` module structure
 pulled back along `𝔽 →+* 𝔽ᵈᵐᵃ`, using commutativity of `𝔽`. -/
-instance : Module 𝔽 (↥X →+ Additive Lˣ) :=
+instance instModuleAddMonoidHomDomAct : Module 𝔽 (↥X →+ Additive Lˣ) :=
   fast_instance% Module.compHom (R := 𝔽ᵈᵐᵃ) _ ((RingEquiv.toOpposite 𝔽).toRingHom : 𝔽 →+* 𝔽ᵈᵐᵃ)
 
 omit [Finite 𝔽] [DiscreteTopology 𝔽] [TopologicalSpace G] [MulSemiringAction G L] in

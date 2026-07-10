@@ -226,7 +226,7 @@ universe w in
 /-- The trivial topological `ℤ`-representation of a topological group on discrete `ℤ`
 (universe-lifted so that it lives in the same category as the arithmetic
 representations). -/
-noncomputable def trivialIntRep (H : Type*) [Group H] [TopologicalSpace H] :
+noncomputable def trivialIntRep (H : Type*) [Group H] :
     TopRep.{w} ℤ H :=
   TopRep.of (X := ULift.{w} ℤ) (ContRepresentation.ofMonoidHom 1)
 
