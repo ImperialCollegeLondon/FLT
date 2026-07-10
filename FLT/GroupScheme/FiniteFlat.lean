@@ -60,22 +60,27 @@ over the base".
   of sub/quotient modules via schematic closure, which is the hard Raynaud-style direction and
   is *not* formal).
 
+* `GroupScheme.GaloisModule.IsFlat.of_isUnramified` (proved modulo the sorried descent
+  helper below) : a continuous unramified action on a finite abelian group is flat; indeed
+  it prolongs to a finite *étale* group scheme over `R`. This is pure descent/Galois
+  theory, with no elliptic curves anywhere. The Galois-theoretic reduction
+  (`exists_finiteGalois_of_isContinuous`: the action factors through a finite Galois
+  subextension `L/K`) is proved.
+
 ## Main statements (currently sorried)
 
-* `GroupScheme.GaloisModule.IsFlat.of_isUnramified` : a continuous unramified action on a
-  finite abelian group is flat; indeed it prolongs to a finite *étale* group scheme over
-  `R`. This is pure descent/Galois theory, with no elliptic curves anywhere: writing
-  `L/K` for a finite Galois subextension of `Kˢᵉᵖ/K` through which the action factors,
-  unramifiedness lets one choose `L/K` unramified, and `H` is then the algebra of
-  `Gal(L/K)`-invariant functions `M → R'`, where `R'` is the integral closure of `R` in
-  `L` (finite étale over `R` because `L/K` is unramified and `R` is a DVR); its Hopf
-  structure is pointwise multiplication, with comultiplication dual to the addition of
-  `M`. See [Tate, *Finite flat group schemes*, in *Modular forms and Fermat's Last
-  Theorem*, §1.3–1.4] or [Waterhouse, *Introduction to affine group schemes*, §6].
+* `GroupScheme.GaloisModule.IsFlat.of_finiteGalois_unramified` : the Galois-descent core.
+  Given the finite Galois `L/K` through which the action factors, unramifiedness lets one
+  produce the prolongation: `H` is the algebra of `Gal(L/K)`-invariant functions `M → R'`,
+  where `R'` is the integral closure of `R` in `L` (finite étale over `R` because `L/K`
+  is unramified and `R` is a DVR); its Hopf structure is pointwise multiplication, with
+  comultiplication dual to the addition of `M`. See [Tate, *Finite flat group schemes*,
+  in *Modular forms and Fermat's Last Theorem*, §1.3–1.4] or [Waterhouse, *Introduction
+  to affine group schemes*, §6].
 
 ## TODO
 
-* Prove the one remaining sorried statement, `IsFlat.of_isUnramified`.
+* Prove the one remaining sorried statement, `IsFlat.of_finiteGalois_unramified`.
 
 -/
 
@@ -135,6 +140,66 @@ def IsFlat : Prop :=
       f (Additive.ofMul (WithConv.toConv (σ.toAlgHom.comp φ))) =
         ρ σ (f (Additive.ofMul (WithConv.toConv φ)))
 
+/-- **Step A: a continuous action on a finite module factors through a finite Galois
+subextension.** If `M` is finite and the action `ρ` is continuous, then there is a finite
+Galois subextension `L/K` of `Kˢᵉᵖ/K` such that the subgroup of `Gal(Kˢᵉᵖ/K)` fixing `L`
+acts trivially on all of `M`. Concretely, one takes the compositum of the finitely many
+finite subextensions provided by continuity (one per element of `M`) and passes to its
+normal closure, which is finite (as a compositum of finitely many finite extensions) and
+Galois (as the normal closure of a separable extension inside the Galois extension
+`Kˢᵉᵖ/K`).
+
+This is pure Galois theory and involves neither `R` nor the ring `M`-structure. -/
+theorem exists_finiteGalois_of_isContinuous [Finite M] (hcont : IsContinuous ρ) :
+    ∃ L : IntermediateField K Ksep, FiniteDimensional K L ∧ IsGalois K L ∧
+      ∀ σ ∈ L.fixingSubgroup, ∀ m : M, ρ σ m = m := by
+  classical
+  -- One finite subextension per element of `M`, by continuity.
+  let Lm : M → IntermediateField K Ksep := fun m => (hcont m).choose
+  haveI : ∀ m, FiniteDimensional K (Lm m) := fun m => (hcont m).choose_spec.1
+  -- Their compositum is finite-dimensional since `M` is finite.
+  let L0 : IntermediateField K Ksep := ⨆ m, Lm m
+  haveI : FiniteDimensional K L0 := IntermediateField.finiteDimensional_iSup_of_finite
+  -- The normal closure is finite Galois and contains the compositum.
+  refine ⟨IntermediateField.normalClosure K L0 Ksep, inferInstance, inferInstance, ?_⟩
+  intro σ hσ m
+  have h1 : σ ∈ L0.fixingSubgroup :=
+    IntermediateField.fixingSubgroup_le (IntermediateField.le_normalClosure L0) hσ
+  have h3 : σ ∈ (Lm m).fixingSubgroup :=
+    IntermediateField.fixingSubgroup_le (le_iSup Lm m) h1
+  exact (hcont m).choose_spec.2 σ h3
+
+/-- **Steps B–D: Galois descent of the finite étale group scheme (deep, not yet
+formalised).** Given a finite Galois subextension `L/K` of `Kˢᵉᵖ/K` whose fixing subgroup
+acts trivially on the finite module `M`, and given that the action is unramified over the
+DVR `R`, the module is flat.
+
+This packages the genuinely hard part of the construction, which has three ingredients
+(none involving elliptic curves):
+
+* **(B) the generic fibre.** The `K`-Hopf algebra of `Gal(L/K)`-invariant functions
+  `(M → L)^{Gal(L/K)}` (for the action `σ · f = σ ∘ f ∘ ρ(σ)⁻¹`), with pointwise algebra
+  structure and comultiplication dual to the addition of `M`; it is finite étale over `K`
+  as a Galois-twisted form of `M → K`, and its `Kˢᵉᵖ`-points recover `M` equivariantly.
+
+* **(C) the integral model.** The integral closure `R'` of `R` in `L` is finite étale over
+  `R` — here the DVR hypothesis on `R` and unramifiedness of `L/K` over `R` are used — so
+  `H := (M → R')^{Gal(L/K)}` is finite flat (indeed finite étale) over `R` with generic
+  fibre the algebra of (B).
+
+* **(D) assembly.** Package `H` as the required Hopf algebra and prove the equivariant
+  additive equivalence on `Kˢᵉᵖ`-points.
+
+See [Tate, *Finite flat group schemes*, §1.3–1.4] or [Waterhouse, *Introduction to affine
+group schemes*, §6]. -/
+theorem IsFlat.of_finiteGalois_unramified [Finite M]
+    (hρ : ∀ σ τ : Ksep ≃ₐ[K] Ksep, ρ (σ * τ) = (ρ τ).trans (ρ σ))
+    (hunr : IsUnramified R ρ)
+    (L : IntermediateField K Ksep) [FiniteDimensional K L] [IsGalois K L]
+    (hL : ∀ σ ∈ L.fixingSubgroup, ∀ m : M, ρ σ m = m) :
+    IsFlat R ρ :=
+  sorry
+
 /-- **A continuous unramified Galois module is flat.** If `M` is a finite abelian group
 and the action `ρ` of `Gal(Kˢᵉᵖ/K)` on `M` is continuous and unramified over `R`, then it
 prolongs to a finite flat — indeed finite étale — group scheme over `R`.
@@ -152,8 +217,11 @@ evaluation at the `Kˢᵉᵖ`-embeddings of `R'` splits the twist. -/
 theorem IsFlat.of_isUnramified [Finite M]
     (hρ : ∀ σ τ : Ksep ≃ₐ[K] Ksep, ρ (σ * τ) = (ρ τ).trans (ρ σ))
     (hcont : IsContinuous ρ) (hunr : IsUnramified R ρ) :
-    IsFlat R ρ :=
-  sorry
+    IsFlat R ρ := by
+  obtain ⟨L, hfd, hgal, hL⟩ := exists_finiteGalois_of_isContinuous ρ hcont
+  haveI := hfd
+  haveI := hgal
+  exact IsFlat.of_finiteGalois_unramified R ρ hρ hunr L hL
 
 -- This proof assembles the tensor-product Hopf algebra together with the universal property
 -- of tensor products of commutative algebras and the convolution-monoid API, chaining the
