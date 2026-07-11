@@ -5,9 +5,10 @@ Authors: Edison Xie, Richard Hill
 -/
 module
 
-public import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
 public import FLT.Mathlib.RepresentationTheory.Homological.ContCohomology.CupProduct
 public import FLT.Mathlib.RepresentationTheory.Smooth.Basic
+public import Mathlib.NumberTheory.LocalField.Basic
+public import FLT.Deformations.RepresentationTheory.AbsoluteGaloisGroup
 
 /-!
 # The local Tate duality pairing
