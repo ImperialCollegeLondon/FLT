@@ -81,7 +81,7 @@ jobs:
       # Remove once leanprover/lean-action#153 is merged.
       - name: Set TEST_ARGS manually
         run: |
-          echo "TEST_ARGS='--iofail'" >> $GITHUB_ENV
+          echo "TEST_ARGS=--iofail" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Build and lint project
