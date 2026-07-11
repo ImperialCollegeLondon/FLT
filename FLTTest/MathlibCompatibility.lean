@@ -9,3 +9,6 @@ import FLT
 /-!
 Check that no FLT declarations conflict with Mathlib.
 -/
+
+-- CANARY: temporary, to be reverted
+#eval 1
