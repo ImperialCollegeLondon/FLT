@@ -328,7 +328,7 @@ end IntRes
 
 /-! ### The local Tate pairing -/
 
-open ContRepresentation TopCup in
+open ContRepresentation ContinuousLinearMap.CompactOpen in
 /-- The evaluation pairing `N* × N → F̄ᵥ^×`, `(x, n) ↦ x n`, as a `ℤ`-linear intertwiner
 `N* →ⁱL Hom(N, F̄ᵥ^×)` of the local Galois action: `G_v`-equivariance is
 `(g • x)(n) = g • x(g⁻¹ • n)`, which is the defining formula of the action on
@@ -347,7 +347,7 @@ noncomputable def localEvalIntertwiner [DiscreteTopology N] :
       cont := continuous_of_discreteTopology }
   isIntertwining' _ := ContinuousLinearMap.ext fun _ => ContinuousLinearMap.ext fun _ => rfl
 
-open ContRepresentation TopCup in
+open ContRepresentation ContinuousLinearMap.CompactOpen in
 /-- The bilinear cup product `Hⁱ(G_v, N*) ⟶ (Hʲ(G_v, N) →L H²(G_v, F̄ᵥ^×))` on the
 `ℤ`-scalar restrictions: `ContRepresentation.cup` of `cupprod.lean`, applied over `ℤ` to the
 evaluation intertwiner `localEvalIntertwiner : N* →ⁱL linHom N F̄ᵥ^×`. -/
@@ -359,7 +359,7 @@ noncomputable def localTateCup [DiscreteTopology N] (i j : ℕ) (hij : i + j = 2
     (intRes 𝔽 (localDualRep 𝔽 F v N)).ρ (intRes 𝔽 N).ρ (algClosureUnitsRep F v).ρ
     (localEvalIntertwiner 𝔽 F v N) i j 2 hij.symm
 
-open ContRepresentation TopCup in
+open ContRepresentation ContinuousLinearMap.CompactOpen in
 /-- **Milne, Corollary 2.3** (the pairing): for `i + j = 2`, the cup-product pairing
 `Hⁱ(G_v, N*) × Hʲ(G_v, N) → H²(G_v, F̄ᵥ^×) → ℚ/ℤ`.
 

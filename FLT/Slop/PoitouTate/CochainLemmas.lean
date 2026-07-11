@@ -438,7 +438,7 @@ namespace ContRepresentation
 
 section CupRes
 
-open TopRep TopCup
+open TopRep ContinuousLinearMap.CompactOpen
 
 variable {k : Type u} {G H : Type v} [CommRing k] [TopologicalSpace k] [Group G] [Group H]
   [TopologicalSpace G] [IsTopologicalGroup G] [TopologicalSpace H] [IsTopologicalGroup H]
@@ -489,8 +489,9 @@ resolutions. -/
 lemma resolutionMap_cupPair :
     ∀ (m n : ℕ) (σ : ↥(resolutionX (.of ρ1) (m + 1)))
       (τ : ↥(resolutionX (.of ρ2) (n + 1))),
-      (ContinuousCohomology.resolutionMap φ c3 (n + 1 + m)).hom ((cupPair f n m).1 σ τ) =
-        (cupPair f' n m).1
+      (ContinuousCohomology.resolutionMap φ c3 (n + 1 + m)).hom
+          ((cupPair f (continuous_pair_of_discrete f) n m).1 σ τ) =
+        (cupPair f' (continuous_pair_of_discrete f') n m).1
           ((ContinuousCohomology.resolutionMap φ
             (𝟙 (TopRep.res (φ : H →* G) (.of ρ1))) (m + 1)).hom σ)
           ((ContinuousCohomology.resolutionMap φ

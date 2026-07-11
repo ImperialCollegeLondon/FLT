@@ -52,7 +52,7 @@ attribute [local reducible] CategoryTheory.Functor.mapHomologicalComplex
 
 universe u
 
-open IsDedekindDomain CategoryTheory ContRepresentation TopRep TopCup
+open IsDedekindDomain CategoryTheory ContRepresentation TopRep ContinuousLinearMap.CompactOpen
 
 namespace NumberField.PoitouTate
 
