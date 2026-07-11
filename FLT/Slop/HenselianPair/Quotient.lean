@@ -53,7 +53,7 @@ theorem quotient {I J : Ideal R} (h : IsHenselianPair R I) (hJI : J ≤ I) :
   exists_lift_factorization := by
     intro F hF g₀ h₀ hg₀ hh₀ hcop hFfact
     -- `e : (R ⧸ J) ⧸ I' ≃+* R ⧸ I`, where `I' = I·(R ⧸ J)`.
-    set e := DoubleQuot.quotQuotEquivQuotOfLE hJI with he
+    set e := DoubleQuot.quotQuotEquivQuotOfLE hJI
     -- the composite `(R ⧸ J) ⧸ I' ≃ R ⧸ I` identifies the two projections of `R`.
     have hcomp :
         (e.toRingHom.comp
@@ -86,52 +86,38 @@ theorem le_jacobson_bot_of_map_le_jacobson {K I : Ideal R}
     (hK : K ≤ Ideal.jacobson (⊥ : Ideal R))
     (hI : I.map (Ideal.Quotient.mk K) ≤ Ideal.jacobson (⊥ : Ideal (R ⧸ K))) :
     I ≤ Ideal.jacobson (⊥ : Ideal R) := by
-  intro x hx
-  rw [Ideal.mem_jacobson_bot]
-  intro y
-  haveI : IsLocalHom (Ideal.Quotient.mk K) := isLocalHom_of_le_jacobson_bot K hK
-  refine IsUnit.of_map (Ideal.Quotient.mk K) _ ?_
-  have hxq : Ideal.Quotient.mk K x ∈ I.map (Ideal.Quotient.mk K) :=
-    Ideal.mem_map_of_mem _ hx
-  have hunit := (Ideal.mem_jacobson_bot.mp (hI hxq)) (Ideal.Quotient.mk K y)
-  simpa [map_mul] using hunit
+  calc I ≤ (I.map (Ideal.Quotient.mk K)).comap (Ideal.Quotient.mk K) := Ideal.le_comap_map
+    _ ≤ (Ideal.jacobson ⊥).comap (Ideal.Quotient.mk K) := Ideal.comap_mono hI
+    _ = Ideal.jacobson (Ideal.comap (Ideal.Quotient.mk K) ⊥) :=
+        Ideal.comap_jacobson_of_surjective Ideal.Quotient.mk_surjective
+    _ = K.jacobson := by rw [← RingHom.ker_eq_comap_bot, Ideal.mk_ker]
+    _ ≤ Ideal.jacobson ⊥ := (Ideal.jacobson_mono hK).trans Ideal.jacobson_idem.le
 
 /-- **Dévissage for Henselian pairs along a quotient ideal** (Stacks Tag 0DYD,
 hard direction).  Suppose `K ≤ I`, `(R, K)` is a Henselian pair, and
-`(R ⧸ K, I·(R ⧸ K))` is a Henselian pair.  Then `(R, I)` is a Henselian pair.
-
-Given a coprime monic factorisation of `f mod I`, first lift it to `R ⧸ K`
-using the quotient pair.  The intermediate factors are coprime over `R ⧸ K`
-because their reductions are coprime modulo an ideal in the Jacobson radical
-and both factors are monic; this is where the resultant/Jacobson lemma enters.
-Then lift the factorisation from `R ⧸ K` to `R` using `(R, K)`. -/
+`(R ⧸ K, I·(R ⧸ K))` is a Henselian pair.  Then `(R, I)` is a Henselian pair. -/
 @[stacks 0DYD]
-theorem of_quotient {K I : Ideal R} (hKI : K ≤ I)
-    (hRK : IsHenselianPair R K)
+theorem of_quotient {K I : Ideal R} (hKI : K ≤ I) (hRK : IsHenselianPair R K)
     (hquot : IsHenselianPair (R ⧸ K) (I.map (Ideal.Quotient.mk K))) :
     IsHenselianPair R I where
   le_jacobson := le_jacobson_bot_of_map_le_jacobson hRK.le_jacobson hquot.le_jacobson
   exists_lift_factorization := by
     intro f hf g₀ h₀ hg₀ hh₀ hcop hfact
-    set e := DoubleQuot.quotQuotEquivQuotOfLE hKI with he
+    set e := DoubleQuot.quotQuotEquivQuotOfLE hKI
     -- `e : (R ⧸ K) ⧸ (I·(R ⧸ K)) ≃+* R ⧸ I` identifies the two projections of `R`.
     have hcomp : (e.toRingHom.comp (Ideal.Quotient.mk (I.map (Ideal.Quotient.mk K)))).comp
         (Ideal.Quotient.mk K) = Ideal.Quotient.mk I := by
-      ext r; exact DoubleQuot.quotQuotEquivQuotOfLE_quotQuotMk r hKI
-    have hee : e.toRingHom.comp e.symm.toRingHom = RingHom.id (R ⧸ I) :=
-      RingHom.ext fun x => by
-        rw [RingHom.comp_apply, RingHom.id_apply]; exact e.apply_symm_apply x
+      ext r
+      exact DoubleQuot.quotQuotEquivQuotOfLE_quotQuotMk r hKI
+    have hee := e.toRingHom_comp_symm_toRingHom
     have hmap3 : ∀ p : R[X],
         ((p.map (Ideal.Quotient.mk K)).map
           (Ideal.Quotient.mk (I.map (Ideal.Quotient.mk K)))).map e.toRingHom
-          = p.map (Ideal.Quotient.mk I) := fun p => by
+          = p.map (Ideal.Quotient.mk I) := fun p ↦ by
       rw [Polynomial.map_map, Polynomial.map_map, hcomp]
     -- Pull the given factorisation of `f mod I` back along `e` to `(R ⧸ K) ⧸ (I·)`.
     have hcop' : IsCoprime (g₀.map e.symm.toRingHom) (h₀.map e.symm.toRingHom) := by
-      obtain ⟨a, b, hab⟩ := hcop
-      exact ⟨a.map e.symm.toRingHom, b.map e.symm.toRingHom, by
-        rw [← Polynomial.map_mul, ← Polynomial.map_mul, ← Polynomial.map_add, hab,
-          Polynomial.map_one]⟩
+      simpa using hcop.map (Polynomial.mapRingHom e.symm.toRingHom)
     have hf1fact : (f.map (Ideal.Quotient.mk K)).map
         (Ideal.Quotient.mk (I.map (Ideal.Quotient.mk K)))
         = g₀.map e.symm.toRingHom * h₀.map e.symm.toRingHom := by
@@ -145,7 +131,7 @@ theorem of_quotient {K I : Ideal R} (hKI : K ≤ I)
     -- Coprimality of `g₁, h₁` over `R ⧸ K`, lifted across the Jacobson quotient.
     have hcop1 : IsCoprime g₁ h₁ :=
       isCoprime_of_monic_of_isCoprime_map_quotient_of_le_jacobson hquot.le_jacobson
-        hg₁mon hh₁mon (by rw [hg₁map, hh₁map]; exact hcop')
+        hg₁mon hh₁mon (by rwa [hg₁map, hh₁map])
     -- Step 2: lift from `R ⧸ K` to `R` using the Henselian pair `(R, K)`.
     obtain ⟨g, q, hgmon, hqmon, hfgh, hgmapK, hqmapK⟩ :=
       hRK.exists_lift_factorization f hf hg₁mon hh₁mon hcop1 hf1
@@ -179,13 +165,11 @@ theorem factorization_unique_of_le_jacobson {I : Ideal R}
   have hdvd2 : g' ∣ g := hcop_g'h.dvd_of_dvd_mul_right ⟨h', hgh⟩
   obtain ⟨c, hc⟩ := hdvd1
   obtain ⟨d, hd⟩ := hdvd2
-  have cmon : c.Monic := hgmon.of_mul_monic_left (hc ▸ hg'mon)
-  have hg_cd : g * (c * d) = g := by rw [← mul_assoc, ← hc, ← hd]
   have hcd1 : c * d = 1 :=
-    sub_eq_zero.mp (hgmon.mul_right_eq_zero_iff.mp (by rw [mul_sub, mul_one, hg_cd, sub_self]))
-  have hcunit : IsUnit c := ⟨⟨c, d, hcd1, by rw [mul_comm]; exact hcd1⟩, rfl⟩
-  have hgeq : g = g' := by
-    rw [hc, cmon.eq_one_of_isUnit hcunit, mul_one]
+    sub_eq_zero.mp (hgmon.mul_right_eq_zero_iff.mp
+      (by rw [mul_sub, mul_one, ← mul_assoc, ← hc, ← hd, sub_self]))
+  have hgeq : g = g' :=
+    eq_of_monic_of_associated hgmon hg'mon ⟨⟨c, d, hcd1, by rw [mul_comm]; exact hcd1⟩, hc.symm⟩
   -- Monic cancellation of `g` gives `h = h'`.
   have hheq : h = h' :=
     sub_eq_zero.mp (hgmon.mul_right_eq_zero_iff.mp (by rw [mul_sub, hgh, hgeq, sub_self]))
@@ -194,13 +178,12 @@ theorem factorization_unique_of_le_jacobson {I : Ideal R}
 /-- **Shrinking the ideal of a Henselian pair** (one direction of Stacks Tag
 0DYD).  If `(R, J)` is a Henselian pair and `I ≤ J`, then `(R, I)` is a
 Henselian pair. -/
-theorem of_le {I J : Ideal R} (h : IsHenselianPair R J) (hIJ : I ≤ J) :
-    IsHenselianPair R I where
-  le_jacobson := le_trans hIJ h.le_jacobson
+theorem of_le {I J : Ideal R} (h : IsHenselianPair R J) (hIJ : I ≤ J) : IsHenselianPair R I where
+  le_jacobson := hIJ.trans h.le_jacobson
   exists_lift_factorization := by
     intro f hf g₀ h₀ hg₀ hh₀ hcop hfact
     set K : Ideal (R ⧸ I) := J.map (Ideal.Quotient.mk I) with hK
-    set e := DoubleQuot.quotQuotEquivQuotOfLE hIJ with he
+    set e := DoubleQuot.quotQuotEquivQuotOfLE hIJ
     set q : R ⧸ I →+* R ⧸ J := e.toRingHom.comp (Ideal.Quotient.mk K) with hq
     have hcomp : q.comp (Ideal.Quotient.mk I) = Ideal.Quotient.mk J := by
       ext r
@@ -217,8 +200,7 @@ theorem of_le {I J : Ideal R} (h : IsHenselianPair R J) (hIJ : I ≤ J) :
     have hprodI : g₀ * h₀ =
         g.map (Ideal.Quotient.mk I) * h'.map (Ideal.Quotient.mk I) := by
       rw [← hfact, hfgh, Polynomial.map_mul]
-    have hcopK :
-        IsCoprime (g₀.map (Ideal.Quotient.mk K)) (h₀.map (Ideal.Quotient.mk K)) := by
+    have hcopK : IsCoprime (g₀.map (Ideal.Quotient.mk K)) (h₀.map (Ideal.Quotient.mk K)) := by
       obtain ⟨a, b, hab⟩ := hcop
       exact ⟨a.map (Ideal.Quotient.mk K), b.map (Ideal.Quotient.mk K), by
         rw [← Polynomial.map_mul, ← Polynomial.map_mul, ← Polynomial.map_add, hab,
@@ -239,10 +221,8 @@ theorem of_le {I J : Ideal R} (h : IsHenselianPair R J) (hIJ : I ≤ J) :
 /-- **Two-step criterion for Henselian pairs** (Stacks Tag 0DYD).  For `I ≤ J`,
 if `(R, I)` and `(R ⧸ I, J·(R ⧸ I))` are Henselian pairs, then `(R, J)` is a
 Henselian pair. -/
-theorem of_le_of_quotient {I J : Ideal R} (hIJ : I ≤ J)
-    (hI : IsHenselianPair R I)
-    (hquot : IsHenselianPair (R ⧸ I) (J.map (Ideal.Quotient.mk I))) :
-    IsHenselianPair R J :=
+theorem of_le_of_quotient {I J : Ideal R} (hIJ : I ≤ J) (hI : IsHenselianPair R I)
+    (hquot : IsHenselianPair (R ⧸ I) (J.map (Ideal.Quotient.mk I))) : IsHenselianPair R J :=
   of_quotient hIJ hI hquot
 
 /-- **Stacks Tag 0DYD.**  For `I ≤ J`, the pair `(R, J)` is Henselian iff
@@ -252,7 +232,7 @@ theorem of_le_of_quotient {I J : Ideal R} (hIJ : I ≤ J)
 theorem iff_of_le_quotient {I J : Ideal R} (hIJ : I ≤ J) :
     IsHenselianPair R J ↔
       IsHenselianPair R I ∧ IsHenselianPair (R ⧸ I) (J.map (Ideal.Quotient.mk I)) :=
-  ⟨fun h => ⟨h.of_le hIJ, h.quotient hIJ⟩,
-    fun h => of_le_of_quotient hIJ h.1 h.2⟩
+  ⟨fun h ↦ ⟨h.of_le hIJ, h.quotient hIJ⟩,
+    fun h ↦ of_le_of_quotient hIJ h.1 h.2⟩
 
 end IsHenselianPair

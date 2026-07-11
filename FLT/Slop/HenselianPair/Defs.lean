@@ -72,14 +72,9 @@ theorem henselianRing {I : Ideal R} (h : IsHenselianPair R I) : HenselianRing R 
     rcases subsingleton_or_nontrivial R with _ | _
     · exact ⟨a₀, Subsingleton.elim _ _, by rw [sub_self]; exact I.zero_mem⟩
     -- `I ≠ ⊤`, hence `R/I` is nontrivial.
-    have hItop : I ≠ ⊤ := by
-      intro hI
-      have h1 : (1 : R) ∈ Ideal.jacobson ⊥ := h.le_jacobson (hI ▸ Submodule.mem_top)
-      rw [Ideal.mem_jacobson_bot] at h1
-      have h0 := h1 (-1)
-      rw [one_mul, neg_add_cancel] at h0
-      exact not_isUnit_zero h0
-    haveI : Nontrivial (R ⧸ I) := Ideal.Quotient.nontrivial_iff.mpr hItop
+    have hItop : I ≠ ⊤ :=
+      (h.le_jacobson.trans_lt (Ideal.jacobson_bot (R := R) ▸ Ring.jacobson_lt_top R)).ne
+    have : Nontrivial (R ⧸ I) := Ideal.Quotient.nontrivial_iff.mpr hItop
     -- `a₀` reduces to a simple root of `f.map (mk I)`.
     have hroot : (f.map (Ideal.Quotient.mk I)).IsRoot (Ideal.Quotient.mk I a₀) := by
       change (f.map (Ideal.Quotient.mk I)).eval (Ideal.Quotient.mk I a₀) = 0
@@ -122,7 +117,7 @@ theorem henselianRing {I : Ideal R} (h : IsHenselianPair R I) : HenselianRing R 
       rw [this, zero_mul]
     · rw [← Ideal.Quotient.eq_zero_iff_mem, map_sub, sub_eq_zero]
       have hc0 : Ideal.Quotient.mk I (g.coeff 0) = -(Ideal.Quotient.mk I a₀) := by
-        have := congrArg (fun p => Polynomial.coeff p 0) hgmap
+        have := congrArg (fun p ↦ Polynomial.coeff p 0) hgmap
         simpa [coeff_map, coeff_sub, coeff_X_zero, coeff_C_zero, zero_sub] using this
       rw [map_neg, hc0, neg_neg]
 
@@ -132,62 +127,45 @@ This is the Jacobson-radical uniqueness argument for simple roots: if two roots
 of `f` are congruent to the same `a₀` modulo `I`, and `f' a₀` is a unit modulo
 `I`, then the two roots are equal.  No monicity is needed for this uniqueness
 statement. -/
-theorem root_lift_unique_of_isUnit_derivative {I : Ideal R} (h : IsHenselianPair R I)
-    {f : R[X]} {a₀ a b : R} (ha : f.IsRoot a) (hb : f.IsRoot b)
-    (haI : a - a₀ ∈ I) (hbI : b - a₀ ∈ I)
-    (hderiv : IsUnit (Ideal.Quotient.mk I (f.derivative.eval a₀))) :
-    a = b := by
-  letI : HenselianRing R I := h.henselianRing
-  exact HenselianRing.root_lift_unique_of_isUnit_derivative ha hb haI hbI hderiv
+theorem root_lift_unique_of_isUnit_derivative {I : Ideal R} (h : IsHenselianPair R I) {f : R[X]}
+    {a₀ a b : R} (ha : f.IsRoot a) (hb : f.IsRoot b) (haI : a - a₀ ∈ I) (hbI : b - a₀ ∈ I)
+    (hderiv : IsUnit (Ideal.Quotient.mk I (f.derivative.eval a₀))) : a = b :=
+  h.henselianRing.root_lift_unique_of_isUnit_derivative ha hb haI hbI hderiv
 
 /-- A Henselian pair has a unique lift of a simple root in the prescribed
 congruence class.  This is the `∃!` form of `IsHenselianPair.henselianRing`. -/
-theorem existsUnique_root_lift_of_isUnit_derivative {I : Ideal R}
-    (h : IsHenselianPair R I) {f : R[X]} (hf : f.Monic) (a₀ : R)
-    (hroot : f.eval a₀ ∈ I)
+theorem existsUnique_root_lift_of_isUnit_derivative {I : Ideal R} (h : IsHenselianPair R I)
+    {f : R[X]} (hf : f.Monic) (a₀ : R) (hroot : f.eval a₀ ∈ I)
     (hderiv : IsUnit (Ideal.Quotient.mk I (f.derivative.eval a₀))) :
-    ∃! a : R, f.IsRoot a ∧ a - a₀ ∈ I := by
-  letI : HenselianRing R I := h.henselianRing
-  exact HenselianRing.existsUnique_root_lift_of_isUnit_derivative hf a₀ hroot hderiv
+    ∃! a : R, f.IsRoot a ∧ a - a₀ ∈ I :=
+  h.henselianRing.existsUnique_root_lift_of_isUnit_derivative hf a₀ hroot hderiv
 
 /-- Uniqueness in the quotient form of the Stacks Tag 09XI root condition for
 a Henselian pair.
 
 This uniqueness statement needs only the Jacobson-radical condition, but this
 pair-level spelling is convenient when working from `IsHenselianPair R I`. -/
-theorem root_one_mod_unique_of_map_eq_X_pow_mul_X_sub_C_one {I : Ideal R}
-    (h : IsHenselianPair R I) {f : R[X]} (n : ℕ)
-    (hmod : f.map (Ideal.Quotient.mk I) = X ^ n * (X - C (1 : R ⧸ I)))
-    {a b : R} (ha : f.IsRoot a) (hb : f.IsRoot b) (haI : a - 1 ∈ I)
-    (hbI : b - 1 ∈ I) :
-    a = b := by
-  letI : HenselianRing R I := h.henselianRing
-  exact HenselianRing.root_one_mod_unique_of_map_eq_X_pow_mul_X_sub_C_one n hmod
-    ha hb haI hbI
+theorem root_one_mod_unique_of_map_eq_X_pow_mul_X_sub_C_one {I : Ideal R} (h : IsHenselianPair R I)
+    {f : R[X]} (n : ℕ) (hmod : f.map (Ideal.Quotient.mk I) = X ^ n * (X - C (1 : R ⧸ I)))
+    {a b : R} (ha : f.IsRoot a) (hb : f.IsRoot b) (haI : a - 1 ∈ I) (hbI : b - 1 ∈ I) : a = b :=
+  h.henselianRing.root_one_mod_unique_of_map_eq_X_pow_mul_X_sub_C_one n hmod ha hb haI hbI
 
 /-- Uniqueness in the coefficientwise-congruence form of the Stacks Tag 09XI
 root condition for a Henselian pair. -/
 theorem root_one_mod_unique_of_forall_coeff_sub_mem_X_pow_mul_X_sub_C_one
     {I : Ideal R} (h : IsHenselianPair R I) {f : R[X]} (n : ℕ)
-    (hcoeff : ∀ k, (f - X ^ n * (X - C (1 : R))).coeff k ∈ I)
-    {a b : R} (ha : f.IsRoot a) (hb : f.IsRoot b) (haI : a - 1 ∈ I)
-    (hbI : b - 1 ∈ I) :
-    a = b := by
-  letI : HenselianRing R I := h.henselianRing
-  exact HenselianRing.root_one_mod_unique_of_forall_coeff_sub_mem_X_pow_mul_X_sub_C_one
+    (hcoeff : ∀ k, (f - X ^ n * (X - C (1 : R))).coeff k ∈ I) {a b : R} (ha : f.IsRoot a)
+    (hb : f.IsRoot b) (haI : a - 1 ∈ I) (hbI : b - 1 ∈ I) : a = b :=
+  h.henselianRing.root_one_mod_unique_of_forall_coeff_sub_mem_X_pow_mul_X_sub_C_one
     n hcoeff ha hb haI hbI
 
 /-- Uniqueness in the perturbation form of the Stacks Tag 09XI root condition
 for a Henselian pair. -/
 theorem root_one_mod_unique_of_forall_coeff_mem_add_X_pow_mul_X_sub_C_one
-    {I : Ideal R} (h : IsHenselianPair R I) (n : ℕ) {p : R[X]}
-    (hp : ∀ k, p.coeff k ∈ I) {a b : R}
-    (ha : (X ^ n * (X - C (1 : R)) + p).IsRoot a)
-    (hb : (X ^ n * (X - C (1 : R)) + p).IsRoot b) (haI : a - 1 ∈ I)
-    (hbI : b - 1 ∈ I) :
-    a = b := by
-  letI : HenselianRing R I := h.henselianRing
-  exact HenselianRing.root_one_mod_unique_of_forall_coeff_mem_add_X_pow_mul_X_sub_C_one
+    {I : Ideal R} (h : IsHenselianPair R I) (n : ℕ) {p : R[X]} (hp : ∀ k, p.coeff k ∈ I) {a b : R}
+    (ha : (X ^ n * (X - C (1 : R)) + p).IsRoot a) (hb : (X ^ n * (X - C (1 : R)) + p).IsRoot b)
+    (haI : a - 1 ∈ I) (hbI : b - 1 ∈ I) : a = b :=
+  h.henselianRing.root_one_mod_unique_of_forall_coeff_mem_add_X_pow_mul_X_sub_C_one
     n hp ha hb haI hbI
 
 /-- Uniqueness in the literal finite-coefficient form of the Stacks Tag 09XI
@@ -195,14 +173,10 @@ root condition for a Henselian pair. -/
 theorem root_one_mod_unique_of_sum_range_coeff_mem_X_pow_mul_X_sub_C_one
     {I : Ideal R} (h : IsHenselianPair R I) (n : ℕ) (a : ℕ → R)
     (ha_coeff : ∀ i ≤ n, a i ∈ I) {x y : R}
-    (hx : (X ^ n * (X - C (1 : R)) +
-      ∑ i ∈ Finset.range (n + 1), C (a i) * X ^ i).IsRoot x)
-    (hy : (X ^ n * (X - C (1 : R)) +
-      ∑ i ∈ Finset.range (n + 1), C (a i) * X ^ i).IsRoot y)
-    (hxI : x - 1 ∈ I) (hyI : y - 1 ∈ I) :
-    x = y := by
-  letI : HenselianRing R I := h.henselianRing
-  exact HenselianRing.root_one_mod_unique_of_sum_range_coeff_mem_X_pow_mul_X_sub_C_one
+    (hx : (X ^ n * (X - C (1 : R)) + ∑ i ∈ Finset.range (n + 1), C (a i) * X ^ i).IsRoot x)
+    (hy : (X ^ n * (X - C (1 : R)) + ∑ i ∈ Finset.range (n + 1), C (a i) * X ^ i).IsRoot y)
+    (hxI : x - 1 ∈ I) (hyI : y - 1 ∈ I) : x = y :=
+  h.henselianRing.root_one_mod_unique_of_sum_range_coeff_mem_X_pow_mul_X_sub_C_one
     n a ha_coeff hx hy hxI hyI
 
 /-- **The root condition for a Henselian pair**, in the direction supplied by
@@ -212,12 +186,9 @@ If `f` is monic and `f` reduces modulo `I` to `X ^ n * (X - 1)`, then `f` has a
 unique root congruent to `1` modulo `I`. -/
 theorem existsUnique_root_one_mod_of_map_eq_X_pow_mul_X_sub_C_one {I : Ideal R}
     (h : IsHenselianPair R I) {f : R[X]} (hf : f.Monic) (n : ℕ)
-    (hmod : f.map (Ideal.Quotient.mk I) =
-      X ^ n * (X - C (1 : R ⧸ I))) :
-    ∃! a : R, f.IsRoot a ∧ a - 1 ∈ I := by
-  letI : HenselianRing R I := h.henselianRing
-  exact HenselianRing.existsUnique_root_one_mod_of_map_eq_X_pow_mul_X_sub_C_one
-    hf n hmod
+    (hmod : f.map (Ideal.Quotient.mk I) = X ^ n * (X - C (1 : R ⧸ I))) :
+    ∃! a : R, f.IsRoot a ∧ a - 1 ∈ I :=
+  h.henselianRing.existsUnique_root_one_mod_of_map_eq_X_pow_mul_X_sub_C_one hf n hmod
 
 /-- Coefficientwise-congruence form of the Stacks Tag 09XI root condition.
 
@@ -225,10 +196,9 @@ If the coefficients of `f - X ^ n * (X - 1)` all lie in `I`, then `f` has a
 unique root congruent to `1` modulo `I`. -/
 theorem existsUnique_root_one_mod_of_forall_coeff_sub_mem_X_pow_mul_X_sub_C_one
     {I : Ideal R} (h : IsHenselianPair R I) {f : R[X]} (hf : f.Monic) (n : ℕ)
-    (hcoeff : ∀ k, (f - X ^ n * (X - C (1 : R))).coeff k ∈ I) :
-    ∃! a : R, f.IsRoot a ∧ a - 1 ∈ I := by
-  apply h.existsUnique_root_one_mod_of_map_eq_X_pow_mul_X_sub_C_one hf n
-  exact Polynomial.map_eq_X_pow_mul_X_sub_C_one_of_forall_coeff_sub_mem n hcoeff
+    (hcoeff : ∀ k, (f - X ^ n * (X - C (1 : R))).coeff k ∈ I) : ∃! a : R, f.IsRoot a ∧ a - 1 ∈ I :=
+  h.existsUnique_root_one_mod_of_map_eq_X_pow_mul_X_sub_C_one hf n
+    (Polynomial.map_eq_X_pow_mul_X_sub_C_one_of_forall_coeff_sub_mem n hcoeff)
 
 /-- Stacks-style perturbation form of the Tag 09XI root condition.
 
@@ -238,8 +208,7 @@ theorem existsUnique_root_one_mod_of_forall_coeff_mem_add_X_pow_mul_X_sub_C_one
     {I : Ideal R} (h : IsHenselianPair R I) (n : ℕ) {p : R[X]}
     (hp : ∀ k, p.coeff k ∈ I) (hf : (X ^ n * (X - C (1 : R)) + p).Monic) :
     ∃! a : R, (X ^ n * (X - C (1 : R)) + p).IsRoot a ∧ a - 1 ∈ I := by
-  apply h.existsUnique_root_one_mod_of_forall_coeff_sub_mem_X_pow_mul_X_sub_C_one hf n
-  intro k
+  refine h.existsUnique_root_one_mod_of_forall_coeff_sub_mem_X_pow_mul_X_sub_C_one hf n fun k => ?_
   simpa [coeff_sub, coeff_add, sub_eq_add_neg, add_assoc, add_comm, add_left_comm] using hp k
 
 /-- Finite-coefficient form of the Stacks Tag 09XI root condition.
@@ -250,29 +219,24 @@ modulo `I`. This is condition (5) in Tag 09XI in its literal finite-sum shape,
 for the direction supplied by a Henselian pair. -/
 @[stacks 09XI "(5)"]
 theorem existsUnique_root_one_mod_of_sum_range_coeff_mem_X_pow_mul_X_sub_C_one
-    {I : Ideal R} (h : IsHenselianPair R I) (n : ℕ) (a : ℕ → R)
-    (ha : ∀ i ≤ n, a i ∈ I) :
+    {I : Ideal R} (h : IsHenselianPair R I) (n : ℕ) (a : ℕ → R) (ha : ∀ i ≤ n, a i ∈ I) :
     ∃! x : R,
       (X ^ n * (X - C (1 : R)) +
         ∑ i ∈ Finset.range (n + 1), C (a i) * X ^ i).IsRoot x ∧ x - 1 ∈ I := by
-  have hf :
-      (X ^ n * (X - C (1 : R)) +
-        ∑ i ∈ Finset.range (n + 1), C (a i) * X ^ i : R[X]).Monic :=
-    Polynomial.monic_X_pow_mul_X_sub_C_one_add_sum_range_C_mul_X_pow n a
+  have hf := Polynomial.monic_X_pow_mul_X_sub_C_one_add_sum_range_C_mul_X_pow n a
   apply h.existsUnique_root_one_mod_of_forall_coeff_mem_add_X_pow_mul_X_sub_C_one n ?_ hf
   intro k
   rw [Polynomial.coeff_sum_range_C_mul_X_pow n a k]
   split_ifs with hk
-  · exact ha k hk
-  · exact I.zero_mem
+  exacts [ha k hk, I.zero_mem]
 
 /-- **Local-ring bridge, easy direction** (Stacks Tag 04GH / 0DYD, `←`).
 If `(R, 𝔪)` is a Henselian pair at the maximal ideal of a local ring, then `R`
 is a Henselian local ring. (The converse is the coprime-factorisation lift, which
 is the hard direction and a mathlib TODO.) -/
 @[stacks 04GH]
-theorem henselianLocalRing [IsLocalRing R]
-    (h : IsHenselianPair R (IsLocalRing.maximalIdeal R)) : HenselianLocalRing R where
+theorem henselianLocalRing [IsLocalRing R] (h : IsHenselianPair R (IsLocalRing.maximalIdeal R)) :
+    HenselianLocalRing R where
   is_henselian f hf a₀ h₁ h₂ :=
     h.henselianRing.is_henselian f hf a₀ h₁ (h₂.map (Ideal.Quotient.mk _))
 
@@ -284,7 +248,7 @@ theorem bot : IsHenselianPair R (⊥ : Ideal R) where
   exists_lift_factorization := by
     intro f _ g₀ h₀ hg₀ hh₀ _ hfact
     -- `e : R ⧸ ⊥ ≃+* R` is the canonical isomorphism.
-    set e := RingEquiv.quotientBot R with he
+    set e := RingEquiv.quotientBot R
     set mk₀ := Ideal.Quotient.mk (⊥ : Ideal R) with hmk₀
     -- `e ∘ mk₀ = id` and `mk₀ ∘ e = id`, as ring homomorphisms.
     have h1 : e.toRingHom.comp mk₀ = RingHom.id R :=

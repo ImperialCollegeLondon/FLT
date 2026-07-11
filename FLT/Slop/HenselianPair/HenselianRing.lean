@@ -40,24 +40,20 @@ This is the Jacobson-radical uniqueness argument for simple roots: if two roots
 of `f` are congruent to the same `a₀` modulo `I`, and `f' a₀` is a unit modulo
 `I`, then the two roots are equal. No monicity is needed for this uniqueness
 statement. -/
-theorem root_lift_unique_of_isUnit_derivative {I : Ideal R} [HenselianRing R I]
-    {f : R[X]} {a₀ a b : R} (ha : f.IsRoot a) (hb : f.IsRoot b)
-    (haI : a - a₀ ∈ I) (hbI : b - a₀ ∈ I)
-    (hderiv : IsUnit (Ideal.Quotient.mk I (f.derivative.eval a₀))) :
-    a = b := by
-  exact Polynomial.root_lift_unique_of_isUnit_derivative_of_le_jacobson
+theorem root_lift_unique_of_isUnit_derivative {I : Ideal R} [HenselianRing R I] {f : R[X]}
+    {a₀ a b : R} (ha : f.IsRoot a) (hb : f.IsRoot b) (haI : a - a₀ ∈ I) (hbI : b - a₀ ∈ I)
+    (hderiv : IsUnit (Ideal.Quotient.mk I (f.derivative.eval a₀))) : a = b :=
+  Polynomial.root_lift_unique_of_isUnit_derivative_of_le_jacobson
     (HenselianRing.jac (R := R) (I := I)) ha hb haI hbI hderiv
 
 /-- A `HenselianRing` has a unique lift of a simple root in the prescribed
 congruence class. This is the `∃!` form of `HenselianRing.is_henselian`. -/
-theorem existsUnique_root_lift_of_isUnit_derivative {I : Ideal R} [HenselianRing R I]
-    {f : R[X]} (hf : f.Monic) (a₀ : R) (hroot : f.eval a₀ ∈ I)
+theorem existsUnique_root_lift_of_isUnit_derivative {I : Ideal R} [HenselianRing R I] {f : R[X]}
+    (hf : f.Monic) (a₀ : R) (hroot : f.eval a₀ ∈ I)
     (hderiv : IsUnit (Ideal.Quotient.mk I (f.derivative.eval a₀))) :
     ∃! a : R, f.IsRoot a ∧ a - a₀ ∈ I := by
   obtain ⟨a, ha, haI⟩ := HenselianRing.is_henselian f hf a₀ hroot hderiv
-  refine ⟨a, ⟨ha, haI⟩, ?_⟩
-  intro b hb
-  exact root_lift_unique_of_isUnit_derivative hb.1 ha hb.2 haI hderiv
+  exact ⟨a, ⟨ha, haI⟩, fun b hb ↦ root_lift_unique_of_isUnit_derivative hb.1 ha hb.2 haI hderiv⟩
 
 /-- Uniqueness in the quotient form of the Stacks Tag 09XI root condition for
 any `HenselianRing`.
@@ -65,12 +61,9 @@ any `HenselianRing`.
 No monicity or existence/lifting hypothesis is needed for this uniqueness
 statement; it is just the Jacobson-radical argument bundled with
 `HenselianRing.jac`. -/
-theorem root_one_mod_unique_of_map_eq_X_pow_mul_X_sub_C_one {I : Ideal R}
-    [HenselianRing R I] {f : R[X]} (n : ℕ)
-    (hmod : f.map (Ideal.Quotient.mk I) = X ^ n * (X - C (1 : R ⧸ I)))
-    {a b : R} (ha : f.IsRoot a) (hb : f.IsRoot b) (haI : a - 1 ∈ I)
-    (hbI : b - 1 ∈ I) :
-    a = b :=
+theorem root_one_mod_unique_of_map_eq_X_pow_mul_X_sub_C_one {I : Ideal R} [HenselianRing R I]
+    {f : R[X]} (n : ℕ) (hmod : f.map (Ideal.Quotient.mk I) = X ^ n * (X - C (1 : R ⧸ I))) {a b : R}
+    (ha : f.IsRoot a) (hb : f.IsRoot b) (haI : a - 1 ∈ I) (hbI : b - 1 ∈ I) : a = b :=
   Polynomial.root_one_mod_unique_of_map_eq_X_pow_mul_X_sub_C_one_of_le_jacobson
     (HenselianRing.jac (R := R) (I := I)) n hmod ha hb haI hbI
 
@@ -78,36 +71,27 @@ theorem root_one_mod_unique_of_map_eq_X_pow_mul_X_sub_C_one {I : Ideal R}
 root condition for any `HenselianRing`. -/
 theorem root_one_mod_unique_of_forall_coeff_sub_mem_X_pow_mul_X_sub_C_one
     {I : Ideal R} [HenselianRing R I] {f : R[X]} (n : ℕ)
-    (hcoeff : ∀ k, (f - X ^ n * (X - C (1 : R))).coeff k ∈ I)
-    {a b : R} (ha : f.IsRoot a) (hb : f.IsRoot b) (haI : a - 1 ∈ I)
-    (hbI : b - 1 ∈ I) :
-    a = b :=
+    (hcoeff : ∀ k, (f - X ^ n * (X - C (1 : R))).coeff k ∈ I) {a b : R} (ha : f.IsRoot a)
+    (hb : f.IsRoot b) (haI : a - 1 ∈ I) (hbI : b - 1 ∈ I) : a = b :=
   Polynomial.root_one_mod_unique_of_forall_coeff_sub_mem_X_pow_mul_X_sub_C_one_of_le_jacobson
     (HenselianRing.jac (R := R) (I := I)) n hcoeff ha hb haI hbI
 
 /-- Uniqueness in the perturbation form of the Stacks Tag 09XI root condition
 for any `HenselianRing`. -/
 theorem root_one_mod_unique_of_forall_coeff_mem_add_X_pow_mul_X_sub_C_one
-    {I : Ideal R} [HenselianRing R I] (n : ℕ) {p : R[X]}
-    (hp : ∀ k, p.coeff k ∈ I) {a b : R}
+    {I : Ideal R} [HenselianRing R I] (n : ℕ) {p : R[X]} (hp : ∀ k, p.coeff k ∈ I) {a b : R}
     (ha : (X ^ n * (X - C (1 : R)) + p).IsRoot a)
-    (hb : (X ^ n * (X - C (1 : R)) + p).IsRoot b) (haI : a - 1 ∈ I)
-    (hbI : b - 1 ∈ I) :
-    a = b :=
+    (hb : (X ^ n * (X - C (1 : R)) + p).IsRoot b) (haI : a - 1 ∈ I) (hbI : b - 1 ∈ I) : a = b :=
   Polynomial.root_one_mod_unique_of_forall_coeff_mem_add_X_pow_mul_X_sub_C_one_of_le_jacobson
     (HenselianRing.jac (R := R) (I := I)) n hp ha hb haI hbI
 
 /-- Uniqueness in the literal finite-coefficient form of the Stacks Tag 09XI
 root condition for any `HenselianRing`. -/
 theorem root_one_mod_unique_of_sum_range_coeff_mem_X_pow_mul_X_sub_C_one
-    {I : Ideal R} [HenselianRing R I] (n : ℕ) (a : ℕ → R)
-    (ha_coeff : ∀ i ≤ n, a i ∈ I) {x y : R}
-    (hx : (X ^ n * (X - C (1 : R)) +
-      ∑ i ∈ Finset.range (n + 1), C (a i) * X ^ i).IsRoot x)
-    (hy : (X ^ n * (X - C (1 : R)) +
-      ∑ i ∈ Finset.range (n + 1), C (a i) * X ^ i).IsRoot y)
-    (hxI : x - 1 ∈ I) (hyI : y - 1 ∈ I) :
-    x = y :=
+    {I : Ideal R} [HenselianRing R I] (n : ℕ) (a : ℕ → R) (ha_coeff : ∀ i ≤ n, a i ∈ I) {x y : R}
+    (hx : (X ^ n * (X - C (1 : R)) + ∑ i ∈ Finset.range (n + 1), C (a i) * X ^ i).IsRoot x)
+    (hy : (X ^ n * (X - C (1 : R)) + ∑ i ∈ Finset.range (n + 1), C (a i) * X ^ i).IsRoot y)
+    (hxI : x - 1 ∈ I) (hyI : y - 1 ∈ I) : x = y :=
   Polynomial.root_one_mod_unique_of_sum_range_coeff_mem_X_pow_mul_X_sub_C_one_of_le_jacobson
     (HenselianRing.jac (R := R) (I := I)) n a ha_coeff hx hy hxI hyI
 
@@ -133,8 +117,7 @@ theorem existsUnique_root_one_mod_of_map_eq_X_pow_mul_X_sub_C_one {I : Ideal R}
 any `HenselianRing`. -/
 theorem existsUnique_root_one_mod_of_forall_coeff_sub_mem_X_pow_mul_X_sub_C_one
     {I : Ideal R} [HenselianRing R I] {f : R[X]} (hf : f.Monic) (n : ℕ)
-    (hcoeff : ∀ k, (f - X ^ n * (X - C (1 : R))).coeff k ∈ I) :
-    ∃! a : R, f.IsRoot a ∧ a - 1 ∈ I :=
+    (hcoeff : ∀ k, (f - X ^ n * (X - C (1 : R))).coeff k ∈ I) : ∃! a : R, f.IsRoot a ∧ a - 1 ∈ I :=
   existsUnique_root_one_mod_of_map_eq_X_pow_mul_X_sub_C_one hf n
     (Polynomial.map_eq_X_pow_mul_X_sub_C_one_of_forall_coeff_sub_mem n hcoeff)
 
@@ -156,11 +139,8 @@ theorem existsUnique_root_one_mod_of_sum_range_coeff_mem_X_pow_mul_X_sub_C_one
     ∃! x : R,
       (X ^ n * (X - C (1 : R)) +
         ∑ i ∈ Finset.range (n + 1), C (a i) * X ^ i).IsRoot x ∧ x - 1 ∈ I := by
-  have hf :
-      (X ^ n * (X - C (1 : R)) +
-        ∑ i ∈ Finset.range (n + 1), C (a i) * X ^ i : R[X]).Monic :=
-    Polynomial.monic_X_pow_mul_X_sub_C_one_add_sum_range_C_mul_X_pow n a
-  apply existsUnique_root_one_mod_of_forall_coeff_mem_add_X_pow_mul_X_sub_C_one n ?_ hf
+  apply existsUnique_root_one_mod_of_forall_coeff_mem_add_X_pow_mul_X_sub_C_one n ?_
+    (Polynomial.monic_X_pow_mul_X_sub_C_one_add_sum_range_C_mul_X_pow n a)
   intro k
   rw [Polynomial.coeff_sum_range_C_mul_X_pow n a k]
   split_ifs with hk
