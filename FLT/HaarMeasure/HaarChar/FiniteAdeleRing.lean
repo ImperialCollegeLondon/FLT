@@ -169,11 +169,6 @@ noncomputable def FiniteAdeleRing.Aux.g {ι : Type*} [Fintype ι]
     (fun _ v ↦ isOpenAdicCompletionIntegers K v)
   f.trans (ψ.toContinuousAddEquiv.trans f.symm)
 
--- [Elab.command] [79702772.000000] ✅️ lemma
--- [Elab.async] [314652764.000000] ✅️ elaborating proof of FiniteAdeleRing.Aux.g_commSq ▶
-set_option maxHeartbeats 400000 in
--- https://github.com/ImperialCollegeLondon/FLT/issues/889
-set_option synthInstance.maxHeartbeats 40000 in
 lemma FiniteAdeleRing.Aux.g_commSq {ι : Type*} [Fintype ι]
     (ψ : (ι → (FiniteAdeleRing (𝓞 K) K)) ≃L[FiniteAdeleRing (𝓞 K) K]
       (ι → (FiniteAdeleRing (𝓞 K) K))) :
@@ -283,7 +278,7 @@ lemma basis_eq_single (v : HeightOneSpectrum (𝓞 K))
     = (ContinuousLinearEquiv.chooseBasisPiScalarRight'
       K (v.adicCompletion K) B).symm (Pi.single j x) := by
   rw [ContinuousLinearEquiv.eq_symm_apply];
-  ext b;
+  ext1 b
   have : (x • (bLocal K B v) j) = (x ⊗ₜ[K] (Module.Free.chooseBasis K B) j) := by
     simp [Algebra.smul_def]
   rw [this]
@@ -291,9 +286,6 @@ lemma basis_eq_single (v : HeightOneSpectrum (𝓞 K))
     change ((Module.Free.chooseBasis K B).repr ((Module.Free.chooseBasis K B) j)) b • x
   simp [Finsupp.single, Pi.single, Algebra.smul_def, Function.update]
 
-set_option synthInstance.maxHeartbeats 40000 in
--- see https://github.com/ImperialCollegeLondon/FLT/issues/889
-set_option maxHeartbeats 400000 in
 lemma basis_eq (v : HeightOneSpectrum (𝓞 K))
     {w : Module.Free.ChooseBasisIndex K B → adicCompletion K v} :
     ∑ (j : Module.Free.ChooseBasisIndex K B), (w j) • (bLocal K B v) j
@@ -310,7 +302,7 @@ lemma basis_eq_single_global
     = (ContinuousLinearEquiv.chooseBasisPiScalarRight'
       K (FiniteAdeleRing (𝓞 K) K) B).symm (Pi.single j x) := by
   rw [ContinuousLinearEquiv.eq_symm_apply];
-  ext b v;
+  ext1 b; ext1 v
   have : (x • (bGlobal K B) j) = (x ⊗ₜ[K] (Module.Free.chooseBasis K B) j) := by
     simp [Algebra.smul_def]
   rw [this]
@@ -365,10 +357,6 @@ noncomputable def φLocalKvLinear (v : HeightOneSpectrum (𝓞 K))
 }
 
 set_option backward.isDefEq.respectTransparency false in
-set_option synthInstance.maxHeartbeats 40000 in
--- see https://github.com/ImperialCollegeLondon/FLT/issues/889
-set_option maxHeartbeats 400000 in
-attribute [local instance 9999] Algebra.toSMul Algebra.toModule in
 lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
     (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
       FiniteAdeleRing (𝓞 K) K ⊗[K] B)
@@ -472,9 +460,6 @@ lemma toMatrix_f
   simp [f, ← basis_repr_eq_global K B,
     ← basis_eq_global', LinearMap.toMatrix_apply]
 
-set_option synthInstance.maxHeartbeats 40000 in
--- see https://github.com/ImperialCollegeLondon/FLT/issues/889
-set_option maxHeartbeats 400000 in
 -- A (continuous) 𝔸_K^f-linear automorphism of 𝔸_K^f ⊗ B is "integral" at all but
 -- finitely many places
 lemma FiniteAdeleRing.Aux.almost_always_mapsTo
@@ -534,10 +519,6 @@ lemma FiniteAdeleRing.Aux.almost_always_bijOn
   exact (e K B v (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)).bijOn' h1 h2
 
 set_option backward.isDefEq.respectTransparency false in
-set_option synthInstance.maxHeartbeats 40000 in
--- see https://github.com/ImperialCollegeLondon/FLT/issues/889
-set_option maxHeartbeats 400000 in
-attribute [local instance 9999] Algebra.toSMul Algebra.toModule in
 /-- A diagram which obviously commutes, commutes. -/
 lemma FiniteAdeleRing.Aux.f_g_local_global
     (φ : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) ≃L[FiniteAdeleRing (𝓞 K) K]
@@ -545,7 +526,7 @@ lemma FiniteAdeleRing.Aux.f_g_local_global
     g K (f K B φ) = ContinuousAddEquiv.restrictedProductCongrRight
     (fun v ↦ e _ _ _ (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ))
     (FiniteAdeleRing.Aux.almost_always_bijOn _ _ _) := by
-  ext r v j;
+  ext1 r; ext1 v; ext1 j;
   letI b₀ := Module.Free.chooseBasis K B
   letI b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
   letI bLocal := Module.Basis.baseChange (v.adicCompletion K) b₀
@@ -633,8 +614,6 @@ lemma localcomponent_mulRight (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
   simp [ContinuousLinearEquiv.mulRight, LinearEquiv.mulRight, map_mul]
   congr
 
-set_option maxHeartbeats 400000 in
--- see https://github.com/ImperialCollegeLondon/FLT/issues/889
 /-- left multiplication and right multiplication by a unit have the same Haar character
 on `𝔸_K^f ⊗ B`. See also
 `NumberField.FiniteAdeleRing.isCentralSimple_addHaarScalarFactor_left_mul_eq_right_mul`

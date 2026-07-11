@@ -17,6 +17,4 @@ Material destined for `Mathlib.Algebra.Homology.HomologicalComplex`.
 
 /-- The predecessor function of the cochain complex shape on `ℕ` is truncated subtraction. -/
 lemma CochainComplex.prev_nat (j : ℕ) : (ComplexShape.up ℕ).prev j = j - 1 := by
-  cases j with
-  | zero => simp
-  | succ i => simp
+  cases j <;> simp

@@ -72,8 +72,9 @@ variable {M1 M2 M3 : Type w}
 /-- When the source module of an intertwining map into an internal hom is discrete, its
 uncurried pairing is automatically jointly continuous. -/
 lemma continuous_pair_of_discrete [DiscreteTopology M1] (f : ρ1 →ⁱL linHom ρ2 ρ3) :
-    Continuous fun p : M2 × M1 ↦ f p.2 p.1 :=
-  continuous_of_discreteTopology_snd fun v ↦ (f v).continuous
+    Continuous fun p : M1 × M2 ↦ f p.1 p.2 :=
+  (continuous_of_discreteTopology_snd (g := fun p : M2 × M1 ↦ f p.2 p.1)
+    fun v ↦ (f v).continuous).comp continuous_swap
 
 end DiscretePairing
 

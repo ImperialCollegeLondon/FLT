@@ -160,9 +160,8 @@ noncomputable def cyclesIsoKer (i j : ι) (hij : c.next i = j) :
 
 @[reassoc (attr := simp)]
 lemma cyclesIsoKer_hom_kerι (i j : ι) (hij : c.next i = j) :
-    (K.cyclesIsoKer i j hij).hom ≫ TopModuleCat.kerι (K.d i j) = K.iCycles i := by
-  refine (KernelFork.mapOfIsLimit_ι _ (TopModuleCat.isLimitKer (K.d i j)) (𝟙 _)).trans ?_
-  rfl
+    (K.cyclesIsoKer i j hij).hom ≫ TopModuleCat.kerι (K.d i j) = K.iCycles i :=
+  KernelFork.mapOfIsLimit_ι _ (TopModuleCat.isLimitKer (K.d i j)) (𝟙 _)
 
 @[simp]
 lemma cyclesIsoKer_hom_apply_coe (i j : ι) (hij : c.next i = j)
