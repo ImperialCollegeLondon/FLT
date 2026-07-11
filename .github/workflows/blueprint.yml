@@ -76,6 +76,14 @@ jobs:
         with:
           fetch-depth: 0 # Fetch all history for all branches and tags
 
+      # lean-action drops the test-args input (leanprover/lean-action#163), so
+      # export TEST_ARGS directly: lake_test.sh reads it from the environment.
+      # Remove once leanprover/lean-action#153 is merged.
+      - name: Set TEST_ARGS manually
+        run: |
+          echo "TEST_ARGS=--iofail" >> "$GITHUB_ENV"
+        shell: bash
+
       - name: Build and lint project
         uses: leanprover/lean-action@v1
         with:
