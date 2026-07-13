@@ -127,6 +127,21 @@ def AlgHom.toSemialgHom {R : Type*} [CommSemiring R] {A B : Type*} [Semiring A] 
   __ := f
   map_smul' _ _ := by simp
 
+/-- Promote a ring hom `f : A →+* B` which is `φ`-semilinear to a semi-algebra map.
+
+This is *definitionally* `f` on the underlying ring hom, so any definitional equality satisfied
+by `f` is inherited by the result. Use this in preference to transporting a semi-algebra map
+along equivalences of `A` and `B`, which does not preserve such equalities. -/
+def RingHom.toSemialgHom (f : A →+* B) (h : ∀ (r : R) (a : A), f (r • a) = φ r • f a) :
+    A →ₛₐ[φ] B where
+  __ := f
+  map_smul' := h
+
+@[simp]
+theorem RingHom.coe_toSemialgHom (f : A →+* B) (h : ∀ (r : R) (a : A), f (r • a) = φ r • f a) :
+    ⇑(RingHom.toSemialgHom f h) = ⇑f :=
+  rfl
+
 /-- The composition `(B →ₛₐ[ψ] C) ∘ (A →ₐ[S] B) → `A →ₛₐ[ψ] C` of a semi-algebra map with an
 algebra map to give a semi-algebra map. -/
 def SemialgHom.compAlgHom {T : Type*} [CommSemiring T] {C : Type*} [Semiring C]
