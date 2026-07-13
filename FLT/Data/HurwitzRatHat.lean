@@ -39,7 +39,7 @@ scoped notation "𝓞^" => HurwitzHat
 
 noncomputable instance : Ring 𝓞^ := Algebra.TensorProduct.instRing
 
-instance : Module.Flat ℤ 𝓞^ := by unfold HurwitzHat; infer_instance
+instance : Module.Flat ℤ 𝓞^ := inferInstanceAs (Module.Flat ℤ (𝓞 ⊗[ℤ] ZHat))
 
 end HurwitzHat
 
@@ -53,7 +53,7 @@ scoped notation "D" => HurwitzRat
 
 noncomputable instance : Ring D := Algebra.TensorProduct.instRing
 
-instance : Module.Flat ℤ D := by unfold HurwitzRat; infer_instance
+instance : Module.Flat ℤ D := inferInstanceAs (Module.Flat ℤ (ℚ ⊗[ℤ] 𝓞))
 
 end HurwitzRat
 
