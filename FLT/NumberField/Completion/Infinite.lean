@@ -45,7 +45,7 @@ instance : wv.1.1.LiesOver v.1 where
 instance {v : InfinitePlace K} : NontriviallyNormedField v.Completion where
   non_trivial :=
     let ⟨x, hx⟩ := v.isNontrivial.exists_abv_gt_one
-    ⟨x, by rw [UniformSpace.Completion.norm_coe]; exact hx⟩
+    ⟨x, by rw [Completion.norm_coe]; exact hx⟩
 
 noncomputable instance : FiniteDimensional v.Completion wv.1.Completion :=
   FiniteDimensional.of_locallyCompactSpace v.Completion
@@ -54,31 +54,24 @@ variable (K) in
 theorem denseRange_algebraMap_subtype_pi (p : InfinitePlace K → Prop) [NumberField K] :
     DenseRange <| algebraMap K ((v : Subtype p) → v.1.Completion) := by
   apply DenseRange.comp (g := Subtype.restrict p)
-    (f := algebraMap K ((v : InfinitePlace K) → v.1.Completion))
-  · exact Subtype.surjective_restrict (β := fun v => v.1.Completion) p |>.denseRange
+    (f := algebraMap K ((v : InfinitePlace K) → v.Completion))
+  · exact Subtype.surjective_restrict (β := fun v => v.Completion) p |>.denseRange
   · exact InfiniteAdeleRing.denseRange_algebraMap K
   · exact continuous_pi (fun _ => continuous_apply _)
-
-attribute [local instance] WithAbs.algebraLeft
-
-/-- The map `(R,v) → (S,w)` as a semialgebra map over `R → S` (which is the same map!). -/
-@[simps!]
-def _root_.WithAbs.semialgebraMap {R R' S : Type*} [CommSemiring R] [CommSemiring R'] [Semiring S]
-    [PartialOrder S] [Algebra R R'] (v : AbsoluteValue R S) (w : AbsoluteValue R' S) :
-    WithAbs v →ₛₐ[algebraMap R R'] WithAbs w where
-  __ := algebraMap (WithAbs v) (WithAbs w)
-  map_smul' r x := by
-    simp [WithAbs.algebraMap_left_apply, WithAbs.algebraMap_right_apply, Algebra.smul_def]
 
 /-- The map from `v.Completion` to `w.Completion` whenever the infinite place `w` of `L` lies
 above the infinite place `v` of `K`. -/
 abbrev comapHom (h : w.comap (algebraMap K L) = v) :
     v.Completion →ₛₐ[algebraMap K L] w.Completion :=
-  have h' : w.1.LiesOver v.1 := ⟨by simp [← h, InfinitePlace.comap]⟩
-  .restrictScalars (WithAbs.semialgebraMap v.1 w.1) <| UniformSpace.Completion.mapSemialgHom _
-    (LiesOver.isometry_algebraMap (v := v) w).uniformContinuous.continuous
+  have : w.1.LiesOver v.1 := ⟨by simp [← h, InfinitePlace.comap]⟩
+  RingHom.toSemialgHom (NumberField.LiesOver.completionMap (v := v) (w := w)) fun r x ↦ by
+    rw [Algebra.smul_def, Algebra.smul_def, map_mul]
+    congr 1
+    exact NumberField.LiesOver.completionMap_coe _
 
-theorem comapHom_cont (h : w.comap (algebraMap K L) = v) : Continuous (comapHom h) := continuous_map
+theorem comapHom_cont (h : w.comap (algebraMap K L) = v) : Continuous (comapHom h) :=
+  have : w.1.LiesOver v.1 := ⟨by simp [← h, InfinitePlace.comap]⟩
+  NumberField.LiesOver.continuous_completionMap
 
 variable (L v)
 

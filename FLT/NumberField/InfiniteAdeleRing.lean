@@ -160,7 +160,7 @@ instance [Algebra K∞ L∞]
         funext w
         simp [TensorProduct.smul_tmul', baseChangeAlgEquiv_tmul,
           Pi.FiberwiseSMul.map_smul _ _ Completion (σ := w.toExtension K), RingHom.smul_toAlgebra,
-          Isometry.mapRingHom, WithAbs.semialgebraMap, UniformSpace.Completion.mapSemialgHom]
+          Completion.comapHom]
         ring
     | add x y _ _ => simp_all
 
