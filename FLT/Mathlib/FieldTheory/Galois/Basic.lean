@@ -37,6 +37,12 @@ theorem forall_apply_algebraMap_iff_restrictNormal_eq_one (σ : M ≃ₐ[K] M) :
   simp only [AlgEquiv.ext_iff, AlgEquiv.one_apply, ← AlgEquiv.restrictNormal_commutes]
   exact forall_congr' fun x ↦ (FaithfulSMul.algebraMap_injective L M).eq_iff
 
+/-- The bundled form of `forall_apply_algebraMap_iff_restrictNormal_eq_one`, in terms of
+`AlgEquiv.restrictNormalHom` rather than the underlying `AlgEquiv.restrictNormal`. -/
+theorem restrictNormalHom_eq_one_iff (σ : M ≃ₐ[K] M) :
+    AlgEquiv.restrictNormalHom L σ = 1 ↔ ∀ x : L, σ (algebraMap L M x) = algebraMap L M x :=
+  (forall_apply_algebraMap_iff_restrictNormal_eq_one K L M σ).symm
+
 variable [Algebra.IsSeparable K L]
 
 -- Note that mathlib already knows the basic facts about this situation: `L/K` is
@@ -103,17 +109,6 @@ theorem Algebra.IsQuadraticExtension.algEquiv_apply_eq_neg_of_sq_eq {σ : L ≃�
   exact eq_neg_of_add_eq_zero_left
     ((mul_eq_zero.mp h1).resolve_left fun h ↦ hσα (sub_eq_zero.mp h))
 
-omit [Algebra.IsSeparable K L] in
-theorem restrictNormalHom_eq_one_iff (ρ : M ≃ₐ[K] M) :
-    AlgEquiv.restrictNormalHom L ρ = 1 ↔ ∀ x : L, ρ (algebraMap L M x) = algebraMap L M x := by
-  simp only [AlgEquiv.ext_iff, AlgEquiv.one_apply]
-  refine forall_congr' fun x => ?_
-  have h' : ρ.restrictNormal L x = (AlgEquiv.restrictNormalHom L ρ) x := by rfl
-  constructor <;> intro h
-  · rw [← AlgEquiv.restrictNormal_commutes ρ L x, h', h]
-  · apply (algebraMap L M).injective
-    rw [← h', AlgEquiv.restrictNormal_commutes, h]
-
 open Classical in
 /-- The quadratic character of `Aut(M/K)` attached to a separable quadratic subextension
 `K ⊆ L ⊆ M`: it sends `σ` to `1` if `σ` fixes `L` pointwise, and to `-1` otherwise.
@@ -128,9 +123,8 @@ noncomputable def quadraticCharacter : (M ≃ₐ[K] M) →* ℤˣ where
   toFun σ := if ∀ x : L, σ (algebraMap L M x) = algebraMap L M x then 1 else -1
   map_one' := by simp
   map_mul' σ τ := by
-    obtain ⟨σ₀, hσ₀⟩ := Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L
-    have h := fun x : Gal(M/K) ↦ Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq K L hσ₀
-      (AlgEquiv.restrictNormalHom L x)
+    obtain ⟨σ₀, hσ₀⟩ := exists_algEquiv_ne_one K L
+    have h := fun x : Gal(M/K) ↦ algEquiv_eq_one_or_eq K L hσ₀ (AlgEquiv.restrictNormalHom L x)
     rcases h σ with ha | ha <;>
     rcases h τ with hb | hb <;>
     simp only [← restrictNormalHom_eq_one_iff, map_mul, ha, hb] <;>
@@ -151,11 +145,11 @@ theorem quadraticCharacter_surjective [Normal K M] :
   intro u
   rcases Int.units_eq_one_or u with rfl | rfl
   · exact ⟨1, map_one _⟩
-  · obtain ⟨σ₀, hσ₀⟩ := Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L
+  · obtain ⟨σ₀, hσ₀⟩ := exists_algEquiv_ne_one K L
     obtain ⟨σ, hσ⟩ := AlgEquiv.restrictNormalHom_surjective (E := M) σ₀
-    refine ⟨σ, ?_⟩
-    rw [quadraticCharacter, MonoidHom.coe_mk, OneHom.coe_mk, if_neg]
-    exact fun h ↦ hσ₀ (hσ ▸ (restrictNormalHom_eq_one_iff K L M σ).mpr h)
+    refine ⟨σ, (Int.units_eq_one_or _).resolve_left fun heq ↦ hσ₀ ?_⟩
+    exact hσ.symm ▸ (restrictNormalHom_eq_one_iff K L M σ).mpr
+      ((quadraticCharacter_eq_one_iff K L M σ).mp heq)
 
 end
 
