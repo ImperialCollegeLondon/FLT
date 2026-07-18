@@ -31,17 +31,11 @@ variable [Algebra.IsQuadraticExtension K L]
 variable (M : Type*) [Field M] [Algebra K M] [Algebra L M] [IsScalarTower K L M]
 
 /-- For a normal subextension `K ⊆ L ⊆ M`, a `K`-automorphism `σ` of `M` fixes `L` pointwise
-if and only if its restriction to `L` (`AlgEquiv.restrictNormal`) is the identity. -/
-theorem forall_apply_algebraMap_iff_restrictNormal_eq_one (σ : M ≃ₐ[K] M) :
-    (∀ x : L, σ (algebraMap L M x) = algebraMap L M x) ↔ σ.restrictNormal L = 1 := by
+if and only if its restriction to `L` (`AlgEquiv.restrictNormalHom`) is the identity. -/
+theorem forall_apply_algebraMap_iff_restrictNormalHom_eq_one (σ : M ≃ₐ[K] M) :
+    (∀ x : L, σ (algebraMap L M x) = algebraMap L M x) ↔ AlgEquiv.restrictNormalHom L σ = 1 := by
   simp only [AlgEquiv.ext_iff, AlgEquiv.one_apply, ← AlgEquiv.restrictNormal_commutes]
   exact forall_congr' fun x ↦ (FaithfulSMul.algebraMap_injective L M).eq_iff
-
-/-- The bundled form of `forall_apply_algebraMap_iff_restrictNormal_eq_one`, in terms of
-`AlgEquiv.restrictNormalHom` rather than the underlying `AlgEquiv.restrictNormal`. -/
-theorem restrictNormalHom_eq_one_iff (σ : M ≃ₐ[K] M) :
-    AlgEquiv.restrictNormalHom L σ = 1 ↔ ∀ x : L, σ (algebraMap L M x) = algebraMap L M x :=
-  (forall_apply_algebraMap_iff_restrictNormal_eq_one K L M σ).symm
 
 variable [Algebra.IsSeparable K L]
 
@@ -127,7 +121,7 @@ noncomputable def quadraticCharacter : (M ≃ₐ[K] M) →* ℤˣ where
     have h := fun x : Gal(M/K) ↦ algEquiv_eq_one_or_eq K L hσ₀ (AlgEquiv.restrictNormalHom L x)
     rcases h σ with ha | ha <;>
     rcases h τ with hb | hb <;>
-    simp only [← restrictNormalHom_eq_one_iff, map_mul, ha, hb] <;>
+    simp only [forall_apply_algebraMap_iff_restrictNormalHom_eq_one, map_mul, ha, hb] <;>
     simp [algEquiv_mul_self K L hσ₀, hσ₀]
 
 theorem quadraticCharacter_eq_one_iff (σ : M ≃ₐ[K] M) :
@@ -150,7 +144,7 @@ theorem quadraticCharacter_surjective [Normal K M] :
     obtain ⟨σ₀, hσ₀⟩ := exists_algEquiv_ne_one K L
     obtain ⟨τ, hτ⟩ := AlgEquiv.restrictNormalHom_surjective (E := M) σ₀
     refine ⟨τ, (Int.units_eq_one_or _).resolve_left fun heq ↦ hσ₀ ?_⟩
-    exact hτ.symm ▸ (restrictNormalHom_eq_one_iff K L M τ).mpr
+    exact hτ.symm ▸ (forall_apply_algebraMap_iff_restrictNormalHom_eq_one K L M τ).mp
       ((quadraticCharacter_eq_one_iff K L M τ).mp heq)
 
 end
