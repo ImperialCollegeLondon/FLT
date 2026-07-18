@@ -53,9 +53,8 @@ variable [Algebra.IsSeparable K L]
 -- plus `Algebra.IsQuadraticExtension.finrank_eq_two`).
 
 /-- A separable quadratic extension has exactly two automorphisms. -/
-theorem Algebra.IsQuadraticExtension.card_algEquiv : Nat.card (L ≃ₐ[K] L) = 2 := by
-  rw [IsGalois.card_aut_eq_finrank]
-  exact finrank_eq_two K L
+theorem Algebra.IsQuadraticExtension.card_algEquiv : Nat.card (L ≃ₐ[K] L) = 2 :=
+  (IsGalois.card_aut_eq_finrank K L).trans (finrank_eq_two K L)
 
 /-- A separable quadratic extension has a nontrivial automorphism. -/
 theorem Algebra.IsQuadraticExtension.exists_algEquiv_ne_one : ∃ σ : L ≃ₐ[K] L, σ ≠ 1 :=
@@ -70,8 +69,7 @@ theorem Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq {σ : L ≃ₐ[K] L} 
   · exact Or.inr (((Nat.card_eq_two_iff' 1).mp (card_algEquiv K L)).unique h1 hσ)
 
 /-- The nontrivial automorphism of a separable quadratic extension is an involution. -/
-theorem Algebra.IsQuadraticExtension.algEquiv_mul_self {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1) :
-    σ * σ = 1 :=
+theorem Algebra.IsQuadraticExtension.algEquiv_mul_self {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1) : σ * σ = 1 :=
   (algEquiv_eq_one_or_eq K L hσ (σ * σ)).resolve_right fun h ↦ absurd (mul_eq_left.mp h) hσ
 
 /-- An element fixed by a nontrivial automorphism — hence, `Gal(L/K)` having order two, by all of
