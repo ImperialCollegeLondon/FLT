@@ -121,6 +121,8 @@ noncomputable def quadraticCharacter : (M ≃ₐ[K] M) →* ℤˣ where
   toFun σ := if ∀ x : L, σ (algebraMap L M x) = algebraMap L M x then 1 else -1
   map_one' := by simp
   map_mul' σ τ := by
+    -- "Fixes `L` pointwise" means "restricts to `1`" on `L`; restriction is multiplicative
+    -- (`restrictNormalHom`), so the claim reduces to the sign map of the order-2 `Gal(L/K)`.
     obtain ⟨σ₀, hσ₀⟩ := exists_algEquiv_ne_one K L
     have h := fun x : Gal(M/K) ↦ algEquiv_eq_one_or_eq K L hσ₀ (AlgEquiv.restrictNormalHom L x)
     rcases h σ with ha | ha <;>
