@@ -624,7 +624,7 @@ lemma quadraticTwistVarChange_baseChange_map {σ : M ≃ₐ[K] M}
   obtain ⟨σ₀, hσ₀⟩ := exists_algEquiv_ne_one K L
   have hres : σ.restrictNormal L = σ₀ :=
     (algEquiv_eq_one_or_eq K L hσ₀ _).resolve_left
-      (fun h ↦ hσ ((forall_apply_algebraMap_iff_restrictNormal_eq_one K L M σ).mpr h))
+      (fun h ↦ hσ ((forall_apply_algebraMap_iff_restrictNormalHom_eq_one K L M σ).mpr h))
   have hcomp : σ.toAlgHom.toRingHom.comp (algebraMap L M)
       = (algebraMap L M).comp σ₀.toAlgHom.toRingHom := by
     ext l
