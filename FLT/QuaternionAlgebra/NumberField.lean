@@ -40,6 +40,10 @@ open IsDedekindDomain
 
 open scoped NumberField TensorProduct
 
+-- `adicCompletion` is now a one-field structure whose `@[ext]` lemma peels an extra
+-- `.toCompletion` step; disable it locally so componentwise `ext` proofs stay in `adicCompletion`.
+attribute [-ext] IsDedekindDomain.HeightOneSpectrum.adicCompletion.ext
+
 namespace IsQuaternionAlgebra.NumberField
 
 -- local notation "𝔸 " F:max => FiniteAdeleRing (𝓞 F) F

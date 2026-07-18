@@ -31,3 +31,14 @@ theorem Continuous.piSemialgHomPi {I J : Type*} {R S : Type*} (f : I → Type*)
     Continuous (Pi.semialgHomPi f g p) := by
   change Continuous (fun (x : (j : J) → g j) w ↦ (p w) (x (r w)))
   fun_prop
+
+open Topology in
+/-- A map on `X × D` with `D` discrete is continuous as soon as all its slices `x ↦ g (x, d)`
+are continuous. -/
+lemma continuous_of_discreteTopology_snd {X D Y : Type*} [TopologicalSpace X]
+    [TopologicalSpace D] [DiscreteTopology D] [TopologicalSpace Y] {g : X × D → Y}
+    (hg : ∀ d, Continuous fun x ↦ g (x, d)) : Continuous g := by
+  simp_rw [continuous_iff_continuousAt, ContinuousAt]
+  rintro ⟨x, d⟩
+  rw [nhds_prod_eq, nhds_discrete D, Filter.prod_pure]
+  exact Filter.tendsto_map'_iff.mp ((hg d).tendsto x)

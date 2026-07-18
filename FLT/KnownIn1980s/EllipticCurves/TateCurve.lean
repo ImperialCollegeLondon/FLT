@@ -8,6 +8,9 @@ module
 public import Mathlib.AlgebraicGeometry.EllipticCurve.Reduction
 public import Mathlib.NumberTheory.LocalField.Basic
 public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
+public import FLT.KnownIn1980s.EllipticCurves.TateParameter
+public import FLT.KnownIn1980s.EllipticCurves.TateCurveBaseChange
+public import FLT.KnownIn1980s.EllipticCurves.ReductionBaseChange
 
 /-!
 
@@ -119,27 +122,109 @@ noncomputable def WeierstrassCurve.tateCurveEquiv (q : kˣ) (hq : valuation k (q
     Additive (kˣ ⧸ Subgroup.zpowers q) ≃+ ((tateCurve (q : k))⁄k).Point :=
   sorry
 
+-- `tateParameter` — the inverse of `q ↦ j(q)` of Silverman, ATAEC V.5.2, by which the
+-- Tate parameter is *defined* below, choice-freely — is constructed in
+-- `FLT.KnownIn1980s.EllipticCurves.TateParameter` (imported above) as the evaluation at
+-- `j⁻¹` of an explicit integral power series. Here we state its interaction with the
+-- valuation.
+
+omit [ValuativeRel k] [IsNonarchimedeanLocalField k] in
+lemma WeierstrassCurve.tateParameter_eq {j : k} : WeierstrassCurve.tateParameter j =
+    TateCurve.evalInt j⁻¹ TateCurve.jInvReverse := by
+  rfl
+
+/-- The Tate parameter of `j` has valuation exactly `|j|⁻¹`: the leading term `j⁻¹` of
+the inverse series `q = j⁻¹ + 744j⁻² + ⋯` dominates ultrametrically. -/
+theorem WeierstrassCurve.valuation_tateParameter_eq {j : k} (hj : 1 < valuation k j) :
+    valuation k (tateParameter j) = (valuation k j)⁻¹ := by
+  have hj0 : j ≠ 0 := by
+    rintro rfl
+    simp [map_zero] at hj
+  have h := TateCurve.valuation_evalInt_eq j⁻¹ (inv_ne_zero hj0)
+    (by simpa [map_inv₀] using inv_lt_one_of_one_lt₀ hj) TateCurve.constantCoeff_jInvReverse
+    TateCurve.coeff_one_jInvReverse
+  rw [WeierstrassCurve.tateParameter_eq, h, map_inv₀]
+
+theorem WeierstrassCurve.tateParameter_ne_zero {j : k} (hj : 1 < valuation k j) :
+    tateParameter j ≠ 0 := by
+  intro h
+  have heq := valuation_tateParameter_eq hj
+  rw [h, map_zero] at heq
+  exact inv_ne_zero (ne_of_gt (lt_trans zero_lt_one hj)) heq.symm
+
+theorem WeierstrassCurve.valuation_tateParameter_lt_one {j : k} (hj : 1 < valuation k j) :
+    valuation k (tateParameter j) < 1 := by
+  simpa [valuation_tateParameter_eq hj] using inv_lt_one_of_one_lt₀ hj
+
+-- The next few lemmas transfer `mathlib`'s reduction-theoretic facts (stated for the adic
+-- valuation of the discrete valuation ring `𝒪[k]`) to the canonical valuation of `k`,
+-- through unit and maximal-ideal membership in `𝒪[k]`.
+
+/-- An elliptic curve over `k` with bad (here multiplicative) reduction has discriminant of
+valuation less than `1`: the discriminant of the integral model lies in the maximal ideal. -/
+theorem WeierstrassCurve.valuation_Δ_lt_one (E : WeierstrassCurve k)
+    [E.HasMultiplicativeReduction 𝒪[k]] :
+    valuation k E.Δ < 1 := by
+  have hbad := HasMultiplicativeReduction.badReduction (R := 𝒪[k]) (W := E)
+  rw [← integralModel_Δ_eq 𝒪[k] E] at hbad ⊢
+  exact adicValuation_lt_one_iff.mp hbad
+
+/-- An elliptic curve over `k` with multiplicative reduction has `c₄` of valuation exactly
+`1`: `c₄` of the integral model is a unit of `𝒪[k]`. -/
+theorem WeierstrassCurve.valuation_c₄_eq_one (E : WeierstrassCurve k)
+    [E.HasMultiplicativeReduction 𝒪[k]] :
+    valuation k E.c₄ = 1 := by
+  have hmul := HasMultiplicativeReduction.multiplicativeReduction (R := 𝒪[k]) (W := E)
+  rw [← integralModel_c₄_eq 𝒪[k] E] at hmul ⊢
+  exact adicValuation_eq_one_iff.mp hmul
+
+omit [TopologicalSpace k] [IsNonarchimedeanLocalField k] in
+/-- The discriminant of an elliptic curve has nonzero valuation. -/
+theorem WeierstrassCurve.valuation_Δ_ne_zero (E : WeierstrassCurve k) [E.IsElliptic] :
+    valuation k E.Δ ≠ 0 := by
+  rw [(valuation k).ne_zero_iff, ← E.coe_Δ']
+  exact Units.ne_zero _
+
+/-- An elliptic curve over `k` with multiplicative reduction has `|j| = |c₄|³/|Δ| = |Δ|⁻¹`. -/
+theorem WeierstrassCurve.valuation_j_eq (E : WeierstrassCurve k) [E.IsElliptic]
+    [E.HasMultiplicativeReduction 𝒪[k]] :
+    valuation k E.j = (valuation k E.Δ)⁻¹ := by
+  rw [show E.j = (↑(E.Δ'⁻¹) : k) * E.c₄ ^ 3 from rfl, map_mul, map_pow,
+    E.valuation_c₄_eq_one, one_pow, mul_one, Units.val_inv_eq_inv_val, map_inv₀, E.coe_Δ']
+
+/-- An elliptic curve over `k` with split multiplicative reduction has non-integral
+`j`-invariant, `|j(E)| > 1`: indeed `v(j) = -v(Δ_min) < 0`, since `c₄` is a unit when the
+reduction is multiplicative. -/
+theorem WeierstrassCurve.one_lt_valuation_j (E : WeierstrassCurve k) [E.IsElliptic]
+    [E.HasSplitMultiplicativeReduction 𝒪[k]] :
+    1 < valuation k E.j := by
+  rw [E.valuation_j_eq]
+  exact (one_lt_inv₀ (zero_lt_iff.mpr E.valuation_Δ_ne_zero)).mpr E.valuation_Δ_lt_one
+
 /-- The Tate parameter of an elliptic curve `E`, given by a minimal Weierstrass equation with
-split multiplicative reduction over a nonarchimedean local field `k`. It is the unique element
-`q` of `k` with `0 < |q| < 1` such that `j(E) = j(q) = q⁻¹ + 744 + 196884q + ⋯`; equivalently,
-the unique `q` such that `E(k̄)` is Galois-equivariantly isomorphic to `k̄ˣ/q^ℤ`. (The bare
-existence of an abstract isomorphism `E(k) ≅ kˣ/q^ℤ` would not pin down `q`: already over
-`ℚ_p` the groups `ℚ_pˣ/p^ℤ` and `ℚ_pˣ/(p(1+p))^ℤ` are isomorphic, even topologically.) -/
-noncomputable def WeierstrassCurve.q (E : WeierstrassCurve k) [E.IsElliptic]
-    [E.IsMinimal 𝒪[k]] [E.HasSplitMultiplicativeReduction 𝒪[k]] : k :=
-  sorry
+split multiplicative reduction over a nonarchimedean local field `k`: the unique element
+`q` of `k` with `0 < |q| < 1` such that `j(E) = j(q) = q⁻¹ + 744 + 196884q + ⋯`, defined
+directly (with no appeal to choice) as `tateParameter E.j`, the inverse `j`-series
+evaluated at `j(E)`. Equivalently, the unique `q` such that `E(k̄)` is Galois-equivariantly
+isomorphic to `k̄ˣ/q^ℤ`. (The bare existence of an abstract isomorphism `E(k) ≅ kˣ/q^ℤ`
+would not pin down `q`: already over `ℚ_p` the groups `ℚ_pˣ/p^ℤ` and `ℚ_pˣ/(p(1+p))^ℤ`
+are isomorphic, even topologically.) -/
+noncomputable def WeierstrassCurve.q (E : WeierstrassCurve k) [E.IsElliptic] : k :=
+  tateParameter E.j
 
 -- Let E/k be an elliptic curve, given by a minimal Weierstrass equation,
 -- with split multiplicative reduction
-variable (E : WeierstrassCurve k) [E.IsElliptic] [E.IsMinimal 𝒪[k]]
-  [E.HasSplitMultiplicativeReduction 𝒪[k]]
+variable (E : WeierstrassCurve k) [E.IsElliptic] [E.HasSplitMultiplicativeReduction 𝒪[k]]
+  [E.IsMinimal 𝒪[k]]
 
+omit [E.IsMinimal 𝒪[k]] in
 theorem WeierstrassCurve.q_ne_zero : E.q ≠ 0 :=
-  sorry
+  tateParameter_ne_zero E.one_lt_valuation_j
 
+omit [E.IsMinimal 𝒪[k]] in
 /-- The Tate parameter has norm less than `1`. -/
 theorem WeierstrassCurve.valuation_q_lt_one : valuation k E.q < 1 :=
-  sorry
+  valuation_tateParameter_lt_one E.one_lt_valuation_j
 
 /-- The Tate parameter as an element of `kˣ`. -/
 noncomputable def WeierstrassCurve.qUnit : kˣ :=
@@ -164,6 +249,66 @@ theorem WeierstrassCurve.exists_variableChange_tateCurve :
     ∃ C : VariableChange k, C • tateCurve E.q = E :=
   sorry
 
+open scoped ArithmeticFunction.sigma in
+/-- The Lambert series rearrangement `∑_{n≥1} n³qⁿ/(1-qⁿ) = ∑_{n≥1} σ₃(n)qⁿ` for
+`|q| < 1`: the defining series of `tateA₄` is the evaluation of the formal series
+`a₄(q) = -5s₃(q) ∈ ℤ⟦q⟧`. -/
+theorem WeierstrassCurve.tateA₄_eq_evalInt (q : k) (hq : valuation k q < 1) :
+    tateA₄ q = TateCurve.evalInt q TateCurve.a₄Formal := by
+  have hF : ∀ n, PowerSeries.coeff n TateCurve.a₄Formal
+      = ∑ d ∈ n.divisors, -5 * (d : ℤ) ^ 3 := by
+    intro n
+    rw [TateCurve.coeff_a₄Formal, ArithmeticFunction.sigma_apply]
+    push_cast
+    rw [Finset.mul_sum]
+  rw [← TateCurve.tsum_lambert_eq_evalInt q hq _ hF]
+  simp only [tateA₄]
+  rw [← tsum_mul_left]
+  exact tsum_congr fun m ↦ by push_cast; ring
+
+open scoped ArithmeticFunction.sigma in
+/-- The Lambert series rearrangement for `tateA₆`, as for `tateA₄_eq_evalInt`; the
+bookkeeping of the exact division by `12` uses `12 ∣ 5d³ + 7d⁵` termwise. -/
+theorem WeierstrassCurve.tateA₆_eq_evalInt (q : k) (hq : valuation k q < 1) :
+    tateA₆ q = TateCurve.evalInt q TateCurve.a₆Formal := by
+  have h12 : ∀ d : ℤ, (12 : ℤ) ∣ 5 * d ^ 3 + 7 * d ^ 5 := by
+    intro d
+    have hz : ((5 * d ^ 3 + 7 * d ^ 5 : ℤ) : ZMod 12) = 0 := by
+      push_cast
+      generalize (d : ZMod 12) = r
+      revert r
+      decide
+    exact_mod_cast (ZMod.intCast_zmod_eq_zero_iff_dvd _ 12).mp hz
+  set c : ℕ → ℤ := fun d ↦ -((5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5) / 12) with hc
+  -- the coefficients of `a₆Formal` are the divisor sums of `c`: the divisor sum commutes
+  -- with the exact division by `12`
+  have hF : ∀ N, PowerSeries.coeff N TateCurve.a₆Formal = ∑ d ∈ N.divisors, c d := by
+    intro N
+    rw [TateCurve.coeff_a₆Formal]
+    symm
+    simp only [hc]
+    have hσ : ∑ d ∈ N.divisors, (5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5)
+        = 5 * (σ 3 N : ℤ) + 7 * (σ 5 N : ℤ) := by
+      rw [Finset.sum_add_distrib, ← Finset.mul_sum, ← Finset.mul_sum,
+        ArithmeticFunction.sigma_apply, ArithmeticFunction.sigma_apply]
+      push_cast
+      ring
+    have hsum : (12 : ℤ) ∣ 5 * (σ 3 N : ℤ) + 7 * (σ 5 N : ℤ) := by
+      rw [← hσ]
+      exact Finset.dvd_sum fun d _ ↦ h12 d
+    have hterm : ∀ d ∈ N.divisors, -((5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5) / 12) * 12
+        = -(5 * (d : ℤ) ^ 3 + 7 * (d : ℤ) ^ 5) := fun d _ ↦ by
+      rw [neg_mul, Int.ediv_mul_cancel (h12 d)]
+    apply mul_right_cancel₀ (b := (12 : ℤ)) (by norm_num)
+    rw [Finset.sum_mul, Finset.sum_congr rfl hterm, neg_mul, Int.ediv_mul_cancel hsum,
+      ← hσ, Finset.sum_neg_distrib]
+  rw [← TateCurve.tsum_lambert_eq_evalInt q hq c hF]
+  simp only [tateA₆]
+  refine tsum_congr fun m ↦ ?_
+  simp only [hc]
+  push_cast
+  ring
+
 /-! ### Functoriality
 
 Now let `l` be a second nonarchimedean local field and let `k → l` be a morphism of fields
@@ -183,29 +328,62 @@ variable {l : Type*} [Field l] [ValuativeRel l] [TopologicalSpace l]
 instance : (E.baseChange l).IsElliptic :=
   inferInstanceAs (E.map (algebraMap k l)).IsElliptic
 
--- The construction of the Tate curve commutes on the nose with any valuative morphism:
--- its coefficients are power series in `q` with *integer* coefficients, and a valuative
--- morphism is continuous, so preserves the sums. The same is true of the uniformisation
--- `tateCurveEquiv` (a statement we defer, as it needs transport along this equality).
-theorem WeierstrassCurve.tateCurve_baseChange (q : k) :
-    (tateCurve q)⁄l = tateCurve (algebraMap k l q) :=
-  sorry
+/-- The construction of the Tate curve commutes on the nose with any valuative morphism:
+its coefficients are power series in `q` with *integer* coefficients, and the partial
+sums converge at matching rates on both sides (`TateCurve.evalInt_map`). The same is true
+of the uniformisation `tateCurveEquiv` (a statement we defer, as it needs transport along
+this equality).
 
--- Claude says that the base change of E to l is still given by a minimal Weierstrass equation.
--- This uses the multiplicative reduction hypothesis (which makes `c₄` a unit): minimality by
--- itself is not preserved by ramified base change — `y² = x³ + p` is minimal over `ℚ_p` but not
--- over `ℚ_p(p^{1/6})`.
+On the hypothesis `|q| < 1`: the coefficient series `tateA₄`, `tateA₆` are `tsum`s, which
+take *junk values* outside the open unit disc (the `tsum` of a non-summable family is
+`0`, and terms with vanishing denominators `1 - qⁿ = 0` are the junk `x/0 = 0`). Without
+the hypothesis this lemma would be a statement about the alignment of junk values across
+two different fields: for `|q| > 1` it would hold by accident — each term of `tateA₄` has
+size `|(n+1)³|`, which does not tend to `0`, so both sides are non-summable and both junk
+to `0` — but for `|q| = 1` summability hinges on how well `qⁿ` approximates `1`, a
+Diophantine condition on `q`, and transferring (non-)summability along `k → l` would
+further require the image of `ValuativeExtension.mapValueGroupWithZero` to be cofinal in
+the value group of `l` (true for local fields, by finiteness of ramification, but yet
+another argument). None of this buys anything: every consumer feeds this lemma a Tate
+parameter, which lies strictly inside the disc (`valuation_q_lt_one`). So the hypothesis
+is free in practice, and keeps the statement the honest identity of convergent series
+that it is in Silverman. -/
+theorem WeierstrassCurve.tateCurve_baseChange (q : k) (hq : valuation k q < 1) :
+    (tateCurve q)⁄l = tateCurve (algebraMap k l q) := by
+  have hq' : valuation l (algebraMap k l q) < 1 := TateCurve.valuation_algebraMap_lt_one hq
+  have h4 : algebraMap k l (tateA₄ q) = tateA₄ (algebraMap k l q) := by
+    rw [tateA₄_eq_evalInt q hq, tateA₄_eq_evalInt _ hq', TateCurve.evalInt_map q hq]
+  have h6 : algebraMap k l (tateA₆ q) = tateA₆ (algebraMap k l q) := by
+    rw [tateA₆_eq_evalInt q hq, tateA₆_eq_evalInt _ hq', TateCurve.evalInt_map q hq]
+  ext <;> simp [WeierstrassCurve.baseChange, tateCurve, h4, h6]
+
+-- The base change of `E` to `l` is still given by a minimal Weierstrass equation. This uses the
+-- multiplicative reduction hypothesis (which makes `c₄` a unit): minimality by itself is not
+-- preserved by ramified base change — `y² = x³ + p` is minimal over `ℚ_p` but not over
+-- `ℚ_p(p^{1/6})`. See `WeierstrassCurve.isMinimal_baseChange` in `ReductionBaseChange`.
 instance : (E.baseChange l).IsMinimal 𝒪[l] :=
-  sorry
+  E.isMinimal_baseChange
 
--- and it still has split multiplicative reduction. (The `IsMinimal` instance argument of
--- `HasSplitMultiplicativeReduction` is found from the preceding instance.)
+-- and it still has split multiplicative reduction, via
+-- `WeierstrassCurve.hasSplitMultiplicativeReduction_baseChange` in `ReductionBaseChange`
+-- (from which the preceding `IsMinimal` also follows by class-parent projection).
 instance : (E.baseChange l).HasSplitMultiplicativeReduction 𝒪[l] :=
-  sorry
+  E.hasSplitMultiplicativeReduction_baseChange
 
--- The Tate parameter pushes forward under base change.
-theorem WeierstrassCurve.q_baseChange : (E.baseChange l).q = algebraMap k l E.q :=
-  sorry
+/-- The Tate parameter series commutes with valuative extensions: it is the evaluation of
+an integral power series at `j⁻¹`, so this is a direct instance of `evalInt_map`. -/
+theorem WeierstrassCurve.tateParameter_map {j : k} (hj : 1 < valuation k j) :
+    tateParameter (algebraMap k l j) = algebraMap k l (tateParameter j) := by
+  have hjinv : valuation k j⁻¹ < 1 := by
+    simpa [map_inv₀] using inv_lt_one_of_one_lt₀ hj
+  simp_rw [WeierstrassCurve.tateParameter_eq, TateCurve.evalInt_map j⁻¹ hjinv, map_inv₀]
+
+omit [E.IsMinimal 𝒪[k]] in
+theorem WeierstrassCurve.q_baseChange : (E.baseChange l).q = algebraMap k l E.q := by
+  rw [show (E.baseChange l).q = tateParameter (E.baseChange l).j from rfl,
+    show E.q = tateParameter E.j from rfl,
+    show (E.baseChange l).j = algebraMap k l E.j from E.map_j (algebraMap k l),
+    tateParameter_map E.one_lt_valuation_j]
 
 -- The uniformisations of `E` and of its base change fit into a commutative diagram, but only
 -- up to a sign `ε` which cannot in general be removed, whatever choices are made in
