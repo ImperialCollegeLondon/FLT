@@ -5,7 +5,9 @@ Authors: Andrew Yang, Kevin Buzzard, Ruben Van de Velde
 -/
 module
 
+public import FLT.Mathlib.GroupTheory.Index
 public import FLT.Mathlib.Topology.Algebra.Group.Basic
+public import FLT.Mathlib.Topology.Algebra.IsUniformGroup.Basic
 public import Mathlib.NumberTheory.NumberField.Basic
 public import Mathlib.RingTheory.Valuation.ValuationSubring
 public import Mathlib.Topology.Algebra.Algebra.Equiv
@@ -311,32 +313,6 @@ instance ValuationSubring.smulCommClass
     [Monoid G] [MulSemiringAction G L] [SMulCommClass G K L] :
     SMulCommClass G O L where
   smul_comm g o l := smul_comm g o.1 l
-
-theorem Subgroup.index_op {G : Type*} [Group G] (H : Subgroup G) :
-    H.op.index = H.index := by
-  trans (H.comap (MulEquiv.inv' G).symm.toMonoidHom).index
-  · congr 1
-    ext; simp
-  · exact Subgroup.index_comap_of_surjective _ (MulEquiv.inv' G).symm.surjective
-
-instance {G : Type*} [Group G] (H : Subgroup G) [H.FiniteIndex] :
-    H.op.FiniteIndex := ⟨by rw [Subgroup.index_op]; exact Subgroup.FiniteIndex.index_ne_zero⟩
-
-lemma IsTopologicalGroup.totallyBounded {G : Type*} [Group G] [TopologicalSpace G]
-    [IsTopologicalGroup G] (H : ∀ s ∈ nhds (1 : G), ∃ H : Subgroup G, H.FiniteIndex ∧ ↑H ⊆ s) :
-    letI := IsTopologicalGroup.rightUniformSpace G
-    TotallyBounded (Set.univ : Set G) := by
-  letI := IsTopologicalGroup.rightUniformSpace G
-  rintro s ⟨t, ht1, hts⟩
-  obtain ⟨H, hH, hHs⟩ := H _ ht1
-  have : Finite (Gᵐᵒᵖ ⧸ H.op) := Subgroup.finite_quotient_of_finiteIndex
-  refine ⟨Set.range (MulOpposite.unop ∘ Quotient.out : Gᵐᵒᵖ ⧸ H.op → G),
-    Set.finite_range _, fun x _ ↦
-      Set.mem_iUnion₂_of_mem ⟨QuotientGroup.mk (.op x), rfl⟩ (hts (hHs ?_))⟩
-  dsimp only
-  rw [Function.comp_apply, SetLike.mem_coe, ← MulOpposite.unop_op (x⁻¹),
-    ← MulOpposite.unop_mul, ← Subgroup.mem_op, MulOpposite.op_inv, ← QuotientGroup.eq]
-  simp
 
 noncomputable
 instance Additive.instDistrbMulAction
