@@ -103,6 +103,17 @@ theorem Algebra.IsQuadraticExtension.algEquiv_apply_eq_neg_of_sq_eq {σ : L ≃�
   exact eq_neg_of_add_eq_zero_left
     ((mul_eq_zero.mp h1).resolve_left fun h ↦ hσα (sub_eq_zero.mp h))
 
+omit [Algebra.IsSeparable K L] in
+theorem restrictNormalHom_eq_one_iff (ρ : M ≃ₐ[K] M) :
+    AlgEquiv.restrictNormalHom L ρ = 1 ↔ ∀ x : L, ρ (algebraMap L M x) = algebraMap L M x := by
+  simp only [AlgEquiv.ext_iff, AlgEquiv.one_apply]
+  refine forall_congr' fun x => ?_
+  have h' : ρ.restrictNormal L x = (AlgEquiv.restrictNormalHom L ρ) x := by rfl
+  constructor <;> intro h
+  · rw [← AlgEquiv.restrictNormal_commutes ρ L x, h', h]
+  · apply (algebraMap L M).injective
+    rw [← h', AlgEquiv.restrictNormal_commutes, h]
+
 open Classical in
 /-- The quadratic character of `Aut(M/K)` attached to a separable quadratic subextension
 `K ⊆ L ⊆ M`: it sends `σ` to `1` if `σ` fixes `L` pointwise, and to `-1` otherwise.
@@ -116,28 +127,21 @@ unique isomorphism `Gal(L/K) ≃ {±1}`, and in particular is surjective
 noncomputable def quadraticCharacter : (M ≃ₐ[K] M) →* ℤˣ where
   toFun σ := if ∀ x : L, σ (algebraMap L M x) = algebraMap L M x then 1 else -1
   map_one' := by simp
-  map_mul' φ φ' := by
-    -- "Fixes `L` pointwise" means "restricts to `1`" on `L`; restriction is multiplicative
-    -- (`restrictNormalHom`), so the claim reduces to the sign map of the order-2 `Gal(L/K)`.
-    obtain ⟨σ, hσ⟩ := exists_algEquiv_ne_one K L
-    have hor := algEquiv_eq_one_or_eq K L hσ
-    have hmul : (φ * φ').restrictNormal L = φ.restrictNormal L * φ'.restrictNormal L :=
-      map_mul (AlgEquiv.restrictNormalHom L) φ φ'
-    have hsq : σ * σ = 1 := algEquiv_mul_self K L hσ
-    simp only [forall_apply_algebraMap_iff_restrictNormal_eq_one]
-    rw [hmul]
-    rcases hor (φ.restrictNormal L) with h1 | h1 <;>
-      rcases hor (φ'.restrictNormal L) with h2 | h2 <;>
-      rw [h1, h2] <;> simp [hsq, hσ]
+  map_mul' σ τ := by
+    obtain ⟨σ₀, hσ₀⟩ := Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L
+    have h := fun x : Gal(M/K) ↦ Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq K L hσ₀
+      (AlgEquiv.restrictNormalHom L x)
+    rcases h σ with ha | ha <;>
+    rcases h τ with hb | hb <;>
+    simp only [← restrictNormalHom_eq_one_iff, map_mul, ha, hb] <;>
+    simp [algEquiv_mul_self K L hσ₀, hσ₀]
 
 theorem quadraticCharacter_eq_one_iff (σ : M ≃ₐ[K] M) :
     quadraticCharacter K L M σ = 1 ↔ ∀ x : L, σ (algebraMap L M x) = algebraMap L M x := by
-  classical
-  unfold quadraticCharacter
-  simp only [MonoidHom.coe_mk, OneHom.coe_mk]
+  simp only [quadraticCharacter, MonoidHom.coe_mk, OneHom.coe_mk]
   split_ifs with h
   · exact iff_of_true rfl h
-  · exact iff_of_false (fun hc ↦ by simpa using congrArg Units.val hc) h
+  · exact iff_of_false (by decide) h
 
 /-- If `M/K` is normal (for example `M = L`, or `M` a separable closure of `K`) then the
 nontrivial element of `Gal(L/K)` extends to an automorphism of `M`, so the quadratic character
@@ -147,14 +151,11 @@ theorem quadraticCharacter_surjective [Normal K M] :
   intro u
   rcases Int.units_eq_one_or u with rfl | rfl
   · exact ⟨1, map_one _⟩
-  · -- The nontrivial element of `Gal(L/K)` lifts to some `τ ∈ Aut(M/K)` because `M/K` is normal;
-    -- `τ` does not fix `L` pointwise, so `χ(τ) ≠ 1`, hence `χ(τ) = -1`.
-    obtain ⟨σ₀, hσ₀⟩ := exists_algEquiv_ne_one K L
-    obtain ⟨τ, hτ⟩ := AlgEquiv.restrictNormalHom_surjective (F := K) (K₁ := L) (E := M) σ₀
-    refine ⟨τ, (Int.units_eq_one_or _).resolve_left fun heq ↦ hσ₀ ?_⟩
-    rw [← hτ]
-    exact (forall_apply_algebraMap_iff_restrictNormal_eq_one K L M τ).mp
-      ((quadraticCharacter_eq_one_iff K L M τ).mp heq)
+  · obtain ⟨σ₀, hσ₀⟩ := Algebra.IsQuadraticExtension.exists_algEquiv_ne_one K L
+    obtain ⟨σ, hσ⟩ := AlgEquiv.restrictNormalHom_surjective (E := M) σ₀
+    refine ⟨σ, ?_⟩
+    rw [quadraticCharacter, MonoidHom.coe_mk, OneHom.coe_mk, if_neg]
+    exact fun h ↦ hσ₀ (hσ ▸ (restrictNormalHom_eq_one_iff K L M σ).mpr h)
 
 end
 
