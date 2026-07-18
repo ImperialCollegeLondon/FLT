@@ -33,7 +33,7 @@ variable (M : Type*) [Field M] [Algebra K M] [Algebra L M] [IsScalarTower K L M]
 /-- For a normal subextension `K ⊆ L ⊆ M`, a `K`-automorphism `σ` of `M` fixes `L` pointwise
 if and only if its restriction to `L` (`AlgEquiv.restrictNormalHom`) is the identity. -/
 theorem forall_apply_algebraMap_iff_restrictNormalHom_eq_one (σ : M ≃ₐ[K] M) :
-    (∀ x : L, σ (algebraMap L M x) = algebraMap L M x) ↔ AlgEquiv.restrictNormalHom L σ = 1 := by
+    (∀ x : L, σ (algebraMap L M x) = algebraMap L M x) ↔ σ.restrictNormalHom L = 1 := by
   simp only [AlgEquiv.ext_iff, AlgEquiv.one_apply, ← AlgEquiv.restrictNormal_commutes]
   exact forall_congr' fun x ↦ (FaithfulSMul.algebraMap_injective L M).eq_iff
 
