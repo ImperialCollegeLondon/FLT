@@ -145,13 +145,13 @@ theorem quadraticCharacter_surjective [Normal K M] :
   intro u
   rcases Int.units_eq_one_or u with rfl | rfl
   · exact ⟨1, map_one _⟩
-  · -- The nontrivial element of `Gal(L/K)` lifts to some `σ ∈ Aut(M/K)` because `M/K` is normal;
-    -- `σ` does not fix `L` pointwise, so `χ(σ) ≠ 1`, hence `χ(σ) = -1`.
+  · -- The nontrivial element of `Gal(L/K)` lifts to some `τ ∈ Aut(M/K)` because `M/K` is normal;
+    -- `τ` does not fix `L` pointwise, so `χ(τ) ≠ 1`, hence `χ(τ) = -1`.
     obtain ⟨σ₀, hσ₀⟩ := exists_algEquiv_ne_one K L
-    obtain ⟨σ, hσ⟩ := AlgEquiv.restrictNormalHom_surjective (E := M) σ₀
-    refine ⟨σ, (Int.units_eq_one_or _).resolve_left fun heq ↦ hσ₀ ?_⟩
-    exact hσ.symm ▸ (restrictNormalHom_eq_one_iff K L M σ).mpr
-      ((quadraticCharacter_eq_one_iff K L M σ).mp heq)
+    obtain ⟨τ, hτ⟩ := AlgEquiv.restrictNormalHom_surjective (E := M) σ₀
+    refine ⟨τ, (Int.units_eq_one_or _).resolve_left fun heq ↦ hσ₀ ?_⟩
+    exact hτ.symm ▸ (restrictNormalHom_eq_one_iff K L M τ).mpr
+      ((quadraticCharacter_eq_one_iff K L M τ).mp heq)
 
 end
 
