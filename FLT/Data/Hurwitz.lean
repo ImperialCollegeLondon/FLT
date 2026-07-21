@@ -591,4 +591,17 @@ lemma left_ideal_princ (I : Submodule 𝓞 𝓞) : ∃ a : 𝓞, I = Submodule.s
   · rw [Submodule.span_singleton_le_iff_mem]
     exact a.2.1
 
+open Quaternion in
+/-- The embedding of the Hurwitz integers into the rational quaternions, as an additive
+monoid homomorphism. -/
+noncomputable def toQuaternionAddHom : 𝓞 →+ ℍ where
+  toFun := toQuaternion
+  map_zero' := toQuaternion_zero
+  map_add' := toQuaternion_add
+
+open Quaternion in
+instance : IsAddTorsionFree 𝓞 :=
+  have : IsAddTorsionFree ℍ := IsAddTorsionFree.of_isTorsionFree ℝ ℍ
+  Function.Injective.isAddTorsionFree toQuaternionAddHom toQuaternion_injective
+
 end Hurwitz
