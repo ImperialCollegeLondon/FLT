@@ -44,6 +44,10 @@ variable {R K} in
 noncomputable abbrev integralAdeles : Subring (FiniteAdeleRing R K) :=
   (structureMap R K).range
 
+/-- The subgroup of principal finite adeles `(x)ᵥ`, where `x ∈ K`. -/
+noncomputable abbrev principalSubgroup : AddSubgroup (FiniteAdeleRing R K) :=
+  (algebraMap K _).range.toAddSubgroup
+
 variable {R K}
 
 @[simp] lemma one_apply (v : HeightOneSpectrum R) : (1 : FiniteAdeleRing R K) v = 1 := rfl

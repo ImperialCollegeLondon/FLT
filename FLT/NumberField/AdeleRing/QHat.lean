@@ -29,13 +29,6 @@ open scoped RestrictedProduct
 
 local instance {p : Nat.Primes} : Fact p.1.Prime := ⟨p.2⟩
 
-variable (K : Type*) [Field K] [NumberField K]
-
-/-- The subgroup of principal finite adeles `(x)ᵥ`, where `x ∈ K`. -/
-noncomputable def FiniteAdeleRing.principalSubgroup :
-    AddSubgroup (FiniteAdeleRing (𝓞 K) K) :=
-  (algebraMap K _).range.toAddSubgroup
-
 /-- The `ℚ`-algebra equivalence between `FiniteAdeleRing (𝓞 ℚ) ℚ` and `QHat`. -/
 noncomputable def finiteAdeleRingEquivQHat :
     FiniteAdeleRing (𝓞 ℚ) ℚ ≃ₐ[ℚ] QHat :=
@@ -46,8 +39,9 @@ theorem finiteAdeleRingEquivQHat_algebraMap (q : ℚ) :
   rw [finiteAdeleRingEquivQHat.commutes]
   rfl
 
-theorem principalSubgroup_equiv_ratsub :
-    finiteAdeleRingEquivQHat '' (FiniteAdeleRing.principalSubgroup ℚ) = QHat.ratsub := by
+theorem finiteAdeleRingEquivQHat_map_principalSubgroup :
+    (FiniteAdeleRing.principalSubgroup (𝓞 ℚ) ℚ).map
+      finiteAdeleRingEquivQHat.toAddMonoidHom = QHat.ratsub := by
   ext q
   constructor
   · rintro ⟨a, ⟨r, rfl⟩, rfl⟩
@@ -64,10 +58,9 @@ theorem toPadicRestrictedProduct_finiteAdeleRingEquivQHat
       (QHat.padicRestrictedProductEquiv.symm (Rat.FiniteAdeleRing.padicEquiv a)) = _
   exact QHat.padicRestrictedProductEquiv.apply_symm_apply _
 
-theorem finiteIntegralAdeles_equiv_zHatsub :
-    finiteAdeleRingEquivQHat ''
-        (FiniteAdeleRing.integralAdeles (𝓞 ℚ) ℚ : Set (FiniteAdeleRing (𝓞 ℚ) ℚ)) =
-      (QHat.zHatsub : Set QHat) := by
+theorem finiteAdeleRingEquivQHat_map_integralAdeles :
+    (FiniteAdeleRing.integralAdeles (𝓞 ℚ) ℚ).toAddSubgroup.map
+      finiteAdeleRingEquivQHat.toAddMonoidHom = QHat.zHatsub := by
   ext q
   constructor
   · rintro ⟨a, ha, rfl⟩
@@ -79,9 +72,10 @@ theorem finiteIntegralAdeles_equiv_zHatsub :
         RestrictedProduct.structureSubring
           (fun p : Nat.Primes ↦ ℚ_[p]) (fun p ↦ PadicInt.subring p) Filter.cofinite := by
       rwa [toPadicRestrictedProduct_finiteAdeleRingEquivQHat]
-    have hImage := (Set.ext_iff.mp QHat.image_zHatsub
-      (QHat.toPadicRestrictedProduct (finiteAdeleRingEquivQHat a))).mpr hT'
-    obtain ⟨q, hq, hqmap⟩ := hImage
+    have hMap : QHat.toPadicRestrictedProduct (finiteAdeleRingEquivQHat a) ∈
+        QHat.zHatsub.map QHat.toPadicRestrictedProduct.toAddMonoidHom := by
+      rwa [QHat.toPadicRestrictedProduct_map_zHatsub]
+    obtain ⟨q, hq, hqmap⟩ := hMap
     have hqeq : q = finiteAdeleRingEquivQHat a :=
       QHat.toPadicRestrictedProduct_injective hqmap
     simpa [hqeq] using hq
@@ -89,8 +83,9 @@ theorem finiteIntegralAdeles_equiv_zHatsub :
     have hT : QHat.toPadicRestrictedProduct q ∈
         RestrictedProduct.structureSubring
           (fun p : Nat.Primes ↦ ℚ_[p]) (fun p ↦ PadicInt.subring p) Filter.cofinite := by
-      exact (Set.ext_iff.mp QHat.image_zHatsub
-        (QHat.toPadicRestrictedProduct q)).mp ⟨q, hq, rfl⟩
+      have hMap : QHat.toPadicRestrictedProduct q ∈
+          QHat.zHatsub.map QHat.toPadicRestrictedProduct.toAddMonoidHom := ⟨q, hq, rfl⟩
+      exact (SetLike.ext_iff.mp QHat.toPadicRestrictedProduct_map_zHatsub _).mp hMap
     let a : FiniteAdeleRing (𝓞 ℚ) ℚ :=
       Rat.FiniteAdeleRing.padicEquiv.symm (QHat.toPadicRestrictedProduct q)
     have ha : a ∈ FiniteAdeleRing.integralAdeles (𝓞 ℚ) ℚ := by
@@ -98,5 +93,6 @@ theorem finiteIntegralAdeles_equiv_zHatsub :
         Rat.FiniteAdeleRing.padicEquiv.toEquiv.invOn).mapsTo hT
     refine ⟨a, ha, ?_⟩
     apply QHat.toPadicRestrictedProduct_injective
+    change QHat.toPadicRestrictedProduct (finiteAdeleRingEquivQHat a) = _
     rw [toPadicRestrictedProduct_finiteAdeleRingEquivQHat]
     exact Rat.FiniteAdeleRing.padicEquiv.apply_symm_apply _

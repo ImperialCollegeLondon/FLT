@@ -54,6 +54,25 @@ theorem toPadicInt_spec (p : Nat.Primes) (n : ℕ) :
 noncomputable def toPadicInts : ZHat →+* ((p : Nat.Primes) → ℤ_[p]) :=
   RingHom.pi fun p => toPadicInt p
 
+theorem equivPi_apply_eq_cast
+    (N : ℕ+) (p : (N : ℕ).primeFactors)
+    (hdiv : (p : ℕ) ^ (N : ℕ).factorization p ∣ (N : ℕ)) (z : ZMod N) :
+    (ZMod.equivPi (n := N) N.ne_zero) z p =
+      ZMod.castHom hdiv (ZMod ((p : ℕ) ^ (N : ℕ).factorization p)) z := by
+  rw [ZMod.equivPi, RingEquiv.trans_apply, ZMod.prodEquivPi_apply]
+  have hprod : (p : ℕ) ^ (N : ℕ).factorization p ∣
+      ∏ q : (N : ℕ).primeFactors, (q : ℕ) ^ (N : ℕ).factorization q :=
+    Finset.dvd_prod_of_mem
+      (fun q : (N : ℕ).primeFactors => (q : ℕ) ^ (N : ℕ).factorization q)
+      (Finset.mem_univ p)
+  let left : ZMod (N : ℕ) →+* ZMod ((p : ℕ) ^ (N : ℕ).factorization p) :=
+    (ZMod.castHom hprod _).comp
+      (ZMod.ringEquivCongr (Nat.prod_primeFactors_coe_pow_factorization N.ne_zero)).toRingHom
+  let right : ZMod (N : ℕ) →+* ZMod ((p : ℕ) ^ (N : ℕ).factorization p) :=
+    ZMod.castHom hdiv _
+  change left z = right z
+  exact RingHom.congr_fun (Subsingleton.elim _ _) z
+
 theorem toPadicInts_injective : Function.Injective toPadicInts := by
   intro x y hxy
   apply ZHat.ext
@@ -79,29 +98,14 @@ theorem toPadicInts_injective : Function.Injective toPadicInts := by
   rw [hx, hy] at hpmod
   have hdiv : (p : ℕ) ^ (N : ℕ).factorization p ∣ (N : ℕ) :=
     (p'.2.pow_dvd_iff_le_factorization N.ne_zero).2 le_rfl
-  have hprod : (p : ℕ) ^ (N : ℕ).factorization p ∣
-      ∏ q : (N : ℕ).primeFactors, (q : ℕ) ^ (N : ℕ).factorization q :=
-    Finset.dvd_prod_of_mem
-      (fun q : (N : ℕ).primeFactors => (q : ℕ) ^ (N : ℕ).factorization q)
-      (Finset.mem_univ p)
-  let left : ZMod (N : ℕ) →+* ZMod ((p : ℕ) ^ (N : ℕ).factorization p) :=
-    (ZMod.castHom hprod _).comp
-      (ZMod.ringEquivCongr (Nat.prod_primeFactors_coe_pow_factorization N.ne_zero)).toRingHom
-  let right : ZMod (N : ℕ) →+* ZMod ((p : ℕ) ^ (N : ℕ).factorization p) :=
-    ZMod.castHom hdiv _
-  have hmaps : left = right := Subsingleton.elim _ _
   have hxcrt : (ZMod.equivPi (n := N) N.ne_zero) (x N) p =
       x ⟨p ^ (N : ℕ).factorization p, pow_pos p'.2.pos _⟩ := by
-    rw [ZMod.equivPi, RingEquiv.trans_apply, ZMod.prodEquivPi_apply]
-    rw [← x.prop ⟨(p : ℕ) ^ (N : ℕ).factorization p, pow_pos p'.2.pos _⟩ N hdiv]
-    change left (x N) = right (x N)
-    exact RingHom.congr_fun hmaps (x N)
+    rw [equivPi_apply_eq_cast]
+    exact x.prop ⟨(p : ℕ) ^ (N : ℕ).factorization p, pow_pos p'.2.pos _⟩ N hdiv
   have hycrt : (ZMod.equivPi (n := N) N.ne_zero) (y N) p =
       y ⟨p ^ (N : ℕ).factorization p, pow_pos p'.2.pos _⟩ := by
-    rw [ZMod.equivPi, RingEquiv.trans_apply, ZMod.prodEquivPi_apply]
-    rw [← y.prop ⟨(p : ℕ) ^ (N : ℕ).factorization p, pow_pos p'.2.pos _⟩ N hdiv]
-    change left (y N) = right (y N)
-    exact RingHom.congr_fun hmaps (y N)
+    rw [equivPi_apply_eq_cast]
+    exact y.prop ⟨(p : ℕ) ^ (N : ℕ).factorization p, pow_pos p'.2.pos _⟩ N hdiv
   rw [hxcrt, hycrt]
   exact hpmod
 
@@ -119,25 +123,6 @@ theorem crtResidue_spec
       @PadicInt.toZModPow p ⟨Nat.prime_of_mem_primeFactors p.2⟩ ((N : ℕ).factorization p)
         (x ⟨p, Nat.prime_of_mem_primeFactors p.2⟩) := by
   simp [crtResidue]
-
-theorem equivPi_apply_eq_cast
-    (N : ℕ+) (p : (N : ℕ).primeFactors)
-    (hdiv : (p : ℕ) ^ (N : ℕ).factorization p ∣ (N : ℕ)) (z : ZMod N) :
-    (ZMod.equivPi (n := N) N.ne_zero) z p =
-      ZMod.castHom hdiv (ZMod ((p : ℕ) ^ (N : ℕ).factorization p)) z := by
-  rw [ZMod.equivPi, RingEquiv.trans_apply, ZMod.prodEquivPi_apply]
-  have hprod : (p : ℕ) ^ (N : ℕ).factorization p ∣
-      ∏ q : (N : ℕ).primeFactors, (q : ℕ) ^ (N : ℕ).factorization q :=
-    Finset.dvd_prod_of_mem
-      (fun q : (N : ℕ).primeFactors => (q : ℕ) ^ (N : ℕ).factorization q)
-      (Finset.mem_univ p)
-  let left : ZMod (N : ℕ) →+* ZMod ((p : ℕ) ^ (N : ℕ).factorization p) :=
-    (ZMod.castHom hprod _).comp
-      (ZMod.ringEquivCongr (Nat.prod_primeFactors_coe_pow_factorization N.ne_zero)).toRingHom
-  let right : ZMod (N : ℕ) →+* ZMod ((p : ℕ) ^ (N : ℕ).factorization p) :=
-    ZMod.castHom hdiv _
-  change left z = right z
-  exact RingHom.congr_fun (Subsingleton.elim _ _) z
 
 /-- The profinite integer whose residue modulo each `N` is assembled from its `p`-adic
 components. -/
@@ -271,8 +256,6 @@ private theorem cast_one_div_nat_mul (p n : ℕ) [Fact p.Prime] (hn : n ≠ 0) :
 
 namespace ZHat
 
-local instance {p : Nat.Primes} : Fact p.1.Prime := ⟨p.2⟩
-
 /-- The inclusion of the profinite integers into the restricted product of the `p`-adics. -/
 noncomputable def toPadicRestrictedProduct : ZHat →+* Rat.PadicRestrictedProduct where
   toFun z := ⟨fun p => (toPadicInt p z : ℚ_[p]),
@@ -378,11 +361,10 @@ theorem toPadicRestrictedProduct_i₂ (z : ZHat) :
 
 end QHat
 
-theorem ZHat.range_toPadicRestrictedProduct :
-    Set.range ZHat.toPadicRestrictedProduct =
-      (RestrictedProduct.structureSubring
-        (fun p : Nat.Primes ↦ ℚ_[p]) (fun p ↦ PadicInt.subring p) Filter.cofinite :
-          Set Rat.PadicRestrictedProduct) := by
+theorem ZHat.toPadicRestrictedProduct_range :
+    ZHat.toPadicRestrictedProduct.range =
+      RestrictedProduct.structureSubring
+        (fun p : Nat.Primes ↦ ℚ_[p]) (fun p ↦ PadicInt.subring p) Filter.cofinite := by
   ext a
   constructor
   · rintro ⟨z, rfl⟩
@@ -396,20 +378,20 @@ theorem ZHat.range_toPadicRestrictedProduct :
     ext p
     exact congrArg Subtype.val (congrFun hz p)
 
-theorem QHat.image_zHatsub :
-    QHat.toPadicRestrictedProduct '' (QHat.zHatsub : Set QHat) =
+theorem QHat.toPadicRestrictedProduct_map_zHatsub :
+    QHat.zHatsub.map QHat.toPadicRestrictedProduct.toAddMonoidHom =
       (RestrictedProduct.structureSubring
-        (fun p : Nat.Primes ↦ ℚ_[p]) (fun p ↦ PadicInt.subring p) Filter.cofinite :
-          Set Rat.PadicRestrictedProduct) := by
+        (fun p : Nat.Primes ↦ ℚ_[p]) (fun p ↦ PadicInt.subring p)
+        Filter.cofinite).toAddSubgroup := by
   ext a
   constructor
   · rintro ⟨q, ⟨z, rfl⟩, rfl⟩
     change QHat.toPadicRestrictedProduct (QHat.i₂ z) ∈ _
     rw [QHat.toPadicRestrictedProduct_i₂]
-    rw [← ZHat.range_toPadicRestrictedProduct]
+    rw [← ZHat.toPadicRestrictedProduct_range]
     exact ⟨z, rfl⟩
   · intro ha
-    rw [← ZHat.range_toPadicRestrictedProduct] at ha
+    rw [← ZHat.toPadicRestrictedProduct_range] at ha
     obtain ⟨z, rfl⟩ := ha
     refine ⟨QHat.i₂ z, ⟨z, rfl⟩, ?_⟩
     exact QHat.toPadicRestrictedProduct_i₂ z
