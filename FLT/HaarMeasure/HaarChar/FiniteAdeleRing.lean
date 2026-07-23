@@ -117,7 +117,14 @@ local instance :
     Set (v.adicCompletion K))) :=
   ⟨isOpenAdicCompletionIntegers K⟩
 
-set_option backward.isDefEq.respectTransparency false in
+/- The compact open subgroups `∏ᵢ 𝓞ᵥ` used below are built through `AddSubgroup.pi` and
+`AddSubmonoid.pi`, so instance-implicit defeq checks (e.g. relating membership in
+`↑(AddSubgroup.pi …)` with the underlying `Set.pi` of the `AddSubmonoid` carriers) must be
+able to see through them. Mark them `implicit_reducible` so that these checks succeed at
+`instances` transparency (`backward.isDefEq.respectTransparency := true`, the default since
+Lean v4.29). -/
+attribute [local implicit_reducible] AddSubgroup.pi AddSubmonoid.pi
+
 local instance (v : HeightOneSpectrum (𝓞 K)) :
     CompactSpace (AddSubgroup.pi (Set.univ : Set (Module.Free.ChooseBasisIndex K B))
       fun _ ↦ (adicCompletionIntegers K v).toAddSubgroup) := by
@@ -356,7 +363,6 @@ noncomputable def φLocalKvLinear (v : HeightOneSpectrum (𝓞 K))
     | add x y _ _ => simp_all only [AlgHom.toRingHom_eq_coe, smul_add, map_add]
 }
 
-set_option backward.isDefEq.respectTransparency false in
 lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
     (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
       FiniteAdeleRing (𝓞 K) K ⊗[K] B)
@@ -402,7 +408,9 @@ lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
   have rTensor_basis (j : Module.Free.ChooseBasisIndex K B) :
       (AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)) (b j)
       = bLocal j := by
-    simp [AlgHom.rTensor, b, bLocal]
+    -- rewrite with `AlgHom.rTensor_tmul` rather than unfolding `AlgHom.rTensor`, whose
+    -- structure-literal applications fail defeq checks at `instances` transparency
+    simp only [b, bLocal, Module.Basis.baseChange_apply, AlgHom.rTensor_tmul, map_one]
   have eval_mulVec_eq (j : Module.Free.ChooseBasisIndex K B) :
       (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)
           (((LinearMap.toMatrix b b) ↑φ.toLinearEquiv).mulVec (⇑(b.repr (1 ⊗ₜ[K] r))) j)
@@ -415,7 +423,11 @@ lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
     ext i
     simp [b, bLocal, evalRingHom, evalMonoidHom, Algebra.smul_def]
     rfl
-  simp [-Matrix.toLin_toMatrix, Matrix.toLin_apply, rTensor_basis, eval_mulVec_eq]
+  -- a deterministic version of `simp [-Matrix.toLin_toMatrix, Matrix.toLin_apply,
+  -- rTensor_basis, eval_mulVec_eq]`, which relied on defeq checks that fail at
+  -- `instances` transparency
+  simp only [Matrix.toLin_apply, map_sum, AlgHom.rTensor_map_smul, rTensor_basis,
+    eval_mulVec_eq]
   /-
 
   localcomponent stuff and `single` (an annoying linear map) now gone.
@@ -518,7 +530,14 @@ lemma FiniteAdeleRing.Aux.almost_always_bijOn
   intro v h1 h2
   exact (e K B v (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ)).bijOn' h1 h2
 
-set_option backward.isDefEq.respectTransparency false in
+/- The proof below unfolds `FiniteAdeleRing` (a plain `def` of the restricted product
+`Πʳ [K_v, 𝓞_v]`, whose instances are inherited from it) with `simp`, so defeq checks between
+the two spellings must succeed at `instances` transparency
+(`backward.isDefEq.respectTransparency := true`, the default since Lean v4.29). Mark it and
+the underlying type synonym `RestrictedProduct` (a plain `def` of a subtype)
+`implicit_reducible`. -/
+attribute [local implicit_reducible] IsDedekindDomain.FiniteAdeleRing RestrictedProduct
+
 /-- A diagram which obviously commutes, commutes. -/
 lemma FiniteAdeleRing.Aux.f_g_local_global
     (φ : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B) ≃L[FiniteAdeleRing (𝓞 K) K]
@@ -561,8 +580,12 @@ lemma FiniteAdeleRing.Aux.f_g_local_global
       (∑ x, f x) v = ∑ x, f x v :=
     -- general lemma
     map_sum (RestrictedProduct.evalAddMonoidHom _ _) _ _
-  simp [-Matrix.toLin'_toMatrix', Matrix.mulVec, dotProduct, this, FiniteAdeleRing,
-    mul_comm (r v _) _]
+  simp only [FiniteAdeleRing, Matrix.toLin'_apply, Matrix.mulVec, dotProduct,
+    LinearMap.toMatrix'_apply, LinearEquiv.coe_coe, ContinuousLinearEquiv.coe_toLinearEquiv,
+    this, smul_eq_mul, mul_comm (r v _) _]
+  -- the summands agree by unfolding evaluation of a product/`map` in the restricted
+  -- product, which is a definitional equality (at default transparency)
+  exact Finset.sum_congr rfl fun x _ ↦ rfl
 
 lemma localcomponent_mulLeft (u : ((FiniteAdeleRing (𝓞 K) K) ⊗[K] B)ˣ)
     (v : HeightOneSpectrum (𝓞 K)) :

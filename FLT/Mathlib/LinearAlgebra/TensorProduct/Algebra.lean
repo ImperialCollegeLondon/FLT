@@ -45,3 +45,14 @@ lemma AlgHom.rTensor_map_smul {R : Type*} [CommSemiring R] (M : Type*) {N : Type
     [Algebra R N] [Algebra R P] (f : N →ₐ[R] P) (n : N) (nm : N ⊗[R] M) :
     AlgHom.rTensor M f (n • nm) = f n • AlgHom.rTensor M f nm :=
   MulActionHom.map_smul' (AlgHom.rTensor M f).toMulActionHom n nm
+
+/- This `rfl` lemma lets proofs rewrite `AlgHom.rTensor` on pure tensors without unfolding
+the definition itself: unfolding it with `simp [AlgHom.rTensor]` produces structure-literal
+applications whose defeq checks fail at `instances` transparency
+(`backward.isDefEq.respectTransparency := true`, the default since Lean v4.29). -/
+@[simp]
+lemma AlgHom.rTensor_tmul {R : Type*} [CommSemiring R] (M : Type*) {N : Type*}
+    {P : Type*} [AddCommMonoid M] [Semiring N] [Semiring P] [Module R M]
+    [Algebra R N] [Algebra R P] (f : N →ₐ[R] P) (n : N) (m : M) :
+    AlgHom.rTensor M f (n ⊗ₜ[R] m) = f n ⊗ₜ[R] m :=
+  rfl
