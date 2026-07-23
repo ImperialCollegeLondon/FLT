@@ -188,14 +188,6 @@ lemma AlgebraicClosure.map_algebraMap {K L : Type*} [Field K] [Field L] (f : K �
     letI := f.toAlgebra
     (IsAlgClosed.lift : AlgebraicClosure K →ₐ[K] AlgebraicClosure L).commutes _
 
-lemma IntermediateField.adjoin_adjoin_right
-    {K L E : Type*} [Field K] [Field L] [Field E] [Algebra K L] [Algebra L E] [Algebra K E]
-    [IsScalarTower K L E] (s : Set E) : adjoin L (adjoin K s : Set E) = adjoin L s := by
-  apply le_antisymm
-  · exact adjoin_le_iff.mpr (adjoin_le_iff (T := (adjoin L s).restrictScalars K).mpr
-      (subset_adjoin _ _))
-  · exact adjoin.mono _ _ _ (subset_adjoin _ _)
-
 nonrec
 lemma IsModuleTopology.continuous_det {A : Type*} [CommRing A] [TopologicalSpace A]
     [IsTopologicalRing A] {M : Type*} [AddCommGroup M] [Module A M]
