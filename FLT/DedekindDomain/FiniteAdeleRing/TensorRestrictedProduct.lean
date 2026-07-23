@@ -41,7 +41,6 @@ noncomputable def rangeLTensorLeft (R M : Type*) [CommSemiring R] [CommSemiring 
     (L : ∀ i, Submodule R (N i)) (i : ι) : Submodule M (M ⊗[R] N i) :=
   (TensorProduct.AlgebraTensorModule.lTensor _ _ (L i).subtype).range
 
-set_option backward.isDefEq.respectTransparency false in
 /-- The `R`-linear map `φ : M ⊗_R ∏'_i [N i, L i]_[𝓕] → ∏'_i [M ⊗_R (N i), M ⊗_R (L i)]_[𝓕]`
 given by `φ (m ⊗ n) i = m ⊗ (n i)`. -/
 def lTensor :
@@ -53,8 +52,14 @@ def lTensor :
   TensorProduct.lift {
     toFun m := mapAlongLinearMap N (M ⊗[R] N ·) id Filter.tendsto_id
         (fun i ↦ TensorProduct.mk R M (N i) m) (hmap m)
-    map_add' m n := by ext; simp
-    map_smul' a m := by ext; simp
+    map_add' m n := by
+      ext x i
+      simp only [mapAlongLinearMap_apply, id_eq, map_add]
+      exact LinearMap.add_apply _ _ _
+    map_smul' a m := by
+      ext
+      simp only [mapAlongLinearMap_apply, id_eq, map_smul, RingHom.id_apply]
+      exact LinearMap.smul_apply _ _ _
   }
 
 /-- The `M`-linear map `φ : M ⊗_R ∏'_i [N i, L i]_[𝓕] → ∏'_i [M ⊗_R (N i), M ⊗_R (L i)]_[𝓕]`
@@ -159,12 +164,17 @@ noncomputable def lTensorPrincipalEquiv :
   }
   g1 ≪≫ₗ g2 ≪≫ₗ g3
 
-set_option backward.isDefEq.respectTransparency false in
 open scoped Filter in
 lemma lTensorPrincipalEquiv_tmul (m : M) (x : Πʳ i, [N i, L i]_[𝓟 S]) (i : ι) :
     lTensorPrincipalEquiv R M N L S (m ⊗ₜ x) i = m ⊗ₜ x i := by
-  simp [lTensorPrincipalEquiv, tensorPi_equiv_piTensor'_apply, tmulEquivRangeLTensor,
-      rangeLTensor]
+  simp only [lTensorPrincipalEquiv]
+  rw [LinearEquiv.trans_apply, LinearEquiv.trans_apply, LinearEquiv.coe_mk, LinearMap.coe_mk,
+    AddHom.coe_mk, RestrictedProduct.mk_apply]
+  by_cases h : i ∈ S
+  · rw [dif_pos h]
+    rfl
+  · rw [dif_neg h]
+    rfl
 
 set_option backward.isDefEq.respectTransparency false in
 open scoped Filter in

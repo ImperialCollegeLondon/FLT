@@ -148,7 +148,6 @@ def Pi.ringHomEquivOfIsDomain {ι S : Type*} {R : ι → Type*} [Finite ι] [Dec
       simpa using DFunLike.congr_fun e (Pi.single i₁ x)
     exact this (by ext; simp)
 
-set_option backward.isDefEq.respectTransparency false in
 /-- `Hom(∏ Rᵢ, S) ≃ ∐ Hom(Rᵢ, S)` when `S` is a domain.
 This is the `AlgHom` version of `Pi.ringHomEquivOfIsDomain`. -/
 @[simps! apply_fst symm_apply_apply, simps! -isSimp apply_snd_apply]
@@ -159,7 +158,10 @@ def Pi.algHomEquivOfIsDomain {ι R₀ S : Type*} {R : ι → Type*} [Finite ι] 
     ((Π i, R i) →ₐ[R₀] S) ≃ Σ i, (R i →ₐ[R₀] S) where
   toFun f := ⟨_, f.projPiIndex, fun r ↦ (f.single_piIndex _).trans (f.commutes r)⟩
   invFun f := f.2.comp (Pi.evalAlgHom R₀ R f.1)
-  left_inv f := by ext; simp
+  left_inv f := by
+    ext x
+    simp only [AlgHom.coe_comp, Function.comp_apply, Pi.evalAlgHom_apply]
+    exact f.single_piIndex x
   right_inv f := by
     let emb : (Σ i, (R i →ₐ[R₀] S)) → (Σ i, (R i →+* S)) := Sigma.map id fun _ ↦ AlgHom.toRingHom
     have : emb.Injective := Function.Injective.sigma_map (fun _ _ e ↦ e)
