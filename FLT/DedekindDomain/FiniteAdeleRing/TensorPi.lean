@@ -160,8 +160,9 @@ lemma tensorPi_equiv_piTensor_apply (m : M) (n : ∀ i, N i) :
   · rw [← LinearEquiv.eq_symm_apply]
     simp only [tensorPiEquivFinitefreeModule, LinearEquiv.piCongrRight_symm]
     ext i
-    simp only [LinearEquiv.piCongrRight_apply, LinearEquiv.rTensor_symm_tmul, LinearEquiv.symm_symm,
-      LinearEquiv.apply_symm_apply, finsuppLeftTensorPiEquivPiTensor, LinearEquiv.trans_apply]
+    simp only [LinearEquiv.piCongrRight_apply, LinearEquiv.symm_rTensor, LinearEquiv.rTensor_tmul,
+      LinearEquiv.symm_symm, LinearEquiv.apply_symm_apply, finsuppLeftTensorPiEquivPiTensor,
+      LinearEquiv.trans_apply]
     rw [LinearEquiv.symm_apply_eq, finsuppScalarLeft_apply_tmul, Finsupp.sum_single_index (by simp),
       LinearEquiv.symm_apply_eq, finsuppLEquivDirectSum_single, finsuppScalarLeft_apply_tmul,
       Finsupp.sum_single_index (by simp), finsuppLEquivDirectSum_single, directSumPiEquivPiSum,

@@ -586,12 +586,6 @@ def DinfTensorPiEquivPiTensorMulEquiv :
   map_mul' _ _ := tensorPi_equiv_piTensor_map_mul ..
 }
 
-instance : IsTopologicalRing (Dinf K D) := inferInstance -- instance shortcut
-instance (vi : InfinitePlace K) : TopologicalSpace (D ⊗[K] vi.Completion) := inferInstance
-
-set_option synthInstance.maxHeartbeats 40000 in
--- https://github.com/ImperialCollegeLondon/FLT/issues/891
-set_option maxHeartbeats 400000 in
 open scoped NumberField.AdeleRing in
 lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
     [Algebra.IsCentral K D] (u : (Dinf K D)ˣ) :

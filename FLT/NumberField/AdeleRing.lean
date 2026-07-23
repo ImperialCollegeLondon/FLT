@@ -394,7 +394,9 @@ theorem Rat.AdeleRing.integral_and_norm_lt_one (x : ℚ)
     (h2 : ∀ v, ((algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ)) x) v ∈
       IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers ℚ v)
     (h1 : ∀ (v : InfinitePlace ℚ), ‖algebraMap ℚ (InfiniteAdeleRing ℚ) x v‖ < 1) : x = 0 := by
-  simp only [InfiniteAdeleRing.algebraMap_apply, UniformSpace.Completion.norm_coe] at h1
+  simp only [InfiniteAdeleRing.algebraMap_apply,
+    NumberField.InfinitePlace.Completion.norm_ofCompletion,
+    UniformSpace.Completion.norm_coe] at h1
   specialize h1 Rat.infinitePlace
   change ‖(x : ℂ)‖ < 1 at h1
   simp only [Complex.norm_ratCast] at h1

@@ -15,13 +15,13 @@ weak.linter.mathlibStandardSet = true
 warn.sorry = false
 
 [[require]]
-name = "mathlib"
-git = "https://github.com/leanprover-community/mathlib4.git"
-rev = "8bba4200986270d3b30be2bb2f8840af47a7854f"
-
-[[require]]
 name = "checkdecls"
 git = "https://github.com/PatrickMassot/checkdecls.git"
+
+[[require]]
+name = "mathlib"
+git = "https://github.com/leanprover-community/mathlib4.git"
+rev = "249c48c2c2b5d7ebf8e765c30ce13b680e99cf04"
 
 [[lean_lib]]
 name = "FLT"
