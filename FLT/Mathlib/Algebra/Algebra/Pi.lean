@@ -18,7 +18,12 @@ Material destined for Mathlib.
 @[expose] public section
 
 /-- A family of semialgebra homomorphisms `g i : A →ₛₐ[φ] f i` defines a single
-semialgebra homomorphism `A →ₛₐ[φ] (i : I) → f i` to the product algebra. -/
+semialgebra homomorphism `A →ₛₐ[φ] (i : I) → f i` to the product algebra.
+
+Tagged `@[implicit_reducible]` so instance-implicit defeq checks can see through it at
+`instances` transparency: algebra structures built via `Pi.semialgHom` must unify with the
+componentwise `Pi` instances without `backward.isDefEq.respectTransparency` escape hatches. -/
+@[implicit_reducible]
 def Pi.semialgHom {I : Type*} {R S : Type*} (f : I → Type*) [CommSemiring R] [CommSemiring S]
     (φ : R →+* S) [s : (i : I) → Semiring (f i)] [(i : I) → Algebra S (f i)] {A : Type*}
     [Semiring A] [Algebra R A] (g : (i : I) → A →ₛₐ[φ] f i) :
