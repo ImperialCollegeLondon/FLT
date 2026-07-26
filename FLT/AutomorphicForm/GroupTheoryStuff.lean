@@ -202,6 +202,7 @@ def liftOfRightInverseAux' (hf : Function.RightInverse f_inv f) (g : G₁ →* G
     simp [← map_mul, mul_assoc]
     simp [hf _]
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[to_additive (attr := simp)]
 theorem liftOfRightInverseAux'_comp_apply (hf : Function.RightInverse f_inv f) (g : G₁ →* G₃)
     (hg : f.ker ≤ g.ker) (x : G₁) : (f.liftOfRightInverseAux' f_inv hf g hg) (f x) = g x := by
@@ -309,6 +310,7 @@ lemma map_inv_eq_map_comm
   rw [← ((Group.isUnit x).map f).mul_left_inj, iff_comm, ← ((Group.isUnit y).map f).mul_right_inj]
   simp [← map_mul]
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma Units.range_map_subtype {M : Type*} [Monoid M] {S : Submonoid M} :
     (Units.map S.subtype).range = S.units := by
   ext x

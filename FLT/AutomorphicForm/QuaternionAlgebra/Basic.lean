@@ -653,6 +653,7 @@ protected lemma ext (ℒ ℒ' : LevelStruct F R) (H : ℒ.U = ℒ'.U)
   obtain rfl : χ = χ' := H'
   rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped Pointwise in
 instance : SMul GL₂(𝔸ᶠ[F]) (LevelStruct F R) where
   smul g ℒ :=
@@ -949,6 +950,7 @@ lemma restrict_le (ℒ : LevelStruct F R) (U : Subgroup GL₂(𝔸ᶠ[F]))
     (hU : IsOpen (X := GL₂(𝔸ᶠ[F])) U) (hU' : U ≤ ℒ.U) : ℒ.restrict U hU hU' ≤ ℒ :=
   ⟨hU', rfl⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : SemilatticeInf (LevelStruct F R) where
   inf ℒ ℒ' :=
   ℒ.restrict ((MonoidHom.ker (ℒ.χ.toHomUnits.comp (Subgroup.inclusion inf_le_left) /
@@ -1149,6 +1151,7 @@ lemma isCompact_US : IsCompact (X := GL₂(v.adicCompletion F)) (ℒ.US v) := by
   if h : v ∈ ℒ.S then exact ℒ.isCompact_US_of_mem _ h else
     exact ℒ.US_eq_of_notMem _ h ▸ GL2.localFullLevel.isCompact v
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The `LevelStruct` constructed via a `LocalLevelStruct`. -/
 @[simps -isSimp]
 def toStruct : LevelStruct F R where

@@ -63,6 +63,7 @@ deriving CommRing
 
 namespace ZHat
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : DFunLike ZHat ℕ+ (fun (N : ℕ+) ↦ ZMod N) where
   coe z := z.1
   coe_injective M N := by simp_all
@@ -92,6 +93,7 @@ lemma ext (x y : ZHat) (h : ∀ n : ℕ+, x n = y n) : x = y :=
 
 instance commRing : CommRing ZHat := inferInstance
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma zeroNeOne : (0 : ZHat) ≠ 1 := by
   intro h
   have h2 : (0 : ZHat) 2 = (1 : ZHat) 2 := by simp [h]
@@ -100,6 +102,7 @@ lemma zeroNeOne : (0 : ZHat) ≠ 1 := by
 
 instance nontrivial : Nontrivial ZHat := ⟨0, 1, zeroNeOne⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance charZero : CharZero ZHat := ⟨ fun a b h ↦ by
   rw [ZHat.ext_iff] at h
   specialize h ⟨_, (max a b).succ_pos⟩
@@ -227,6 +230,7 @@ lemma nat_mul_apply (N : ℕ) (z : ZHat) (k : ℕ+) : (N * z) k = N * (z k) := r
 @[simp]
 lemma pnat_mul_apply (N : ℕ+) (z : ZHat) (k : ℕ+) : (N * z) k = N * (z k) := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem eq_zero_of_mul_eq_zero (N : ℕ+) (a : ZHat) (ha : N * a = 0) : a = 0 := by
   ext j
   rw [zero_val, ← a.prop j (N * j) (by simp)]
@@ -264,6 +268,7 @@ instance ZHat_flat : Module.Flat ℤ ZHat := by
     rw [neg_mul, neg_eq_zero] at hN
     exact eq_zero_of_mul_eq_zero ⟨N + 1, by omega⟩ _ hN
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma y_mul_N_eq_z (N : ℕ+) (z : ZHat) (hz : z N = 0) (j : ℕ+) :
     N * ((z (N * j)).val / (N : ℕ) : ZMod j) = z j := by
   have hhj := z.prop N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])

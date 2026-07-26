@@ -106,6 +106,7 @@ section binary
 variable {ι : Type*} {ℱ : Filter ι} {A B : ι → Type*}
   {C : (i : ι) → Set (A i)} {D : (i : ι) → Set (B i)}
 
+set_option backward.isDefEq.respectTransparency.types false in
 /--
 The forward direction of `Equiv.restrictedProductProd` is continuous with any filter, not just the
 cofinite one
@@ -120,7 +121,7 @@ lemma Equiv.continuous_restrictedProductProd
 lemma Equiv.continuous_restrictedProductProd_symm {S : Set ι}
     [∀ i, TopologicalSpace (A i)] [∀ i, TopologicalSpace (B i)] :
     Continuous (Equiv.restrictedProductProd (C := C) (D := D) (ℱ := .principal S)).symm := by
-  simp only [restrictedProductProd, coe_fn_symm_mk]
+  simp only [restrictedProductProd]
   rw [continuous_rng_of_principal_iff_forall]
   intro i
   rw [continuous_prodMk]
@@ -642,6 +643,7 @@ lemma RestrictedProduct.secondCountableTopology {ι : Type*} [Countable ι]
 
 section equivs
 
+set_option backward.isDefEq.respectTransparency.types false in
 open Classical Filter in
 /-- The canonical homeomorphism between a restricted product `Πʳ i, [R i, A i]_[𝓟 J]` over
 a principal filter, and the corresponding product `(Π i : J, A i) × (Π i : Jᶜ, R i)`.

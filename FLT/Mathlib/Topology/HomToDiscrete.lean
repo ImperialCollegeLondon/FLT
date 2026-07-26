@@ -95,6 +95,7 @@ theorem HomDiscrete_iff_Discrete {X X' Y : Type*} [TopologicalSpace Y] (f : X �
 
 -- following maybe should be in the topology.order file (home of discrete topology)
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma inter_Discrete {A : Type*} [TopologicalSpace A] (X Y : Set A)
     [DiscreteTopology X] : DiscreteTopology ↑(Y ∩ X) := by
   refine discreteTopology_iff_isOpen_singleton.mpr ?_

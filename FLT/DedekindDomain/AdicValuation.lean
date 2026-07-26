@@ -47,6 +47,7 @@ namespace IsDedekindDomain.HeightOneSpectrum
 section Multiplicative
 
 open scoped WithZero
+set_option backward.isDefEq.respectTransparency.types false in
 lemma exists_ofAdd_natCast_of_le_one {x : ℤᵐ⁰} (hx : x ≠ 0) (hx' : x ≤ 1) :
     ∃ (k : ℕ), (Multiplicative.ofAdd (-(k : ℤ))) = x := by
   lift x to Multiplicative ℤ using hx
@@ -56,6 +57,7 @@ lemma exists_ofAdd_natCast_of_le_one {x : ℤᵐ⁰} (hx : x ≠ 0) (hx' : x ≤
   rw [← hk, Int.neg_neg]
   rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma exists_ofAdd_natCast_lt {x : ℤᵐ⁰} (hx : x ≠ 0) :
     ∃ (k : ℕ), (Multiplicative.ofAdd (-(k : ℤ))) < x := by
   obtain ⟨y, hnz, hyx⟩ := WithZero.exists_ne_zero_and_lt hx
@@ -310,6 +312,7 @@ noncomputable def ResidueFieldEquivCompletionResidueField :
     rw [Valuation.Integer.not_isUnit_iff_valuation_lt_one]
   exact exists_adicValued_sub_lt_of_adicCompletionInteger K v x 1
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem inertiaDeg_asIdeal_completionIdeal :
     Ideal.inertiaDeg' v.asIdeal (v.completionIdeal K) = 1 := by
   rw [Ideal.inertiaDeg'_algebraMap]
@@ -491,6 +494,7 @@ theorem uniformizer_not_isUnit {π : v.adicCompletionIntegers K}
   rw [WithZero.coe_lt_coe, Multiplicative.ofAdd_lt]
   omega
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem eq_pow_uniformizer_mul_unit {x : v.adicCompletionIntegers K} (hx : x ≠ 0)
     {π : v.adicCompletionIntegers K} (hπ : Valued.v π.1 = Multiplicative.ofAdd (-1 : ℤ)) :
     ∃ (n : ℕ) (u : (v.adicCompletionIntegers K)ˣ), x = π ^ n * u := by

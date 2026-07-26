@@ -263,6 +263,7 @@ lemma to_residueField_apply {R : 𝓒 𝓞} (f : R ⟶ residueField) (r : R.carr
     exact IsResidueAlgebra.preimage_spec _ _
   · erw [AlgHom.commutes]; rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 noncomputable
 instance (R : ProartinianCat 𝓞) : Unique (R ⟶ residueField) := by
   refine ⟨⟨toResidueField R⟩, fun f ↦ ?_⟩

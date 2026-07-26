@@ -122,6 +122,7 @@ lemma DoubleCoset.ofRight_mk'' (x : G) : ofRight H K (.mk'' x) = DoubleCoset.mk 
 lemma DoubleCoset.ofRight_surjective : Function.Surjective (ofRight H K) :=
   Quotient.map_surjective _ Function.surjective_id
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped Pointwise in
 /-- Consider the projection `H\G/K₁ → H\G/K₂` when `K₁ ≤ K₂`.
 This is the surjection from `K₂/K₁` to the fiber of `HgK₂` of the projection,
@@ -147,6 +148,7 @@ lemma DoubleCoset.toMapIdPreimage_surjective
   rintro x ⟨h, hh, k, hk, rfl⟩
   exact ⟨_, inv_mem hk, _, inv_mem hh, 1, by simp⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped Pointwise in
 open QuotientGroup in
 /-- There is a bijection between `U / (gVg⁻¹ ∩ U)` and the image of `UgV` in `G / V`. -/
@@ -235,6 +237,7 @@ lemma DoubleCoset.ncard_toMapIdPreimage_preimage
       Subgroup.conjAct_pointwise_smul_eq_self (Subgroup.le_normalizer x.2)
     simp [← mul_smul, this, inf_comm]
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped Pointwise in
 lemma DoubleCoset.sum_filter_map_eq_relIndex_eq_relIndex
     {G : Type*} [Group G] (H K₁ K₂ : Subgroup G) (eK : K₁ ≤ K₂)
@@ -271,6 +274,7 @@ lemma DoubleCoset.sum_filter_map_eq_relIndex_eq_relIndex
   · generalize toMapIdPreimage H K₁ K₂ eK g = F
     simp [Pairwise, Function.onFun, Set.disjoint_iff]; grind
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma DoubleCoset.σ_exists :
     ∃ (σ : H＼G／K → G) (x : G → H) (y : G → K),
     (∀ a, a = x a * σ (DoubleCoset.mk H K a) * y a) ∧

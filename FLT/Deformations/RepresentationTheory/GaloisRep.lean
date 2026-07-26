@@ -115,6 +115,7 @@ lemma GaloisRep.conj_apply_apply (ρ : GaloisRep K A M) (e : M ≃ₗ[A] N) (σ 
 lemma GaloisRep.map_conj (ρ : GaloisRep K A M) (e : M ≃ₗ[A] N) (f : K →+* L) :
     (ρ.conj e).map f = (ρ.map f).conj e := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 omit [NumberField K] in
 @[simp]
 lemma GaloisRep.ker_conj (ρ : GaloisRep K A M) (e : M ≃ₗ[A] N) :
@@ -157,6 +158,7 @@ lemma FramedGaloisRep.unframe_frame (ρ : FramedGaloisRep K A n) (b : Module.Bas
 
 variable [IsTopologicalRing A]
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- `A`-linear framed galois reps are equivalent to continuous homomorphisms into `GLₙ(A)`. -/
 noncomputable
 def FramedGaloisRep.GL : FramedGaloisRep K A n ≃ (Γ K →ₜ* GL n A) :=
@@ -185,6 +187,7 @@ omit [NumberField K] in
 @[simp]
 lemma FramedGaloisRep.ofGL_apply (ρ : Γ K →ₜ* GL n A) (σ) : ofGL ρ σ = (ρ σ).toLin := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- `1`-dimensional framed galois reps are equivalent to (continuous) characters. -/
 noncomputable def FramedGaloisRep.equivChar {n : Type*} [Unique n] :
     FramedGaloisRep K A n ≃ (Γ K →ₜ* A) :=
@@ -230,6 +233,7 @@ lemma GaloisRep.baseChange_tmul [IsTopologicalRing B] [Algebra A B] [ContinuousS
     [Module.Finite A M] [Module.Free A M] (ρ : GaloisRep K A M) (σ : Γ K) (r : B) (x : M) :
     ρ.baseChange B σ (r ⊗ₜ x) = r ⊗ₜ (ρ σ x) := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 omit [IsTopologicalRing A] [NumberField K] in
 lemma GaloisRep.ker_baseChange [IsTopologicalRing B] [Algebra A B] [ContinuousSMul A B]
     [Module.Finite A M] [Module.Free A M] (ρ : GaloisRep K A M) :

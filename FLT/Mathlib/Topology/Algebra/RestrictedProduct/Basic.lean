@@ -328,6 +328,7 @@ variable {ι : Type*} [DecidableEq ι] (A : ι → Type*) {𝓕 : Filter ι}
     [(i : ι) → SetLike (S i) (A i)] {B : (i : ι) → S i} (j : ι) [(i : ι) → AddMonoid (A i)]
     [∀ (i : ι), AddSubmonoidClass (S i) (A i)]
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The inclusion from a factor into a restricted product of additive groups. -/
 noncomputable def singleAddMonoidHom (j : ι) : A j →+ Πʳ i, [A i, B i] where
   toFun x := ⟨Pi.single j x, by

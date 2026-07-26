@@ -40,6 +40,7 @@ variable [Module.UniformlyBoundedRank Λ M] [IsPatchingSystem Λ M F]
 
 open IsLocalRing Module.UniformlyBoundedRank
 
+set_option backward.isDefEq.respectTransparency.types false in
 open Pointwise in
 instance {R S M : Type*} [CommRing R] [CommRing S] [AddCommGroup M]
     [Module R M] [Module S M] [SMulCommClass S R M] : SMul (Ideal R) (Submodule S M) where
@@ -324,8 +325,8 @@ lemma smul_lemma₀
   obtain ⟨x, rfl⟩ := PatchingModule.ofPi_surjective x
   obtain ⟨m, rfl⟩ := PatchingAlgebra.ofPi_surjective m
   replace hm (i j h) := hm i j h
-  simp only [PatchingAlgebra.ofPi_apply, UltraProduct.mapRingHom_π, Ideal.quotientMap_mk,
-    RingHom.id_apply, UltraProduct.π_eq_iff] at hm
+  simp only [PatchingAlgebra.ofPi_apply, UltraProduct.mapRingHom_π,
+    UltraProduct.π_eq_iff] at hm
   let n₀ := PatchingAlgebra.smulData.f (fun _ : ι ↦ R₀) (fun _ ↦ M₀) α
   let n₁ := @PatchingAlgebra.smulData.f Λ _ _ R _ inferInstance _ M _ _ _ inferInstance _
     inferInstance α

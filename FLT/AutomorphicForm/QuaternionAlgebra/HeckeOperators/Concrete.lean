@@ -193,6 +193,7 @@ lemma _root_.QuotientGroup.exists_bijOn_mk_image_mul_singleton
   rw [Set.injOn_image_iff Quotient.out_injective.injOn]
   simp
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped Pointwise in
 lemma LocalLevelStruct.heckeOperator_eq_finsetSum (v : HeightOneSpectrum (𝓞 F)) (hv : ℒ.χ v = 1)
     (g : GL₂(v.adicCompletion F)) (s : Finset GL₂(v.adicCompletion F))
@@ -569,6 +570,7 @@ lemma U₁Data.χ_apply_pow (𝒮 : U₁Data F R p) (v x) : ((U₁ 𝒮).χ v x)
 
 @[simp] lemma U₁Data.χ_pow (𝒮 : U₁Data F R p) (v) : (U₁ 𝒮).χ v ^ p = 1 := by ext; simp
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp] lemma U₁Data.toStruct_χ_apply_pow (𝒮 : U₁Data F R p) (x) :
     (U₁ 𝒮).toStruct.χ x ^ p = 1 := by
   simp only [WeightTwoAutomorphicForm.LocalLevelStruct.toStruct]
@@ -731,6 +733,7 @@ lemma U_smul [SMulCommClass R S M]
   ((U₁ 𝒮).heckeOperatorL _ _ _ v (by simp [U₁_χ, hvQ]; rfl)
     (Matrix.GeneralLinearGroup.diagonal ![.mk0 α.1 (by simpa), 1])).map_smul r f
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma U_apply (𝒮 : U₁Data F R p) (v : HeightOneSpectrum (𝓞 F))
     (hvQ : v ∈ 𝒮.Q) (α : v.adicCompletionIntegers F) (hα : α ≠ 0) (x)
     (s : Finset (v.adicCompletionIntegers F))
@@ -758,6 +761,7 @@ lemma U_apply (𝒮 : U₁Data F R p) (v : HeightOneSpectrum (𝓞 F))
     exact ((HeckeOperator.Local.GL2.unipotentMulDiag_injective _).comp
       Subtype.val_injective).injOn
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma U_apply_of_isUnit (𝒮 : U₁Data F R p) (v : HeightOneSpectrum (𝓞 F))
     (hvQ : v ∈ 𝒮.Q) (α : v.adicCompletionIntegers F) (hα : α ≠ 0) (hα' : IsUnit α) (x) :
     (U D M 𝒮 v hvQ α hα x).1 =
@@ -960,6 +964,7 @@ noncomputable instance :
     IsScalarTower R (Algebra.adjoin _ _) _
   (TensorProduct.comm _ _ _ ≪≫ₗ (U₁ 𝒮).toStruct.formTensorScalar D M R).symm.toAddEquiv.module _
 
+set_option backward.isDefEq.respectTransparency.types false in
 private lemma smul_formTensorScalar_aux (𝒮 : U₁Data F R p)
     (T : HeckeAlgebra D 𝒮) (m : M) (f : (U₁ 𝒮).toStruct.form D R) :
     T • (U₁ 𝒮).toStruct.formTensorScalar D M R (m ⊗ₜ f) =
@@ -1003,6 +1008,7 @@ lemma T_smul_def (v : HeightOneSpectrum (𝓞 F))
     simp [smul_formTensorScalar, ← apply_eq_smul]
     rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma U_smul_def (v : HeightOneSpectrum (𝓞 F))
     (hvQ : v ∈ 𝒮.Q) (a : v.adicCompletionIntegers F) (ha : a ≠ 0) (f : (U₁ 𝒮).toStruct.form D M) :
     U D 𝒮 v hvQ a • f = HeckeOperator.U D M 𝒮 v hvQ a ha f := by

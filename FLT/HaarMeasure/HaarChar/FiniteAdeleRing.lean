@@ -169,6 +169,7 @@ noncomputable def FiniteAdeleRing.Aux.g {ι : Type*} [Fintype ι]
     (fun _ v ↦ isOpenAdicCompletionIntegers K v)
   f.trans (ψ.toContinuousAddEquiv.trans f.symm)
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma FiniteAdeleRing.Aux.g_commSq {ι : Type*} [Fintype ι]
     (ψ : (ι → (FiniteAdeleRing (𝓞 K) K)) ≃L[FiniteAdeleRing (𝓞 K) K]
       (ι → (FiniteAdeleRing (𝓞 K) K))) :
@@ -323,6 +324,7 @@ lemma basis_eq_global
 end auxiliary_basis_lemmas
 
 -- this should really be just after the definition of `localcomponent`
+set_option backward.isDefEq.respectTransparency.types false in
 /-- `TensorProduct.localcomponent φ` as `v.adicCompletion K`-linear map -/
 noncomputable def φLocalKvLinear (v : HeightOneSpectrum (𝓞 K))
     (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]

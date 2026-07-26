@@ -182,6 +182,7 @@ variable (B) in
 def piSubringSubmodule (i : ι) : Submodule (B i) (n → R i) :=
   Submodule.pi Set.univ fun (_ : n) ↦ Subring.toSubmodule (Subring.ofClass (B i))
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Canonical linear equivalence between `Π' R^n` and `(Π' R)^n` -/
 def _root_.LinearEquiv.restrictedProductPi [Fintype n] :
     Πʳ i, [n → R i, piSubringSubmodule B n i]_[ℱ] ≃ₗ[Πʳ i, [R i, B i]_[ℱ]]
@@ -196,6 +197,7 @@ def _root_.LinearEquiv.restrictedProductPi [Fintype n] :
   map_add' x y := rfl
   map_smul' x y := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma isOpen_piSubringSubmodule [Finite n] (hOpen : ∀ i, IsOpen (B i : Set (R i))) (i : ι) :
     IsOpen (SetLike.coe <| piSubringSubmodule B n i) := by
   rw [piSubringSubmodule, Submodule.coe_pi]
@@ -205,6 +207,7 @@ lemma isOpen_piSubringSubmodule [Finite n] (hOpen : ∀ i, IsOpen (B i : Set (R 
 
 variable [∀ i, IsTopologicalRing (R i)]
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Canonical continuous linear equivalence between `Π' R^n` and `(Π' R)^n` -/
 def _root_.ContinuousLinearEquiv.restrictedProductPi [Fintype n]
     (hOpen : ∀ i, IsOpen (B i : Set (R i))) :
@@ -233,6 +236,7 @@ variable [∀ i, IsTopologicalRing (R i)]
 variable [∀ i, IsModuleTopology (R i) (M i)]
 variable [Module.Finite (Πʳ i, [R i, B i]) (Πʳ i, [M i, C i])]
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem isModuleTopology (hBOpen : ∀ i, IsOpen (B i : Set (R i)))
     (hCOpen : ∀ i, IsOpen (C i : Set (M i)))
     : IsModuleTopology (Πʳ i, [R i, B i]) (Πʳ i, [M i, C i]) := by

@@ -104,6 +104,7 @@ instance : Algebra (Πʳ v : HeightOneSpectrum A, [v.adicCompletion K, v.adicCom
     (Πʳ w: HeightOneSpectrum B, [w.adicCompletion L, w.adicCompletionIntegers L]) :=
   inferInstanceAs (Algebra 𝔸ᶠ[A, K] 𝔸ᶠ[B, L])
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Utility class which specialises `RestrictedProduct.FiberwiseSMul` to the case of
 finite adele rings. -/
 class ComapFiberwiseSMul extends RestrictedProduct.FiberwiseSMul (α := HeightOneSpectrum B)
@@ -112,6 +113,7 @@ class ComapFiberwiseSMul extends RestrictedProduct.FiberwiseSMul (α := HeightOn
 
 variable [ComapFiberwiseSMul A K L B]
 
+set_option backward.isDefEq.respectTransparency.types false in
 variable {A K L B} in
 theorem ComapFiberwiseSMul.map_smul' (x : 𝔸ᶠ[A, K]) (y : 𝔸ᶠ[B, L]) (v : HeightOneSpectrum A)
     (w : v.Extension B) : (x • y) w.1 = x v • y w.1 :=
@@ -125,6 +127,7 @@ lemma BaseChange.algebraMap_apply (w : HeightOneSpectrum B) (x : 𝔸ᶠ[A, K]) 
 
 noncomputable section bijection
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The canonical linear isomorphism `L ⊗[K] 𝔸_K^∞ ≅ B ⊗[A] 𝔸_K^∞`. -/
 def tensorEquivTensor [FiniteDimensional K L] : L ⊗[K] 𝔸ᶠ[A, K] ≃ₗ[B] B ⊗[A] 𝔸ᶠ[A, K] := by
   exact linearEquivTensorProductModuleLeft A K L B 𝔸ᶠ[A, K]
@@ -155,6 +158,7 @@ lemma tensorEquivRestrictedProduct_tmul (b : B) (x : 𝔸ᶠ[A, K]) (v : HeightO
     tensorEquivRestrictedProduct A K L B (b ⊗ₜ[A] x) v = b ⊗ₜ[A] (x v) := by
   simp [tensorEquivRestrictedProduct]
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The `B`-linear isomorphism `∏'_v [B ⊗[A] K_v, B ⊗[A] 𝓞_v] ≅ ∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w]`
 given by `adicCompletionComapIntegerLinearEquiv`. -/
 def restrictedProductTensorProductEquivRestrictedProductProd [FiniteDimensional K L] :
@@ -172,6 +176,7 @@ lemma restrictedProduct_tensorProduct_equiv_restrictedProduct_prod_apply [Finite
     FiniteAdeleRing.restrictedProductTensorProductEquivRestrictedProductProd A K L B f v =
     integerBaseChangeLinearEquiv K L B v (f v) := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The `B`-linear isomorphism `∏'_v [∏_{w|v} L_w, ∏_{w|v} 𝓞_w] → 𝔸_L^∞` given by
 `RestrictedProduct.flattenEquiv'`. -/
 def restrictedProductProdEquiv :
@@ -207,6 +212,7 @@ def baseChangeLinearEquiv [FiniteDimensional K L] : L ⊗[K] 𝔸ᶠ[A, K] ≃�
 lemma algebraMap_apply_eq_algebraMap (x : K) (v : HeightOneSpectrum A) :
     algebraMap K 𝔸ᶠ[A, K] x v = algebraMap K (v.adicCompletion K) x := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
 lemma baseChangeLinearEquiv_tmul [FiniteDimensional K L] (b : B) (x : 𝔸ᶠ[A, K]) :
     baseChangeLinearEquiv A K L B (algebraMap B L b ⊗ₜ x) =

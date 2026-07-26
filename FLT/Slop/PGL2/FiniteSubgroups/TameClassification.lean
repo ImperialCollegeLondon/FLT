@@ -47,7 +47,7 @@ open scoped Classical
 
 namespace Dickson
 
-open scoped BigOperators Nat Pointwise
+open scoped BigOperators _root_.Nat Pointwise
 
 noncomputable section
 
@@ -104,6 +104,7 @@ lemma fixedPoints_determined (G : Subgroup (PGLOf (K p))) [Fintype G]
 
     · exfalso; exact hxy rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 omit h_odd in
 @[nolint unusedArguments]
 lemma commute_of_fixedPair (G_sub : Subgroup (PGLOf (K p))) [Fintype G_sub]
@@ -196,6 +197,7 @@ lemma scalar_eq_one_in_PGL (g : GL (Fin 2) (K p)) (c : K p)
       Matrix.mul_one, Matrix.one_mul])
 omit h_odd in
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma exists_unique_normalizedLift (g : PGLOf (K p)) (y : ProjectiveLine p)
     (hgy : g • y = y) :
     ∃! (g' : GL (Fin 2) (K p)),
@@ -323,6 +325,7 @@ lemma exists_unique_normalizedLift (g : PGLOf (K p)) (y : ProjectiveLine p)
   _ = g'.val := one_smul _ _
 omit h_odd in
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma pairStabilizer_isCyclic (G : Subgroup (PGLOf (K p))) [Fintype G]
     (x y : ProjectiveLine p) (hxy : x ≠ y) :
     IsCyclic (pairStabilizer p G x y) := by

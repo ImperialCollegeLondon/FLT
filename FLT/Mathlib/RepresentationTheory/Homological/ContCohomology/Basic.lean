@@ -199,6 +199,7 @@ open ContRepresentation TopRep
 variable {k : Type u} {G : Type v} [CommRing k] [TopologicalSpace k] [Group G]
   [TopologicalSpace G] [IsTopologicalGroup G]
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Applying two consecutive differentials of the homogeneous cochain complex gives zero. -/
 lemma _root_.TopRep.homogeneousCochains.d_comp_d_apply (X : TopRep k G) (i j l : ℕ)
     (σ : (homogeneousCochains X).X i) :

@@ -79,6 +79,7 @@ def SL2.E21 (b : F) : Matrix.SpecialLinearGroup (Fin 2) F :=
     rw [zero_mul, sub_zero, mul_one]⟩
 
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem SL2.closure_elementary_eq_top :
     Subgroup.closure (Set.range (SL2.E12 F) ∪ Set.range (SL2.E21 F)) = ⊤ := by
   refine eq_top_iff.mpr fun g _ ↦ ?_
