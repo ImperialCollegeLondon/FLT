@@ -67,6 +67,7 @@ lemma LevelStruct.starRingEnd_innerSummand (ℒ : LevelStruct F R)
   obtain ⟨a, rfl⟩ := Quotient.mk_surjective a
   simp [innerSummand, mul_comm]
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
 lemma LevelStruct.innerSummand_add_left (ℒ : LevelStruct F R)
     (f₁ f₂ g : ℒ.form D ℂ) :
@@ -76,6 +77,7 @@ lemma LevelStruct.innerSummand_add_left (ℒ : LevelStruct F R)
   obtain ⟨a, rfl⟩ := Quotient.mk_surjective a
   simp [innerSummand, add_mul, mul_add]
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
 lemma LevelStruct.innerSummand_smul_left (ℒ : LevelStruct F R)
     (f g : ℒ.form D ℂ) (z : ℂ) :
@@ -136,6 +138,7 @@ def LevelStruct.inner (ℒ : LevelStruct F R)
 
 variable [NumberField.IsTotallyReal F] [IsQuaternionAlgebra.IsTotallyDefinite F D]
 
+set_option backward.isDefEq.respectTransparency.types false in
 omit [Algebra R ℂ] in
 lemma LevelStruct.sum_filter_map_eq_ΔIndex_div_ΔIndex
     (ℒ ℒ' : LevelStruct F R) (h : ℒ ≤ ℒ') (g : Dˣ＼GL₂(𝔸 F)／ℒ'.UA)
@@ -159,6 +162,7 @@ lemma LevelStruct.sum_filter_map_eq_ΔIndex_div_ΔIndex
   dsimp [LevelStruct.Δ]
   rw [inf_inf_inf_comm, inf_idem, inf_assoc]
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma LevelStruct.inner_eq_of_map_le_map
     {R' : Type*} [CommRing R'] [Algebra R' ℂ]
     (ℒ : LevelStruct F R) (ℒ' : LevelStruct F R')
@@ -242,6 +246,7 @@ instance (ℒ ℒ' : LevelStruct F R) [ℒ'.IsSufficientlySmall D] : (ℒ ⊓ �
 
 attribute [instance] LevelStruct.isFiniteRelIndex_Δ
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : InnerProductSpace.Core ℂ (WeightTwoAutomorphicForm F D ℂ) where
   inner f g := (f.levelStruct ℂ ⊓ g.levelStruct ℂ).inner
     ⟨f, LevelStruct.form_anti inf_le_left (f.mem_form _)⟩
@@ -332,6 +337,7 @@ lemma Measure.conjAct_smul_of_isUnimodularGroup
   rw [Measure.conjAct_smul, IsUnimodularGroup.modularCharacter_eq_one]
   simp
 
+set_option backward.isDefEq.respectTransparency.types false in
 open Pointwise in
 lemma Subgroup.map_toConjAct_smul_mk' {G : Type*} [Group G] {N H : Subgroup G} [N.Normal] (g : G) :
     (ConjAct.toConjAct g • H).map (QuotientGroup.mk' N) =
@@ -529,6 +535,7 @@ lemma Eigenform.eigenSpace_ne_bot (𝒻 : Eigenform D 𝒮) :
   simp only [ne_eq, Submodule.eq_bot_iff, not_forall]
   exact ⟨𝒻.2.choose, mem_eigenspace_iff.mpr 𝒻.2.choose_spec.2, 𝒻.2.choose_spec.1⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma Eigenform.exists (φ : ∀ v ∉ 𝒮.S, v ∉ 𝒮.Q → ℂ) (μ : S(U, ℂ)) (hμ : μ ≠ 0)
     (hμ' : ∀ v hvS hvQ, T D 𝒮 v hvS hvQ • μ = φ v hvS hvQ • μ) :
     ∃ 𝒻 : Eigenform D 𝒮, (∀ v hvS hvQ, 𝒻.eigenvalue v hvS hvQ = φ v hvS hvQ) ∧
@@ -561,6 +568,7 @@ lemma Eigenform.exists (φ : ∀ v ∉ 𝒮.S, v ∉ 𝒮.Q → ℂ) (μ : S(U, 
   exact ⟨⟨aφ, μ, hμ, by simpa⟩, fun v hvS hvQ ↦ H _
     (Algebra.subset_adjoin ⟨v, hvS, hvQ, rfl⟩) _ (hμ' ..), by simpa [mem_eigenspace_iff]⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped DirectSum in
 theorem _root_.DirectSum.IsInternal.reindex {ι κ M S : Type*} [DecidableEq ι] [DecidableEq κ]
     [AddCommMonoid M] [SetLike S M] [AddSubmonoidClass S M] {A : ι → S}

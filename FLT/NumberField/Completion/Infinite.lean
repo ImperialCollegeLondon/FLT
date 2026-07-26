@@ -186,7 +186,7 @@ instance : IsBiscalar L v.Completion (baseChangeEquiv L v).toAlgHom :=
 @[simp]
 theorem baseChangeEquiv_tmul (l : L) (x : v.Completion) :
     baseChangeEquiv L v (l ⊗ₜ[K] x) = fun wv : v.Extension L => l * comapHom wv.2 x := by
-  simp [baseChangeEquiv, baseChange, SemialgHom.baseChange_of_algebraMap_tmul]
+  simp [baseChangeEquiv, baseChange]
   rfl
 
 open TensorProduct.AlgebraTensorModule in

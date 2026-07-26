@@ -175,6 +175,7 @@ instance (N : ℕ) (α : TopologicalModuleTypeCardLT R N) : T2Space (Fin α.1) :
 instance (N : ℕ) (α : TopologicalModuleTypeCardLT R N) : Module R (Fin α.1) := α.2.2.2.2.1
 instance (N : ℕ) (α : TopologicalModuleTypeCardLT R N) : ContinuousSMul R (Fin α.1) := α.2.2.2.2.2
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped Topology in
 variable (R) in
 /-- Pick a representative in `TopologicalModuleTypeCardLT R N` for a given finite

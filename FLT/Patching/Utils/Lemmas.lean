@@ -242,6 +242,7 @@ lemma WellFoundedLT.exists_eq_inf {α} [CompleteLattice α] [WellFoundedLT α]
     (f : ℕ →o αᵒᵈ) : ∃ i, f i = (⨅ i, f i : α) :=
   WellFoundedGT.exists_eq_sup (α := αᵒᵈ) f
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma IsLocalRing.maximalIdeal_pow_card_smul_top_le {R M}
     [CommRing R] [IsLocalRing R] [IsNoetherianRing R] [AddCommGroup M] [Module R M]
     (N : Submodule R M) [Finite (M ⧸ N)] : maximalIdeal R ^ Nat.card (M ⧸ N) • ⊤ ≤ N := by

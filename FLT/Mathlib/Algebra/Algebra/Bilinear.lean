@@ -50,17 +50,20 @@ def SemialgHom.baseChangeOfAlgebraMap [Semiring A] [Algebra R S] [Algebra R A]
   }
   Algebra.TensorProduct.lift (Algebra.ofId S _) ρ fun s a ↦ Algebra.commutes s (ρ a)
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem SemialgHom.baseChange_of_algebraMap_tmul [Semiring A] [Algebra R S] [Algebra R A]
     [Semiring B] [Algebra S B] (ψ : A →ₛₐ[algebraMap R S] B) (s : S) (a : A) :
     ψ.baseChangeOfAlgebraMap (s ⊗ₜ[R] a) = algebraMap _ _ s * ψ a := by
   simp [baseChangeOfAlgebraMap, SemialgHom.toLinearMap_eq_coe, Algebra.ofId_apply]
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
 theorem SemialgHom.baseChange_of_algebraMap_tmul_right [Semiring A] [Algebra R S] [Algebra R A]
     [Semiring B] [Algebra S B] (ψ : A →ₛₐ[algebraMap R S] B) (a : A) :
     ψ.baseChangeOfAlgebraMap (1 ⊗ₜ[R] a) = ψ a := by
   simp [baseChangeOfAlgebraMap, SemialgHom.toLinearMap_eq_coe]
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
 theorem SemialgHom.baseChange_of_algebraMap_tmul_left [Semiring A] [Algebra R S] [Algebra R A]
     [Semiring B] [Algebra S B] (ψ : A →ₛₐ[algebraMap R S] B) (s : S) :

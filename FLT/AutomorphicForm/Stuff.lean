@@ -33,6 +33,7 @@ def Set.matrixEquiv {m n α : Type*} (S : Set α) :
   left_inv _ := rfl
   right_inv _ := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- `Subring.matrix` is equivalent to matrices on the subtype. -/
 @[simps!]
 def Subring.matrixEquiv {n α : Type*} [Ring α] [Fintype n] [DecidableEq n] (S : Subring α) :

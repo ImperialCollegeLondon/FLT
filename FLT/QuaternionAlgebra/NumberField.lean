@@ -82,6 +82,7 @@ noncomputable def WithRigidification.algEquiv :
   .trans { __ := Algebra.TensorProduct.comm _ _ _, commutes' _ := rfl } <|
     .ofBijective _ WithRigidification.cond
 
+set_option backward.isDefEq.respectTransparency.types false in
 omit [IsQuaternionAlgebra F D] in
 @[simp]
 lemma WithRigidification.algEquiv_tmul (a b) :
@@ -128,6 +129,7 @@ lemma WithRigidification.unitsIncl_injective (F : Type*)
     Function.Injective (WithRigidification.unitsIncl F D) := by
   refine Units.map_injective (WithRigidification.incl_injective F D)
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped TensorProduct.RightActions in
 lemma WithRigidification.det_incl_sq (F : Type*)
     [Field F] [NumberField F] {D : Type*} [Ring D] [Algebra F D]
@@ -236,6 +238,7 @@ lemma GL2.v_det_val_mem_localFullLevel_eq_one {v : HeightOneSpectrum (𝓞 F)}
   rw [Valued.isUnit_valuationSubring_iff] at hd
   simpa [← hy, Matrix.det_fin_two] using hd
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma GL2.v_le_one_of_mem_localFullLevel (v : HeightOneSpectrum (𝓞 F)) {x}
     (hx : x ∈ localFullLevel v) (i j) : Valued.v (x i j) ≤ 1 := by
   simp only [localFullLevel, Units.map, RingHom.mapMatrix, Matrix.map, ValuationSubring.subtype,
@@ -245,6 +248,7 @@ lemma GL2.v_le_one_of_mem_localFullLevel (v : HeightOneSpectrum (𝓞 F)) {x}
   obtain ⟨x', hx'⟩ := hx
   simp only [← hx', ← HeightOneSpectrum.mem_adicCompletionIntegers, SetLike.coe_mem]
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma GL2.mem_localFullLevel_iff_v {v : HeightOneSpectrum (𝓞 F)}
     {x : GL (Fin 2) (v.adicCompletion F)} :
     x ∈ localFullLevel v ↔ (∀ (i j), Valued.v (x i j) ≤ 1) ∧ Valued.v x.val.det = 1 :=

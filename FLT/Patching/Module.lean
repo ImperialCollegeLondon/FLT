@@ -429,6 +429,7 @@ def PatchingModule.mapEquiv (f : ∀ i, M i ≃ₗ[R] N i) :
   left_inv x := by simp [← map_comp_apply]
   right_inv x := by simp [← map_comp_apply]
 
+set_option backward.isDefEq.respectTransparency.types false in
 open IsLocalRing in
 lemma PatchingModule.map_surjective
     [IsLocalRing R] [IsAdicTopology R]

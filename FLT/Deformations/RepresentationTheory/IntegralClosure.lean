@@ -91,6 +91,7 @@ instance isInvariant_integralClosure
     obtain ⟨x, rfl⟩ := (IsIntegralClosure.isIntegral_iff (A := R)).mp hx
     exact ⟨x, rfl⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance continuousSMulDiscrete_integralClosure
     {G R L : Type*} [CommRing R] [Field L] [Algebra R L] [Group G] [MulSemiringAction G L]
     [SMulCommClass G R L] [TopologicalSpace G] [ContinuousSMulDiscrete G L] :

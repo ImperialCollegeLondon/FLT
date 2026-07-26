@@ -46,6 +46,7 @@ open TotallyDefiniteQuaternionAlgebra
 
 open scoped FLT
 
+set_option backward.isDefEq.respectTransparency.types false in
 variable (D) in
 /-- For any open `U ⊆ GL₂(𝔸_F)`, `Dˣ\GL₂(𝔸_F)/U` is finite.
 (where `Dˣ` is viewed as a subgroup of `GL₂(𝔸_F)` under the identification `M₂(𝔸_F) ≃ D ⊗ 𝔸_F`) -/

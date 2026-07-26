@@ -75,6 +75,7 @@ def MulAction.etaleSubalgebraEquiv
   map_add' f g := by ext i; rfl
   commutes' k := by ext i; rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 open MulAction IntermediateField in
 /-- If `G` is a closed subgroup of the galois group `Γ := Gal(L/K)`, then
 `Γ/G` is in bijection with the `K`-linear embeddings of `Lᴳ` into `L`.
@@ -97,6 +98,7 @@ def InfiniteGalois.quotientEquivFixedFieldEmb [IsGalois K L] (G : ClosedSubgroup
     exact ((σ.toAlgHom.comp (IntermediateField.val _)).liftNormal_commutes _ _).symm
   right_inv f := by ext x; simpa using! f.liftNormal_commutes _ _
 
+set_option backward.isDefEq.respectTransparency.types false in
 open MulAction in
 lemma InfiniteGalois.evalAlgHom_bijective [IsGalois K L] [Finite X]
     [ContinuousSMulDiscrete (L ≃ₐ[K] L) X] :

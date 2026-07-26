@@ -40,6 +40,7 @@ open MeasureTheory Measure
 
 namespace RestrictedProduct
 
+set_option backward.isDefEq.respectTransparency.types false in
 open ContinuousMulEquiv Filter Topology in
 lemma modularCharacter_eq [∀ i, IsTopologicalGroup (G i)] [∀ i, LocallyCompactSpace (G i)]
     [Countable ι] (g : Πʳ i, [G i, C i]) :

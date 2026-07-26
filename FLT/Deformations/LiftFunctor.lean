@@ -60,6 +60,7 @@ def toFramedGaloisRep {R} (ρ : (repnFunctor n (Γ K) 𝓞).obj R) :
     FramedGaloisRep K R n :=
   FramedGaloisRep.GL.symm ρ
 
+set_option backward.isDefEq.respectTransparency.types false in
 omit [IsLocalRing 𝓞] [NumberField K] in
 lemma toFramedGaloisRep_map {R S : ProartinianCat 𝓞} (f : R ⟶ S)
     (ρ : (repnFunctor n (Γ K) 𝓞).obj R) :
@@ -115,6 +116,7 @@ def flatFunctor (v : Ω K) : Subfunctor (repnFunctor n (Γ K) 𝓞) where
   obj R := { ρ | (toFramedGaloisRep ρ).IsFlatAt v }
   map := sorry -- See e.g. Conrad Theorem 1.6 of CSS
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The subfunctor of unramified (at `v`) representations. -/
 def unramifiedFunctor (v : Ω K) : Subfunctor (repnFunctor n (Γ K) 𝓞) where
   obj R := { ρ | (toFramedGaloisRep ρ).IsUnramifiedAt v }
@@ -124,6 +126,7 @@ def unramifiedFunctor (v : Ω K) : Subfunctor (repnFunctor n (Γ K) 𝓞) where
       GaloisRep.frame, Set.mem_setOf_eq] at ⊢
     infer_instance
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The subfunctor of representations whose trace is `2` on `ker(Iᵥ → k(v)ˣ)`. -/
 def traceConditionFunctor (v : Ω K) : Subfunctor (repnFunctor (Fin 2) (Γ K) 𝓞) where
   obj R := { ρ | ∀ σ ∈ localTameAbelianInertiaGroup v,
@@ -134,6 +137,7 @@ def traceConditionFunctor (v : Ω K) : Subfunctor (repnFunctor (Fin 2) (Γ K) �
     simp [FramedGaloisRep.baseChange, ← Matrix.toLin'_apply', ← AddMonoidHom.map_trace,
       ← LinearMap.toMatrix_eq_toMatrix', ← LinearMap.trace_eq_matrix_trace, this, map_ofNat]
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The subfunctor of representations whose trace is `2` on `Iᵥ`. -/
 def narrowTraceConditionFunctor (v : Ω K) : Subfunctor (repnFunctor (Fin 2) (Γ K) 𝓞) where
   obj R := { ρ | ∀ σ ∈ localInertiaGroup v,
@@ -144,6 +148,7 @@ def narrowTraceConditionFunctor (v : Ω K) : Subfunctor (repnFunctor (Fin 2) (Γ
     simp [FramedGaloisRep.baseChange, ← Matrix.toLin'_apply', ← AddMonoidHom.map_trace,
       ← LinearMap.toMatrix_eq_toMatrix', ← LinearMap.trace_eq_matrix_trace, this, map_ofNat]
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The subfunctor of representations with `det = εₗ`. -/
 def detConditionFunctor (l : ℕ) [Fact l.Prime] [Algebra ℤ_[l] 𝓞] :
     Subfunctor (repnFunctor n (Γ K) 𝓞) where

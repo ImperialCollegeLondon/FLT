@@ -76,6 +76,7 @@ theorem intValuation_eq_padicValuation_iff_multiplicity_eq_multiplicity {x : R}
 
 variable [IsFractionRing R ℚ]
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem valuation_apply_coe_eq_padicValuation (x : R)
     (v : HeightOneSpectrum R) :
     v.valuation ℚ (algebraMap R ℚ x) = padicValuation (primesEquiv v)

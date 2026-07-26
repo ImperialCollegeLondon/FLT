@@ -128,6 +128,7 @@ noncomputable instance : Coe ℤ_[p]⁰ ℚ_[p]ˣ where
   coe x := .mk0 x.1 <| map_ne_zero_of_mem_nonZeroDivisors (M₀ := ℤ_[p])
     Coe.ringHom coe_injective x.2
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Non-zero p-adic integers generate non-zero p-adic numbers as a group. -/
 lemma closure_nonZeroDivisors_padicInt :
     Subgroup.closure (Set.range ((↑) : ℤ_[p]⁰ → ℚ_[p]ˣ)) = ⊤ := by

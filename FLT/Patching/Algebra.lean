@@ -211,6 +211,7 @@ variable {Rₒₒ} [CommRing Rₒₒ] (f : ∀ i, Rₒₒ →+* R i) [Topologica
 variable [IsTopologicalRing Rₒₒ] [Algebra.TopologicallyFG ℤ Rₒₒ]
 variable (hf : ∀ i, Continuous (f i))
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- A continuous family of ring homomorphisms `f i : R∞ →+* R i` lifts uniquely to a
 ring homomorphism `R∞ →+* PatchingAlgebra R F`. -/
 def PatchingAlgebra.lift : Rₒₒ →+* PatchingAlgebra R F :=
@@ -230,6 +231,7 @@ lemma PatchingAlgebra.continuous_lift : Continuous (lift R F f) := by
 
 variable [CompactSpace Rₒₒ]
 
+set_option backward.isDefEq.respectTransparency.types false in
 include hf in
 lemma PatchingAlgebra.lift_surjective (hf' : ∀ i, Function.Surjective (f i)) :
     Function.Surjective (lift R F f) := by
@@ -287,6 +289,7 @@ lemma PatchingAlgebra.ofPi_apply (x k) :
   ofPi R F x k = UltraProduct.π (fun i ↦ R i ⧸ maximalIdeal (R i) ^ k) F
     (fun i ↦ Ideal.Quotient.mk _ (x k i)) := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The natural ring homomorphism from the product `∏ i, R i` into `PatchingAlgebra R F`. -/
 def PatchingAlgebra.incl :
     (Π i, R i) →+* PatchingAlgebra R F :=
@@ -329,6 +332,7 @@ lemma PatchingAlgebra.componentMapRingHom_surjective
   obtain ⟨x, rfl⟩ := Ideal.Quotient.mk_surjective.comp (hf i) x
   refine ⟨Ideal.Quotient.mk _ x, by simp⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 variable {R} in
 /-- Functoriality of `PatchingAlgebra` in the family of local rings. -/
 def PatchingAlgebra.map :
@@ -416,6 +420,7 @@ lemma RingHom.continuous_of_finite_of_compact {R H : Type*} [CommRing R] [Semiri
   have := (isCompact_of_isNoetherianRing (RingHom.ker f)).isClosed
   exact AddSubgroup.isOpen_of_isClosed_of_finiteIndex (RingHom.ker f).toAddSubgroup this
 
+set_option backward.isDefEq.respectTransparency.types false in
 open IsLocalRing in
 lemma PatchingAlgebra.map_surjective
     (hf : ∀ i, Function.Surjective (f i)) :

@@ -26,6 +26,7 @@ section Topology
 variable [∀ i, TopologicalSpace (α i)]
 variable (hf : ∀ i j h, Continuous (f i j h))
 
+set_option backward.isDefEq.respectTransparency.types false in
 include hf in
 lemma dense_inverseLimit_of_forall_image_dense
     (s : Set { v : Π i, α i // ∀ i j (h : i ≤ j), f i j h (v i) = v j })
@@ -60,6 +61,7 @@ variable {l : ℕ → ι} (hl : Antitone l) (hl' : ∀ x, ∃ n, l n ≤ x)
 open scoped TypeCat
 
 open CategoryTheory
+set_option backward.isDefEq.respectTransparency.types false in
 omit [Nonempty ι] [IsDirected ι (· ≥ ·)] in
 include hf₀ hf hl hl' in
 theorem nonempty_inverseLimit_of_finite [∀ i, Finite (α i)] [∀ i, Nonempty (α i)] :

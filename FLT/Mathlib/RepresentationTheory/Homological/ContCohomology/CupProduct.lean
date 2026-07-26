@@ -88,6 +88,7 @@ variable {V W2 W3 : Type v}
   {π₁ : ContRepresentation k G V} {π₂ : ContRepresentation k G W2}
   {π₃ : ContRepresentation k G W3}
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The inductive step of the cup product: an intertwining map `F : π₁ →ⁱL linHom π₂ π₃` whose
 underlying pairing `(v, w) ↦ F v w` is jointly continuous induces an intertwining map
 `π₁.coind₁ →ⁱL linHom π₂ π₃.coind₁` sending `σ` and `τ` to `x ↦ F (σ x) τ`.
@@ -157,6 +158,7 @@ def cupZeroSuccAux (n : ℕ) : C(resolutionX (of ρ2) n × M1, resolutionX (of �
         (ContinuousMap.continuous_prodMk.comp
           (continuous_fst.prodMk (ContinuousMap.continuous_const'.comp continuous_snd)))⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The degree-`(0, n)` cup product pairing: an intertwining map `f : ρ1 →ⁱL linHom ρ2 ρ3` pairs
 a degree-`0` cochain `σ` with a degree-`n` cochain `τ` by
 `(σ ∪ τ) g = resolutionCLM (f (σ g)) n (τ g)`, intertwining the coinduced representations. -/

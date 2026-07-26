@@ -70,6 +70,7 @@ lemma Module.depth_of_isScalarTower :
   rw [← Sequence.isWeaklyRegular_map_algebraMap_iff S M s] at hs₁
   exact ⟨_, hs₁, by simpa, by simp⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[stacks 00LK]
 lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
     .some (Module.depth R M) ≤ Order.krullDim (Module.support R M) := by

@@ -108,6 +108,7 @@ lemma intValuation_comap (hAB : Function.Injective (algebraMap A B))
     mk_count_factors_map _ _ hAB, mul_comm, WithZero.exp, WithZero.exp]
   simp
 
+set_option backward.isDefEq.respectTransparency.types false in
 omit [IsIntegralClosure B A L] in
 /-- If w | v then for x ∈ K we have w(x)=v(x)^e where e is the ramification index. -/
 lemma valuation_comap (w : HeightOneSpectrum B) (x : K) :
@@ -223,6 +224,7 @@ noncomputable def LinearEquivTensorProduct :
   LinearEquiv.extendScalarsOfIsLocalization (nonZeroDivisors A) K
     <| g.symm.trans (f.restrictScalars A) |>.trans h
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma LinearEquivTensorProduct_symm_one_tmul (b : B) :
     (LinearEquivTensorProduct A K L B).symm (1 ⊗ₜ b) =
     (algebraMap _ _ b) := by simp [LinearEquivTensorProduct]

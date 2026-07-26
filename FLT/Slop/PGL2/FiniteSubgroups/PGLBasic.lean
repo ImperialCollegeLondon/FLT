@@ -306,6 +306,7 @@ theorem exists_finite_subfield_conjugate (G : Subgroup (PGLOf (K p))) [Finite G]
 /-- The set of fixed points of the action of `g : PGLOf (K p)` on the projective line `ℙ¹(K p)`. -/
 def fixedPoints (g : PGLOf (K p)) : Set (ProjectiveLine p) := Function.fixedPoints (fun x ↦ g • x)
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem fixedPoints_lift (g : GL (Fin 2) (K p)) (x : ProjectiveLine p) :
     x ∈ fixedPoints p (QuotientGroup.mk g) ↔ ∃ c : K p, g.val.mulVec x.rep = c • x.rep := by
   constructor
