@@ -21,7 +21,7 @@ git = "https://github.com/PatrickMassot/checkdecls.git"
 [[require]]
 name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
-rev = "cd580e54f1a6b46063824e80cec92f64692cbe78"
+rev = "d99d52c36bea862ef9499bfaef386d0bcba9ea48"
 
 [[lean_lib]]
 name = "FLT"
