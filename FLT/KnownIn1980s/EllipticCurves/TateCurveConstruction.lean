@@ -1407,7 +1407,7 @@ private theorem ratFunc_eq_zero_of_evalAt_eq_zero_on_infinite (r : RatFunc ℚ) 
   rw [← RatFunc.num_eq_zero_iff,
     ← Polynomial.map_eq_zero_iff (FaithfulSMul.algebraMap_injective ℚ ℂ)]
   have hfin : {u : ℂ | ((RatFunc.denom r).map (algebraMap ℚ ℂ)).IsRoot u}.Finite :=
-    Polynomial.finite_setOf_isRoot ((Polynomial.map_ne_zero_iff
+    Polynomial.finite_setOfPred_isRoot ((Polynomial.map_ne_zero_iff
       (FaithfulSMul.algebraMap_injective ℚ ℂ)).mpr r.denom_ne_zero)
   refine Polynomial.eq_zero_of_infinite_isRoot _ ((hS.sdiff hfin).mono fun u hu ↦ ?_)
   have heval : Polynomial.eval₂ (algebraMap ℚ ℂ) u r.num /

@@ -1158,7 +1158,7 @@ lemma card_ge_45_of_orders_3_and_5 (G : Type*) [Group G] [Fintype G]
       (by simp only [Set.disjoint_singleton_right]; norm_num)
       (Set.toFinite _) (Set.toFinite _),
     Set.ncard_union_eq
-      (by simp only [Set.disjoint_left, Set.mem_setOf_eq]
+      (by simp only [Set.disjoint_left, Set.mem_ofPred_eq]
           intro x hx; rw [hx]; norm_num)
       (Set.toFinite _) (Set.toFinite _),
     hc3, hc5, Set.ncard_singleton] at h_le
@@ -1176,7 +1176,7 @@ lemma not_normal_of_card_lt (G : Type*) [Group G] [Fintype G]
           (Set.singleton_subset_iff.mpr N.one_mem)
   have h_le := Set.ncard_le_ncard h_sub (Set.toFinite _)
   rw [Set.ncard_union_eq
-      (by simp only [Set.disjoint_singleton_right, Set.mem_setOf_eq, orderOf_one]
+      (by simp only [Set.disjoint_singleton_right, Set.mem_ofPred_eq, orderOf_one]
           exact (Nat.Prime.ne_one Fact.out).symm)
       (Set.toFinite _) (Set.toFinite _),
     ← Nat.card_coe_set_eq, Nat.card_eq_fintype_card,

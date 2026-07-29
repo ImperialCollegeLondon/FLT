@@ -56,7 +56,7 @@ lemma Module.depth_of_subsingleton [Subsingleton M] :
   rw [Module.depth, sSup_eq_top]
   rintro b hb
   obtain ⟨b, rfl⟩ := ENat.ne_top_iff_exists.mp hb.ne
-  simp only [Set.mem_setOf_eq, exists_prop, ↓existsAndEq, and_true, Nat.cast_lt]
+  simp only [Set.mem_ofPred_eq, exists_prop, ↓existsAndEq, and_true, Nat.cast_lt]
   refine ⟨List.replicate b.succ 0, ⟨?_, ?_⟩, ?_⟩
   · refine  (Sequence.isWeaklyRegular_iff_Fin ..).mpr fun i ↦ ?_
     exact fun _ _ _ ↦ Subsingleton.elim _ _

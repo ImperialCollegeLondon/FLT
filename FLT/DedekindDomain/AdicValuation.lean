@@ -217,7 +217,7 @@ theorem closureAlgebraMapIntegers_eq_integers :
     · use a
       rfl
     · apply hγ
-      simp only [sub_zero, WithVal.equiv_symm_apply, Set.mem_setOf_eq]
+      simp only [sub_zero, WithVal.equiv_symm_apply, Set.mem_ofPred_eq]
       rwa [← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,
         valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective
         (valuedAdicCompletion_surjective K v)]
@@ -393,7 +393,7 @@ theorem closureAlgebraMapIntegers_eq_prodIntegers {ι : Type*}
     · rw [RingHom.coe_range]
       exact Set.mem_range_self a
     · refine hts fun w hw ↦ hg' w ?_
-      rw [Set.mem_setOf_eq, ← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,
+      rw [Set.mem_ofPred_eq, ← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,
         valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective
           (valuedAdicCompletion_surjective K (v w))]
       exact ha w hw

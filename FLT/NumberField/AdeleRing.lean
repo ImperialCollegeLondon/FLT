@@ -427,7 +427,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
   use {f | ∀ v, f v ∈ (Metric.ball 0 1)} ×ˢ integralAdeles
   refine ⟨?_, ?_⟩
   · apply IsOpen.prod
-    · rw [Set.setOf_forall]
+    · rw [Set.ofPred_forall]
       apply isOpen_iInter_of_finite
       intro v
       exact Metric.isOpen_ball.preimage (continuous_apply v)
@@ -442,7 +442,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       rw [Set.mem_prod] at hx
       obtain ⟨h1, h2⟩ := hx
       dsimp only at h1 h2
-      simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq] at h1
+      simp only [Metric.mem_ball, dist_zero_right, Set.mem_ofPred_eq] at h1
       exact Rat.AdeleRing.integral_and_norm_lt_one x h2 h1
     · intro x
       simp only [Set.mem_singleton_iff, Set.mem_preimage]
@@ -451,13 +451,13 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       change (0, 0) ∈ _
       simp only [Prod.mk_zero_zero]
       constructor
-      · simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq]
+      · simp only [Metric.mem_ball, dist_zero_right, Set.mem_ofPred_eq]
         intro v
         have : ‖(0:InfiniteAdeleRing ℚ) v‖ = 0 := by
           simp only [norm_eq_zero]
           rfl
         simp [this, zero_lt_one]
-      · simp only [integralAdeles, Set.mem_setOf_eq]
+      · simp only [integralAdeles, Set.mem_ofPred_eq]
         intro v
         apply zero_mem
 
@@ -468,7 +468,7 @@ theorem NumberField.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 K) K)
   obtain ⟨V, hV, hV0⟩ := Rat.AdeleRing.zero_discrete
   use (piEquiv ℚ K) '' {f | ∀i, f i ∈ V }
   constructor
-  · rw [← (piEquiv ℚ K).coe_toHomeomorph, Homeomorph.isOpen_image, Set.setOf_forall]
+  · rw [← (piEquiv ℚ K).coe_toHomeomorph, Homeomorph.isOpen_image, Set.ofPred_forall]
     apply isOpen_iInter_of_finite
     intro i
     exact hV.preimage (continuous_apply i)

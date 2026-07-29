@@ -272,7 +272,7 @@ noncomputable def GL2.localIwahoriLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) where
   carrier := { x ∈ localFullLevel v | Valued.v (x.val 1 0) < 1 }
   mul_mem' {a b} ha hb := by
-    simp_all only [Set.mem_setOf_eq, Units.val_mul]
+    simp_all only [Set.mem_ofPred_eq, Units.val_mul]
     refine ⟨Subgroup.mul_mem _ ha.1 hb.1, ?_⟩
     simp only [Fin.isValue, Matrix.mul_apply, Fin.sum_univ_two]
     apply Valuation.map_add_lt _
