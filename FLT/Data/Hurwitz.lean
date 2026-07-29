@@ -73,7 +73,7 @@ lemma leftInvOn_toQuaternion_fromQuaternion :
   have h₀ (x y : ℤ) : (x + 2 ⁻¹ : ℝ) + (y + 2⁻¹) = ↑(x + y + 1) := by
     field_simp; norm_cast; ring
   intro q hq
-  simp only [Set.mem_setOf] at hq
+  simp only [Set.mem_ofPred] at hq
   simp only [toQuaternion, fromQuaternion]
   obtain ⟨a, b, c, d, rfl|rfl⟩ := hq <;>
   ext <;>
@@ -469,7 +469,7 @@ lemma normSq_toQuaternion (z : 𝓞) : normSq (toQuaternion z) = norm z := by
 set_option backward.isDefEq.respectTransparency.types false in
 private lemma aux (x y z w : ℤ) : toQuaternion (fromQuaternion ⟨x,y,z,w⟩) = ⟨x,y,z,w⟩ := by
   apply leftInvOn_toQuaternion_fromQuaternion
-  simp only [Set.mem_setOf]
+  simp only [Set.mem_ofPred]
   use x, y, z, w
   simp
 
@@ -513,7 +513,7 @@ lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
     simp_rw [and_assoc, sq_eq_zero_iff, neg_add_eq_sub, re_sub, imI_sub, imJ_sub, imK_sub,
       sub_eq_zero, ← Quaternion.ext_iff]
     apply leftInvOn_toQuaternion_fromQuaternion
-    · simp only [Set.mem_setOf]
+    · simp only [Set.mem_ofPred]
       have {r : ℝ} {z : ℤ} (h : |r - z| = 2⁻¹) : ∃ z' : ℤ, r = z' + 2⁻¹  := by
         cases (abs_eq (by positivity)).mp h with (rw [sub_eq_iff_eq_add'] at h)
         | inl h => use z

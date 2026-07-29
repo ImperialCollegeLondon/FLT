@@ -42,7 +42,8 @@ theorem Module.FinitePresentation.exists_fin_exact (R : Type*) (M : Type*)
   let g : (Fin n → R) →ₗ[R] M := iso.symm.toLinearMap.comp (Submodule.mkQ K)
   have h₁ : LinearMap.range f = K := by
     simp only [← hS, f, Fintype.range_linearCombination, gens, (Surjective.range_comp
-    (Finset.equivFin S).symm.surjective Subtype.val), Subtype.range_val_subtype, Finset.setOf_mem]
+    (Finset.equivFin S).symm.surjective Subtype.val), Subtype.range_val_subtype,
+    Finset.setOfPred_mem]
   have h₂ : LinearMap.ker g = K := by
     simp only [g, LinearEquiv.ker_comp, Submodule.ker_mkQ]
   have exact_fg : Exact f g := LinearMap.exact_iff.mpr (h₂.trans h₁.symm)

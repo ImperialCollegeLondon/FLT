@@ -305,7 +305,7 @@ instance {K L : Type*} [Field K] [Field L] [Algebra K L] [Algebra.IsAlgebraic K 
   refine ⟨_, ?_, K⟮x⟯.fixingSubgroup_isOpen.smul σ, 1, one_mem _, by simp⟩
   rintro _ ⟨τ, hτ, rfl⟩
   have := (mem_fixingSubgroup_iff _).mp hτ x (IntermediateField.mem_adjoin_simple_self K x)
-  simp only [smul_eq_mul, Set.mem_setOf_eq, mul_smul, this, hσ]
+  simp only [smul_eq_mul, Set.mem_ofPred_eq, mul_smul, this, hσ]
 
 instance {K L : Type*} [Field K] [Field L] [Algebra K L] [IsGalois K L] :
     Algebra.IsInvariant K L (L ≃ₐ[K] L) :=

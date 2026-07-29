@@ -132,15 +132,15 @@ omit [IsIntegralClosure B A L] [IsFractionRing B L] in
 /-- There are only finitely many nonzero primes of B above a nonzero prime of A. -/
 theorem Extension.finite (v : HeightOneSpectrum A) : Finite (v.Extension B) := by
   have := isTorsionFree A K L B
-  rw [Extension, ← Set.coe_setOf]
+  rw [Extension, ← Set.coe_ofPred]
   rw [@Set.finite_coe_iff]
   have := primesOver_finite v.asIdeal B
   refine Set.Finite.of_finite_image (f := HeightOneSpectrum.asIdeal) ?_ ?_
   · refine Set.Finite.subset this ?_
-    simp only [Set.subset_def, Set.mem_image, Set.mem_setOf_eq, forall_exists_index, and_imp,
+    simp only [Set.subset_def, Set.mem_image, Set.mem_ofPred_eq, forall_exists_index, and_imp,
       forall_apply_eq_imp_iff₂]
     rintro w rfl
-    simp only [Ideal.primesOver, Set.mem_setOf_eq, isPrime, true_and]
+    simp only [Ideal.primesOver, Set.mem_ofPred_eq, isPrime, true_and]
     constructor
     simp [Ideal.under_def, under]
   · intro x hx y hy hxy

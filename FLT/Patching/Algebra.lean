@@ -111,11 +111,11 @@ subring of the product of components: those families that are compatible under t
 transition maps. -/
 def PatchingAlgebra.subring : Subring (Π i, Component R F i) where
   carrier := { v | ∀ j k hjk, componentMap R F j k hjk (v j) = v k }
-  mul_mem' := by simp +contextual only [Set.mem_setOf, Pi.mul_apply, map_mul, implies_true]
-  add_mem' := by simp +contextual only [Set.mem_setOf, Pi.add_apply, RingHom.map_add, implies_true]
+  mul_mem' := by simp +contextual only [Set.mem_ofPred, Pi.mul_apply, map_mul, implies_true]
+  add_mem' := by simp +contextual only [Set.mem_ofPred, Pi.add_apply, RingHom.map_add, implies_true]
   one_mem' := by simp
   zero_mem' := by simp
-  neg_mem' := by simp +contextual only [Set.mem_setOf, Pi.neg_apply, RingHom.map_neg, implies_true]
+  neg_mem' := by simp +contextual only [Set.mem_ofPred, Pi.neg_apply, RingHom.map_neg, implies_true]
 
 /-- The patching algebra as a `Λ`-subalgebra of the product of components. -/
 def PatchingAlgebra.subalgebra : Subalgebra Λ (Π i, Component R F i) where

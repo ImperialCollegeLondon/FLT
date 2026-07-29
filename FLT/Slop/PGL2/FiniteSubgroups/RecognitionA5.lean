@@ -181,7 +181,7 @@ theorem element_partition_count (G : Subgroup (PGLOf (K p))) [Finite G] :
       Nat.card {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGLOf (K p))) p} := by
   have h_disj : Disjoint {g : G | g ≠ 1 ∧ orderOf (g : PGLOf (K p)) = p}
                          {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGLOf (K p))) p} := by
-    simp only [Set.disjoint_left, Set.mem_setOf_eq]
+    simp only [Set.disjoint_left, Set.mem_ofPred_eq]
     rintro g ⟨_, h1⟩ ⟨_, h2⟩
     rw [h1] at h2
     exact Nat.Prime.ne_one Fact.out ((Nat.gcd_self p).symm.trans h2)
@@ -192,7 +192,7 @@ theorem element_partition_count (G : Subgroup (PGLOf (K p))) [Finite G] :
   have h_set : {g : G | g ≠ 1} = {g : G | g ≠ 1 ∧ orderOf (g : PGLOf (K p)) = p} ∪
                                  {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGLOf (K p))) p} := by
     ext g
-    simp only [Set.mem_setOf_eq, Set.mem_union, ← and_or_left]
+    simp only [Set.mem_ofPred_eq, Set.mem_union, ← and_or_left]
     exact (and_iff_left (element_dichotomy p G g)).symm
   rw [h_sum, h_set, Nat.card_congr (Equiv.Set.union h_disj), Nat.card_sum,Nat.add_sub_cancel_left]
 

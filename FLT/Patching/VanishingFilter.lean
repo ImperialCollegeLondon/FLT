@@ -58,7 +58,7 @@ def vanishingUltrafilter (p : Ideal (Π i, R i)) [p.IsPrime] : Ultrafilter ι :=
   .ofComplNotMemIff (vanishingFilter p) <| by
     classical
     intro s
-    simp only [vanishingFilter, Filter.mem_mk, Set.mem_setOf_eq, Set.mem_compl_iff]
+    simp only [vanishingFilter, Filter.mem_mk, Set.mem_ofPred_eq, Set.mem_compl_iff]
     constructor
     · intro H
       refine (Ideal.IsPrime.mem_or_mem_of_mul_eq_zero ‹p.IsPrime› ?_).resolve_left H
@@ -86,7 +86,7 @@ lemma eventually_vanishingFilter_not_isUnit
   have : (fun i ↦ if IsUnit (x i) then 1 else 0) ∈ p := by
     convert p.mul_mem_left (fun i ↦ if h : IsUnit (x i) then (h.unit⁻¹ : _) else 0) hx with i
     aesop
-  simp only [Filter.Eventually, mem_vanishingFilter, Set.mem_setOf_eq, Classical.ite_not]
+  simp only [Filter.Eventually, mem_vanishingFilter, Set.mem_ofPred_eq, Classical.ite_not]
   convert this
 
 lemma vanishingFilter_le {p : Ideal (Π i, R i)} {F : Filter ι} :

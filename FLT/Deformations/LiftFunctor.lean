@@ -122,8 +122,8 @@ def unramifiedFunctor (v : Ω K) : Subfunctor (repnFunctor n (Γ K) 𝓞) where
   obj R := { ρ | (toFramedGaloisRep ρ).IsUnramifiedAt v }
   map {R S} f ρ hρ := by
     have : (toFramedGaloisRep ρ).IsUnramifiedAt v := hρ
-    simp only [Set.preimage_setOf_eq, toFramedGaloisRep_map, FramedGaloisRep.baseChange_def,
-      GaloisRep.frame, Set.mem_setOf_eq] at ⊢
+    simp only [Set.preimage_ofPred_eq, toFramedGaloisRep_map, FramedGaloisRep.baseChange_def,
+      GaloisRep.frame, Set.mem_ofPred_eq] at ⊢
     infer_instance
 
 set_option backward.isDefEq.respectTransparency.types false in

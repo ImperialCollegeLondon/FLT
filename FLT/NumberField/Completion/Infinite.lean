@@ -107,7 +107,7 @@ abbrev baseChangeRight :
 
 theorem mem_placesOver_iff_comap (v : InfinitePlace K) (w : InfinitePlace L) :
     w ∈ placesOver L v ↔ w.comap (algebraMap K L) = v := by
-  simp only [placesOver, Set.mem_setOf_eq]
+  simp only [placesOver, Set.mem_ofPred_eq]
   exact ⟨fun _ ↦ LiesOver.comap_eq _ _, fun h ↦ ⟨by simp [← h, InfinitePlace.comap]⟩⟩
 
 variable [NumberField L]

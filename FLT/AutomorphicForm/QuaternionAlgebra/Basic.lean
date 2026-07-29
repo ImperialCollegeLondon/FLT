@@ -539,10 +539,10 @@ variable (D M) in
 /-- The subspace of modular forms of a given level. -/
 def form : Submodule R (WeightTwoAutomorphicForm F D M) where
   carrier := { f | ∀ x : ℒ.U, x • f = ℒ.χ x • f }
-  add_mem' {f g} hf hg x := by simp only [Set.mem_setOf_eq] at hf hg; simp [hf, hg]
+  add_mem' {f g} hf hg x := by simp only [Set.mem_ofPred_eq] at hf hg; simp [hf, hg]
   zero_mem' := by simp
   smul_mem' r f hf x := by
-    simp only [Set.mem_setOf_eq] at hf
+    simp only [Set.mem_ofPred_eq] at hf
     rw [smul_comm, hf, smul_comm]
 
 instance {F D R M S : Type*} [Field F] [NumberField F] [Ring D] [Algebra F D]
@@ -1157,7 +1157,7 @@ set_option backward.isDefEq.respectTransparency.types false in
 def toStruct : LevelStruct F R where
   U :=
   { carrier := { x | ∀ v, GL2.toAdicCompletion v x ∈ ℒ.US v }
-    mul_mem' := by simp +contextual only [Set.mem_setOf_eq, map_mul, mul_mem, implies_true]
+    mul_mem' := by simp +contextual only [Set.mem_ofPred_eq, map_mul, mul_mem, implies_true]
     one_mem' := by dsimp; simp only [map_one, one_mem, implies_true]
     inv_mem' := by dsimp; simp only [map_inv, inv_mem_iff, imp_self, implies_true] }
   isCompact_U := by

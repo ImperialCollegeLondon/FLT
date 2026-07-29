@@ -206,7 +206,7 @@ theorem summable_of_valuation_le_pow {ι : Type*} {q : k} (hq : valuation k q < 
   obtain ⟨N, hN⟩ := exists_pow_valuation_lt q hq γ
   rw [Filter.eventually_cofinite]
   refine (he N).subset fun i hi ↦ ?_
-  simp only [Set.mem_setOf_eq, sub_zero] at hi
+  simp only [Set.mem_ofPred_eq, sub_zero] at hi
   exact lt_of_not_ge fun hge ↦
     hi (lt_of_le_of_lt ((hf i).trans (pow_le_pow_right_of_le_one' hq.le hge)) hN)
 
@@ -262,7 +262,7 @@ theorem valuation_evalInt_le_pow (q : k) (hq : valuation k q < 1) {F : ℤ⟦X�
     (IsValuativeTopology.hasBasis_nhds (evalInt q F)).tendsto_right_iff] at hS
   obtain ⟨s, hs⟩ :=
     (hS (Units.mk0 _ (ne_of_gt (lt_of_le_of_lt zero_le hlt))) trivial).exists
-  simp only [Set.mem_setOf_eq] at hs
+  simp only [Set.mem_ofPred_eq] at hs
   refine absurd ?_ (lt_irrefl (valuation k (evalInt q F)))
   calc valuation k (evalInt q F)
       = valuation k ((∑ n ∈ s, ((PowerSeries.coeff n F : ℤ) : k) * q ^ n) -

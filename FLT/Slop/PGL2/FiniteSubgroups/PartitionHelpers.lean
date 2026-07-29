@@ -202,7 +202,7 @@ theorem count_order_p_elements (G : Subgroup (PGLOf (K p))) [Finite G]
 
   have h_elements_order_p : {g : G | orderOf g = p} = ⋃ Q ∈ (Finset.univ : Finset (Sylow p G)), ((Q : Subgroup G) \ {1} : Set G) := by
     ext g
-    simp only [Set.mem_setOf_eq, Set.mem_iUnion, Finset.mem_univ, exists_prop, true_and, Set.mem_sdiff, Set.mem_singleton_iff]
+    simp only [Set.mem_ofPred_eq, Set.mem_iUnion, Finset.mem_univ, exists_prop, true_and, Set.mem_sdiff, Set.mem_singleton_iff]
     refine ⟨fun hg ↦ ?_, fun ⟨Q, hgQ, hg_ne_one⟩ ↦ ?_⟩
     · have h_sylow : IsPGroup p (Subgroup.zpowers g) := fun ⟨x, hx⟩ ↦ by
         obtain ⟨k, rfl⟩ := Subgroup.mem_zpowers_iff.mp hx

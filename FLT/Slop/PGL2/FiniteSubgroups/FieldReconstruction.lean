@@ -510,7 +510,7 @@ theorem P1point_mem_P1_Fq (m : ℕ) (c : K p) (hc : c ∈ FqInK p m) :
   Set.mem_union_right _ ⟨c, hc, rfl⟩
 
 theorem F_q_neg (m : ℕ) (x : K p) (hx : x ∈ FqInK p m) : -x ∈ FqInK p m := by
-  simp only [FqInK, Set.mem_setOf_eq] at hx ⊢
+  simp only [FqInK, Set.mem_ofPred_eq] at hx ⊢
   rw [neg_pow, hx, Odd.neg_one_pow (Odd.pow (Nat.Prime.odd_of_ne_two Fact.out (by exact ne_of_gt Fact.out))), neg_one_mul]
 
 theorem F_q_sub_closed (m : ℕ) (x y : K p) (hx : x ∈ FqInK p m) (hy : y ∈ FqInK p m) :
@@ -966,7 +966,7 @@ theorem orbitInfty_conj_of_fixes_infty (G' : Subgroup (PGLOf (K p)))
     orbitInfty p (G'.map (MulEquiv.toMonoidHom (MulAut.conj g))) =
       (fun x ↦ g • x) '' orbitInfty p G' := by
   ext x
-  simp only [orbitInfty, Set.mem_setOf_eq, Set.mem_image]
+  simp only [orbitInfty, Set.mem_ofPred_eq, Set.mem_image]
   have hg_inv : g⁻¹ • infinity p = infinity p := inv_smul_eq_iff.mpr hg_fix.symm
   constructor
   · rintro ⟨k, hk_mem, rfl⟩
@@ -1343,7 +1343,7 @@ theorem normDilationParam_image_card
         = Set.ncard (Set.image (fun h : (P : Subgroup G) ↦ (⟨h.val * g.val, Subgroup.mul_mem _ (Subgroup.le_normalizer h.prop) g.prop⟩ : (Subgroup.normalizer ((P : Subgroup G) : Set G)))) Set.univ) := by
           congr 1
           ext x
-          simp only [Set.mem_setOf_eq, Set.mem_image, Set.mem_univ, true_and]
+          simp only [Set.mem_ofPred_eq, Set.mem_image, Set.mem_univ, true_and]
           constructor
           · intro hx
             exact Exists.intro ⟨(x : G) * (g : G)⁻¹, same_normDilationParam_imp_coset p G hG_p P hP_fix x g (hx.trans hg.symm)⟩ (Subtype.ext (inv_mul_cancel_right (x : G) (g : G)))
@@ -1363,12 +1363,12 @@ theorem normDilationParam_image_card
           _ = Set.ncard {g : (Subgroup.normalizer ((P : Subgroup G) : Set G)) | normDilationParam p G hG_p P hP_fix g ∈ (∅ : Finset (K p))} := by
             congr 1
             ext g
-            rw [Set.mem_empty_iff_false, Set.mem_setOf_eq]
+            rw [Set.mem_empty_iff_false, Set.mem_ofPred_eq]
             exact (iff_false_intro (Finset.notMem_empty _)).symm
       · rw [Finset.sum_insert hy, ih, ← Set.ncard_union_eq]
         · congr 1
           ext g
-          rw [Set.mem_setOf_eq, Finset.mem_insert, Set.mem_union, Set.mem_setOf_eq, Set.mem_setOf_eq]
+          rw [Set.mem_ofPred_eq, Finset.mem_insert, Set.mem_union, Set.mem_ofPred_eq, Set.mem_ofPred_eq]
         · exact Set.disjoint_left.mpr fun x hx1 hx2 ↦ hy (hx1.symm ▸ hx2)
     calc
       Set.ncard S * Nat.card (P : Subgroup G)
@@ -1389,7 +1389,7 @@ theorem normDilationParam_image_card
       _ = Set.ncard (Set.univ : Set ((Subgroup.normalizer ((P : Subgroup G) : Set G)))) := by
           congr 1
           ext g
-          rw [Set.mem_setOf_eq, Set.Finite.mem_toFinset]
+          rw [Set.mem_ofPred_eq, Set.Finite.mem_toFinset]
           exact iff_of_true ⟨g, rfl⟩ (Set.mem_univ g)
       _ = Nat.card ((Subgroup.normalizer ((P : Subgroup G) : Set G))) := Set.ncard_univ ((Subgroup.normalizer ((P : Subgroup G) : Set G)))
   exact ((Nat.div_eq_of_eq_mul_left Nat.card_pos h_card_S_mul.symm).symm : Set.ncard S = normalizerQuotient p G P).trans (z1_eq_pm_minus_one p G m hm hG P (n_p_gt_one_of_pgl_order p G m hm hG))

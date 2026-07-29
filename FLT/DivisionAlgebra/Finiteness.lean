@@ -958,7 +958,7 @@ lemma incl₂_isClosedEmbedding : Topology.IsClosedEmbedding (incl₂ K D) := by
     (Subgroup.subtype_injective (ringHaarCharKer (D ⊗[K] AdeleRing (𝓞 K) K))) ?_
   simp only [Subgroup.coe_subtype]
   refine Topology.IsInducing.isClosedMap ({ eq_induced := rfl }) ?_
-  simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
+  simp only [Subtype.range_coe_subtype, SetLike.setOfPred_mem_eq]
   exact IsClosed.preimage (continuous_id')
     (IsClosed.preimage (map_continuous ringHaarChar) (by simp))
 

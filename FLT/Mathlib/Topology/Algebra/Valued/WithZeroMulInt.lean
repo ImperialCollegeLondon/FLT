@@ -107,7 +107,7 @@ theorem integer_compactSpace [CompleteSpace K] [IsDiscreteValuationRing 𝒪[K]]
     obtain ⟨t, htf, ht⟩ := finite_cover_of_uniformity_basis
       (Units.mapEquiv (valueGroup₀_equiv_withZeroMulInt v).toMulEquiv γ) h
     refine ⟨t, htf, ht.trans fun x hx ↦ ?_⟩
-    simp only [Set.mem_setOf_eq, Set.mem_iUnion] at hx ⊢
+    simp only [Set.mem_ofPred_eq, Set.mem_iUnion] at hx ⊢
     obtain ⟨i, hit, hi⟩ := hx
     use i, hit
     rw [← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,
