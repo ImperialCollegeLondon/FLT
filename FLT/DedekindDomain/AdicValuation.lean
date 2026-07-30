@@ -110,7 +110,7 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
   have hm : emultiplicity v.asIdeal (Ideal.span {a}) ≤ n :=
     le_of_eq_of_le
       (emultiplicity_eq_of_valuation_eq_ofAdd v <| intValuation_eq_coe_neg_multiplicity v hnz)
-      (ENat.coe_le_coe.mpr hle)
+      (ENat.natCast_le_natCast.mpr hle)
   have hb : b ∈ v.asIdeal ^ multiplicity v.asIdeal (Ideal.span {a}) := by
     rwa [← intValuation_le_pow_iff_mem, ← intValuation_eq_coe_neg_multiplicity _ hnz]
   -- Now make use of

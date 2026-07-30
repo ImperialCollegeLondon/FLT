@@ -112,7 +112,7 @@ lemma length_quotient_ne_top_of_radical_eq {I : Ideal R}
 /-- For an ideal of definition, `colength` really is the length. -/
 lemma colength_coe {I : Ideal R} (h : I.radical = maximalIdeal R) :
     (colength R I : ℕ∞) = Module.length R (R ⧸ I) := by
-  rw [colength, ENat.coe_toNat (length_quotient_ne_top_of_radical_eq h)]
+  rw [colength, ENat.natCast_toNat (length_quotient_ne_top_of_radical_eq h)]
 
 set_option linter.unusedSectionVars false in
 /-- Powers of an ideal of definition are ideals of definition. -/

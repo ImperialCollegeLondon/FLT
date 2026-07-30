@@ -141,7 +141,7 @@ lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
     cases m with
     | top =>
       have : (⊤ : ℕ∞) ≤ (n : ℕ) := by apply WithBot.coe_le_coe.mp; simpa only [h] using! this
-      cases (ENat.coe_lt_top n).not_ge this
+      cases (ENat.natCast_lt_top n).not_ge this
     | coe m =>
     rw [h] at this
     replace this : m + 1 ≤ n := WithTop.coe_le_coe.mp (WithBot.coe_le_coe.mp this)
