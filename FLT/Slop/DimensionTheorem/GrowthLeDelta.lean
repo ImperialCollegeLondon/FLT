@@ -215,8 +215,8 @@ lemma colength_pow_le (s : Finset R) (hs : 1 ≤ s.card)
         _ = ((colength R q * (m + 1 + 1) ^ s.card : ℕ) : ℕ∞) := by
             push_cast; ring
   have hne : Module.length R (R ⧸ (q ^ n : Ideal R)) ≠ ⊤ :=
-    ne_top_of_le_ne_top (ENat.coe_ne_top _) (key n)
-  rw [colength, ← Nat.cast_le (α := ℕ∞), ENat.coe_toNat hne]
+    ne_top_of_le_ne_top (ENat.natCast_ne_top _) (key n)
+  rw [colength, ← Nat.cast_le (α := ℕ∞), ENat.natCast_toNat hne]
   exact key n
 
 /-- **`d(R) ≤ δ(R)`, main lemma**: the Hilbert–Samuel function grows at most
