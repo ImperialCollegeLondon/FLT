@@ -253,7 +253,6 @@ lemma heckeOperator_eq_of_mem_normalizer
     rw [H₁, H₂, Set.image_singleton, Set.bijOn_singleton]
     simp
 
-set_option backward.isDefEq.respectTransparency false in
 theorem comm {g₁ g₂ : G} (h₁ : (QuotientGroup.mk '' (U * {g₁}) : Set (G ⧸ U)).Finite)
     (h₂ : (QuotientGroup.mk '' (U * {g₂}) : Set (G ⧸ U)).Finite)
     (hcomm : ∃ s₁ s₂ : Set G,

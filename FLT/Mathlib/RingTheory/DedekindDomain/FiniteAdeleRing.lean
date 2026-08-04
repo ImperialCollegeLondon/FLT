@@ -60,6 +60,10 @@ variable {R K}
 @[simp] lemma neg_apply (a : FiniteAdeleRing R K) (v : HeightOneSpectrum R) :
     (-a) v = - a v := rfl
 
+@[simp] lemma smul_apply (k : K) (a : FiniteAdeleRing R K) (v : HeightOneSpectrum R) :
+    (k • a) v = k • a v := by
+  simp [Algebra.smul_def, mul_apply, algebraMap_apply, HeightOneSpectrum.algebraMap_adicCompletion]
+
 /-- Constructor for `FiniteAdeleRing R K`. An `abbrev`. -/
 abbrev mk (f : ∀ v, HeightOneSpectrum.adicCompletion K v)
     (h : ∀ᶠ (i : HeightOneSpectrum R) in Filter.cofinite,
@@ -95,7 +99,6 @@ noncomputable def evalContinuousAlgebraMap (j : HeightOneSpectrum R) :
                                               -- field not called continuous_toFun??
     }
 
-set_option backward.isDefEq.respectTransparency false in
 variable [DecidableEq (HeightOneSpectrum R)] in
 /--
 The continuous K-linear inclusion Kᵥ → 𝔸_K^f from a completion to the finite K-adeles.
@@ -106,13 +109,11 @@ noncomputable def singleLinearMap (j : HeightOneSpectrum R) :
   map_smul' k x := by
     open RestrictedProduct in
     ext1 i
-    change Pi.single j (k • x) i = _
+    rw [smul_apply]
+    change Pi.single j (k • x) i = k • Pi.single j x i
     obtain rfl | h := eq_or_ne i j
-    · simp [Pi.single_eq_same, -mul_eq_mul_right_iff, FiniteAdeleRing, Algebra.smul_def,
-        singleContinuousAddMonoidHom_apply_same]
-      rfl -- (annoying)
-    · simp [Pi.single_eq_of_ne h, FiniteAdeleRing, Algebra.smul_def,
-        singleContinuousAddMonoidHom_apply_of_ne _ h _]
+    · simp
+    · simp [Pi.single_eq_of_ne h]
     }
 
 variable [DecidableEq (HeightOneSpectrum R)] in
@@ -130,7 +131,6 @@ noncomputable def singleMulHom (j : HeightOneSpectrum R) :
     · simp [Pi.single_eq_of_ne' h]
     }
 
-set_option backward.isDefEq.respectTransparency false in
 variable [DecidableEq (HeightOneSpectrum R)] in
 /--
 The continuous K-linear inclusion Kᵥ → 𝔸_K^f from a completion to the finite K-adeles.
@@ -141,13 +141,11 @@ noncomputable def singleContinuousLinearMap (j : HeightOneSpectrum R) :
   map_smul' k x := by
     open RestrictedProduct in
     ext1 i
-    change Pi.single j (k • x) i = _
+    rw [smul_apply]
+    change Pi.single j (k • x) i = k • Pi.single j x i
     obtain rfl | h := eq_or_ne i j
-    · simp [Pi.single_eq_same, -mul_eq_mul_right_iff, FiniteAdeleRing, Algebra.smul_def,
-        singleContinuousAddMonoidHom_apply_same]
-      rfl -- (annoying)
-    · simp [Pi.single_eq_of_ne h, FiniteAdeleRing, Algebra.smul_def,
-        singleContinuousAddMonoidHom_apply_of_ne _ h _]
+    · simp
+    · simp [Pi.single_eq_of_ne h]
   -- this would not be necessary if this field were called `continuous_toFun` as it should be
   cont := (RestrictedProduct.singleContinuousAddMonoidHom _ j).continuous_toFun
   }
@@ -180,7 +178,6 @@ lemma eval_localIdempotent (p : HeightOneSpectrum R) :
     (evalContinuousAlgebraMap R K p) (localIdempotent R K p) = 1 :=
   Pi.single_eq_same _ _
 
-set_option backward.isDefEq.respectTransparency false in
 variable [DecidableEq (HeightOneSpectrum R)] in
 /--
 The composite `𝔸_K^f --(eval)--> Kᵥ --(single)--> 𝔸_K^f` is multiplication by
@@ -191,13 +188,12 @@ lemma singleContinuousAlgebraMap_comp_evalContinuousLinearMap (j : HeightOneSpec
     (evalContinuousAlgebraMap R K j).toContinuousLinearMap).toLinearMap =
     LinearMap.lsmul (FiniteAdeleRing R K) (FiniteAdeleRing R K) (localIdempotent R K j) := by
   ext1 x; ext1 q
-  change Pi.single _ (x j) _ = Pi.single j _ q * _
+  change Pi.single _ (x j) _ = Pi.single j _ q * x q
   obtain rfl | h := eq_or_ne j q
   · simp [Pi.single_eq_same]
   · simp [Pi.single_eq_of_ne' h]
 
 variable {R K} in
-set_option backward.isDefEq.respectTransparency false in
 lemma exists_mul_mem_integralAdeles (x : 𝔸ᶠ[R, K]) :
     ∃ a : 𝔸ᶠ[R, K]ˣ, a.1 ∈ FiniteAdeleRing.integralAdeles R K ∧
       a * x ∈ FiniteAdeleRing.integralAdeles R K ∧ Set.Finite {x | a.1 x ≠ 1} := by
