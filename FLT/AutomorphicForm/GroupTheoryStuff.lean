@@ -56,8 +56,8 @@ lemma Nat.exists_coprime_and_dvd_pow (a b : ℕ) (ha : a ≠ 0) :
 
 
 /-- The "maximal `p`-quotient" of `(ℤ, +)` is `ℤ/⋂ₙ pⁿℤ = ℤ`, not a `p`-group. -/
-lemma MaximalPQuotient.isPGroup_of_isTorsion
-    (G : Type*) [Group G] (p : ℕ) (hG : Monoid.IsTorsion G) :
+lemma MaximalPQuotient.isPGroup_of_isMulTorsion
+    (G : Type*) [Group G] (p : ℕ) (hG : IsMulTorsion G) :
     IsPGroup p (MaximalPQuotient G p) := by
   intro x
   obtain ⟨x, rfl⟩ := MaximalPQuotient.mk_surjective x
