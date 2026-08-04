@@ -15,6 +15,7 @@ public import FLT.Basic.Lemmas
 public import FLT.Data.Hurwitz
 public import FLT.Data.HurwitzRatHat
 public import FLT.Data.QHat
+public import FLT.Data.QHat.Padics
 public import FLT.DedekindDomain.AdicValuation
 public import FLT.DedekindDomain.Completion.BaseChange
 public import FLT.DedekindDomain.FiniteAdeleRing.BaseChange
@@ -212,6 +213,7 @@ public import FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace
 public import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
 public import FLT.Mathlib.Topology.Polish
 public import FLT.NumberField.AdeleRing
+public import FLT.NumberField.AdeleRing.QHat
 public import FLT.NumberField.Completion.Finite
 public import FLT.NumberField.Completion.Infinite
 public import FLT.NumberField.DiscriminantBounds
