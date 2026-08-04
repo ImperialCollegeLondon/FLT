@@ -5,7 +5,6 @@ Authors: Edison Xie
 -/
 module
 
-public import Mathlib
 public import FLT.Mathlib.Algebra.Category.ModuleCat.Topology.Basic
 public import FLT.Mathlib.Algebra.Category.ModuleCat.Topology.Homology
 public import FLT.Mathlib.RepresentationTheory.Continuous.Basic
