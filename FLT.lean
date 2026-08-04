@@ -242,6 +242,9 @@ public import FLT.Slop.DimensionTheorem.DimLeGrowth
 public import FLT.Slop.DimensionTheorem.GrowthLeDelta
 public import FLT.Slop.DimensionTheorem.Main
 public import FLT.Slop.DimensionTheorem.Numeric
+public import FLT.Slop.ExactCouple
+public import FLT.Slop.ExactCouple.Basic
+public import FLT.Slop.ExactCouple.Graded
 public import FLT.Slop.NumberTheory.TsumDivisorsAntidiagonal
 public import FLT.Slop.PGL2.FiniteSubgroups.CyclicPartition
 public import FLT.Slop.PGL2.FiniteSubgroups.DicksonClassification
@@ -257,4 +260,11 @@ public import FLT.Slop.PGL2.FiniteSubgroups.TameClassification
 public import FLT.Slop.PGL2.FiniteSubgroups.WildClassification
 public import FLT.Slop.RepresentationTheory.OddAbsIrredOrig
 public import FLT.Slop.RepresentationTheory.OddAbsIrredSlop
+public import FLT.Slop.SpectralSequence
+public import FLT.Slop.SpectralSequence.CategoryTheory
+public import FLT.Slop.SpectralSequence.DoubleComplex
+public import FLT.Slop.SpectralSequence.ExactCoupleBridge
+public import FLT.Slop.SpectralSequence.FilteredComplex
+public import FLT.Slop.SpectralSequence.FilteredModule
+public import FLT.Slop.SpectralSequence.FiveTerm
 public import FLT.TateCurve.TateCurve
