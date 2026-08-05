@@ -58,7 +58,7 @@ The desired instances are constructed later as `scoped` instances in `FLT.Number
 -/
 
 @[expose] public section
-open scoped TensorProduct Adele
+open scoped TensorProduct NumberField.AdeleRing
 
 universe u
 
@@ -75,7 +75,7 @@ variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L]
 section BaseChange
 
 /-- `𝔸 K` for `K` a number field, is notation for `AdeleRing (𝓞 K) K`. -/
-scoped[Adele] notation:max "𝔸" K => AdeleRing (𝓞 K) K
+scoped notation:max "𝔸" K => AdeleRing (𝓞 K) K
 
 instance [SMul (𝔸 K) (𝔸 L)] : SMul (K∞ × 𝔸ᶠ[K]) (L∞ × 𝔸ᶠ[L]) :=
   inferInstanceAs (SMul (𝔸 K) (𝔸 L))

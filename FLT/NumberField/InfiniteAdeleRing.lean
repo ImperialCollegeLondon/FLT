@@ -78,8 +78,7 @@ open scoped TensorProduct
 
 namespace NumberField.InfiniteAdeleRing
 
-/-- `K∞` is notation for `InfiniteAdeleRing K`. -/
-scoped notation:10000 K "∞" => InfiniteAdeleRing K
+open scoped NumberField.AdeleRing
 
 /-- The canonical map from the infinite adeles of K to the infinite adeles of L -/
 noncomputable def baseChange :

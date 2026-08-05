@@ -50,7 +50,7 @@ namespace IsDedekindDomain
 
 open IsDedekindDomain HeightOneSpectrum adicCompletion Extension
 
-open scoped TensorProduct Adele -- ⊗ notation for tensor product
+open scoped TensorProduct IsDedekindDomain.FiniteAdeleRing -- ⊗ notation for tensor product
 
 lemma tendsTo_comap_cofinite [FaithfulSMul A B] :
     Filter.Tendsto (under A (B:=B)) Filter.cofinite Filter.cofinite :=

@@ -54,7 +54,7 @@ scoped[FLT] notation "GL₂(" F ")" => GL (Fin 2) F
 /-- `M₂(F)` is notation for `Matrix (Fin 2) (Fin 2) F`. -/
 scoped[FLT] notation "M₂(" F ")" => Matrix (Fin 2) (Fin 2) F
 
-open scoped FLT Adele
+open scoped FLT NumberField.AdeleRing
 
 /--
 A rigidification of a quaternion algebra D over a number field F
@@ -536,7 +536,7 @@ def IsDedekindDomain.FiniteAdeleRing.toAdicCompletion (v : HeightOneSpectrum (�
   __ := RestrictedProduct.evalRingHom _ v
   commutes' _ := rfl
 
-open scoped Adele
+open scoped NumberField.AdeleRing
 
 namespace IsDedekindDomain.FiniteAdeleRing
 

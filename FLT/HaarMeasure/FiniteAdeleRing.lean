@@ -63,7 +63,7 @@ instance isUnimodularGroup [Countable ι] [∀ i, IsUnimodularGroup (G i)] :
 
 open IsDedekindDomain
 
-open scoped NumberField Adele in
+open scoped NumberField NumberField.AdeleRing in
 instance {K : Type*} [Field K] [NumberField K] :
     IsUnimodularGroup 𝔸ᶠ[K]ˣ :=
   have : Fact (∀ (v : HeightOneSpectrum (𝓞 K)), IsOpen (X := (v.adicCompletion K)ˣ)
@@ -84,7 +84,7 @@ instance {M : Type*} [Monoid M] [TopologicalSpace M] [SecondCountableTopology M]
     SecondCountableTopology Mˣ :=
   TopologicalSpace.secondCountableTopology_induced _ _ _
 
-open scoped NumberField Adele in
+open scoped NumberField NumberField.AdeleRing in
 instance {K n : Type*} [Field K] [NumberField K] [Fintype n] [DecidableEq n] :
     IsUnimodularGroup (GL n 𝔸ᶠ[K]) :=
   have : Fact (∀ (v : HeightOneSpectrum (𝓞 K)), IsOpen (X := GL n (v.adicCompletion K))
@@ -197,7 +197,7 @@ lemma isClosed_unitsMap_matrix
   rw [Units.range_map (hf := by exact FaithfulSMul.algebraMap_injective _ _)]
   rfl
 
-open scoped NumberField Adele in
+open scoped NumberField NumberField.AdeleRing in
 instance {K n : Type*} [Field K] [NumberField K] [Fintype n] [DecidableEq n] :
     IsUnimodularGroup (GL n 𝔸ᶠ[K] ⧸
       (Units.map (algebraMap 𝔸ᶠ[K] (Matrix n n 𝔸ᶠ[K])).toMonoidHom).range) :=

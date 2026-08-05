@@ -40,7 +40,7 @@ that the global units `Bˣ` are in the kernel of this character.
 
 open NumberField
 
-open scoped TensorProduct Adele -- for 𝔸 K notation
+open scoped TensorProduct NumberField.AdeleRing -- for 𝔸 K notation
 
 variable (K L : Type*) [Field K] [Field L] [Algebra K L] [NumberField K] [NumberField L]
 
