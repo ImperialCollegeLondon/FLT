@@ -34,7 +34,8 @@ universe u
 
 open NumberField IsDedekindDomain RestrictedProduct
 
-open scoped NumberField.AdeleRing IsDedekindDomain.FiniteAdeleRing
+-- 𝔸 notation
+open scoped NumberField.AdeleRing
 
 section Instances
 
