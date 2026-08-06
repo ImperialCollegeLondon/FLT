@@ -78,7 +78,7 @@ variable (D : Type*) [Ring D] [Algebra F D] [WithRigidification F D]
 
 namespace TotallyDefiniteQuaternionAlgebra
 
-open scoped TensorProduct NumberField Adele
+open scoped TensorProduct NumberField NumberField.AdeleRing IsDedekindDomain.FiniteAdeleRing
 
 local notation "𝓓ˣ" => MonoidHom.range (WithRigidification.unitsIncl F D)
 local notation "𝓕ˣ" =>

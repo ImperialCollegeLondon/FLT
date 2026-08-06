@@ -169,7 +169,7 @@ lemma LocalLevelStruct.heckeOperator_mul_comm_of_ne
   congr! 3 with a ha b hb
   rw [GL2.mul_comm_of_toAdicCompletion_eq_one _ _ _ (by simp [hvw.symm])]
 
-open scoped Adele
+open scoped NumberField.AdeleRing
 
 local notation "𝓓ˣ" => MonoidHom.range (WithRigidification.unitsIncl F D)
 local notation "𝓕ˣ" =>
@@ -641,7 +641,7 @@ instance (𝒮 : U₁Data F R p) [IsQuaternionAlgebra F D] [IsTotallyReal F]
       rw [𝒮.prime.coprime_iff_not_dvd]
       exact mt (Nat.le_of_dvd (by decide)) (not_le_of_gt (.trans_le (by decide) 𝒮.five_le))
 
-open scoped Adele
+open scoped NumberField.AdeleRing
 namespace HeckeOperator
 
 variable (M) in

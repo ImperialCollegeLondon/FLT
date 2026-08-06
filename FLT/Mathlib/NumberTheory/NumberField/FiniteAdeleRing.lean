@@ -8,6 +8,7 @@ Authors: Kevin Buzzard
 module
 
 public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
+public import Mathlib.NumberTheory.NumberField.AdeleRing
 import FLT.Mathlib.LinearAlgebra.Countable
 import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 import FLT.NumberField.Completion.Finite
@@ -31,7 +32,10 @@ open scoped TensorProduct
 
 universe u
 
-open NumberField IsDedekindDomain RestrictedProduct Adele
+open NumberField IsDedekindDomain RestrictedProduct
+
+-- 𝔸 notation
+open scoped NumberField.AdeleRing
 
 section Instances
 
@@ -39,8 +43,6 @@ variable (K : Type*) [Field K] [NumberField K]
 
 open HeightOneSpectrum
 
-/-- `𝔸ᶠ[K]` is notation for `FiniteAdeleRing (𝓞 K) K`. -/
-scoped[Adele] notation:max "𝔸ᶠ[" K "]" => 𝔸ᶠ[𝓞 K, K]
 namespace IsDedekindDomain.FiniteAdeleRing
 
 open IsDedekindDomain HeightOneSpectrum RestrictedProduct in
