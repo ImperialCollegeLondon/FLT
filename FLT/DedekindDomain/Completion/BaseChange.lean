@@ -16,7 +16,7 @@ public import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
 public import Mathlib.RingTheory.Valuation.Discrete.RankOne
 public import Mathlib.Topology.Algebra.Valued.NormedValued
 public import FLT.Mathlib.RingTheory.TensorProduct.Basis
-public import Mathlib.NumberTheory.RamificationInertia.Basic
+public import FLT.Mathlib.RingTheory.RamificationInertia.Basic
 public import Mathlib.RingTheory.PicardGroup
 public import Mathlib.RingTheory.SimpleRing.Principal
 public import Mathlib.Topology.Algebra.Module.FiniteDimension
@@ -727,8 +727,8 @@ theorem inertiaDeg_eq_inertiaDeg :
         rw [Ideal.inertiaDeg'_algebra_tower v.asIdeal (v.completionIdeal K) (w.1.completionIdeal L),
           inertiaDeg_asIdeal_completionIdeal, one_mul]
 
--- We use Ideal.sum_ramification_inertia_of_isLocalRing here to show this, but we could make use
--- of the more general results in BGR:
+-- We use Ideal.ramificationIdx'_mul_inertiaDeg'_of_isLocalRing here to show this, but we could
+-- make use of the more general results in BGR:
 -- - in general e * f <= degree (Prop 3.1.3.2)
 -- - equality holds for L/K if L is K-cartesian (Prop 3.6.2.4)
 -- - so for example if K is complete and discretely-valued (Cor 2.4.3.11).
@@ -739,7 +739,7 @@ theorem ramificationIdx_mul_inertiaDeg_eq_finrank [FiniteDimensional K L] [Modul
       (adicCompletion L w.1) := .of_algebraMap_smul fun _ _ ↦ rfl
   have : IsScalarTower (adicCompletionIntegers K v) (adicCompletion K v) (adicCompletion L w.1) :=
     .of_algebraMap_smul fun _ _ ↦ rfl
-  rw [← Ideal.ramificationIdx_mul_inertiaDeg_of_isLocalRing (adicCompletionIntegers L w.1)
+  rw [← Ideal.ramificationIdx'_mul_inertiaDeg'_of_isLocalRing (adicCompletionIntegers L w.1)
     (adicCompletion K v) (adicCompletion L w.1) (v.completionIdeal_ne_bot K),
     ramificationIdx_eq_ramificationIdx, inertiaDeg_eq_inertiaDeg K L w]
 
