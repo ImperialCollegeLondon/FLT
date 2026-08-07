@@ -9,8 +9,8 @@ public import FLT.Mathlib.RingTheory.Localization.BaseChange -- removing this br
 public import Mathlib.RingTheory.DedekindDomain.AdicValuation
 public import Mathlib.NumberTheory.RamificationInertia.Inertia
 public import Mathlib.NumberTheory.RamificationInertia.Ramification
+import FLT.Mathlib.RingTheory.RamificationInertia.Basic
 import Mathlib.Algebra.Group.Int.TypeTags
-import Mathlib.NumberTheory.RamificationInertia.Basic
 
 /-!
 
@@ -167,15 +167,15 @@ noncomputable def preimageComapFinset (S : Finset (HeightOneSpectrum A)) :
   Set.Finite.toFinset <| preimage_comap_finite A K L B S S.finite_toSet
 
 omit [IsIntegralClosure B A L] in
-/-- `Ideal.sum_ramification_inertia`, rewritten as a sum over extensions. -/
+/-- `Ideal.sum_ramificationIdx'_mul_inertiaDeg'`, rewritten as a sum over extensions. -/
 lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
     letI := Extension.fintype A K L B v
     ∑ (w : Extension B v), Ideal.ramificationIdx' v.asIdeal w.val.asIdeal
       * (v.asIdeal).inertiaDeg' (w.val.asIdeal) = Module.finrank K L := by
   have := v.isMaximal
   have := isTorsionFree A K L B
-  -- Use Ideal.sum_ramification_inertia to make this an equivalence of two sums.
-  rw [← Ideal.sum_ramification_inertia B K L v.ne_bot]
+  -- Use the fundamental identity to make this an equivalence of two sums.
+  rw [← Ideal.sum_ramificationIdx'_mul_inertiaDeg' B K L v.ne_bot]
   -- Check that the sums are equal via a bijection
   apply Finset.sum_nbij (fun w ↦ w.val.asIdeal)
   · rintro ⟨a, rfl⟩ -
