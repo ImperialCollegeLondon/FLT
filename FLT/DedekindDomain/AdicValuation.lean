@@ -6,7 +6,7 @@ Authors: Matthew Jasper
 module
 
 public import Mathlib.Analysis.Normed.Ring.Lemmas
-public import Mathlib.NumberTheory.RamificationInertia.Inertia
+public import Mathlib.RingTheory.RamificationInertia.Inertia
 public import Mathlib.RingTheory.Valuation.Discrete.Basic
 public import Mathlib.Topology.Path
 public import Mathlib.RingTheory.DedekindDomain.AdicValuation
@@ -314,8 +314,9 @@ noncomputable def ResidueFieldEquivCompletionResidueField :
 
 set_option backward.isDefEq.respectTransparency.types false in
 theorem inertiaDeg_asIdeal_completionIdeal :
-    Ideal.inertiaDeg' v.asIdeal (v.completionIdeal K) = 1 := by
-  rw [Ideal.inertiaDeg'_algebraMap]
+    Ideal.inertiaDeg (v.completionIdeal K) A = 1 := by
+  have := IsLocalRing.maximalIdeal.isMaximal (v.adicCompletionIntegers K)
+  rw [Ideal.inertiaDeg_eq_of_isMaximal v.asIdeal]
   have f : (A ⧸ v.asIdeal) ≃ₗ[A ⧸ v.asIdeal]
       ((adicCompletionIntegers K v) ⧸ completionIdeal K v) := {
     __ := ResidueFieldEquivCompletionResidueField K v

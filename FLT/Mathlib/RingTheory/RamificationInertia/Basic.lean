@@ -5,59 +5,39 @@ Authors: Kevin Buzzard
 -/
 module
 
-public import Mathlib.NumberTheory.RamificationInertia.Inertia
-public import Mathlib.NumberTheory.RamificationInertia.Ramification
+public import Mathlib.RingTheory.DedekindDomain.Ideal.Lemmas
 public import Mathlib.RingTheory.RamificationInertia.Basic
 
 /-!
-# The fundamental identity, stated via `ramificationIdx'` and `inertiaDeg'`
+# The fundamental identity in the local case
 
-`Mathlib.NumberTheory.RamificationInertia.Basic` has been deprecated in favour of
-`Mathlib.RingTheory.RamificationInertia.Basic`, which states the fundamental identity
-`∑ e * f = [L : K]` in terms of the unprimed `Ideal.ramificationIdx` and `Ideal.inertiaDeg`,
-summing over the subtype `p.primesOver S`.
-
-This file re-derives the two shapes of the identity that FLT uses, phrased with the primed
-spellings `Ideal.ramificationIdx'` and `Ideal.inertiaDeg'` and summing over
-`IsDedekindDomain.primesOverFinset p S`; they replace the deprecated
-`Ideal.sum_ramification_inertia` and `Ideal.ramificationIdx_mul_inertiaDeg_of_isLocalRing`.
+`Ideal.sum_ramification_inertia_eq_finrank` says that if `S` is a finite flat algebra over a
+domain `R` and `p` is a prime of `R`, then `∑ q, e q * f q = finrank R S`, the sum being over
+the primes `q` of `S` above `p`. If `S` is local then there is exactly one such `q`, namely the
+maximal ideal of `S`, and the identity becomes `e * f = finrank R S`.
 -/
 
 @[expose] public section
 
 namespace Ideal
 
-variable {R : Type*} [CommRing R] [IsDedekindDomain R]
-  (S : Type*) [CommRing S] [IsDedekindDomain S] [Algebra R S] [Module.Finite R S]
-  (K L : Type*) [Field K] [Field L] [Algebra R K] [IsFractionRing R K]
-  [Algebra S L] [IsFractionRing S L] [Algebra K L] [Algebra R L]
-  [IsScalarTower R S L] [IsScalarTower R K L]
-
-/-- The **fundamental identity** of ramification index `e` and inertia degree `f`: for `P` ranging
-over the primes lying over a maximal ideal `p`, `∑ P, e P * f P = [Frac(S) : Frac(R)]`.
-
-This is `Ideal.sum_ramification_inertia_eq_finrank` restated in terms of `Ideal.ramificationIdx'`
-and `Ideal.inertiaDeg'`. -/
-theorem sum_ramificationIdx'_mul_inertiaDeg' {p : Ideal R} [p.IsMaximal] (hp0 : p ≠ ⊥) :
-    ∑ P ∈ IsDedekindDomain.primesOverFinset p S,
-      p.ramificationIdx' P * p.inertiaDeg' P = Module.finrank K L := by
-  have : FaithfulSMul R S := FaithfulSMul.of_field_isFractionRing R S K L
-  rw [IsFractionRing.finrank_eq R K S L, ← sum_ramification_inertia_eq_finrank p S,
-    Finset.sum_subtype _ (fun _ ↦ IsDedekindDomain.mem_primesOverFinset_iff hp0 S)]
-  refine Finset.sum_congr rfl fun P _ ↦ ?_
-  have hP : P.1.IsPrime := P.2.1
-  have : P.1.LiesOver p := P.2.2
-  have : P.1.IsMaximal := hP.isMaximal (Ideal.ne_bot_of_mem_primesOver hp0 P.2)
-  rw [ramificationIdx'_eq_ramificationIdx p P.1 hp0, inertiaDeg'_eq_inertiaDeg p P.1]
-
-/-- `Ideal.sum_ramificationIdx'_mul_inertiaDeg'`, in the local (DVR) case. -/
-theorem ramificationIdx'_mul_inertiaDeg'_of_isLocalRing [IsLocalRing S] {p : Ideal R}
-    [p.IsMaximal] (hp0 : p ≠ ⊥) :
-    p.ramificationIdx' (IsLocalRing.maximalIdeal S) *
-      p.inertiaDeg' (IsLocalRing.maximalIdeal S) = Module.finrank K L := by
-  have : FaithfulSMul R S := FaithfulSMul.of_field_isFractionRing R S K L
-  simp_rw [← sum_ramificationIdx'_mul_inertiaDeg' S K L hp0,
-    IsLocalRing.primesOverFinset_eq S hp0, Finset.sum_singleton]
+/-- The **fundamental identity** `e * f = [S : R]` for a local ring `S`, finite over a Dedekind
+domain `R`, and `p` a nonzero maximal ideal of `R`. -/
+theorem ramificationIdx_mul_inertiaDeg_eq_finrank_of_isLocalRing
+    {R : Type*} [CommRing R] [IsDedekindDomain R]
+    (S : Type*) [CommRing S] [IsDedekindDomain S] [IsLocalRing S] [Algebra R S] [FaithfulSMul R S]
+    [Module.Finite R S] {p : Ideal R} [p.IsMaximal] (hp0 : p ≠ ⊥) :
+    (IsLocalRing.maximalIdeal S).ramificationIdx R *
+      (IsLocalRing.maximalIdeal S).inertiaDeg R = Module.finrank R S := by
+  have : IsDomain R := .of_faithfulSMul R S
+  have hmax : IsLocalRing.maximalIdeal S ∈ p.primesOver S := by
+    rw [IsLocalRing.primesOver_eq S hp0]; rfl
+  have : (IsLocalRing.maximalIdeal S).LiesOver p := hmax.2
+  have heq (q : p.primesOver S) : q.1 = IsLocalRing.maximalIdeal S :=
+    IsLocalRing.eq_maximalIdeal (q.2.1.isMaximal (ne_bot_of_mem_primesOver hp0 q.2))
+  have : Subsingleton (p.primesOver S) := ⟨fun q q' ↦ Subtype.ext ((heq q).trans (heq q').symm)⟩
+  rw [← sum_ramification_inertia_eq_finrank p S,
+    Fintype.sum_subsingleton _ (⟨IsLocalRing.maximalIdeal S, hmax⟩ : p.primesOver S)]
 
 end Ideal
 
