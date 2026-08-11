@@ -99,6 +99,7 @@ public import FLT.Mathlib.Algebra.Homology.HomologicalComplex
 public import FLT.Mathlib.Algebra.IsDirectLimit
 public import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 public import FLT.Mathlib.Algebra.Module.Submodule.Basic
+public import FLT.Mathlib.Algebra.Module.TransferInstance
 public import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 public import FLT.Mathlib.Algebra.Polynomial.QuadraticDiscriminant
 public import FLT.Mathlib.Algebra.Polynomial.Splits

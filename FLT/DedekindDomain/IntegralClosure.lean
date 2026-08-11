@@ -107,8 +107,8 @@ lemma intValuation_comap (hAB : Function.Injective (algebraMap A B))
   · simpa [hx]
   simp only [intValuation, Valuation.coe_mk, MonoidWithZeroHom.coe_mk, ZeroHom.coe_mk]
   change (ite _ _ _) ^ _ = ite _ _ _
-  rw [map_eq_zero_iff _ hAB, if_neg hx, if_neg hx, ← Set.image_singleton, ← Ideal.map_span,
-    mk_count_factors_map _ _ hAB, mul_comm, WithZero.exp, WithZero.exp]
+  rw [map_eq_zero_iff _ hAB, ite_eq_right hx, ite_eq_right hx, ← Set.image_singleton,
+    ← Ideal.map_span, mk_count_factors_map _ _ hAB, mul_comm, WithZero.exp, WithZero.exp]
   simp
 
 set_option backward.isDefEq.respectTransparency.types false in

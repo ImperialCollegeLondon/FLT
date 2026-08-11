@@ -86,7 +86,7 @@ theorem map (P : FreyPackage) : (freyCurveInt P).map (algebraMap ℤ ℚ) = frey
           _       ∣ P.b ^ P.p := pow_dvd_pow P.b (by linarith [P.hp5])
       · apply (ZMod.intCast_zmod_eq_zero_iff_dvd _ 4).1
         push_cast
-        rw [P.ha4, show (3 : ZMod 4) = -1 from rfl, neg_one_pow_eq_ite, if_neg]
+        rw [P.ha4, show (3 : ZMod 4) = -1 from rfl, neg_one_pow_eq_ite, ite_eq_right]
         · norm_num
         · rw [Nat.Prime.even_iff P.pp]
           linarith [P.hp5]

@@ -409,7 +409,7 @@ def U₁ (𝒮 : U₁Data F R p) : WeightTwoAutomorphicForm.LocalLevelStruct F R
   US_eq_of_notMem := by simp +contextual
   χ v := if h : v ∈ 𝒮.S ∧ v ∉ 𝒮.Q then
     ((𝒮.χS v).comp (GL2.localIwahoriLevel.char v)).comp
-      (MulEquiv.subgroupCongr ((if_neg h.2).trans (if_pos h.1))).toMonoidHom else 1
+      (MulEquiv.subgroupCongr ((ite_eq_right h.2).trans (ite_eq_left h.1))).toMonoidHom else 1
   χ_eq_of_notMem := by simp +contextual
   range_unitsMap_le_ker_χ v hv := by
     by_cases h : v ∈ 𝒮.S ∧ v ∉ 𝒮.Q; swap; · simp [h]
@@ -937,7 +937,7 @@ noncomputable def U (𝒮 : U₁Data F R p)
     · simp [hy]
     simp only [mul_eq_zero, hx, hy, or_self, ↓reduceDIte, ne_eq]
     exact Subtype.ext (U_mul_U D 𝒮 v hv x y hx hy).symm
-  map_zero' := dif_pos rfl
+  map_zero' := dite_eq_left rfl
 
 set_option backward.isDefEq.respectTransparency false in
 lemma adjoin_T_U_eq_top :

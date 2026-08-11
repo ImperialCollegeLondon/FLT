@@ -63,7 +63,7 @@ lemma eventuallyProd_eq_sup :
       simpa [Submodule.mem_sup, @and_comm _ (_ = _), ← eq_sub_iff_add_eq']
     refine ⟨(fun i ↦ if x i ∈ N i then 0 else x i), ?_, fun i ↦ ?_⟩
     · filter_upwards [hx] with i hi
-      exact if_pos hi
+      exact ite_eq_left hi
     · dsimp only
       split_ifs <;> simp[*]
   · exact fun x hx ↦ Eventually.mp hx (by aesop)
@@ -311,7 +311,7 @@ lemma UltraProduct.exists_bijective_of_bddAbove_card [Algebra.FiniteType ℤ R�
   · filter_upwards [ha] with j ⟨e⟩
     exact ⟨ei.trans e.symm⟩
   · filter_upwards [ha] with j ⟨e⟩
-    rw [dif_pos ⟨ei.trans e.symm⟩]
+    rw [dite_eq_left ⟨ei.trans e.symm⟩]
     exact LinearEquiv.bijective _
 
 /--
@@ -341,20 +341,20 @@ lemma UltraProduct.exists_algEquiv_of_bddAbove_card
   let e := LinearEquiv.ofBijective _
     (UltraProduct.bijective_of_eventually_bijective (R₀ := R₀) (M := R) (M₀ := Fin a.1) g F
     (by filter_upwards [ha] with i hi; unfold g;
-        rw [dif_pos ⟨hi.choose⟩]; exact AlgEquiv.bijective _))
+        rw [dite_eq_left ⟨hi.choose⟩]; exact AlgEquiv.bijective _))
   let e' : Fin ↑a.fst ≃ₐ[R₀] UltraProduct R F := by
     refine AlgEquiv.ofLinearEquiv e ?_ ?_
     · rw [← (π R F).map_one]
       refine UltraProduct.πₗ_eq_iff.mpr ?_
       filter_upwards [ha] with i hi
-      simp only [g, LinearMap.pi_apply, Pi.one_apply, dif_pos (Nonempty.intro (hi.choose)),
+      simp only [g, LinearMap.pi_apply, Pi.one_apply, dite_eq_left (Nonempty.intro (hi.choose)),
         AlgEquiv.toLinearMap_apply, map_one]
     · intro x y
       change _ = π R F _ * π R F _
       rw [← map_mul]
       refine UltraProduct.πₗ_eq_iff.mpr ?_
       filter_upwards [ha] with i hi
-      simp only [LinearMap.pi_apply, dif_pos (Nonempty.intro (hi.choose)),
+      simp only [LinearMap.pi_apply, dite_eq_left (Nonempty.intro (hi.choose)),
         AlgEquiv.toLinearMap_apply, map_mul, Pi.mul_apply, g]
   filter_upwards [ha] with i ⟨e, he⟩
   exact ⟨e'.symm.trans e.symm⟩

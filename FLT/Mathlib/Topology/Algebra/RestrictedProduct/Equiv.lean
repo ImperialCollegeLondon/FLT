@@ -615,7 +615,7 @@ def principalEquivProd : Πʳ i, [R i, A i]_[𝓟 S] ≃
   right_inv x := by
     ext i
     · simp
-    · simp [dif_neg i.2]
+    · simp [dite_eq_right i.2]
 
 end type
 

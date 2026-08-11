@@ -352,7 +352,7 @@ theorem card_eigenvalues (g : GL (Fin 2) (K p)) :
         change (1 : K p) - T * 0 + 0 = 1
         ring
       have h2 : f.coeff 2 = 0 := by
-        rw [Polynomial.eq_C_of_degree_eq_zero h, Polynomial.coeff_C, if_neg (by norm_num : 2 ≠ 0)]
+        rw [Polynomial.eq_C_of_degree_eq_zero h, Polynomial.coeff_C, ite_eq_right (by norm_num : 2 ≠ 0)]
       exact one_ne_zero (h1.symm.trans h2)
     obtain ⟨root, h_root⟩ := IsAlgClosed.exists_root f h_deg
     exact ⟨root, by
@@ -501,7 +501,7 @@ theorem ncard_fixedPoints_eq_two_of_discrim_ne_zero (g : GL (Fin 2) (K p))
       change (1 : K p) - g.val.trace * 0 + 0 = 1
       ring
     have h2 : f.coeff 2 = 0 := by
-      rw [Polynomial.eq_C_of_degree_eq_zero h, Polynomial.coeff_C, if_neg (by norm_num : 2 ≠ 0)]
+      rw [Polynomial.eq_C_of_degree_eq_zero h, Polynomial.coeff_C, ite_eq_right (by norm_num : 2 ≠ 0)]
     exact one_ne_zero (h1.symm.trans h2)
 
   obtain ⟨x, hx_root⟩ := IsAlgClosed.exists_root f hf_ne_zero
@@ -545,7 +545,7 @@ theorem ncard_fixedPoints_eq_one_of_discrim_zero (g : GL (Fin 2) (K p)) (hg : ¬
     Set.ncard (fixedPoints p (QuotientGroup.mk g)) = 1 := by
 
   have h_eigen : Set.ncard {x : K p | (g.val - x • 1).det = 0} = 1 := by
-    rw [card_eigenvalues, if_pos h_discr]
+    rw [card_eigenvalues, ite_eq_left h_discr]
   obtain ⟨lambda, hl⟩ := Set.ncard_eq_one.mp h_eigen
   have hlambda : ∀ x : K p, (g.val - x • 1).det = 0 ↔ x = lambda := by
     intro x
@@ -642,7 +642,7 @@ theorem orderOf_coprime_of_discrim_ne_zero (g : GL (Fin 2) (K p))
       simp only [Polynomial.coeff_add, Polynomial.coeff_sub, Polynomial.coeff_X_pow, Polynomial.coeff_C_mul, Polynomial.coeff_X, Polynomial.coeff_C]
       change (1 : K p) - g.val.trace * 0 + 0 = 1
       ring
-    have h2 : f.coeff 2 = 0 := by rw [Polynomial.eq_C_of_degree_eq_zero h, Polynomial.coeff_C, if_neg (by norm_num : 2 ≠ 0)]
+    have h2 : f.coeff 2 = 0 := by rw [Polynomial.eq_C_of_degree_eq_zero h, Polynomial.coeff_C, ite_eq_right (by norm_num : 2 ≠ 0)]
     exact one_ne_zero (h1.symm.trans h2)
 
   obtain ⟨lambda1, h_root⟩ := IsAlgClosed.exists_root f h_deg
@@ -699,7 +699,7 @@ theorem orderOf_coprime_of_discrim_ne_zero (g : GL (Fin 2) (K p))
       have h_det_fin : (Matrix.of fun i (j : Fin 2) ↦ if j = 0 then v1 i else v2 i).det = v1 0 * v2 1 - v2 0 * v1 1 := by
         rw [Matrix.det_fin_two]
         change (if (0 : Fin 2) = 0 then v1 0 else v2 0) * (if (1 : Fin 2) = 0 then v1 1 else v2 1) - (if (1 : Fin 2) = 0 then v1 0 else v2 0) * (if (0 : Fin 2) = 0 then v1 1 else v2 1) = _
-        rw [if_pos rfl, if_neg (by norm_num : (1 : Fin 2) ≠ 0), if_neg (by norm_num : (1 : Fin 2) ≠ 0), if_pos rfl]
+        rw [ite_eq_left rfl, ite_eq_right (by norm_num : (1 : Fin 2) ≠ 0), ite_eq_right (by norm_num : (1 : Fin 2) ≠ 0), ite_eq_left rfl]
       rw [h_det_fin] at h_lin_indep
       exact h_lin_indep
     by_cases h : v1 0 = 0 <;> by_cases h' : v2 0 = 0
@@ -710,12 +710,12 @@ theorem orderOf_coprime_of_discrim_ne_zero (g : GL (Fin 2) (K p))
           change ∑ i : Fin 2, (if i = 0 then v2 1 else -v1 1) * (![v1, v2] i 0) = 0
           rw [Fin.sum_univ_two]
           change (if (0 : Fin 2) = 0 then v2 1 else -v1 1) * v1 0 + (if (1 : Fin 2) = 0 then v2 1 else -v1 1) * v2 0 = 0
-          rw [if_pos rfl, if_neg (by norm_num : (1 : Fin 2) ≠ 0), h, h', mul_zero, mul_zero, add_zero]
+          rw [ite_eq_left rfl, ite_eq_right (by norm_num : (1 : Fin 2) ≠ 0), h, h', mul_zero, mul_zero, add_zero]
         | 1 =>
           change ∑ i : Fin 2, (if i = 0 then v2 1 else -v1 1) * (![v1, v2] i 1) = 0
           rw [Fin.sum_univ_two]
           change (if (0 : Fin 2) = 0 then v2 1 else -v1 1) * v1 1 + (if (1 : Fin 2) = 0 then v2 1 else -v1 1) * v2 1 = 0
-          rw [if_pos rfl, if_neg (by norm_num : (1 : Fin 2) ≠ 0)]
+          rw [ite_eq_left rfl, ite_eq_right (by norm_num : (1 : Fin 2) ≠ 0)]
           ring
       · use 1; intro c1; apply hv1_ne; ext i
         match i with
@@ -744,13 +744,13 @@ theorem orderOf_coprime_of_discrim_ne_zero (g : GL (Fin 2) (K p))
           change ∑ i : Fin 2, (if i = 0 then -v2 0 else v1 0) * (![v1, v2] i 0) = 0
           rw [Fin.sum_univ_two]
           change (if (0 : Fin 2) = 0 then -v2 0 else v1 0) * v1 0 + (if (1 : Fin 2) = 0 then -v2 0 else v1 0) * v2 0 = 0
-          rw [if_pos rfl, if_neg (by norm_num : (1 : Fin 2) ≠ 0)]
+          rw [ite_eq_left rfl, ite_eq_right (by norm_num : (1 : Fin 2) ≠ 0)]
           ring
         | 1 =>
           change ∑ i : Fin 2, (if i = 0 then -v2 0 else v1 0) * (![v1, v2] i 1) = 0
           rw [Fin.sum_univ_two]
           change (if (0 : Fin 2) = 0 then -v2 0 else v1 0) * v1 1 + (if (1 : Fin 2) = 0 then -v2 0 else v1 0) * v2 1 = 0
-          rw [if_pos rfl, if_neg (by norm_num : (1 : Fin 2) ≠ 0)]
+          rw [ite_eq_left rfl, ite_eq_right (by norm_num : (1 : Fin 2) ≠ 0)]
           calc (-v2 0) * v1 1 + v1 0 * v2 1 = v1 0 * v2 1 - v2 0 * v1 1 := by ring
             _ = 0 := h_det
       · use 0; intro c0; apply h'; change -v2 0 = 0 at c0; exact neg_eq_zero.mp c0
