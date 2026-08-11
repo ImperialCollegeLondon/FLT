@@ -1038,9 +1038,9 @@ lemma formMap_smul {N : Type*} [AddCommGroup N] [Module R N] (𝒮 : U₁Data F 
 noncomputable instance :
     IsScalarTower R (HeckeAlgebra D 𝒮) ((U₁ 𝒮).toStruct.form D M) :=
   .of_algebraMap_smul fun r f ↦ by
-    letI : Module (HeckeAlgebra D 𝒮) ((U₁ 𝒮).toStruct.form D R) :=
+    let : Module (HeckeAlgebra D 𝒮) ((U₁ 𝒮).toStruct.form D R) :=
       inferInstanceAs <| Module (Algebra.adjoin _ _) _
-    letI : IsScalarTower R (HeckeAlgebra D 𝒮) ((U₁ 𝒮).toStruct.form D R) := inferInstanceAs <|
+    let : IsScalarTower R (HeckeAlgebra D 𝒮) ((U₁ 𝒮).toStruct.form D R) := inferInstanceAs <|
       IsScalarTower R (Algebra.adjoin _ _) _
     change (U₁ 𝒮).toStruct.formTensorScalar D M R _ = _
     conv_lhs => enter [2, 2]; tactic => exact algebraMap_smul (HeckeAlgebra D 𝒮) r _

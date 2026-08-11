@@ -94,7 +94,7 @@ theorem minGenPrimary_le_ringKrullDim :
   -- Every minimal prime of `J` equals `𝔪`, since its height is at least `ht J = ht 𝔪`.
   have hall : ∀ p ∈ J.minimalPrimes, p = maximalIdeal R := by
     intro p hp
-    haveI := hp.isPrime
+    have := hp.isPrime
     have h1 : J.height ≤ p.height := by
       rw [Ideal.height_eq_inf_minimalPrimes]
       exact iInf₂_le p hp

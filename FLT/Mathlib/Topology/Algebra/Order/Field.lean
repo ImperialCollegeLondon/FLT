@@ -80,7 +80,7 @@ theorem log_div_image_eq_singleton_of_le_one_iff {v w : AbsoluteValue F ℝ}
       ← map_pow, ← map_zpow₀, ← map_div₀] at this
   have h₁ : 1 < w (b ^ q.den / a ^ q.num) := by
     have hwa := (one_lt_iff_of_lt_one_iff h _).1 ha
-    letI := (one_lt_iff_of_lt_one_iff h _).1 hb₁
+    let := (one_lt_iff_of_lt_one_iff h _).1 hb₁
     have := hq.2
     rw [div_lt_div_iff₀ (by simp only [Nat.cast_pos, q.den_pos]) (Real.log_pos hwa)] at this
     nth_rw 2 [mul_comm] at this
@@ -96,7 +96,7 @@ theorem exists_rpow_of_one_lt {v w : AbsoluteValue F ℝ} (hv : v.IsNontrivial)
   refine ⟨Real.log (v a) / Real.log (w a),
     div_pos (Real.log_pos ha) (Real.log_pos ((one_lt_iff_of_lt_one_iff h a).1 ha)), fun b hb => ?_⟩
   simp_rw [← hlog b hb]
-  letI := (one_lt_iff_of_lt_one_iff h b).1 hb
+  let := (one_lt_iff_of_lt_one_iff h b).1 hb
   rw [div_eq_inv_mul, Real.rpow_mul (w.nonneg _), Real.rpow_inv_log (by linarith) (by linarith),
     Real.exp_one_rpow, Real.exp_log (by linarith)]
 

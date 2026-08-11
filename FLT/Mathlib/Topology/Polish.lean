@@ -65,14 +65,14 @@ lemma open_of_locally_compact_dense_metrizable {X Y : Type*} [TopologicalSpace X
 theorem polish_of_locally_compact_second_countable
     (X : Type*) [TopologicalSpace X] [SecondCountableTopology X] [T2Space X]
     [LocallyCompactSpace X] : PolishSpace X := by
-  letI _ : MetrizableSpace X := metrizableSpace_of_t3_secondCountable X
-  letI _ : MetricSpace X := metrizableSpaceMetric X
+  let _ : MetrizableSpace X := metrizableSpace_of_t3_secondCountable X
+  let _ : MetricSpace X := metrizableSpaceMetric X
   have dn : IsOpen (range (Completion.coe' : X → Completion X)) := by
     apply open_of_locally_compact_dense_metrizable Completion.coe'
     · exact Completion.continuous_coe X
     · exact IsDenseInducing.isInducing Completion.isDenseInducing_coe
     · exact Completion.denseRange_coe
-  letI _ : PolishSpace (range (Completion.coe' : X → Completion X)) :=
+  let _ : PolishSpace (range (Completion.coe' : X → Completion X)) :=
     IsOpen.polishSpace dn
   have hHomeo : X ≃ₜ range (Completion.coe' : X → Completion X) :=
     (Completion.coe_isometry.isEmbedding).toHomeomorph

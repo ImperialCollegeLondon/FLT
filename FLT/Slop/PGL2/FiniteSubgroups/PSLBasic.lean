@@ -712,7 +712,7 @@ theorem A4_iso_PSL2_F3 :
     change (QuotientGroup.lift _ f _).ker = ⊥
     rw [QuotientGroup.ker_lift, h_ker, QuotientGroup.map_mk'_self]
   have card_PSL2F3 : Nat.card PSL2F3 = 12 := by
-    haveI : Fact ((3 : ℕ) > 2) := ⟨by norm_num⟩
+    have : Fact ((3 : ℕ) > 2) := ⟨by norm_num⟩
     show Nat.card (SL2F3 ⧸ Subgroup.center SL2F3) = 12
     have h3 := Subgroup.card_eq_card_quotient_mul_card_subgroup (Subgroup.center SL2F3)
     rw [SL2_center_card 3 (ZMod 3), (Nat.card_eq_fintype_card.trans rfl : Nat.card SL2F3 = 24)] at h3

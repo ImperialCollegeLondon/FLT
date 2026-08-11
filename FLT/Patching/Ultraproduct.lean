@@ -380,7 +380,7 @@ lemma UltraProduct.exists_ringEquiv_of_bddAbove_card
     ∀ᶠ i in F, ∃ e : UltraProduct R F ≃+*
       R i, e.toRingHom.comp ((π R F).comp (RingHom.pi f)) = f i := by
   classical
-  letI := fun i ↦ (f i).toAlgebra
+  let := fun i ↦ (f i).toAlgebra
   have := UltraProduct.exists_algEquiv_of_bddAbove_card (R₀ := R₀) F N H
     (by filter_upwards [hf] with i hi;
         exact ⟨show Continuous fun p : R₀ × R i ↦ f i p.1 * p.2 by continuity⟩)

@@ -72,14 +72,14 @@ theorem dickson_classification (G : Subgroup (PGLOf (K p))) [Finite G] :
       · exact Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inl h2
       · exact Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inr h3
       · exact Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inl h4
-    · haveI : Fintype G := Fintype.ofFinite G
+    · have : Fintype G := Fintype.ofFinite G
       rcases classification_tame_slop p G h_div hG_nontrivial with h1 | h2 | h3 | h4 | h5
       · exact Or.inl h1
       · exact Or.inr <| Or.inl h2
       · exact Or.inr <| Or.inr <| Or.inl h3
       · exact Or.inr <| Or.inr <| Or.inr <| Or.inl h4
       · exact Or.inr <| Or.inr <| Or.inr <| Or.inr <| Or.inl h5
-  · haveI : Subsingleton G := not_nontrivial_iff_subsingleton.mp hG_nontrivial
+  · have : Subsingleton G := not_nontrivial_iff_subsingleton.mp hG_nontrivial
     exact Or.inl ⟨⟨1, fun x ↦ by rw [Subsingleton.elim x 1]; exact Subgroup.mem_zpowers 1⟩⟩
 
 end Dickson

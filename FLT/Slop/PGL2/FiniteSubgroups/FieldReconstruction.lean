@@ -1251,11 +1251,11 @@ theorem normDilationParam_of_P
     (hg : (g : G) ∈ (P : Subgroup G)) :
     normDilationParam p G hG_p P hP_fix g = 1 := by
   apply (dilationParam_eq_one_iff p (g : PGLOf (K p)) (normalizer_element_fixes_infinity p G hG_p P hP_fix g g.prop)).mpr
-  haveI h_P_nontrivial : Nontrivial P := Finite.one_lt_card_iff_nontrivial.mp <| by
+  have h_P_nontrivial : Nontrivial P := Finite.one_lt_card_iff_nontrivial.mp <| by
     have h : Nat.card P = p ^ (Nat.factorization (Nat.card G) p) := by convert P.card_eq_multiplicity
     exact h.symm ▸ one_lt_pow₀ (Nat.Prime.one_lt Fact.out) (Finsupp.mem_support_iff.mp <|
       Nat.mem_primeFactors.mpr ⟨Fact.out, hG_p, Nat.ne_of_gt Nat.card_pos⟩)
-  haveI h_map_finite : Finite ((P : Subgroup G).map (Subgroup.subtype G)) :=
+  have h_map_finite : Finite ((P : Subgroup G).map (Subgroup.subtype G)) :=
     Set.Finite.to_subtype <| Set.Finite.subset (Set.toFinite <| Set.range fun x : G ↦ x.val) (Set.image_subset_range G.subtype _)
   exact (p_subgroup_fixing_infinity_translations p ((P : Subgroup G).map (Subgroup.subtype G))
     (P.2.map G.subtype)
@@ -1466,12 +1466,12 @@ theorem translationSet_card_eq_P
   have h_iso : (P : Subgroup G) ≃* H := Subgroup.equivMapOfInjective (P : Subgroup G) G.subtype (Subgroup.subtype_injective G)
   have h_card_eq : Nat.card H = Nat.card (P : Subgroup G) := Nat.card_congr h_iso.symm.toEquiv
   by_cases h_card : Nat.card (P : Subgroup G) = 1
-  · haveI : Subsingleton H := (Nat.card_eq_one_iff_unique.mp (h_card_eq.trans h_card)).1
+  · have : Subsingleton H := (Nat.card_eq_one_iff_unique.mp (h_card_eq.trans h_card)).1
     have h_eq_zero : translationSet p H = {0} := Set.ext fun b ↦
       ⟨fun hb ↦ translationPGL_injective p ((congrArg Subtype.val (Subsingleton.elim (⟨translationPGL p b, hb⟩ : H) 1)).trans (translationPGL_zero p).symm),
       fun h ↦ h.symm ▸ translationSet_zero p H⟩
     rw [h_eq_zero, Set.ncard_singleton 0, h_card]
-  · haveI : Finite H := Finite.of_equiv (P : Subgroup G) h_iso.toEquiv
+  · have : Finite H := Finite.of_equiv (P : Subgroup G) h_iso.toEquiv
     have h_nontrivial : Nontrivial H := by
       contrapose! h_card
       exact h_card_eq.symm.trans (Nat.card_eq_one_iff_unique.mpr ⟨h_card, ⟨1, H.one_mem⟩⟩)
@@ -1673,7 +1673,7 @@ theorem exists_conj_sylow_fixing_infty
         (Subgroup.subtype _), g • infinity p = infinity p := by
   let P := Classical.arbitrary (Sylow p G)
   have hP_le : (P : Subgroup G).map (Subgroup.subtype G) ≤ G := Subgroup.map_subtype_le P.1
-  haveI : Finite ↥((P : Subgroup G).map (Subgroup.subtype G)) :=
+  have : Finite ↥((P : Subgroup G).map (Subgroup.subtype G)) :=
     Finite.of_injective (Subgroup.inclusion hP_le) (Subgroup.inclusion_injective hP_le)
   obtain ⟨α, hα⟩ := isPGroup_exists_common_fixedPoint p ((P : Subgroup G).map (Subgroup.subtype G))
     ‹_› (P.isPGroup'.map _)
@@ -1700,7 +1700,7 @@ theorem orbit_infty_eq_P1Fq
 
   obtain ⟨k₀, P₁, hP₁⟩ := exists_conj_sylow_fixing_infty p G hG_p
   let G₁ := G.map (MulEquiv.toMonoidHom (MulAut.conj k₀))
-  haveI h_finite_G1 : Finite G₁ := Finite.of_equiv G (conjEquiv p G k₀).toEquiv
+  have h_finite_G1 : Finite G₁ := Finite.of_equiv G (conjEquiv p G k₀).toEquiv
 
   have h_card : Nat.card G₁ = Nat.card G := (Nat.card_congr (conjEquiv p G k₀).toEquiv).symm
   have hG₁ : Nat.card G₁ = p ^ m * (p ^ (2 * m) - 1) := h_card.trans hG

@@ -147,8 +147,8 @@ private lemma exists_etale_completeOrthogonalIdempotents_forall_liesOver_eq'.{u,
       IH _ this (R := R') (S := R' ⊗[R] S ⧸ Ideal.span {e}) P rfl
     change ∀ (P'' : Ideal (R'' ⊗[R'] (R' ⊗[R] S ⧸ Ideal.span {e}))), P''.IsPrime → P''.LiesOver Q →
       e' (Fin.last n) ∈ P'' ∧ ∀ (i : Fin n), e' i.castSucc ∉ P'' → P'' = Q' i at H'
-    letI : Algebra R R'' := .compHom _ (algebraMap R R')
-    haveI : IsScalarTower R R' R'' := .of_algebraMap_eq' rfl
+    let : Algebra R R'' := .compHom _ (algebraMap R R')
+    have : IsScalarTower R R' R'' := .of_algebraMap_eq' rfl
     let φ := Algebra.TensorProduct.map (Algebra.ofId R' R'') (AlgHom.id R S)
     let e₁ : R'' ⊗[R'] (R' ⊗[R] S ⧸ Ideal.span {e}) ≃ₐ[R''] (R'' ⊗[R] S ⧸ Ideal.span {φ e}) :=
       tensorQuotientTensorEquiv (R'' := R'') e

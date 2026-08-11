@@ -190,7 +190,7 @@ lemma _root_.Ideal.sum_ramification_inertia_extensions [Module.Finite A B] :
     letI := Extension.fintype A K L B v
     ∑ (w : Extension B v), w.val.asIdeal.ramificationIdx A * w.val.asIdeal.inertiaDeg A =
       Module.finrank K L := by
-  letI := Extension.fintype A K L B v
+  let := Extension.fintype A K L B v
   have := v.isMaximal
   have := isTorsionFree A K L B
   -- Reduce to the fundamental identity for `B/A`, ...

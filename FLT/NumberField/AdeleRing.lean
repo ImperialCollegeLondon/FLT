@@ -404,7 +404,7 @@ theorem Rat.AdeleRing.integral_and_norm_lt_one (x : ℚ)
     obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
         ℚ x <| fun v ↦ by
       specialize h2 v
-      letI : UniformSpace ℚ := v.adicValued.toUniformSpace
+      let : UniformSpace ℚ := v.adicValued.toUniformSpace
       rw [IsDedekindDomain.HeightOneSpectrum.mem_adicCompletionIntegers] at h2
       rwa [← IsDedekindDomain.HeightOneSpectrum.valuedAdicCompletion_eq_valuation']
     use Rat.ringOfIntegersEquiv z

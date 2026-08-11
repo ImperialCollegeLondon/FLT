@@ -47,7 +47,7 @@ example (𝓞 : Type u) [CommRing 𝓞]
   let φ : 𝓞 →+* R := algebraMap 𝓞 R
   have hφ : IsLocalHom φ := IsLocalProartinianAlgebra.toIsLocalHom
   have hR : Nontrivial R := IsLocalRing.toNontrivial
-  haveI : Nontrivial 𝓞 := RingHom.domain_nontrivial φ
+  have : Nontrivial 𝓞 := RingHom.domain_nontrivial φ
   apply of_nonunits_add
   intros a b ha hb
   rw [mem_nonunits_iff, ← isUnit_map_iff φ, ← mem_nonunits_iff] at ha hb ⊢

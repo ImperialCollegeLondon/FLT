@@ -197,7 +197,7 @@ lemma InfiniteGalois.evalMulActionHom_bijective [Algebra.Etale K A] [IsGalois K 
     intros f₁ f₂ e
     ext g
     obtain ⟨σ, hσ⟩ : ∃ σ : L ≃ₐ[K] L, σ • emb (RingHom.ker g) = Ideal.kerLiftAlg g := by
-      letI := (emb (RingHom.ker g)).toAlgebra
+      let := (emb (RingHom.ker g)).toAlgebra
       have : IsScalarTower K (A ⧸ RingHom.ker g) L :=
         .of_algebraMap_eq' (emb (RingHom.ker g)).comp_algebraMap.symm
       exact ⟨.ofBijective ((Ideal.kerLiftAlg g).liftNormal L) (AlgHom.normal_bijective _ _ _ _),
@@ -232,7 +232,7 @@ open IntermediateField in
 instance {K L : Type*} [Field K] [Field L] [Algebra K L] [Algebra.IsAlgebraic K L] :
     CompactSpace (L ≃ₐ[K] L) := by
   classical
-  letI := IsTopologicalGroup.rightUniformSpace (L ≃ₐ[K] L)
+  let := IsTopologicalGroup.rightUniformSpace (L ≃ₐ[K] L)
   rw [← isCompact_univ_iff, isCompact_iff_totallyBounded_isComplete]
   refine ⟨IsTopologicalGroup.totallyBounded fun s hs ↦ ?_, ?_⟩
   · obtain ⟨E, hE, H⟩ := (krullTopology_mem_nhds_one_iff _ _ _).mp hs

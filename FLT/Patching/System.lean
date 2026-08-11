@@ -253,8 +253,8 @@ lemma PatchingAlgebra.faithfulSMul
   have hf' (r) : f (algebraMap Λ _ r) = algebraMap Λ _ r := by
     refine Subtype.ext (funext fun k ↦ UltraProduct.π_eq_iff.mpr (.of_forall fun i ↦ ?_))
     simp
-  letI := f.toAlgebra
-  letI := Module.compHom (PatchingModule Λ M F) f
+  let := f.toAlgebra
+  let := Module.compHom (PatchingModule Λ M F) f
   suffices FaithfulSMul Rₒₒ (PatchingModule Λ M F) by
     refine ⟨fun {x₁ x₂} H ↦ ?_⟩
     obtain ⟨x₁, rfl⟩ := hf x₁
@@ -340,8 +340,8 @@ lemma smul_lemma₀
   have H : (maximalIdeal R₀ ^ (n₀ ⊓ n₁) • ⊤ : Submodule R₀ M₀) ≤ α.1 • ⊤ := by
     obtain h | h := le_total n₀ n₁
     · rw [min_eq_left h]; exact PatchingAlgebra.smulData.pow_f_smul_le i α
-    · letI := F.toAlgebra
-      letI := Module.compHom M₀ F
+    · let := F.toAlgebra
+      let := Module.compHom M₀ F
       have : IsScalarTower (R i) R₀ M₀ := .of_algebraMap_smul fun _ _ ↦ rfl
       have : IsScalarTower Λ (R i) R₀ := .of_algebraMap_eq' (sR i).toAlgHom.comp_algebraMap.symm
       let l : M i →ₗ[R i] M₀ :=
@@ -442,7 +442,7 @@ lemma support_eq_top
     refine le_trans ?_ (Ideal.comap_mono (f := Ideal.Quotient.mk _) bot_le)
     rw [← RingHom.ker_eq_comap_bot, Ideal.mk_ker]
   let inst := Module.compHom M₀ f₀
-  letI := f₀.toAlgebra
+  let := f₀.toAlgebra
   have : IsScalarTower (PatchingAlgebra R F) R₀ M₀ := .of_algebraMap_smul fun _ _ ↦ rfl
   let e' : (PatchingModule Λ M F ⧸ (𝔫 • ⊤ : Submodule (PatchingAlgebra R F) (PatchingModule Λ M F)))
     ≃ₗ[PatchingAlgebra R F] M₀ :=
