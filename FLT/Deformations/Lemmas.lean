@@ -206,7 +206,7 @@ lemma IsModuleTopology.continuous_det {A : Type*} [CommRing A] [TopologicalSpace
     convert! continuous_id.matrix_det (R := A) (n := s)
     ext M
     exact LinearMap.det_toLin b M
-  rw [LinearMap.det, dif_neg H]
+  rw [LinearMap.det, dite_eq_right H]
   exact continuous_of_const fun x ↦ congrFun rfl
 
 /-- `End_A(A) ≃ A`. -/

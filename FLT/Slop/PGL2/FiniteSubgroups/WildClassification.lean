@@ -580,12 +580,12 @@ theorem partition_equation
         rw [← Nat.cast_mul, Nat.div_mul_cancel hD_dvd]
       rw [← mul_div_cancel_right₀ (z2 : ℚ) hD_pos, h_mul]
     by_cases hz1 : z1 = 1
-    · simp only [partitionTerm, if_pos hz1, Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, Nat.cast_one, Nat.cast_ofNat, one_mul]
+    · simp only [partitionTerm, ite_eq_left hz1, Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, Nat.cast_one, Nat.cast_ofNat, one_mul]
       rw [hz2_eq, h_n_eq, h_D_eq, hz1]
       simp only [Nat.cast_one, mul_one]
       field_simp [hpm_pos, hz1_pos, hnp_pos]
       ring
-    · simp only [partitionTerm, if_neg hz1, Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, Nat.cast_one, Nat.cast_ofNat, one_mul]
+    · simp only [partitionTerm, ite_eq_right hz1, Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, Nat.cast_one, Nat.cast_ofNat, one_mul]
       rw [hz2_eq, h_n_eq, h_D_eq]
       field_simp [hpm_pos, hz1_pos, hnp_pos]
       ring
@@ -614,7 +614,7 @@ theorem dickson_branch2_z1_eq_1 (G : Subgroup (PGLOf (K p))) [Finite G]
   subst hz1_eq
   have h_eq_subst : (1 : ℚ) / pm - 1 / n = ∑ i, partitionTerm (s i) (z i) := by
     have h_eval : partitionTerm (if 1 = 1 then 1 else 2) 1 = 0 := by
-      rw [if_pos rfl, partitionTerm]
+      rw [ite_eq_left rfl, partitionTerm]
       norm_num
     rw [h_eval] at h_eq
     push_cast at h_eq

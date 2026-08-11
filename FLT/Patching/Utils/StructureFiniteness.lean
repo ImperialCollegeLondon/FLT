@@ -8,6 +8,7 @@ module
 public import FLT.Patching.Utils.TopologicallyFG
 public import Mathlib.Topology.Algebra.Module.Equiv
 public import Mathlib.Algebra.Algebra.TransferInstance
+public import FLT.Mathlib.Algebra.Module.TransferInstance
 import Mathlib.Algebra.Ring.Ext
 
 /-!
@@ -76,7 +77,7 @@ variable (R) in
 noncomputable
 def ModuleTypeCardLT.ofModule (N : ℕ) (M : Type*) [AddCommGroup M] [Module R M]
     [Finite M] (hM : Nat.card M < N) : ModuleTypeCardLT R N :=
-  ⟨⟨Nat.card M, hM⟩, (Finite.equivFin M).symm.addCommGroup, (Finite.equivFin M).symm.module R⟩
+  ⟨⟨Nat.card M, hM⟩, (Finite.equivFin M).symm.addCommGroup, (Finite.equivFin M).symm.module' R⟩
 
 /-- The canonical linear equivalence between a finite `R`-module `M` and its representative
 in `ModuleTypeCardLT R N`. -/
@@ -84,7 +85,7 @@ noncomputable
 def ModuleTypeCardLT.equivOfModule (N : ℕ) {M : Type*} [AddCommGroup M] [Module R M]
     [Finite M] (hM : Nat.card M < N) : M ≃ₗ[R] Fin ((ModuleTypeCardLT.ofModule R N M hM).1) :=
   ((show M ≃ Fin ((ModuleTypeCardLT.ofModule R N M hM).1)
-    from Finite.equivFin M).symm.linearEquiv R).symm
+    from Finite.equivFin M).symm.linearEquiv' R).symm
 
 end Module
 
@@ -189,9 +190,9 @@ def TopologicalModuleTypeCardLT.ofModule (N : ℕ) (M : Type*) [AddCommGroup M]
     letI := TopologicalSpace.coinduced (Finite.equivFin M) inferInstance
     Topology.IsEmbedding.t2Space (f := (Finite.equivFin M).symm)
     ⟨⟨by rw [(Finite.equivFin M).induced_symm.symm]⟩, (Finite.equivFin M).symm.injective⟩,
-    (Finite.equivFin M).symm.module _, by
+    (Finite.equivFin M).symm.module' _, by
   let := (Finite.equivFin M).symm.addCommGroup
-  let := (Finite.equivFin M).symm.module R
+  let := (Finite.equivFin M).symm.module' R
   let := TopologicalSpace.coinduced (Finite.equivFin M) inferInstance
   constructor
   let e := Homeomorph.prodCongr (.refl R) ((Finite.equivFin M).toHomeomorph (fun _ ↦ Iff.rfl))
@@ -207,7 +208,7 @@ def TopologicalModuleTypeCardLT.equivOfModule (N : ℕ) (M : Type*) [AddCommGrou
     [Finite M] (hM : Nat.card M < N) :
     M ≃L[R] Fin (TopologicalModuleTypeCardLT.ofModule R N M hM).1 where
   __ := ((show M ≃ Fin ((ModuleTypeCardLT.ofModule R N M hM).1) from
-    Finite.equivFin M).symm.linearEquiv R).symm
+    Finite.equivFin M).symm.linearEquiv' R).symm
   __ := (Finite.equivFin M).toHomeomorph (Y := Fin (ofModule R N M hM).1) (fun _ ↦ Iff.rfl)
 
 end TopologicalModule

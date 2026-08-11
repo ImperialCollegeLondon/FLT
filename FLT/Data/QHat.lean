@@ -210,7 +210,7 @@ lemma e_not_in_Int : ∀ a : ℤ, e ≠ a := by
       rwa [add_comm, e_factorial_succ, ZMod.val_natCast,
         mod_eq_of_lt (sum_factorial_lt_factorial_succ honelt)]
     · have : a + 1 < N := lt_of_le_of_lt (Nat.le_add_right _ _) hj
-      rw [ha, intCast_val, Int.cast_negSucc, ZMod.neg_val, ZMod.val_natCast, if_neg,
+      rw [ha, intCast_val, Int.cast_negSucc, ZMod.neg_val, ZMod.val_natCast, ite_eq_right,
         mod_eq_of_lt this]
       rw [ZMod.natCast_eq_zero_iff]
       contrapose! this
