@@ -85,14 +85,16 @@ noncomputable def pair₀ : ρ →ⁱL ContRepresentation.linHom (LocalGaloisRep
     (mkDiscrete (Rep.of (Representation.multiplicative K))).ρ := {
   toFun := evalCLM
   map_add' m m' := by ext φ; simp
-  map_smul' c m := by ext φ; simp
+  map_smul' c m := by ext φ; rw [smul_apply]; simp
   cont := continuous_of_discreteTopology
   isIntertwining' g := by
     ext m φ
     have h1 : ∀ x, Representation.multiplicative K g
         (Representation.multiplicative K g⁻¹ x) = x := fun x ↦ by
       rw [← Module.End.mul_apply, ← map_mul, mul_inv_cancel, map_one, Module.End.one_apply]
-    simp [h1] }
+    simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.coe_mk', LinearMap.coe_mk,
+      AddHom.coe_mk, evalCLM_apply, linHom_apply, inv_inv]
+    exact (h1 _).symm }
 
 open ContinuousLinearMap.CompactOpen in
 /-- The local Tate duality pairing `Hⁱ(Gal(K̄/K), M) × Hʲ(Gal(K̄/K), M^∨) → H²(Gal(K̄/K), K̄ˣ)`
