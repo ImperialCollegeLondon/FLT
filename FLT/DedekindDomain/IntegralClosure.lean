@@ -69,9 +69,8 @@ lemma mk_count_factors_map
       (Associates.mk_ne_zero.mpr hI_bot) (associates_irreducible _)]
     simp only [IH, mul_add]
     congr 1
-    by_cases hw : (w.under A).asIdeal = p
-    · subst hw
-      have : Irreducible (Associates.mk (under A w).asIdeal) :=
+    obtain rfl | hw := eq_or_ne (w.under A).asIdeal p
+    · have : Irreducible (Associates.mk (under A w).asIdeal) :=
         Associates.irreducible_mk.mpr hp.irreducible
       rw [Associates.factors_self this, Associates.count_some this]
       simp only [Multiset.nodup_singleton, Multiset.mem_singleton, Multiset.count_eq_one_of_mem,

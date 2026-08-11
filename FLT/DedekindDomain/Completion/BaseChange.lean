@@ -684,7 +684,7 @@ lemma liesOver_completionIdeal :
 
 /-- The local ramification index of `L_w/K_v` equals the global ramification index of `w/v`. -/
 theorem ramificationIdx_eq_ramificationIdx :
-    Ideal.ramificationIdx (w.1.completionIdeal L) (v.adicCompletionIntegers K) =
+    (w.1.completionIdeal L).ramificationIdx (v.adicCompletionIntegers K) =
       w.1.asIdeal.ramificationIdx A := by
   have := liesOver_completionIdeal K L w
   have : IsScalarTower (adicCompletionIntegers K v) (adicCompletionIntegers L w.1)
@@ -757,6 +757,7 @@ theorem ramificationIdx_mul_inertiaDeg_eq_finrank [FiniteDimensional K L] [Modul
       (adicCompletion L w.1) := .of_algebraMap_smul fun _ _ ↦ rfl
   have : IsScalarTower (adicCompletionIntegers K v) (adicCompletion K v) (adicCompletion L w.1) :=
     .of_algebraMap_smul fun _ _ ↦ rfl
+  -- should any of these be more global instances?
   have : FaithfulSMul (adicCompletionIntegers K v) (adicCompletionIntegers L w.1) :=
     FaithfulSMul.of_field_isFractionRing _ _ (adicCompletion K v) (adicCompletion L w.1)
   rw [IsFractionRing.finrank_eq (adicCompletionIntegers K v) (adicCompletion K v)
