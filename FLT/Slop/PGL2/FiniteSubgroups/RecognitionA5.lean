@@ -925,9 +925,9 @@ lemma simple_60_n2_ne_15 (G : Type*) [Group G] [Finite G]
       ((IsPGroup.isMulCommutative_of_card_eq_prime_sq (G := P) (p := 2)
         (hP_card.trans (rfl : 4 = 2 ^ 2))).is_comm.comm ⟨y, hy⟩ ⟨x, hx⟩)
   rcases hs.2 _ (MonoidHom.normal_ker (MonoidHom.transferSylow P h_cent)) with h | h
-  · exact absurd (MonoidHom.ker_transferSylow_isComplement' P h_cent).card_mul
+  · exact absurd (MonoidHom.ker_transferSylow_isComplement' P h_cent).card_mul_card
       (by rw [h, Subgroup.card_bot, hP_card, hn]; norm_num)
-  · exact absurd (MonoidHom.ker_transferSylow_isComplement' P h_cent).card_mul
+  · exact absurd (MonoidHom.ker_transferSylow_isComplement' P h_cent).card_mul_card
       (by rw [h, Subgroup.card_top, hn, hP_card]; norm_num)
 
 lemma simple_60_n2_eq_5 (G : Type*) [Group G] [Finite G]

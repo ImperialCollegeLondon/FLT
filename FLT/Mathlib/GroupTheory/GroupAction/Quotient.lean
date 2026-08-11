@@ -13,10 +13,6 @@ public import Mathlib.GroupTheory.GroupAction.Quotient
 
 @[expose] public section
 
-@[simp]
-lemma MulAction.orbitRel.Quotient.mk_smul {G X : Type*} [Group G] [MulAction G X] (g : G) (x : X) :
-  (⟦g • x⟧ : orbitRel.Quotient G X) = ⟦x⟧ := Quotient.sound ⟨g, rfl⟩
-
 /-- Given a representative for each orbit of `X` under `G`, and for each `x : X` a choice of `σ`
 that sends `x` to the representative, we obtain a bijection between `G`-equivariant homs from `X`
 and the product of `Stab(x)`-fixed points over each orbit representative `x`. -/

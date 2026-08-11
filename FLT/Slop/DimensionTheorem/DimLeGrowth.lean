@@ -66,6 +66,7 @@ variable {R : Type*} [CommRing R] [IsLocalRing R] [IsNoetherianRing R]
 
 /-! ### Auxiliary lemmas -/
 
+omit [IsNoetherianRing R] in
 private lemma hilbertSamuel_zero : hilbertSamuel R 0 = 0 := by
   have : Subsingleton (R ⧸ (maximalIdeal R ^ 0)) := by
     rw [pow_zero, Ideal.one_eq_top]
@@ -84,6 +85,7 @@ private lemma hilbertSamuel_coe (n : ℕ) :
   · exact colength_coe (radical_pow_eq_of_radical_eq
       (maximalIdeal.isMaximal R).isPrime.radical hn.ne')
 
+omit [IsNoetherianRing R] in
 /-- The image of the maximal ideal in a proper quotient is the maximal ideal. -/
 private lemma map_mk_maximalIdeal (I : Ideal R) [Nontrivial (R ⧸ I)] :
     (maximalIdeal R).map (Ideal.Quotient.mk I) = maximalIdeal (R ⧸ I) := by
@@ -93,6 +95,7 @@ private lemma map_mk_maximalIdeal (I : Ideal R) [Nontrivial (R ⧸ I)] :
   obtain ⟨x, rfl⟩ := Ideal.Quotient.mk_surjective x
   simp [Ideal.mem_quotient_iff_mem_sup, sup_eq_left.mpr (le_maximalIdeal hI)]
 
+omit [IsLocalRing R] [IsNoetherianRing R] in
 /-- The length of a double quotient over `R ⧸ I` equals the length of the
 corresponding single quotient over `R`. -/
 private lemma length_quotient_map_quotient (I J : Ideal R) :
@@ -103,6 +106,7 @@ private lemma length_quotient_map_quotient (I J : Ideal R) :
       (by rw [Ideal.Quotient.algebraMap_eq]; exact Ideal.Quotient.mk_surjective)]
   exact (DoubleQuot.quotQuotEquivQuotSupₐ R I J).toLinearEquiv.length_eq
 
+omit [IsNoetherianRing R] in
 /-- The Hilbert–Samuel function of `R ⧸ I` as a colength in `R`. -/
 private lemma hilbertSamuel_quotient_eq (I : Ideal R) [Nontrivial (R ⧸ I)] (n : ℕ) :
     hilbertSamuel (R ⧸ I) n = colength R (I ⊔ maximalIdeal R ^ n) := by

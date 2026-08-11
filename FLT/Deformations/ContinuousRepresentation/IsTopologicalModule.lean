@@ -39,7 +39,7 @@ protected theorem Topology.IsInducing.topologicalModule {F : Type*}
     {H : Type*} [AddCommGroup H] [Module R H] [TopologicalSpace H]
     [FunLike F H M] [LinearMapClass F R H M] (f : F) (hf : IsInducing ⇑f) :
     IsTopologicalModule R H where
-  continuous_smul := (hf.continuousSMul (by continuity) (by aesop)).continuous_smul
+  continuous_smul := (hf.continuousSMul (f := id) continuous_id (by simp)).continuous_smul
   continuous_add := (hf.continuousAdd ..).continuous_add
 
 instance Submodule.instIsTopologicalModuleSubtypeMem (S : Submodule R M) : IsTopologicalModule R S
