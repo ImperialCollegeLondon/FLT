@@ -42,6 +42,12 @@ lemma intValuation_eq_coe_neg_multiplicity {A : Type*} [CommRing A] [IsDedekindD
   apply multiplicity_eq_of_emultiplicity_eq_some
   rw [← UniqueFactorizationMonoid.emultiplicity_eq_count_normalizedFactors v.irreducible hnb]
 
+/-- A height one prime of `B` lies over its pullback to `A`. -/
+instance liesOver_under {A : Type*} [CommRing A] [IsDedekindDomain A] {B : Type*} [CommRing B]
+    [IsDomain B] [Algebra A B] [Algebra.IsIntegral A B] (w : HeightOneSpectrum B) :
+    w.asIdeal.LiesOver (under A w).asIdeal :=
+  ⟨rfl⟩
+
 /-- `adicCompletion.equiv` as a `K`-algebra isomorphism onto the underlying completion. -/
 noncomputable def adicCompletion.algEquiv
     {A : Type*} [CommRing A] [IsDedekindDomain A] (K : Type*) [Field K] [Algebra A K]

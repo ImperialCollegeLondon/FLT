@@ -16,7 +16,7 @@ public import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
 public import Mathlib.RingTheory.Valuation.Discrete.RankOne
 public import Mathlib.Topology.Algebra.Valued.NormedValued
 public import FLT.Mathlib.RingTheory.TensorProduct.Basis
-public import Mathlib.NumberTheory.RamificationInertia.Basic
+public import FLT.Mathlib.RingTheory.RamificationInertia.Basic
 public import Mathlib.RingTheory.PicardGroup
 public import Mathlib.RingTheory.SimpleRing.Principal
 public import Mathlib.Topology.Algebra.Module.FiniteDimension
@@ -129,7 +129,7 @@ lemma adicValued.continuous_algebraMap
   rw [ContinuousAt, map_zero, (Valued.hasBasis_nhds_zero _ _).tendsto_iff
     (Valued.hasBasis_nhds_zero _ _)]
   intro γL _
-  let e := v.asIdeal.ramificationIdx' w.asIdeal
+  let e := w.asIdeal.ramificationIdx A
   -- push `γL` to `ℤᵐ⁰`
   let σL := WithVal.valueGroupOrderIso₀ (w.valuation L)
   let σw := valueGroup₀_equiv_withZeroMulInt (w.valuation L)
@@ -205,7 +205,7 @@ where e is computed globally.
 -/
 lemma valued_adicCompletionSemialgHom (x) :
     Valued.v (adicCompletionSemialgHom K L w x) = Valued.v x ^
-      (w.1.under A).asIdeal.ramificationIdx' w.1.asIdeal := by
+      w.1.asIdeal.ramificationIdx A := by
   revert x
   apply funext_iff.mp
   symm
@@ -672,16 +672,38 @@ lemma _root_.WithZero.ofAdd_neg_ofNat_pow (n : ℕ) :
     (WithZero.coe (Multiplicative.ofAdd (-n : ℤ))) = (Multiplicative.ofAdd (-1 : ℤ)) ^ n := by
   rw [← WithZero.coe_pow, ← ofAdd_nsmul, nsmul_eq_mul, Int.mul_neg_one]
 
+/-- The maximal ideal of `𝒪_w` lies over the maximal ideal of `𝒪_v`. -/
+lemma liesOver_completionIdeal :
+    (w.1.completionIdeal L).LiesOver (v.completionIdeal K) where
+  over := by
+    rw [Ideal.under_def]
+    ext x
+    rw [Ideal.mem_comap, mem_completionIdeal_iff, mem_completionIdeal_iff,
+      integer_algebraMap_apply, valued_adicCompletionSemialgHom K L, pow_lt_one_iff]
+    exact ramificationIdx_ne_zero A B (algebraMap_injective_of_field_isFractionRing A B K L) w.1
+
+/-- The local ramification index of `L_w/K_v` equals the global ramification index of `w/v`. -/
 theorem ramificationIdx_eq_ramificationIdx :
-    (v.completionIdeal K).ramificationIdx' (w.1.completionIdeal L) =
-      v.asIdeal.ramificationIdx' w.1.asIdeal := by
+    (w.1.completionIdeal L).ramificationIdx (v.adicCompletionIntegers K) =
+      w.1.asIdeal.ramificationIdx A := by
+  have := liesOver_completionIdeal K L w
+  have : IsScalarTower (adicCompletionIntegers K v) (adicCompletionIntegers L w.1)
+      (adicCompletion L w.1) := .of_algebraMap_smul fun _ _ ↦ rfl
+  have : IsScalarTower (adicCompletionIntegers K v) (adicCompletion K v) (adicCompletion L w.1) :=
+    .of_algebraMap_smul fun _ _ ↦ rfl
+  have : FaithfulSMul (adicCompletionIntegers K v) (adicCompletionIntegers L w.1) :=
+    FaithfulSMul.of_field_isFractionRing _ _ (adicCompletion K v) (adicCompletion L w.1)
+  -- `Ideal.ramificationIdx'` is the one characterised by `map p ≤ P ^ n` and `¬ map p ≤ P ^ (n+1)`,
+  -- so we check that characterisation for the global ramification index of `w/v`.
+  rw [← Ideal.ramificationIdx'_eq_ramificationIdx (v.completionIdeal K) (w.1.completionIdeal L)
+      (v.completionIdeal_ne_bot K)]
   apply Ideal.ramificationIdx'_spec
   · rw [Ideal.map_le_iff_le_comap]
     intro x hx
     rw [mem_completionIdeal_iff'] at hx
     rw [Ideal.mem_comap, adicCompletion.mem_completionIdeal_pow, integer_algebraMap_apply,
       valued_adicCompletionSemialgHom]
-    rw [WithZero.ofAdd_neg_ofNat_pow, w.2]
+    rw [WithZero.ofAdd_neg_ofNat_pow]
     apply pow_le_pow_left' hx
   · obtain ⟨ϖ, hϖ⟩ := adicCompletion.exists_uniformizer K v
     have hϖ' : ϖ ∈ v.completionIdeal K := by
@@ -692,11 +714,13 @@ theorem ramificationIdx_eq_ramificationIdx :
     have hcomap := h hϖ'
     rw [Ideal.mem_comap, adicCompletion.mem_completionIdeal_pow, integer_algebraMap_apply,
       valued_adicCompletionSemialgHom, hϖ, ← WithZero.ofAdd_neg_ofNat_pow,
-      WithZero.coe_le_coe, w.2, Multiplicative.ofAdd_le] at hcomap
+      WithZero.coe_le_coe, Multiplicative.ofAdd_le] at hcomap
     simp at hcomap
 
+/-- The local inertia degree of `L_w/K_v` equals the global inertia degree of `w/v`. -/
 theorem inertiaDeg_eq_inertiaDeg :
-    v.asIdeal.inertiaDeg' w.1.asIdeal = (v.completionIdeal K).inertiaDeg' (w.1.completionIdeal L) :=
+    w.1.asIdeal.inertiaDeg A =
+      Ideal.inertiaDeg (w.1.completionIdeal L) (v.adicCompletionIntegers K) :=
   letI := Algebra.compHom (adicCompletionIntegers L w.1) (algebraMap A B)
   have : IsScalarTower A B (adicCompletionIntegers L w.1) :=
     IsScalarTower.of_algebraMap_eq fun _ ↦ rfl
@@ -710,37 +734,36 @@ theorem inertiaDeg_eq_inertiaDeg :
       ← IsScalarTower.algebraMap_apply A B L, IsScalarTower.algebraMap_apply A K L]
     symm
     apply SemialgHom.commutes
-  have : w.1.asIdeal.LiesOver v.asIdeal := ⟨by simp_rw [← w.2]; rfl⟩
-  have : (completionIdeal L w.1).LiesOver (completionIdeal K v) := {
-    over := by
-      rw [Ideal.under_def]
-      ext x
-      rw [Ideal.mem_comap, mem_completionIdeal_iff, mem_completionIdeal_iff,
-        integer_algebraMap_apply, valued_adicCompletionSemialgHom K L, pow_lt_one_iff]
-      exact ramificationIdx_ne_zero A B (algebraMap_injective_of_field_isFractionRing A B K L) w.1
-  }
-  calc v.asIdeal.inertiaDeg' w.1.asIdeal
-      = v.asIdeal.inertiaDeg' (w.1.completionIdeal L) := by
-        rw [Ideal.inertiaDeg'_algebra_tower v.asIdeal w.1.asIdeal (w.1.completionIdeal L),
+  have := liesOver_completionIdeal K L w
+  -- Both sides are computed by comparing them with the inertia degree of `𝔪_w` over `A`, using
+  -- that inertia degrees are multiplicative in the towers `A ⊆ B ⊆ 𝒪_w` and `A ⊆ 𝒪_v ⊆ 𝒪_w`.
+  calc w.1.asIdeal.inertiaDeg A
+      = Ideal.inertiaDeg (w.1.completionIdeal L) A := by
+        rw [Ideal.inertiaDeg_tower w.1.asIdeal (w.1.completionIdeal L),
           inertiaDeg_asIdeal_completionIdeal, mul_one]
-    _ = (v.completionIdeal K).inertiaDeg' (w.1.completionIdeal L) := by
-        rw [Ideal.inertiaDeg'_algebra_tower v.asIdeal (v.completionIdeal K) (w.1.completionIdeal L),
+    _ = Ideal.inertiaDeg (w.1.completionIdeal L) (v.adicCompletionIntegers K) := by
+        rw [Ideal.inertiaDeg_tower (v.completionIdeal K) (w.1.completionIdeal L),
           inertiaDeg_asIdeal_completionIdeal, one_mul]
 
--- We use Ideal.sum_ramification_inertia_of_isLocalRing here to show this, but we could make use
--- of the more general results in BGR:
+-- We use Ideal.ramificationIdx_mul_inertiaDeg_eq_finrank_of_isLocalRing here to show this, but we
+-- could make use of the more general results in BGR:
 -- - in general e * f <= degree (Prop 3.1.3.2)
 -- - equality holds for L/K if L is K-cartesian (Prop 3.6.2.4)
 -- - so for example if K is complete and discretely-valued (Cor 2.4.3.11).
 theorem ramificationIdx_mul_inertiaDeg_eq_finrank [FiniteDimensional K L] [Module.Finite A B] :
-    v.asIdeal.ramificationIdx' w.1.asIdeal * v.asIdeal.inertiaDeg' w.1.asIdeal =
+    w.1.asIdeal.ramificationIdx A * w.1.asIdeal.inertiaDeg A =
       Module.finrank (adicCompletion K v) (adicCompletion L w.1) := by
   have : IsScalarTower (adicCompletionIntegers K v) (adicCompletionIntegers L w.1)
       (adicCompletion L w.1) := .of_algebraMap_smul fun _ _ ↦ rfl
   have : IsScalarTower (adicCompletionIntegers K v) (adicCompletion K v) (adicCompletion L w.1) :=
     .of_algebraMap_smul fun _ _ ↦ rfl
-  rw [← Ideal.ramificationIdx_mul_inertiaDeg_of_isLocalRing (adicCompletionIntegers L w.1)
-    (adicCompletion K v) (adicCompletion L w.1) (v.completionIdeal_ne_bot K),
+  -- should any of these be more global instances?
+  have : FaithfulSMul (adicCompletionIntegers K v) (adicCompletionIntegers L w.1) :=
+    FaithfulSMul.of_field_isFractionRing _ _ (adicCompletion K v) (adicCompletion L w.1)
+  rw [IsFractionRing.finrank_eq (adicCompletionIntegers K v) (adicCompletion K v)
+      (adicCompletionIntegers L w.1) (adicCompletion L w.1),
+    ← Ideal.ramificationIdx_mul_inertiaDeg_eq_finrank_of_isLocalRing (adicCompletionIntegers L w.1)
+      (p := v.completionIdeal K) (v.completionIdeal_ne_bot K),
     ramificationIdx_eq_ramificationIdx, inertiaDeg_eq_inertiaDeg K L w]
 
 end RamificationInertia
@@ -756,8 +779,7 @@ lemma finrank_tensorProduct_adicCompletion_eq_finrank_pi_adicCompletion :
   letI := Extension.fintype A K L B v
   calc Module.finrank (adicCompletion K v) (L ⊗[K] adicCompletion K v)
     _ = Module.finrank K L := by rw [TensorProduct.finrank_rightAlgebra]
-    _ = ∑ (w : Extension B v), Ideal.ramificationIdx' v.asIdeal w.val.asIdeal *
-        Ideal.inertiaDeg' v.asIdeal w.val.asIdeal := by
+    _ = ∑ (w : Extension B v), w.val.asIdeal.ramificationIdx A * w.val.asIdeal.inertiaDeg A := by
         rw [Ideal.sum_ramification_inertia_extensions]
     _ = ∑ (w : Extension B v), Module.finrank (adicCompletion K v) (adicCompletion L w.val) :=
         Finset.sum_congr rfl fun w _ ↦ ramificationIdx_mul_inertiaDeg_eq_finrank K L w
