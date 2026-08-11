@@ -867,7 +867,7 @@ variable (D) in
 def formCongr {S N : Type*} [CommRing S] [Algebra R S] [Module S M] [IsScalarTower R S M]
     [AddCommGroup N] [Module R N] [Module S N] [IsScalarTower R S N] (φ : M ≃ₗ[S] N) :
     ℒ.form D M ≃ₗ[S] ℒ.form D N :=
-  .ofLinear (ℒ.formMap D φ) (ℒ.formMap D φ.symm) (by ext; simp) (by ext; simp)
+  .ofLinearMap (ℒ.formMap D φ) (ℒ.formMap D φ.symm) (by ext; simp) (by ext; simp)
 
 variable (D) in
 /-- `formMap` as a linear map. -/

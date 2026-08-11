@@ -22,6 +22,7 @@ namespace Algebra
 attribute [local instance] Localization.AtPrime.algebraOfLiesOver
 
 /-- A key induction step of `exists_etale_completeOrthogonalIdempotents_forall_liesOver_eq`. -/
+@[nolint unusedArguments]
 private theorem exists_etale_completeOrthogonalIdempotents_forall_liesOver_eq_aux.{v, u}
     {R : Type u} {S : Type (max u v)} [CommRing R] [CommRing S] [Algebra R S] [Module.Finite R S]
     (p : Ideal R) [p.IsPrime] (q : Ideal S) [q.IsPrime]

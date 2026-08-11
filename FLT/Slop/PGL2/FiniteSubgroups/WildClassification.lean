@@ -220,7 +220,7 @@ theorem complement_order_coprime (G : Subgroup (PGLOf (K p))) [Finite G]
     (K : Subgroup G) (hK : P.toSubgroup.IsComplement' K) :
     Nat.Coprime (Nat.card K) p := by
   have h_card_G : Nat.card G = p ^ (Nat.factorization (Nat.card G) p) * Nat.card K := by
-    have h1 : Nat.card G = Nat.card P * Nat.card K := hK.card_mul.symm
+    have h1 : Nat.card G = Nat.card P * Nat.card K := hK.card_mul_card.symm
     rw [P.card_eq_multiplicity] at h1
     exact h1
   exact Nat.Coprime.symm <| (Nat.Prime.coprime_iff_not_dvd (Fact.out : Nat.Prime p)).mpr fun h ↦

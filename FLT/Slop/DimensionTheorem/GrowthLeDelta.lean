@@ -54,6 +54,7 @@ set_option linter.unusedSectionVars false
 
 /-- A product of a multiset of elements of an ideal lies in the corresponding
 power of the ideal. -/
+@[nolint unusedArguments]
 private lemma multiset_prod_mem_pow {q : Ideal R} {t : Multiset R}
     (h : ∀ x ∈ t, x ∈ q) : t.prod ∈ q ^ Multiset.card t := by
   induction t using Multiset.induction with
@@ -103,6 +104,7 @@ private lemma span_pow_eq_span_monomial (s : Finset R) (n : ℕ) :
 
 /-- A module spanned by finitely many elements each killed by `q` has length at
 most `(number of generators) * length (R ⧸ q)`. -/
+@[nolint unusedArguments]
 private lemma length_span_range_le {M : Type*} [AddCommGroup M] [Module R M]
     (q : Ideal R) {ι : Type*} [Fintype ι] (w : ι → M)
     (hw : ∀ r ∈ q, ∀ i, r • w i = 0) :
