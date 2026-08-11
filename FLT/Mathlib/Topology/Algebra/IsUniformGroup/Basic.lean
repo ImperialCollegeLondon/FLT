@@ -20,7 +20,7 @@ lemma IsTopologicalGroup.totallyBounded {G : Type*} [Group G] [TopologicalSpace 
     [IsTopologicalGroup G] (H : ∀ s ∈ nhds (1 : G), ∃ H : Subgroup G, H.FiniteIndex ∧ ↑H ⊆ s) :
     letI := IsTopologicalGroup.rightUniformSpace G
     TotallyBounded (Set.univ : Set G) := by
-  letI := IsTopologicalGroup.rightUniformSpace G
+  let := IsTopologicalGroup.rightUniformSpace G
   rintro s ⟨t, ht1, hts⟩
   obtain ⟨H, hH, hHs⟩ := H _ ht1
   have : Finite (Gᵐᵒᵖ ⧸ H.op) := Subgroup.finite_quotient_of_finiteIndex

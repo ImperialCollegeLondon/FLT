@@ -486,7 +486,7 @@ def PatchingModule.toConst (M) [AddCommGroup M] [Module R M] :
 
 lemma PatchingModule.toConst_surjective (M) [AddCommGroup M] [Module R M] [Module.Finite R M] :
     Function.Surjective (toConst R F M) := by
-  letI := moduleTopology R M
+  let := moduleTopology R M
   have : IsModuleTopology R M := ⟨rfl⟩
   have : CompactSpace M := IsModuleTopology.compactSpace R M
   have H : Continuous (toConst R F M) := by

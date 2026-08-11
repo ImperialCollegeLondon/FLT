@@ -198,7 +198,7 @@ lemma IsModuleTopology.continuous_det {A : Type*} [CommRing A] [TopologicalSpace
   · obtain ⟨s, ⟨b⟩⟩ := H
     have : IsModuleTopology A (Matrix s s A) := IsModuleTopology.instPi
     have : ContinuousAdd (Module.End A M) := IsModuleTopology.toContinuousAdd A _
-    letI e : Module.End A M ≃A[A] Matrix s s A :=
+    let e : Module.End A M ≃A[A] Matrix s s A :=
     { __ := algEquivMatrix b,
       continuous_toFun := continuous_of_linearMap (algEquivMatrix b).toLinearMap,
       continuous_invFun := continuous_of_linearMap (algEquivMatrix b).symm.toLinearMap }

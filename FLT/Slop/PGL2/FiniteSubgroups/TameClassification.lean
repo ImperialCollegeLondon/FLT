@@ -1076,15 +1076,15 @@ lemma dihedral2_of_hasCyclicPartition (G : Type*) [Group G] [Fintype G]
   have h_comm : ∀ a b : G, a * b = b * a := fun a b ↦ by
     have h_inv : ∀ g : G, g⁻¹ = g := fun g ↦ inv_eq_of_mul_eq_one_left (h_sq g)
     rw [← h_inv (a * b), mul_inv_rev, h_inv, h_inv]
-  letI : CommGroup G := { ‹Group G› with mul_comm := h_comm }
-  letI : CommGroup (DihedralGroup 2) := { (inferInstance : Group (DihedralGroup 2)) with
+  let : CommGroup G := { ‹Group G› with mul_comm := h_comm }
+  let : CommGroup (DihedralGroup 2) := { (inferInstance : Group (DihedralGroup 2)) with
     mul_comm :=
       fun a b ↦
           by rcases a with ⟨a⟩ | ⟨a⟩ <;> rcases b with ⟨b⟩ | ⟨b⟩ <;> fin_cases a <;> fin_cases b
               <;> decide }
-  letI : Module (ZMod 2) (Additive G) := AddCommGroup.zmodModule fun x ↦ by
+  let : Module (ZMod 2) (Additive G) := AddCommGroup.zmodModule fun x ↦ by
     rw [two_nsmul]; show x.toMul * x.toMul = 1; exact h_sq x.toMul
-  letI : Module (ZMod 2) (Additive (DihedralGroup 2)) := AddCommGroup.zmodModule fun x ↦ by
+  let : Module (ZMod 2) (Additive (DihedralGroup 2)) := AddCommGroup.zmodModule fun x ↦ by
     rw [two_nsmul]; show x.toMul * x.toMul = 1
     rcases x.toMul with ⟨a⟩ | ⟨a⟩ <;> fin_cases a <;> decide
 

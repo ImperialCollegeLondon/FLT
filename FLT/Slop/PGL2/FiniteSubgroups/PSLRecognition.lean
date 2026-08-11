@@ -153,7 +153,7 @@ theorem n_p_gt_one_of_psl_order (G : Subgroup (PGLOf (K p))) [Finite G]
   by_contra h_contra
   obtain ⟨P, hP⟩ : ∃ P : Sylow p G, ∀ Q : Sylow p G, Q = P :=
     Fintype.card_eq_one_iff.mp (by have := Fintype.card_pos (α := Sylow p G); omega)
-  haveI h_normal : (P : Subgroup G).Normal := ⟨fun n hn g ↦ hP (g • P) ▸ Subgroup.mem_map_of_mem _ hn⟩
+  have h_normal : (P : Subgroup G).Normal := ⟨fun n hn g ↦ hP (g • P) ▸ Subgroup.mem_map_of_mem _ hn⟩
 
   have h_even : 2 ∣ p ^ (2 * m) - 1 := by
     rw [← even_iff_two_dvd, Nat.even_sub (Nat.one_le_pow _ _ (Fact.out : Nat.Prime p).pos)]
@@ -383,7 +383,7 @@ theorem orbit_eq_infty_union_translations_psl
       have h1 : (u : K p) * 0 = 1 := congr_fun hu 1
       rw [mul_zero] at h1
       exact zero_ne_one h1
-    haveI : Finite ↥(P1point p '' ((fun b ↦ α₀ + b) '' translationSet p (Subgroup.map G.subtype P))) :=
+    have : Finite ↥(P1point p '' ((fun b ↦ α₀ + b) '' translationSet p (Subgroup.map G.subtype P))) :=
       (Set.Finite.image _ (Set.Finite.image _ (Set.finite_of_ncard_pos (by rw [translationSet_card_eq_P p G hG_p P hP_fix]; exact Nat.card_pos)))).to_subtype
     rw [Set.ncard_union_eq hd]
     · rw [Set.ncard_image_of_injective]
@@ -478,7 +478,7 @@ theorem orbit_infty_eq_P1Fq_psl
     ⟨fun x y hxy ↦ Subtype.ext (MulEquiv.injective _ (Subtype.mk.inj hxy)),
      fun ⟨_, y, hy, rfl⟩ ↦ ⟨⟨y, hy⟩, rfl⟩⟩
 
-  haveI : Finite G' := Finite.of_equiv _ e
+  have : Finite G' := Finite.of_equiv _ e
 
   obtain ⟨g, _, hg_orbit⟩ := orbit_infty_eq_P1Fq_psl_core p G' m hm hpm
     (by rw [← Nat.card_congr e, hn]) (by rw [← Nat.card_congr e]; exact hG_p) P₁ hP₁

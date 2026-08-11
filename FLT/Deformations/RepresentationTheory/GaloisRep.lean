@@ -120,8 +120,8 @@ omit [NumberField K] in
 @[simp]
 lemma GaloisRep.ker_conj (ρ : GaloisRep K A M) (e : M ≃ₗ[A] N) :
     (ρ.conj e).ker = ρ.ker := by
-  letI := moduleTopology A (Module.End A M)
-  letI := moduleTopology A (Module.End A N)
+  let := moduleTopology A (Module.End A M)
+  let := moduleTopology A (Module.End A N)
   ext; simp [conj]
 
 /-- Equivalent modules have equivalent set of galois reps. -/
@@ -277,8 +277,8 @@ lemma FramedGaloisRep.baseChange_def [IsTopologicalRing B]
       letI := f.toAlgebra
       haveI : ContinuousSMul A B := continuousSMul_of_algebraMap A B hf
       (GaloisRep.baseChange B ρ).frame ((Pi.basisFun A n).baseChange B) := by
-  letI := f.toAlgebra
-  haveI : ContinuousSMul A B := continuousSMul_of_algebraMap A B hf
+  let := f.toAlgebra
+  have : ContinuousSMul A B := continuousSMul_of_algebraMap A B hf
   rw [GaloisRep.frame_baseChange]
   rfl
 

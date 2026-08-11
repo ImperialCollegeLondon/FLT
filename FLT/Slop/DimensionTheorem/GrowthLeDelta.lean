@@ -184,7 +184,7 @@ lemma colength_pow_le (s : Finset R) (hs : 1 ≤ s.card)
     intro m
     induction m with
     | zero =>
-      haveI : Subsingleton (R ⧸ (q ^ 0 : Ideal R)) := by
+      have : Subsingleton (R ⧸ (q ^ 0 : Ideal R)) := by
         rw [pow_zero, Ideal.one_eq_top]
         exact Submodule.Quotient.subsingleton_iff.mpr rfl
       rw [Module.length_eq_zero]
@@ -232,7 +232,7 @@ theorem growthLE_hilbertSamuel_spanFinrank {I : Ideal R}
   · refine ⟨colength R I, fun n => ?_⟩
     cases n with
     | zero =>
-      haveI : Subsingleton (R ⧸ (maximalIdeal R ^ 0 : Ideal R)) := by
+      have : Subsingleton (R ⧸ (maximalIdeal R ^ 0 : Ideal R)) := by
         rw [pow_zero, Ideal.one_eq_top]
         exact Submodule.Quotient.subsingleton_iff.mpr rfl
       have h0 : hilbertSamuel R 0 = 0 := by

@@ -190,9 +190,9 @@ def TopologicalModuleTypeCardLT.ofModule (N : ℕ) (M : Type*) [AddCommGroup M]
     Topology.IsEmbedding.t2Space (f := (Finite.equivFin M).symm)
     ⟨⟨by rw [(Finite.equivFin M).induced_symm.symm]⟩, (Finite.equivFin M).symm.injective⟩,
     (Finite.equivFin M).symm.module _, by
-  letI := (Finite.equivFin M).symm.addCommGroup
-  letI := (Finite.equivFin M).symm.module R
-  letI := TopologicalSpace.coinduced (Finite.equivFin M) inferInstance
+  let := (Finite.equivFin M).symm.addCommGroup
+  let := (Finite.equivFin M).symm.module R
+  let := TopologicalSpace.coinduced (Finite.equivFin M) inferInstance
   constructor
   let e := Homeomorph.prodCongr (.refl R) ((Finite.equivFin M).toHomeomorph (fun _ ↦ Iff.rfl))
   refine continuous_coinduced_rng.comp (e.comp_continuous_iff'.mp ?_)

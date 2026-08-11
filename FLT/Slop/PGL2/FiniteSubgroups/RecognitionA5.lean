@@ -160,9 +160,9 @@ theorem element_dichotomy (G : Subgroup (PGLOf (K p))) [Finite G]
         (by rw [← pow_add, add_comm, pow_add])
   · have hgb_ord : orderOf ((g : PGLOf (K p)) ^ b) = p ^ (a + 2) := by
       rw [orderOf_pow' _ hb_pos.ne', hab, Nat.gcd_eq_right ⟨p ^ (a + 2), mul_comm (p ^ (a + 2)) b⟩, Nat.mul_div_cancel _ hb_pos]
-    haveI : Finite (Subgroup.zpowers ((g : PGLOf (K p)) ^ b)) :=
+    have : Finite (Subgroup.zpowers ((g : PGLOf (K p)) ^ b)) :=
       Nat.finite_of_card_ne_zero (by rw [Nat.card_zpowers, hgb_ord]; exact (pow_pos (Nat.Prime.pos Fact.out) _).ne')
-    haveI : IsCyclic (Subgroup.zpowers ((g : PGLOf (K p)) ^ b)) :=
+    have : IsCyclic (Subgroup.zpowers ((g : PGLOf (K p)) ^ b)) :=
       ⟨⟨⟨(g : PGLOf (K p)) ^ b, Subgroup.mem_zpowers _⟩, fun ⟨x, hx⟩ ↦ by
         obtain ⟨k, hk⟩ := Subgroup.mem_zpowers_iff.mp hx; exact ⟨k, Subtype.ext hk⟩⟩⟩
     have hpgrp : IsPGroup p (Subgroup.zpowers ((g : PGLOf (K p)) ^ b)) := fun ⟨x, hx⟩ ↦
@@ -187,7 +187,7 @@ theorem element_partition_count (G : Subgroup (PGLOf (K p))) [Finite G] :
     exact Nat.Prime.ne_one Fact.out ((Nat.gcd_self p).symm.trans h2)
   have h_sum : Nat.card G = 1 + Nat.card {g : G | g ≠ 1} := by
     let e : {g : G | g = 1} ⊕ {g : G | g ≠ 1} ≃ G := Equiv.sumCompl (fun g ↦ g = 1)
-    haveI : Unique {g : G | g = 1} := ⟨⟨⟨1, rfl⟩⟩, fun ⟨g, hg⟩ ↦ Subtype.ext hg⟩
+    have : Unique {g : G | g = 1} := ⟨⟨⟨1, rfl⟩⟩, fun ⟨g, hg⟩ ↦ Subtype.ext hg⟩
     rw [← Nat.card_congr e, Nat.card_sum, Nat.card_unique]
   have h_set : {g : G | g ≠ 1} = {g : G | g ≠ 1 ∧ orderOf (g : PGLOf (K p)) = p} ∪
                                  {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGLOf (K p))) p} := by
@@ -573,7 +573,7 @@ lemma order_30_unique_sylow_5 {G : Type*} [Group G] [Finite G]
   have h_card_sup : Nat.card (N₃ ⊔ P₅ : Subgroup G) = 15 :=
     (card_sup_of_coprime_normal N₃ P₅ hN₃.1 (by rw [hN₃.2, hP₅]; norm_num)).trans (by rw [hN₃.2, hP₅])
 
-  haveI h_normal_sup : (N₃ ⊔ P₅ : Subgroup G).Normal :=
+  have h_normal_sup : (N₃ ⊔ P₅ : Subgroup G).Normal :=
     Subgroup.normal_of_index_eq_two (Nat.eq_of_mul_eq_mul_right (show 0 < 15 by norm_num) (by rw [← h_card_sup, Subgroup.index_mul_card, hn, h_card_sup]))
 
   obtain ⟨P₅', hP₅'⟩ : ∃ P₅' : Sylow 5 (↥(N₃ ⊔ P₅)), (P₅'.toSubgroup.map (Subgroup.subtype (N₃ ⊔ P₅))).Normal :=
@@ -625,7 +625,7 @@ lemma order_30_unique_sylow_3 {G : Type*} [Group G] [Finite G]
   have h_card_sup : Nat.card (N₅ ⊔ P₃ : Subgroup G) = 15 :=
     (card_sup_of_coprime_normal N₅ P₃ hN₅.1 (by rw [hN₅.2, hP₃]; norm_num)).trans (by rw [hN₅.2, hP₃])
 
-  haveI h_normal_sup : (N₅ ⊔ P₃ : Subgroup G).Normal :=
+  have h_normal_sup : (N₅ ⊔ P₃ : Subgroup G).Normal :=
     Subgroup.normal_of_index_eq_two (Nat.eq_of_mul_eq_mul_right (show 0 < 15 by norm_num) (by rw [← h_card_sup, Subgroup.index_mul_card, hn, h_card_sup]))
 
   obtain ⟨P₃', hP₃'⟩ : ∃ P₃' : Sylow 3 (↥(N₅ ⊔ P₃)), (P₃'.toSubgroup.map (Subgroup.subtype (N₅ ⊔ P₃))).Normal :=

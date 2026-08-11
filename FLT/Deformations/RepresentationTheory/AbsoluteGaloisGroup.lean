@@ -55,14 +55,14 @@ def Field.absoluteGaloisGroup.mapAux (f : K →+* L) : Γ L →* Γ K where
     ((σ.restrictScalars K).toAlgHom.comp
       (IsAlgClosed.lift : Kᵃˡᵍ →ₐ[K] Lᵃˡᵍ)).restrictNormal' (Kᵃˡᵍ)
   map_one' := by
-    letI := f.toAlgebra
-    letI := (AlgebraicClosure.map f).toAlgebra
+    let := f.toAlgebra
+    let := (AlgebraicClosure.map f).toAlgebra
     apply AlgEquiv.ext fun i ↦ ?_
     apply (IsAlgClosed.lift : Kᵃˡᵍ →ₐ[K] Lᵃˡᵍ).injective
     refine (AlgHom.restrictNormal_commutes _ _ _).trans (by simp)
   map_mul' σ₁ σ₂ := by
-    letI := f.toAlgebra
-    letI := (AlgebraicClosure.map f).toAlgebra
+    let := f.toAlgebra
+    let := (AlgebraicClosure.map f).toAlgebra
     apply AlgEquiv.ext fun i ↦ ?_
     apply (AlgebraicClosure.map f).injective
     refine (AlgHom.restrictNormal_commutes _ _ _).trans ?_
@@ -76,9 +76,9 @@ def Field.absoluteGaloisGroup.map (f : K →+* L) : Γ L →ₜ* Γ K where
   __ := Field.absoluteGaloisGroup.mapAux f
   continuous_toFun := by
     classical
-    letI := f.toAlgebra
+    let := f.toAlgebra
     let F : Kᵃˡᵍ →ₐ[K] Lᵃˡᵍ := IsAlgClosed.lift
-    letI := F.toRingHom.toAlgebra
+    let := F.toRingHom.toAlgebra
     apply continuous_of_continuousAt_one (Field.absoluteGaloisGroup.mapAux f)
     rw [ContinuousAt, map_one]
     refine ((galGroupBasis L (Lᵃˡᵍ)).nhds_one_hasBasis.tendsto_iff
@@ -100,8 +100,8 @@ attribute [reducible] Field.absoluteGaloisGroup -- lol WTF is going on here
 set_option backward.isDefEq.respectTransparency false in
 lemma Field.absoluteGaloisGroup.lift_map (f : K →+* L) (σ : Γ L) (x : Kᵃˡᵍ) :
     AlgebraicClosure.map f (map f σ x) = σ (AlgebraicClosure.map f x) := by
-  letI := f.toAlgebra
-  letI := (AlgebraicClosure.map f).toAlgebra
+  let := f.toAlgebra
+  let := (AlgebraicClosure.map f).toAlgebra
   exact AlgHom.restrictNormal_commutes _ _ _
 
 

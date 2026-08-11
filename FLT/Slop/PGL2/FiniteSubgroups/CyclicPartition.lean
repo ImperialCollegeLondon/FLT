@@ -102,7 +102,7 @@ theorem dihedralRecognition (G : Type*) [Group G] [Fintype G] (n : ℕ) (hn : n 
     (hH_index : H.index = 2)
     (h_invol : ∀ g : G, g ∉ H → orderOf g = 2) :
     Nonempty (G ≃* DihedralGroup n) := by
-  haveI : NeZero n := ⟨Nat.ne_of_gt ((Nat.zero_lt_succ 1).trans_le hn)⟩
+  have : NeZero n := ⟨Nat.ne_of_gt ((Nat.zero_lt_succ 1).trans_le hn)⟩
 
   obtain ⟨a, ha⟩ : ∃ a : G, a ∉ H := by
     by_contra! h
@@ -330,7 +330,7 @@ theorem dihedral_of_hasCyclicPartition_odd (G : Type*) [Group G] [Fintype G] (n 
   obtain ⟨H_list, hLen, hProps, _, hCover⟩ := h
   obtain ⟨H0, hH0_opt, hH0_cyc, hH0_card, hH0_norm⟩ := hProps ⟨0, Nat.zero_lt_succ 1⟩
   obtain ⟨H1, hH1_opt, _, hH1_card, _⟩ := hProps ⟨1, Nat.lt_succ_self 1⟩
-  haveI hH0_Normal : H0.Normal := Subgroup.normalizer_eq_top_iff.mp
+  have hH0_Normal : H0.Normal := Subgroup.normalizer_eq_top_iff.mp
     (Subgroup.eq_top_of_card_eq _ (hH0_norm.trans hN.symm))
 
   have h_order2 : ∀ g : G, g ∉ H0 → orderOf g = 2 := by
@@ -380,7 +380,7 @@ theorem dihedral_of_hasCyclicPartition_even (G : Type*) [Group G] [Fintype G] (n
   obtain ⟨H0, hH0_opt, hH0_cyc, hH0_card, hH0_norm⟩ := hProps ⟨0, Nat.zero_lt_succ 2⟩
   obtain ⟨H1, hH1_opt, _, hH1_card, _⟩ := hProps ⟨1, Nat.lt_succ_of_le (Nat.le_succ 1)⟩
   obtain ⟨H2, hH2_opt, _, hH2_card, _⟩ := hProps ⟨2, Nat.lt_succ_self 2⟩
-  haveI hH0_Normal : H0.Normal := Subgroup.normalizer_eq_top_iff.mp
+  have hH0_Normal : H0.Normal := Subgroup.normalizer_eq_top_iff.mp
     (Subgroup.eq_top_of_card_eq _ (hH0_norm.trans hN.symm))
 
   have h_order2 : ∀ g : G, g ∉ H0 → orderOf g = 2 := by
@@ -549,7 +549,7 @@ lemma card_sylow3_of_non_normal_order3 (G : Type*) [Group G] [Fintype G]
   with h_one | h_four
 
   · exfalso
-    haveI h_subsingleton : Subsingleton (Sylow 3 G) := (Nat.card_eq_one_iff_unique.mp h_one).1
+    have h_subsingleton : Subsingleton (Sylow 3 G) := (Nat.card_eq_one_iff_unique.mp h_one).1
 
     obtain ⟨P, hP⟩ := (IsPGroup.of_card
       (show Nat.card H = 3 ^ 1 by rw [hH_card]; ring)).exists_le_sylow
@@ -798,10 +798,10 @@ lemma not_normal_order6_of_card_sylow3_4 (G : Type*) [Group G] [Fintype G]
     have : Nat.card (Sylow 3 K) ≠ 4 := fun h ↦ by obtain ⟨k, hk⟩ := h_dvd; rw [h] at hk; omega
     have : Nat.card (Sylow 3 K) ≤ 6 := Nat.le_of_dvd (by norm_num) h_dvd
     omega
-  haveI : (Q : Subgroup K).Normal := ⟨fun n hn g ↦
+  have : (Q : Subgroup K).Normal := ⟨fun n hn g ↦
     (Sylow.smul_eq_iff_mem_normalizer.mp (show g • Q = Q from hQ (g • Q))) n |>.mp hn⟩
-  haveI : (Q : Subgroup K).Characteristic := Sylow.characteristic_of_normal Q inferInstance
-  haveI : (Subgroup.map K.subtype (Q : Subgroup K)).Normal :=
+  have : (Q : Subgroup K).Characteristic := Sylow.characteristic_of_normal Q inferInstance
+  have : (Subgroup.map K.subtype (Q : Subgroup K)).Normal :=
     ConjAct.normal_of_characteristic_of_normal
   set QG := Subgroup.map K.subtype (Q : Subgroup K)
 
@@ -818,7 +818,7 @@ lemma not_normal_order6_of_card_sylow3_4 (G : Type*) [Group G] [Fintype G]
     rw [hQG_card, P.card_eq_multiplicity, hN,
         Nat.factorization_eq_one (m := 8) rfl Nat.prime_three (by norm_num),
         pow_one]
-  haveI : (P : Subgroup G).Normal :=
+  have : (P : Subgroup G).Normal :=
     (SetLike.ext' <| Set.eq_of_subset_of_ncard_le hP h_card_eq.ge : QG = ↑P) ▸ inferInstance
 
   have h_sylow_one : Nat.card (Sylow 3 G) = 1 := by
@@ -1024,7 +1024,7 @@ lemma card_elements_orderOf_prime (G : Type*) [Group G] [Fintype G]
             rw [h, orderOf_one] at hx
             exact hx.symm)⟩, rfl⟩
   ⟩
-  haveI (P : Sylow p G) : Fintype {x : G // x ∈ (P : Subgroup G) ∧ x ≠ 1} := Fintype.ofFinite _
+  have (P : Sylow p G) : Fintype {x : G // x ∈ (P : Subgroup G) ∧ x ≠ 1} := Fintype.ofFinite _
   change Fintype.card {x : G | orderOf x = p} = _
   rw [← Fintype.card_congr (Equiv.ofBijective f h_bij), Fintype.card_sigma]
 
@@ -1191,7 +1191,7 @@ lemma isSimple_of_hasCyclicPartition_A5 (G : Type*) [Group G] [Fintype G]
     IsSimpleGroup G := by
   have h_n5 : Nat.card (Sylow 5 G) = 6 := card_sylow5_of_hasCyclicPartition_A5 G hN h
   have h_n3 : Nat.card (Sylow 3 G) = 10 := card_sylow3_of_hasCyclicPartition_A5 G hN h
-  haveI : Nontrivial G := by
+  have : Nontrivial G := by
     rw [← Fintype.one_lt_card_iff_nontrivial, ← Nat.card_eq_fintype_card, hN]; norm_num
   exact IsSimpleGroup.mk (fun N hN_normal ↦ by
     by_contra h_contra
@@ -1236,7 +1236,7 @@ lemma isSimple_of_hasCyclicPartition_A5 (G : Type*) [Group G] [Fintype G]
         (by rw [h3, hN, h_fac3, pow_one]))
         (by rw [h_n3]; norm_num)
 
-    · haveI : Fintype (G ⧸ N) := Fintype.ofFinite _
+    · have : Fintype (G ⧸ N) := Fintype.ofFinite _
       obtain ⟨g, hg⟩ := exists_orderOf_15_of_card_15 (G ⧸ N) (by rw [← Subgroup.index_eq_card,
           Nat.eq_of_mul_eq_mul_right (by rw [h4]; norm_num)
               (show N.index * Nat.card N = 15 * Nat.card N by rw [Subgroup.index_mul_card N, hN,

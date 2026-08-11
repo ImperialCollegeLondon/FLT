@@ -329,9 +329,9 @@ continuous inclusion `𝒪[k] → k` carries its defining sum (`PowerSeries.hasS
 the sum defining `evalInt`. Multiplicativity is then `map_mul` of `eval₂Hom`. -/
 theorem evalInt_mul (q : k) (hq : valuation k q < 1) (F G : ℤ⟦X⟧) :
     evalInt q (F * G) = evalInt q F * evalInt q G := by
-  letI : UniformSpace k := IsTopologicalAddGroup.rightUniformSpace k
-  haveI : IsUniformAddGroup k := isUniformAddGroup_of_addCommGroup
-  haveI : IsUniformAddGroup 𝒪[k] := inferInstanceAs (IsUniformAddGroup 𝒪[k].toAddSubgroup)
+  let : UniformSpace k := IsTopologicalAddGroup.rightUniformSpace k
+  have : IsUniformAddGroup k := isUniformAddGroup_of_addCommGroup
+  have : IsUniformAddGroup 𝒪[k] := inferInstanceAs (IsUniformAddGroup 𝒪[k].toAddSubgroup)
   have hind : Topology.IsInducing ((↑) : 𝒪[k] → k) := ⟨rfl⟩
   have hφ : Continuous (Int.castRingHom 𝒪[k]) := continuous_of_discreteTopology
   have ha : PowerSeries.HasEval (⟨q, hq.le⟩ : 𝒪[k]) :=

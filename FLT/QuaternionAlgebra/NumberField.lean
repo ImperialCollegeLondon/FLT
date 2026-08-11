@@ -573,7 +573,7 @@ def GL2.finiteAdeleIncl (v : HeightOneSpectrum (𝓞 F)) : GL₂(v.adicCompletio
 lemma GL2.toAdicCompletion_finiteAdeleIncl_of_ne
     (v w : HeightOneSpectrum (𝓞 F)) (x) (H : v ≠ w) :
     GL2.toAdicCompletion v (GL2.finiteAdeleIncl w x) = 1 := by
-  letI : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
+  let : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
   ext i j
   change (Pi.mulSingle
     (M := fun v : HeightOneSpectrum (𝓞 F) ↦ GL₂(v.adicCompletion F)) w x v).1 i j = _
@@ -582,7 +582,7 @@ lemma GL2.toAdicCompletion_finiteAdeleIncl_of_ne
 @[simp]
 lemma GL2.toAdicCompletion_finiteAdeleIncl_same (v : HeightOneSpectrum (𝓞 F)) (x) :
     GL2.toAdicCompletion v (GL2.finiteAdeleIncl v x) = x := by
-  letI : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
+  let : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
   ext i j
   change (Pi.mulSingle
     (M := fun v : HeightOneSpectrum (𝓞 F) ↦ GL₂(v.adicCompletion F)) v x v).1 i j = _

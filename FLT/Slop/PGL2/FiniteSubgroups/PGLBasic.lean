@@ -259,7 +259,7 @@ def pglMap {F L : Type*} [Field F] [Field L] (f : F →+* L) : PGLOf F →* PGLO
 
 theorem finite_of_closure_finite (S : Set (K p)) (hS : S.Finite) : Finite (Subfield.closure S) := by
   obtain ⟨s, rfl⟩ := hS.exists_finset_coe
-  haveI : Finite (IntermediateField.adjoin (ZMod p) (s : Set (K p))) :=
+  have : Finite (IntermediateField.adjoin (ZMod p) (s : Set (K p))) :=
     Module.finite_iff_finite.mp (IntermediateField.finiteDimensional_adjoin
       (fun x _ ↦ isAlgebraic_iff_isIntegral.mp ((AlgebraicClosure.isAlgebraic (ZMod p)).isAlgebraic x)))
   let f : Subfield.closure (s : Set (K p)) → IntermediateField.adjoin (ZMod p) (s : Set (K p)) :=
@@ -272,7 +272,7 @@ theorem exists_finite_subfield_conjugate (G : Subgroup (PGLOf (K p))) [Finite G]
     ∃ (L : Subfield (K p)) (g : PGLOf (K p)),
       Subgroup.map (MulAut.conj g) G ≤ (pglMap (Subfield.subtype L)).range := by
   choose f hf using fun g : PGLOf (K p) ↦ QuotientGroup.mk_surjective g
-  haveI : Fintype G := Fintype.ofFinite G
+  have : Fintype G := Fintype.ofFinite G
   let S : Finset (GL (Fin 2) (K p)) := Finset.univ.image (fun x : G ↦ f x.val)
 
   let L : Subfield (K p) := Subfield.closure (⋃ g ∈ S, Set.range (fun ij : Fin 2 × Fin 2 ↦ g.val ij.1 ij.2))
@@ -1102,8 +1102,8 @@ theorem isPGroup_exists_common_fixedPoint (P : Subgroup (PGLOf (K p))) (hP_fin :
   · exact ⟨Classical.arbitrary _, fun g hg ↦ by rw [h_trivial g hg, one_smul]⟩
   · push Not at h_trivial
     obtain ⟨g_ne, hg_mem, hg_ne_one⟩ := h_trivial
-    haveI : Nontrivial P := ⟨⟨⟨g_ne, hg_mem⟩, 1, Subtype.ext_iff.not.mpr hg_ne_one⟩⟩
-    haveI : Nontrivial (Subgroup.center P) := IsPGroup.center_nontrivial hP_p
+    have : Nontrivial P := ⟨⟨⟨g_ne, hg_mem⟩, 1, Subtype.ext_iff.not.mpr hg_ne_one⟩⟩
+    have : Nontrivial (Subgroup.center P) := IsPGroup.center_nontrivial hP_p
 
     obtain ⟨⟨z, hz_center⟩, hz_ne_one⟩ := exists_ne (1 : Subgroup.center P)
     obtain ⟨k_orig, hk_orig⟩ := hP_p z

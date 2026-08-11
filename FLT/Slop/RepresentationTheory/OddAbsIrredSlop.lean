@@ -111,7 +111,7 @@ lemma isIrreducible_iff_forall :
         ∀ W : Submodule k V, (∀ g : G, ∀ v ∈ W, ρ g v ∈ W) → W = ⊥ ∨ W = ⊤ := by
   constructor
   · intro hirr
-    haveI := hirr
+    have := hirr
     refine ⟨?_, ?_⟩
     · -- `V` is nontrivial because `⊥ ≠ ⊤` in the (simple) lattice of subrepresentations.
       exact (Submodule.nontrivial_iff k).mp
@@ -126,8 +126,8 @@ lemma isIrreducible_iff_forall :
       · exact Or.inl (congrArg Subrepresentation.toSubmodule hb)
       · exact Or.inr (congrArg Subrepresentation.toSubmodule ht)
   · rintro ⟨hnt, hforall⟩
-    haveI : Nontrivial V := hnt
-    haveI : Nontrivial (Submodule k V) := (Submodule.nontrivial_iff k).mpr hnt
+    have : Nontrivial V := hnt
+    have : Nontrivial (Submodule k V) := (Submodule.nontrivial_iff k).mpr hnt
     refine
       { toNontrivial := ⟨⊥, ⊤, ?_⟩
         eq_bot_or_eq_top := ?_ }
@@ -242,14 +242,14 @@ lemma adjoinRange_eq_top [FiniteDimensional k V]
       ∃ μ : k, T = μ • (1 : Module.End k V)) :
     adjoinRange ρ = ⊤ := by
   obtain ⟨hnt, hsub⟩ := (isIrreducible_iff_forall ρ).mp hirr
-  haveI : Nontrivial V := hnt
+  have : Nontrivial V := hnt
   set A := adjoinRange ρ
   have hρmem : ∀ g : G, ρ g ∈ A := fun g => Algebra.subset_adjoin ⟨g, rfl⟩
-  haveI : IsScalarTower k A V := ⟨fun _ _ _ => rfl⟩
+  have : IsScalarTower k A V := ⟨fun _ _ _ => rfl⟩
   -- `V` is a simple (hence semisimple) `A`-module: an `A`-submodule is a
   -- `G`-invariant `k`-subspace, so irreducibility applies.
-  haveI : IsSimpleModule A V := by
-    haveI := (Submodule.nontrivial_iff A).mpr ‹Nontrivial V›
+  have : IsSimpleModule A V := by
+    have := (Submodule.nontrivial_iff A).mpr ‹Nontrivial V›
     rw [isSimpleModule_iff]
     refine ⟨fun W => ?_⟩
     have hW : ∀ g : G, ∀ v ∈ W.restrictScalars k, ρ g v ∈ W.restrictScalars k :=
@@ -409,8 +409,8 @@ lemma isIrreducible_of_baseChange (l : Type*) [Field l] [Algebra k l]
   · -- `Nontrivial V` : otherwise `l ⊗[k] V` would be trivial, contradicting `hntl`.
     by_contra hV
     rw [not_nontrivial_iff_subsingleton] at hV
-    haveI : Subsingleton V := hV
-    haveI : Subsingleton (l ⊗[k] V) := by
+    have : Subsingleton V := hV
+    have : Subsingleton (l ⊗[k] V) := by
       refine ⟨fun a b => ?_⟩
       have hz : ∀ x : l ⊗[k] V, x = 0 := fun x => by
         induction x using TensorProduct.induction_on with
@@ -459,7 +459,7 @@ theorem isIrreducible_baseChange_of_finrank_eigenspace_eq_one
   -- Lemma 1.6 : this stays true after base change to `l`.
   have hAbc : adjoinRange (baseChange l ρ) = ⊤ := adjoinRange_baseChange_eq_top ρ l hA
   -- `l ⊗[k] V` is nontrivial : a nonzero `v ∈ V` gives a nonzero `1 ⊗ v`.
-  haveI : Nontrivial V := ((isIrreducible_iff_forall ρ).mp hirr).1
+  have : Nontrivial V := ((isIrreducible_iff_forall ρ).mp hirr).1
   obtain ⟨v, hv0⟩ := exists_ne (0 : V)
   obtain ⟨φ, hφ⟩ := Module.Projective.exists_dual_eq_one k hv0
   have hne : (1 : l) ⊗ₜ[k] v ≠ 0 := by
@@ -469,7 +469,7 @@ theorem isIrreducible_baseChange_of_finrank_eigenspace_eq_one
     simp only [LinearMap.lTensor_tmul, LinearEquiv.coe_coe, TensorProduct.rid_tmul, hφ,
       one_smul, map_zero] at hcontra
     exact one_ne_zero hcontra
-  haveI : Nontrivial (l ⊗[k] V) := nontrivial_of_ne _ _ hne
+  have : Nontrivial (l ⊗[k] V) := nontrivial_of_ne _ _ hne
   -- Step (iv) : fullness of the algebra forces irreducibility.
   exact isIrreducible_of_adjoinRange_eq_top (baseChange l ρ) hAbc
 
