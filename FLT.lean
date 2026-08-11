@@ -100,6 +100,7 @@ public import FLT.Mathlib.Algebra.Homology.HomologicalComplex
 public import FLT.Mathlib.Algebra.IsDirectLimit
 public import FLT.Mathlib.Algebra.IsQuaternionAlgebra
 public import FLT.Mathlib.Algebra.Module.Submodule.Basic
+public import FLT.Mathlib.Algebra.Module.TransferInstance
 public import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
 public import FLT.Mathlib.Algebra.Polynomial.QuadraticDiscriminant
 public import FLT.Mathlib.Algebra.Polynomial.Splits
@@ -174,6 +175,7 @@ public import FLT.Mathlib.RingTheory.Localization.BaseChange
 public import FLT.Mathlib.RingTheory.Norm.Quadratic
 public import FLT.Mathlib.RingTheory.Norm.Quotient
 public import FLT.Mathlib.RingTheory.Polynomial.GaussLemma
+public import FLT.Mathlib.RingTheory.RamificationInertia.Basic
 public import FLT.Mathlib.RingTheory.SimpleRing.TensorProduct
 public import FLT.Mathlib.RingTheory.TensorProduct.Basis
 public import FLT.Mathlib.RingTheory.TensorProduct.Pi

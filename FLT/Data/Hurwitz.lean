@@ -73,7 +73,7 @@ lemma leftInvOn_toQuaternion_fromQuaternion :
   have h₀ (x y : ℤ) : (x + 2 ⁻¹ : ℝ) + (y + 2⁻¹) = ↑(x + y + 1) := by
     field_simp; norm_cast; ring
   intro q hq
-  simp only [Set.mem_setOf] at hq
+  simp only [Set.mem_ofPred] at hq
   simp only [toQuaternion, fromQuaternion]
   obtain ⟨a, b, c, d, rfl|rfl⟩ := hq <;>
   ext <;>
@@ -145,6 +145,7 @@ instance : Neg 𝓞 := ⟨neg⟩
 @[simp] lemma neg_im_i (z : 𝓞) : imI (-z) = -imI z  := rfl
 @[simp] lemma neg_im_oi (z : 𝓞) : imOI (-z) = -imOI z  := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma toQuaternion_neg (z : 𝓞) :
     toQuaternion (-z) = - toQuaternion z := by
   ext <;> simp [toQuaternion] <;> ring
@@ -165,6 +166,7 @@ instance : Add 𝓞 := ⟨add⟩
 @[simp] lemma add_im_i (z w : 𝓞) : imI (z + w) = imI z  + imI w  := rfl
 @[simp] lemma add_im_oi (z w : 𝓞) : imOI (z + w) = imOI z  + imOI w  := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma toQuaternion_add (z w : 𝓞) :
     toQuaternion (z + w) = toQuaternion z + toQuaternion w := by
   ext <;> simp [toQuaternion] <;> ring
@@ -267,6 +269,7 @@ instance : Mul 𝓞 := ⟨mul⟩
     imOI (z * w) = z.imOI * w.re - z.imI * w.imO + z.imO * w.imI +
       z.re * w.imOI - z.imO * w.imOI - z.imOI * w.imOI := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma toQuaternion_mul (z w : 𝓞) :
     toQuaternion (z * w) = toQuaternion z * toQuaternion w := by
   ext <;> simp [toQuaternion] <;> ring
@@ -382,6 +385,7 @@ instance starRing : StarRing 𝓞 where
 @[simp] lemma star_im_i (z : 𝓞) : (star z).imI = -z.imI := rfl
 @[simp] lemma star_im_oi (z : 𝓞) : (star z).imOI = -z.imOI := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma toQuaternion_star (z : 𝓞) : toQuaternion (star z) = star (toQuaternion z) := by
   ext <;>
   simp only [star_re, star_im_o, star_im_i, star_im_oi, toQuaternion,
@@ -462,9 +466,10 @@ lemma normSq_toQuaternion (z : 𝓞) : normSq (toQuaternion z) = norm z := by
   rw [← self_mul_star, ← toQuaternion_star, ← toQuaternion_mul, ← norm_eq_mul_conj,
     toQuaternion_intCast, coe_intCast]
 
+set_option backward.isDefEq.respectTransparency.types false in
 private lemma aux (x y z w : ℤ) : toQuaternion (fromQuaternion ⟨x,y,z,w⟩) = ⟨x,y,z,w⟩ := by
   apply leftInvOn_toQuaternion_fromQuaternion
-  simp only [Set.mem_setOf]
+  simp only [Set.mem_ofPred]
   use x, y, z, w
   simp
 
@@ -485,6 +490,7 @@ private lemma aux2 (a b c d : ℝ) (ha : a ≤ 4⁻¹) (hb : b ≤ 4⁻¹) (hc :
   rw [this, le_sub_comm, invs] <;>
   gcongr
 
+set_option backward.isDefEq.respectTransparency.types false in
 open Quaternion in
 lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
   have four_inv : (4⁻¹ : ℝ) = 2⁻¹ ^ 2 := by norm_num
@@ -507,7 +513,7 @@ lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
     simp_rw [and_assoc, sq_eq_zero_iff, neg_add_eq_sub, re_sub, imI_sub, imJ_sub, imK_sub,
       sub_eq_zero, ← Quaternion.ext_iff]
     apply leftInvOn_toQuaternion_fromQuaternion
-    · simp only [Set.mem_setOf]
+    · simp only [Set.mem_ofPred]
       have {r : ℝ} {z : ℤ} (h : |r - z| = 2⁻¹) : ∃ z' : ℤ, r = z' + 2⁻¹  := by
         cases (abs_eq (by positivity)).mp h with (rw [sub_eq_iff_eq_add'] at h)
         | inl h => use z

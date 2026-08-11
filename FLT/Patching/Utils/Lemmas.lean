@@ -146,7 +146,7 @@ def TwoSidedIdeal.leAddSubgroup {α} [NonUnitalNonAssocRing α] (G : AddSubgroup
       refine subset_trans (c := (G : Set α)) this fun a ha ↦ ?_
       obtain ⟨a₁, ha₁, a₂, ha₂, rfl⟩ := mem_sup.mp ha
       exact G.add_mem (hx ha₁) (hy ha₂))
-    (fun {x} hx ↦ by simpa only [Set.mem_setOf_eq, ← Set.neg_singleton, TwoSidedIdeal.span_neg])
+    (fun {x} hx ↦ by simpa only [Set.mem_ofPred_eq, ← Set.neg_singleton, TwoSidedIdeal.span_neg])
     (fun {x y} hy ↦ subset_trans (c := (G : Set α))
       (TwoSidedIdeal.span_le'.mpr <| by
         simpa using TwoSidedIdeal.mul_mem_left _ x y mem_span_singleton) hy)
@@ -242,6 +242,7 @@ lemma WellFoundedLT.exists_eq_inf {α} [CompleteLattice α] [WellFoundedLT α]
     (f : ℕ →o αᵒᵈ) : ∃ i, f i = (⨅ i, f i : α) :=
   WellFoundedGT.exists_eq_sup (α := αᵒᵈ) f
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma IsLocalRing.maximalIdeal_pow_card_smul_top_le {R M}
     [CommRing R] [IsLocalRing R] [IsNoetherianRing R] [AddCommGroup M] [Module R M]
     (N : Submodule R M) [Finite (M ⧸ N)] : maximalIdeal R ^ Nat.card (M ⧸ N) • ⊤ ≤ N := by

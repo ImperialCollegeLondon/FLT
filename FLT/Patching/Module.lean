@@ -150,14 +150,14 @@ def Module.UniformlyBoundedRank.linearMap (i) :
 lemma Module.UniformlyBoundedRank.linearMap_surjective :
     ∀ᶠ i in F, Function.Surjective (linearMap R M F i) := by
   filter_upwards [rank_spec R M F] with i hi
-  rw [linearMap, dif_pos hi]
+  rw [linearMap, dite_eq_left hi]
   exact hi.some.symm.surjective.comp
     (Function.Surjective.comp_left Ideal.Quotient.mk_surjective)
 
 lemma Module.UniformlyBoundedRank.linearMap_eq_zero :
     ∀ᶠ i in F, ∀ x, linearMap R M F i x = 0 ↔ ∀ j, x j ∈ Ann R (M i) := by
   filter_upwards [rank_spec R M F] with i hi x
-  rw [linearMap, dif_pos hi]
+  rw [linearMap, dite_eq_left hi]
   simp only [LinearMap.coe_comp, LinearEquiv.coe_coe, Function.comp_apply,
     EmbeddingLike.map_eq_zero_iff, funext_iff]
   apply forall_congr' fun j ↦ ?_
@@ -429,6 +429,7 @@ def PatchingModule.mapEquiv (f : ∀ i, M i ≃ₗ[R] N i) :
   left_inv x := by simp [← map_comp_apply]
   right_inv x := by simp [← map_comp_apply]
 
+set_option backward.isDefEq.respectTransparency.types false in
 open IsLocalRing in
 lemma PatchingModule.map_surjective
     [IsLocalRing R] [IsAdicTopology R]
@@ -485,7 +486,7 @@ def PatchingModule.toConst (M) [AddCommGroup M] [Module R M] :
 
 lemma PatchingModule.toConst_surjective (M) [AddCommGroup M] [Module R M] [Module.Finite R M] :
     Function.Surjective (toConst R F M) := by
-  letI := moduleTopology R M
+  let := moduleTopology R M
   have : IsModuleTopology R M := ⟨rfl⟩
   have : CompactSpace M := IsModuleTopology.compactSpace R M
   have H : Continuous (toConst R F M) := by

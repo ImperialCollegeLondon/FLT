@@ -56,7 +56,7 @@ lemma Module.depth_of_subsingleton [Subsingleton M] :
   rw [Module.depth, sSup_eq_top]
   rintro b hb
   obtain ⟨b, rfl⟩ := ENat.ne_top_iff_exists.mp hb.ne
-  simp only [Set.mem_setOf_eq, exists_prop, ↓existsAndEq, and_true, Nat.cast_lt]
+  simp only [Set.mem_ofPred_eq, exists_prop, ↓existsAndEq, and_true, Nat.cast_lt]
   refine ⟨List.replicate b.succ 0, ⟨?_, ?_⟩, ?_⟩
   · refine  (Sequence.isWeaklyRegular_iff_Fin ..).mpr fun i ↦ ?_
     exact fun _ _ _ ↦ Subsingleton.elim _ _
@@ -70,6 +70,7 @@ lemma Module.depth_of_isScalarTower :
   rw [← Sequence.isWeaklyRegular_map_algebraMap_iff S M s] at hs₁
   exact ⟨_, hs₁, by simpa, by simp⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[stacks 00LK]
 lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
     .some (Module.depth R M) ≤ Order.krullDim (Module.support R M) := by
@@ -140,7 +141,7 @@ lemma Module.depth_le_krullDim_support [Nontrivial M] [Module.Finite R M] :
     cases m with
     | top =>
       have : (⊤ : ℕ∞) ≤ (n : ℕ) := by apply WithBot.coe_le_coe.mp; simpa only [h] using! this
-      cases (ENat.coe_lt_top n).not_ge this
+      cases (ENat.natCast_lt_top n).not_ge this
     | coe m =>
     rw [h] at this
     replace this : m + 1 ≤ n := WithTop.coe_le_coe.mp (WithBot.coe_le_coe.mp this)

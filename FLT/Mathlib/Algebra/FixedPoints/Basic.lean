@@ -79,6 +79,7 @@ lemma coe_add [AddZeroClass A] [DistribSMul M A] (a b : FixedPoints M A) :
     ((a + b : FixedPoints M A) : A) = a + b := rfl
 
 -- TODO: I could use FixedPoints.addSubmonoid + coercion to addMonoid, but Is my `nsmul` better?
+set_option backward.isDefEq.respectTransparency.types false in
 instance addMonoid [AddMonoid A] [DistribSMul M A] : AddMonoid (FixedPoints M A) where
   __ := addZeroClass
   add_assoc a b c := by
@@ -108,6 +109,7 @@ instance addCommMonoid [AddCommMonoid A] [DistribSMul M A] : AddCommMonoid (Fixe
 theorem smul_neg [AddGroup A] [DistribSMul M A] (r : M) (x : A) : r • -x = -(r • x) :=
   eq_neg_of_add_eq_zero_left <| by rw [← smul_add, neg_add_cancel, smul_zero]
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance addGroup [AddGroup A] [DistribSMul M A] : AddGroup (FixedPoints M A) where
   __ := addMonoid
   neg a := ⟨-(a : A), fun m ↦ by

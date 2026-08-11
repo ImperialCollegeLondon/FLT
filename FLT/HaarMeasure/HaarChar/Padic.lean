@@ -64,6 +64,7 @@ private lemma MeasureTheory.ringHaarChar_padic_padicInt (x : ℤ_[p]⁰) :
       using! measurableSet_closedBall.const_smul (x : ℚ_[p]ˣ)
   · simpa [K, Padic.submodule_one_eq_closedBall] using measurableSet_closedBall
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The distributive Haar character of the action of `ℚ_[p]ˣ` on `ℚ_[p]` is the usual p-adic norm.
 
 This means that `volume (x • s) = ‖x‖ * volume s` for all `x : ℚ_[p]` and `s : Set ℚ_[p]`.

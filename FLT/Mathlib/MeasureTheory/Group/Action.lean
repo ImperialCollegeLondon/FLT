@@ -112,7 +112,7 @@ lemma index_mul_haar_subgroup_eq_haar_subgroup [H.IsFiniteRelIndex K] (hHK : H �
   have := Subgroup.index_mul_measure (H.subgroupOf K) (measurable_subtype_coe hH)
     (μ.comap Subtype.val)
   rw [MeasurableEmbedding.comap_apply, MeasurableEmbedding.comap_apply] at this
-  · simp only [image_univ, Subtype.range_coe_subtype, SetLike.setOf_mem_eq] at this
+  · simp only [image_univ, Subtype.range_coe_subtype, SetLike.setOfPred_mem_eq] at this
     unfold subgroupOf at this
     rwa [coe_comap, coe_subtype, Set.image_preimage_eq_of_subset (by simpa)] at this
   · exact .subtype_coe hK

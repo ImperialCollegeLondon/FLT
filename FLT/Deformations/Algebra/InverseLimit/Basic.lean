@@ -125,6 +125,7 @@ end Monoid
 section Group
 variable [instGroupG : ∀ i, Group (G i)] [∀ i j h, MonoidHomClass (T h) (G j) (G i)]
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[to_additive] instance : Group (InverseLimit G f) where
   inv x := ⟨x⁻¹, by simp⟩
   div a b := ⟨a.1 / b.1, by simp⟩
@@ -231,6 +232,7 @@ section AddMonoidWithOne
 variable [∀ i, AddMonoidWithOne (G i)] [∀ i j h, AddMonoidHomClass (T h) (G j) (G i)]
   [∀ i j h, OneHomClass (T h) (G j) (G i)]
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : AddMonoidWithOne (InverseLimit G f) where
   natCast n := ⟨n, by
     intro i j h
@@ -448,6 +450,7 @@ lemma lift_def : lift G f maps inverseSystemHom =
     fun w ↦ ⟨fun i ↦ maps i w, fun i j h ↦ inverseSystemHom i j h w⟩
   := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 variable (G f) in
 /--
 MonoidHom version of `lift G f maps inverseSystemHom`
@@ -459,6 +462,7 @@ def liftMonoidHom [∀ i, Group (G i)] [∀ i j h, MonoidHomClass (T h) (G j) (G
   map_one' := by ext i; simp [lift_def]
   map_mul' x y := by ext i; simp [lift_def]
 
+set_option backward.isDefEq.respectTransparency.types false in
 variable (G f) in
 /--
 RingHom version of `lift G f maps inverseSystemHom`
@@ -472,6 +476,7 @@ def liftRingHom [∀ i, Ring (G i)] [∀ i j h, RingHomClass (T h) (G j) (G i)]
   map_zero' := by ext i; simp [lift_def]
   map_add' x y := by ext i; simp [lift_def]
 
+set_option backward.isDefEq.respectTransparency.types false in
 variable (G f) in
 /--
 LinearMap version of `lift G f maps inverseSystemHom`

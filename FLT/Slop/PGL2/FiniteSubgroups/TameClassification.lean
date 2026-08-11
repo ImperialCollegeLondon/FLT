@@ -47,7 +47,7 @@ open scoped Classical
 
 namespace Dickson
 
-open scoped BigOperators Nat Pointwise
+open scoped BigOperators _root_.Nat Pointwise
 
 noncomputable section
 
@@ -104,6 +104,7 @@ lemma fixedPoints_determined (G : Subgroup (PGLOf (K p))) [Fintype G]
 
     · exfalso; exact hxy rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 omit h_odd in
 @[nolint unusedArguments]
 lemma commute_of_fixedPair (G_sub : Subgroup (PGLOf (K p))) [Fintype G_sub]
@@ -196,6 +197,7 @@ lemma scalar_eq_one_in_PGL (g : GL (Fin 2) (K p)) (c : K p)
       Matrix.mul_one, Matrix.one_mul])
 omit h_odd in
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma exists_unique_normalizedLift (g : PGLOf (K p)) (y : ProjectiveLine p)
     (hgy : g • y = y) :
     ∃! (g' : GL (Fin 2) (K p)),
@@ -323,6 +325,7 @@ lemma exists_unique_normalizedLift (g : PGLOf (K p)) (y : ProjectiveLine p)
   _ = g'.val := one_smul _ _
 omit h_odd in
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma pairStabilizer_isCyclic (G : Subgroup (PGLOf (K p))) [Fintype G]
     (x y : ProjectiveLine p) (hxy : x ≠ y) :
     IsCyclic (pairStabilizer p G x y) := by
@@ -1073,15 +1076,15 @@ lemma dihedral2_of_hasCyclicPartition (G : Type*) [Group G] [Fintype G]
   have h_comm : ∀ a b : G, a * b = b * a := fun a b ↦ by
     have h_inv : ∀ g : G, g⁻¹ = g := fun g ↦ inv_eq_of_mul_eq_one_left (h_sq g)
     rw [← h_inv (a * b), mul_inv_rev, h_inv, h_inv]
-  letI : CommGroup G := { ‹Group G› with mul_comm := h_comm }
-  letI : CommGroup (DihedralGroup 2) := { (inferInstance : Group (DihedralGroup 2)) with
+  let : CommGroup G := { ‹Group G› with mul_comm := h_comm }
+  let : CommGroup (DihedralGroup 2) := { (inferInstance : Group (DihedralGroup 2)) with
     mul_comm :=
       fun a b ↦
           by rcases a with ⟨a⟩ | ⟨a⟩ <;> rcases b with ⟨b⟩ | ⟨b⟩ <;> fin_cases a <;> fin_cases b
               <;> decide }
-  letI : Module (ZMod 2) (Additive G) := AddCommGroup.zmodModule fun x ↦ by
+  let : Module (ZMod 2) (Additive G) := AddCommGroup.zmodModule fun x ↦ by
     rw [two_nsmul]; show x.toMul * x.toMul = 1; exact h_sq x.toMul
-  letI : Module (ZMod 2) (Additive (DihedralGroup 2)) := AddCommGroup.zmodModule fun x ↦ by
+  let : Module (ZMod 2) (Additive (DihedralGroup 2)) := AddCommGroup.zmodModule fun x ↦ by
     rw [two_nsmul]; show x.toMul * x.toMul = 1
     rcases x.toMul with ⟨a⟩ | ⟨a⟩ <;> fin_cases a <;> decide
 

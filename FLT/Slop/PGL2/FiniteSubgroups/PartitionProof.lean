@@ -75,7 +75,7 @@ lemma Phi_finite (G : Subgroup (PGLOf (K p))) [Finite G] : (Phi p G).Finite := b
 omit h_odd in
 lemma Phi_smul_mem (G : Subgroup (PGLOf (K p))) (h : G) {x : ProjectiveLine p}
     (hx : x ∈ Phi p G) : (h : PGLOf (K p)) • x ∈ Phi p G := by
-  simp only [Phi, Set.mem_iUnion, Set.mem_setOf_eq] at hx ⊢
+  simp only [Phi, Set.mem_iUnion, Set.mem_ofPred_eq] at hx ⊢
   obtain ⟨g, hg_ne, hgx⟩ := hx
   exact ⟨h * g * h⁻¹,
     fun heq ↦ hg_ne (by rw [← inv_mul_cancel_left h g, mul_inv_eq_one.mp heq, inv_mul_cancel]),
@@ -135,7 +135,7 @@ lemma Phi_card_le (G : Subgroup (PGLOf (K p))) [Finite G] :
   change Set.ncard (Phi p G) ≤ _
   have h_phi : Phi p G = ⋃ g ∈ (Finset.univ.erase (1 : G) : Set G), {x | (g : PGLOf (K p)) • x = x} := by
     ext x
-    simp only [Phi, Set.mem_iUnion, Set.mem_setOf_eq, Finset.mem_coe, Finset.mem_erase, Finset.mem_univ, and_true, exists_prop]
+    simp only [Phi, Set.mem_iUnion, Set.mem_ofPred_eq, Finset.mem_coe, Finset.mem_erase, Finset.mem_univ, and_true, exists_prop]
   rw [h_phi]
 
   have h_bound := h_card (Finset.univ.erase (1 : G)) (Finset.notMem_erase (1 : G) Finset.univ)
@@ -286,13 +286,13 @@ lemma element_fixedPt_sum (G : Subgroup (PGLOf (K p))) [Finite G]
   have h_card_p : Nat.card ↥(((Finset.univ : Finset G).erase 1).filter (fun (x : G) ↦ orderOf (x : PGLOf (K p)) = p)) = Nat.card {g : G | g ≠ 1 ∧ orderOf (g : PGLOf (K p)) = p} := by
     have h_set : ((((Finset.univ : Finset G).erase 1).filter (fun (x : G) ↦ orderOf (x : PGLOf (K p)) = p)) : Set G) = {g : G | g ≠ 1 ∧ orderOf (g : PGLOf (K p)) = p} := by
       ext g
-      simp only [Finset.mem_coe, Finset.mem_filter, Set.mem_setOf_eq, Finset.mem_erase]
+      simp only [Finset.mem_coe, Finset.mem_filter, Set.mem_ofPred_eq, Finset.mem_erase]
       exact ⟨fun h ↦ ⟨h.1.1, h.2⟩, fun h ↦ ⟨⟨h.1, Finset.mem_univ g⟩, h.2⟩⟩
     exact congrArg (fun (s : Set G) ↦ Nat.card ↥s) h_set
   have h_card_cop : Nat.card ↥(((Finset.univ : Finset G).erase 1).filter (fun (x : G) ↦ ¬orderOf (x : PGLOf (K p)) = p)) = Nat.card {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGLOf (K p))) p} := by
     have h_set : ((((Finset.univ : Finset G).erase 1).filter (fun (x : G) ↦ ¬orderOf (x : PGLOf (K p)) = p)) : Set G) = {g : G | g ≠ 1 ∧ Nat.Coprime (orderOf (g : PGLOf (K p))) p} := by
       ext g
-      simp only [Finset.mem_coe, Finset.mem_filter, Set.mem_setOf_eq, Finset.mem_erase]
+      simp only [Finset.mem_coe, Finset.mem_filter, Set.mem_ofPred_eq, Finset.mem_erase]
       exact ⟨fun h ↦ ⟨h.1.1, (element_dichotomy p G g).resolve_left h.2⟩,
              fun ⟨h_ne, h_cop⟩ ↦ ⟨⟨h_ne, Finset.mem_univ g⟩, fun h_p ↦ by
                rw [h_p] at h_cop

@@ -259,7 +259,7 @@ def pglMap {F L : Type*} [Field F] [Field L] (f : F →+* L) : PGLOf F →* PGLO
 
 theorem finite_of_closure_finite (S : Set (K p)) (hS : S.Finite) : Finite (Subfield.closure S) := by
   obtain ⟨s, rfl⟩ := hS.exists_finset_coe
-  haveI : Finite (IntermediateField.adjoin (ZMod p) (s : Set (K p))) :=
+  have : Finite (IntermediateField.adjoin (ZMod p) (s : Set (K p))) :=
     Module.finite_iff_finite.mp (IntermediateField.finiteDimensional_adjoin
       (fun x _ ↦ isAlgebraic_iff_isIntegral.mp ((AlgebraicClosure.isAlgebraic (ZMod p)).isAlgebraic x)))
   let f : Subfield.closure (s : Set (K p)) → IntermediateField.adjoin (ZMod p) (s : Set (K p)) :=
@@ -272,7 +272,7 @@ theorem exists_finite_subfield_conjugate (G : Subgroup (PGLOf (K p))) [Finite G]
     ∃ (L : Subfield (K p)) (g : PGLOf (K p)),
       Subgroup.map (MulAut.conj g) G ≤ (pglMap (Subfield.subtype L)).range := by
   choose f hf using fun g : PGLOf (K p) ↦ QuotientGroup.mk_surjective g
-  haveI : Fintype G := Fintype.ofFinite G
+  have : Fintype G := Fintype.ofFinite G
   let S : Finset (GL (Fin 2) (K p)) := Finset.univ.image (fun x : G ↦ f x.val)
 
   let L : Subfield (K p) := Subfield.closure (⋃ g ∈ S, Set.range (fun ij : Fin 2 × Fin 2 ↦ g.val ij.1 ij.2))
@@ -306,6 +306,7 @@ theorem exists_finite_subfield_conjugate (G : Subgroup (PGLOf (K p))) [Finite G]
 /-- The set of fixed points of the action of `g : PGLOf (K p)` on the projective line `ℙ¹(K p)`. -/
 def fixedPoints (g : PGLOf (K p)) : Set (ProjectiveLine p) := Function.fixedPoints (fun x ↦ g • x)
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem fixedPoints_lift (g : GL (Fin 2) (K p)) (x : ProjectiveLine p) :
     x ∈ fixedPoints p (QuotientGroup.mk g) ↔ ∃ c : K p, g.val.mulVec x.rep = c • x.rep := by
   constructor
@@ -351,7 +352,7 @@ theorem card_eigenvalues (g : GL (Fin 2) (K p)) :
         change (1 : K p) - T * 0 + 0 = 1
         ring
       have h2 : f.coeff 2 = 0 := by
-        rw [Polynomial.eq_C_of_degree_eq_zero h, Polynomial.coeff_C, if_neg (by norm_num : 2 ≠ 0)]
+        rw [Polynomial.eq_C_of_degree_eq_zero h, Polynomial.coeff_C, ite_eq_right (by norm_num : 2 ≠ 0)]
       exact one_ne_zero (h1.symm.trans h2)
     obtain ⟨root, h_root⟩ := IsAlgClosed.exists_root f h_deg
     exact ⟨root, by
@@ -500,7 +501,7 @@ theorem ncard_fixedPoints_eq_two_of_discrim_ne_zero (g : GL (Fin 2) (K p))
       change (1 : K p) - g.val.trace * 0 + 0 = 1
       ring
     have h2 : f.coeff 2 = 0 := by
-      rw [Polynomial.eq_C_of_degree_eq_zero h, Polynomial.coeff_C, if_neg (by norm_num : 2 ≠ 0)]
+      rw [Polynomial.eq_C_of_degree_eq_zero h, Polynomial.coeff_C, ite_eq_right (by norm_num : 2 ≠ 0)]
     exact one_ne_zero (h1.symm.trans h2)
 
   obtain ⟨x, hx_root⟩ := IsAlgClosed.exists_root f hf_ne_zero
@@ -544,7 +545,7 @@ theorem ncard_fixedPoints_eq_one_of_discrim_zero (g : GL (Fin 2) (K p)) (hg : ¬
     Set.ncard (fixedPoints p (QuotientGroup.mk g)) = 1 := by
 
   have h_eigen : Set.ncard {x : K p | (g.val - x • 1).det = 0} = 1 := by
-    rw [card_eigenvalues, if_pos h_discr]
+    rw [card_eigenvalues, ite_eq_left h_discr]
   obtain ⟨lambda, hl⟩ := Set.ncard_eq_one.mp h_eigen
   have hlambda : ∀ x : K p, (g.val - x • 1).det = 0 ↔ x = lambda := by
     intro x
@@ -641,7 +642,7 @@ theorem orderOf_coprime_of_discrim_ne_zero (g : GL (Fin 2) (K p))
       simp only [Polynomial.coeff_add, Polynomial.coeff_sub, Polynomial.coeff_X_pow, Polynomial.coeff_C_mul, Polynomial.coeff_X, Polynomial.coeff_C]
       change (1 : K p) - g.val.trace * 0 + 0 = 1
       ring
-    have h2 : f.coeff 2 = 0 := by rw [Polynomial.eq_C_of_degree_eq_zero h, Polynomial.coeff_C, if_neg (by norm_num : 2 ≠ 0)]
+    have h2 : f.coeff 2 = 0 := by rw [Polynomial.eq_C_of_degree_eq_zero h, Polynomial.coeff_C, ite_eq_right (by norm_num : 2 ≠ 0)]
     exact one_ne_zero (h1.symm.trans h2)
 
   obtain ⟨lambda1, h_root⟩ := IsAlgClosed.exists_root f h_deg
@@ -698,7 +699,7 @@ theorem orderOf_coprime_of_discrim_ne_zero (g : GL (Fin 2) (K p))
       have h_det_fin : (Matrix.of fun i (j : Fin 2) ↦ if j = 0 then v1 i else v2 i).det = v1 0 * v2 1 - v2 0 * v1 1 := by
         rw [Matrix.det_fin_two]
         change (if (0 : Fin 2) = 0 then v1 0 else v2 0) * (if (1 : Fin 2) = 0 then v1 1 else v2 1) - (if (1 : Fin 2) = 0 then v1 0 else v2 0) * (if (0 : Fin 2) = 0 then v1 1 else v2 1) = _
-        rw [if_pos rfl, if_neg (by norm_num : (1 : Fin 2) ≠ 0), if_neg (by norm_num : (1 : Fin 2) ≠ 0), if_pos rfl]
+        rw [ite_eq_left rfl, ite_eq_right (by norm_num : (1 : Fin 2) ≠ 0), ite_eq_right (by norm_num : (1 : Fin 2) ≠ 0), ite_eq_left rfl]
       rw [h_det_fin] at h_lin_indep
       exact h_lin_indep
     by_cases h : v1 0 = 0 <;> by_cases h' : v2 0 = 0
@@ -709,12 +710,12 @@ theorem orderOf_coprime_of_discrim_ne_zero (g : GL (Fin 2) (K p))
           change ∑ i : Fin 2, (if i = 0 then v2 1 else -v1 1) * (![v1, v2] i 0) = 0
           rw [Fin.sum_univ_two]
           change (if (0 : Fin 2) = 0 then v2 1 else -v1 1) * v1 0 + (if (1 : Fin 2) = 0 then v2 1 else -v1 1) * v2 0 = 0
-          rw [if_pos rfl, if_neg (by norm_num : (1 : Fin 2) ≠ 0), h, h', mul_zero, mul_zero, add_zero]
+          rw [ite_eq_left rfl, ite_eq_right (by norm_num : (1 : Fin 2) ≠ 0), h, h', mul_zero, mul_zero, add_zero]
         | 1 =>
           change ∑ i : Fin 2, (if i = 0 then v2 1 else -v1 1) * (![v1, v2] i 1) = 0
           rw [Fin.sum_univ_two]
           change (if (0 : Fin 2) = 0 then v2 1 else -v1 1) * v1 1 + (if (1 : Fin 2) = 0 then v2 1 else -v1 1) * v2 1 = 0
-          rw [if_pos rfl, if_neg (by norm_num : (1 : Fin 2) ≠ 0)]
+          rw [ite_eq_left rfl, ite_eq_right (by norm_num : (1 : Fin 2) ≠ 0)]
           ring
       · use 1; intro c1; apply hv1_ne; ext i
         match i with
@@ -743,13 +744,13 @@ theorem orderOf_coprime_of_discrim_ne_zero (g : GL (Fin 2) (K p))
           change ∑ i : Fin 2, (if i = 0 then -v2 0 else v1 0) * (![v1, v2] i 0) = 0
           rw [Fin.sum_univ_two]
           change (if (0 : Fin 2) = 0 then -v2 0 else v1 0) * v1 0 + (if (1 : Fin 2) = 0 then -v2 0 else v1 0) * v2 0 = 0
-          rw [if_pos rfl, if_neg (by norm_num : (1 : Fin 2) ≠ 0)]
+          rw [ite_eq_left rfl, ite_eq_right (by norm_num : (1 : Fin 2) ≠ 0)]
           ring
         | 1 =>
           change ∑ i : Fin 2, (if i = 0 then -v2 0 else v1 0) * (![v1, v2] i 1) = 0
           rw [Fin.sum_univ_two]
           change (if (0 : Fin 2) = 0 then -v2 0 else v1 0) * v1 1 + (if (1 : Fin 2) = 0 then -v2 0 else v1 0) * v2 1 = 0
-          rw [if_pos rfl, if_neg (by norm_num : (1 : Fin 2) ≠ 0)]
+          rw [ite_eq_left rfl, ite_eq_right (by norm_num : (1 : Fin 2) ≠ 0)]
           calc (-v2 0) * v1 1 + v1 0 * v2 1 = v1 0 * v2 1 - v2 0 * v1 1 := by ring
             _ = 0 := h_det
       · use 0; intro c0; apply h'; change -v2 0 = 0 at c0; exact neg_eq_zero.mp c0
@@ -1101,8 +1102,8 @@ theorem isPGroup_exists_common_fixedPoint (P : Subgroup (PGLOf (K p))) (hP_fin :
   · exact ⟨Classical.arbitrary _, fun g hg ↦ by rw [h_trivial g hg, one_smul]⟩
   · push Not at h_trivial
     obtain ⟨g_ne, hg_mem, hg_ne_one⟩ := h_trivial
-    haveI : Nontrivial P := ⟨⟨⟨g_ne, hg_mem⟩, 1, Subtype.ext_iff.not.mpr hg_ne_one⟩⟩
-    haveI : Nontrivial (Subgroup.center P) := IsPGroup.center_nontrivial hP_p
+    have : Nontrivial P := ⟨⟨⟨g_ne, hg_mem⟩, 1, Subtype.ext_iff.not.mpr hg_ne_one⟩⟩
+    have : Nontrivial (Subgroup.center P) := IsPGroup.center_nontrivial hP_p
 
     obtain ⟨⟨z, hz_center⟩, hz_ne_one⟩ := exists_ne (1 : Subgroup.center P)
     obtain ⟨k_orig, hk_orig⟩ := hP_p z

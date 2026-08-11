@@ -54,7 +54,7 @@ scoped[FLT] notation "GL₂(" F ")" => GL (Fin 2) F
 /-- `M₂(F)` is notation for `Matrix (Fin 2) (Fin 2) F`. -/
 scoped[FLT] notation "M₂(" F ")" => Matrix (Fin 2) (Fin 2) F
 
-open scoped FLT Adele
+open scoped FLT NumberField.AdeleRing
 
 /--
 A rigidification of a quaternion algebra D over a number field F
@@ -82,6 +82,7 @@ noncomputable def WithRigidification.algEquiv :
   .trans { __ := Algebra.TensorProduct.comm _ _ _, commutes' _ := rfl } <|
     .ofBijective _ WithRigidification.cond
 
+set_option backward.isDefEq.respectTransparency.types false in
 omit [IsQuaternionAlgebra F D] in
 @[simp]
 lemma WithRigidification.algEquiv_tmul (a b) :
@@ -128,6 +129,7 @@ lemma WithRigidification.unitsIncl_injective (F : Type*)
     Function.Injective (WithRigidification.unitsIncl F D) := by
   refine Units.map_injective (WithRigidification.incl_injective F D)
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped TensorProduct.RightActions in
 lemma WithRigidification.det_incl_sq (F : Type*)
     [Field F] [NumberField F] {D : Type*} [Ring D] [Algebra F D]
@@ -236,6 +238,7 @@ lemma GL2.v_det_val_mem_localFullLevel_eq_one {v : HeightOneSpectrum (𝓞 F)}
   rw [Valued.isUnit_valuationSubring_iff] at hd
   simpa [← hy, Matrix.det_fin_two] using hd
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma GL2.v_le_one_of_mem_localFullLevel (v : HeightOneSpectrum (𝓞 F)) {x}
     (hx : x ∈ localFullLevel v) (i j) : Valued.v (x i j) ≤ 1 := by
   simp only [localFullLevel, Units.map, RingHom.mapMatrix, Matrix.map, ValuationSubring.subtype,
@@ -245,6 +248,7 @@ lemma GL2.v_le_one_of_mem_localFullLevel (v : HeightOneSpectrum (𝓞 F)) {x}
   obtain ⟨x', hx'⟩ := hx
   simp only [← hx', ← HeightOneSpectrum.mem_adicCompletionIntegers, SetLike.coe_mem]
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma GL2.mem_localFullLevel_iff_v {v : HeightOneSpectrum (𝓞 F)}
     {x : GL (Fin 2) (v.adicCompletion F)} :
     x ∈ localFullLevel v ↔ (∀ (i j), Valued.v (x i j) ≤ 1) ∧ Valued.v x.val.det = 1 :=
@@ -268,7 +272,7 @@ noncomputable def GL2.localIwahoriLevel (v : HeightOneSpectrum (𝓞 F)) :
     Subgroup (GL (Fin 2) (v.adicCompletion F)) where
   carrier := { x ∈ localFullLevel v | Valued.v (x.val 1 0) < 1 }
   mul_mem' {a b} ha hb := by
-    simp_all only [Set.mem_setOf_eq, Units.val_mul]
+    simp_all only [Set.mem_ofPred_eq, Units.val_mul]
     refine ⟨Subgroup.mul_mem _ ha.1 hb.1, ?_⟩
     simp only [Fin.isValue, Matrix.mul_apply, Fin.sum_univ_two]
     apply Valuation.map_add_lt _
@@ -532,7 +536,7 @@ def IsDedekindDomain.FiniteAdeleRing.toAdicCompletion (v : HeightOneSpectrum (�
   __ := RestrictedProduct.evalRingHom _ v
   commutes' _ := rfl
 
-open scoped Adele
+open scoped NumberField.AdeleRing
 
 namespace IsDedekindDomain.FiniteAdeleRing
 
@@ -569,7 +573,7 @@ def GL2.finiteAdeleIncl (v : HeightOneSpectrum (𝓞 F)) : GL₂(v.adicCompletio
 lemma GL2.toAdicCompletion_finiteAdeleIncl_of_ne
     (v w : HeightOneSpectrum (𝓞 F)) (x) (H : v ≠ w) :
     GL2.toAdicCompletion v (GL2.finiteAdeleIncl w x) = 1 := by
-  letI : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
+  let : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
   ext i j
   change (Pi.mulSingle
     (M := fun v : HeightOneSpectrum (𝓞 F) ↦ GL₂(v.adicCompletion F)) w x v).1 i j = _
@@ -578,7 +582,7 @@ lemma GL2.toAdicCompletion_finiteAdeleIncl_of_ne
 @[simp]
 lemma GL2.toAdicCompletion_finiteAdeleIncl_same (v : HeightOneSpectrum (𝓞 F)) (x) :
     GL2.toAdicCompletion v (GL2.finiteAdeleIncl v x) = x := by
-  letI : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
+  let : DecidableEq (HeightOneSpectrum (𝓞 F)) := Classical.typeDecidableEq _
   ext i j
   change (Pi.mulSingle
     (M := fun v : HeightOneSpectrum (𝓞 F) ↦ GL₂(v.adicCompletion F)) v x v).1 i j = _

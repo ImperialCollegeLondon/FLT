@@ -78,7 +78,7 @@ variable (D : Type*) [Ring D] [Algebra F D] [WithRigidification F D]
 
 namespace TotallyDefiniteQuaternionAlgebra
 
-open scoped TensorProduct NumberField Adele
+open scoped TensorProduct NumberField NumberField.AdeleRing IsDedekindDomain.FiniteAdeleRing
 
 local notation "𝓓ˣ" => MonoidHom.range (WithRigidification.unitsIncl F D)
 local notation "𝓕ˣ" =>
@@ -539,10 +539,10 @@ variable (D M) in
 /-- The subspace of modular forms of a given level. -/
 def form : Submodule R (WeightTwoAutomorphicForm F D M) where
   carrier := { f | ∀ x : ℒ.U, x • f = ℒ.χ x • f }
-  add_mem' {f g} hf hg x := by simp only [Set.mem_setOf_eq] at hf hg; simp [hf, hg]
+  add_mem' {f g} hf hg x := by simp only [Set.mem_ofPred_eq] at hf hg; simp [hf, hg]
   zero_mem' := by simp
   smul_mem' r f hf x := by
-    simp only [Set.mem_setOf_eq] at hf
+    simp only [Set.mem_ofPred_eq] at hf
     rw [smul_comm, hf, smul_comm]
 
 instance {F D R M S : Type*} [Field F] [NumberField F] [Ring D] [Algebra F D]
@@ -653,6 +653,7 @@ protected lemma ext (ℒ ℒ' : LevelStruct F R) (H : ℒ.U = ℒ'.U)
   obtain rfl : χ = χ' := H'
   rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped Pointwise in
 instance : SMul GL₂(𝔸ᶠ[F]) (LevelStruct F R) where
   smul g ℒ :=
@@ -866,7 +867,7 @@ variable (D) in
 def formCongr {S N : Type*} [CommRing S] [Algebra R S] [Module S M] [IsScalarTower R S M]
     [AddCommGroup N] [Module R N] [Module S N] [IsScalarTower R S N] (φ : M ≃ₗ[S] N) :
     ℒ.form D M ≃ₗ[S] ℒ.form D N :=
-  .ofLinear (ℒ.formMap D φ) (ℒ.formMap D φ.symm) (by ext; simp) (by ext; simp)
+  .ofLinearMap (ℒ.formMap D φ) (ℒ.formMap D φ.symm) (by ext; simp) (by ext; simp)
 
 variable (D) in
 /-- `formMap` as a linear map. -/
@@ -949,6 +950,7 @@ lemma restrict_le (ℒ : LevelStruct F R) (U : Subgroup GL₂(𝔸ᶠ[F]))
     (hU : IsOpen (X := GL₂(𝔸ᶠ[F])) U) (hU' : U ≤ ℒ.U) : ℒ.restrict U hU hU' ≤ ℒ :=
   ⟨hU', rfl⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : SemilatticeInf (LevelStruct F R) where
   inf ℒ ℒ' :=
   ℒ.restrict ((MonoidHom.ker (ℒ.χ.toHomUnits.comp (Subgroup.inclusion inf_le_left) /
@@ -1149,12 +1151,13 @@ lemma isCompact_US : IsCompact (X := GL₂(v.adicCompletion F)) (ℒ.US v) := by
   if h : v ∈ ℒ.S then exact ℒ.isCompact_US_of_mem _ h else
     exact ℒ.US_eq_of_notMem _ h ▸ GL2.localFullLevel.isCompact v
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The `LevelStruct` constructed via a `LocalLevelStruct`. -/
 @[simps -isSimp]
 def toStruct : LevelStruct F R where
   U :=
   { carrier := { x | ∀ v, GL2.toAdicCompletion v x ∈ ℒ.US v }
-    mul_mem' := by simp +contextual only [Set.mem_setOf_eq, map_mul, mul_mem, implies_true]
+    mul_mem' := by simp +contextual only [Set.mem_ofPred_eq, map_mul, mul_mem, implies_true]
     one_mem' := by dsimp; simp only [map_one, one_mem, implies_true]
     inv_mem' := by dsimp; simp only [map_inv, inv_mem_iff, imp_self, implies_true] }
   isCompact_U := by

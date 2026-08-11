@@ -66,8 +66,8 @@ If `Q` is a prime of `S` with finite residue field,
 then there exists a Frobenius element `σ : G` at `Q`. -/
 lemma exists_of_isInvariant_of_profinite
     [Q.IsMaximal] [Finite (R ⧸ Q.under R)] : ∃ σ : G, IsArithFrobAt R σ Q := by
-  letI : TopologicalSpace S := ⊥
-  letI : DiscreteTopology S := ⟨rfl⟩
+  let : TopologicalSpace S := ⊥
+  let : DiscreteTopology S := ⟨rfl⟩
   let P := Q.under R
   have : Algebra.IsIntegral R S := Algebra.IsInvariant.isIntegral_of_profinite (G := G)
   -- have : Q.IsMaximal := Ideal.Quotient.maximal_of_isField _ (Finite.isField_of_domain (S ⧸ Q))
@@ -93,8 +93,8 @@ variable (S G) in
 lemma exists_primesOver_isConj_of_profinite (P : Ideal R) [Finite (R ⧸ P)] [P.IsPrime] :
     ∃ σ : Ideal.primesOver P S → G, (∀ Q, IsArithFrobAt R (σ Q) Q.1) ∧
       (∀ Q₁ Q₂, IsConj (σ Q₁) (σ Q₂)) := by
-  letI : TopologicalSpace S := ⊥
-  letI : DiscreteTopology S := ⟨rfl⟩
+  let : TopologicalSpace S := ⊥
+  let : DiscreteTopology S := ⟨rfl⟩
   have hP : P.IsMaximal := Ideal.Quotient.maximal_of_isField _ (Finite.isField_of_domain (R ⧸ P))
   have : Algebra.IsIntegral R S := Algebra.IsInvariant.isIntegral_of_profinite (G := G)
   obtain hs | ⟨Q, hQ, hQ₂⟩ := Set.eq_empty_or_nonempty (Ideal.primesOver P S)

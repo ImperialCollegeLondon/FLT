@@ -188,14 +188,6 @@ lemma AlgebraicClosure.map_algebraMap {K L : Type*} [Field K] [Field L] (f : K �
     letI := f.toAlgebra
     (IsAlgClosed.lift : AlgebraicClosure K →ₐ[K] AlgebraicClosure L).commutes _
 
-lemma IntermediateField.adjoin_adjoin_right
-    {K L E : Type*} [Field K] [Field L] [Field E] [Algebra K L] [Algebra L E] [Algebra K E]
-    [IsScalarTower K L E] (s : Set E) : adjoin L (adjoin K s : Set E) = adjoin L s := by
-  apply le_antisymm
-  · exact adjoin_le_iff.mpr (adjoin_le_iff (T := (adjoin L s).restrictScalars K).mpr
-      (subset_adjoin _ _))
-  · exact adjoin.mono _ _ _ (subset_adjoin _ _)
-
 nonrec
 lemma IsModuleTopology.continuous_det {A : Type*} [CommRing A] [TopologicalSpace A]
     [IsTopologicalRing A] {M : Type*} [AddCommGroup M] [Module A M]
@@ -206,7 +198,7 @@ lemma IsModuleTopology.continuous_det {A : Type*} [CommRing A] [TopologicalSpace
   · obtain ⟨s, ⟨b⟩⟩ := H
     have : IsModuleTopology A (Matrix s s A) := IsModuleTopology.instPi
     have : ContinuousAdd (Module.End A M) := IsModuleTopology.toContinuousAdd A _
-    letI e : Module.End A M ≃A[A] Matrix s s A :=
+    let e : Module.End A M ≃A[A] Matrix s s A :=
     { __ := algEquivMatrix b,
       continuous_toFun := continuous_of_linearMap (algEquivMatrix b).toLinearMap,
       continuous_invFun := continuous_of_linearMap (algEquivMatrix b).symm.toLinearMap }
@@ -214,7 +206,7 @@ lemma IsModuleTopology.continuous_det {A : Type*} [CommRing A] [TopologicalSpace
     convert! continuous_id.matrix_det (R := A) (n := s)
     ext M
     exact LinearMap.det_toLin b M
-  rw [LinearMap.det, dif_neg H]
+  rw [LinearMap.det, dite_eq_right H]
   exact continuous_of_const fun x ↦ congrFun rfl
 
 /-- `End_A(A) ≃ A`. -/

@@ -80,6 +80,7 @@ lemma lTensor_tmul (m : M) (f : Πʳ i, [N i, L i]_[ℱ]) (i : ι) :
     lTensor R M N ℱ L (m ⊗ₜ f) i = m ⊗ₜ (f i) :=
   rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
 lemma lTensorLeft_tmul (R M : Type*) [CommRing R] [CommRing M] [Algebra R M] {ι : Type*}
     (N : ι → Type*) [∀ i, Ring (N i)] [∀ i, Algebra R (N i)] (L : ∀ i, Submodule R (N i))
@@ -107,6 +108,7 @@ noncomputable def tmulEquivRangeLTensor (i : ι) : M ⊗[R] (L i) ≃ₗ[R] rang
     (Module.Flat.lTensor_preserves_injective_linearMap (L i).subtype
       (Submodule.injective_subtype (L i)))
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped Filter in
 /-- `R`-Linear isomorphism that's propositionally equal to `lTensor`. -/
 noncomputable def lTensorPrincipalEquiv :

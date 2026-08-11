@@ -38,7 +38,7 @@ theorem irreducible_valuation_lt_one {ϖ : 𝒪[K]} (h : Irreducible ϖ) : v ϖ.
 
 theorem irreducible_valuation_le_ofAdd_neg_one {ϖ : 𝒪[K]} (h : Irreducible ϖ) :
     v ϖ.1 ≤ ofAdd (-1 : ℤ) := by
-  letI := (lt_ofAdd_iff (show v ϖ.1 ≠ 0 by simp [h.ne_zero])).1 (irreducible_valuation_lt_one h)
+  let := (lt_ofAdd_iff (show v ϖ.1 ≠ 0 by simp [h.ne_zero])).1 (irreducible_valuation_lt_one h)
   rw [le_ofAdd_iff (show v ϖ.1 ≠ 0 by simp [h.ne_zero])]
   omega
 
@@ -84,7 +84,7 @@ theorem finite_cover_of_uniformity_basis [IsDiscreteValuationRing 𝒪[K]] (γ :
   classical
   let ⟨ϖ, hϖ⟩ := IsDiscreteValuationRing.exists_irreducible 𝒪[K]
   let ⟨m, hm⟩ := exists_pow_lt_of_le_exp_neg_one (irreducible_valuation_le_ofAdd_neg_one hϖ) γ
-  letI := finite_quotient_maximalIdeal_pow_of_finite_residueField h m
+  let := finite_quotient_maximalIdeal_pow_of_finite_residueField h m
   have h := Fintype.ofFinite (𝒪[K] ⧸ 𝓂[K] ^ m)
   let T := Subtype.val '' (h.elems.image Quotient.out : Set 𝒪[K])
   refine ⟨T, (Set.Finite.image _ (Finset.finite_toSet _)), fun x hx => ?_⟩
@@ -107,7 +107,7 @@ theorem integer_compactSpace [CompleteSpace K] [IsDiscreteValuationRing 𝒪[K]]
     obtain ⟨t, htf, ht⟩ := finite_cover_of_uniformity_basis
       (Units.mapEquiv (valueGroup₀_equiv_withZeroMulInt v).toMulEquiv γ) h
     refine ⟨t, htf, ht.trans fun x hx ↦ ?_⟩
-    simp only [Set.mem_setOf_eq, Set.mem_iUnion] at hx ⊢
+    simp only [Set.mem_ofPred_eq, Set.mem_iUnion] at hx ⊢
     obtain ⟨i, hit, hi⟩ := hx
     use i, hit
     rw [← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,

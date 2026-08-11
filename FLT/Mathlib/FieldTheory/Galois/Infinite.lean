@@ -75,6 +75,7 @@ def MulAction.etaleSubalgebraEquiv
   map_add' f g := by ext i; rfl
   commutes' k := by ext i; rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 open MulAction IntermediateField in
 /-- If `G` is a closed subgroup of the galois group `Γ := Gal(L/K)`, then
 `Γ/G` is in bijection with the `K`-linear embeddings of `Lᴳ` into `L`.
@@ -97,6 +98,7 @@ def InfiniteGalois.quotientEquivFixedFieldEmb [IsGalois K L] (G : ClosedSubgroup
     exact ((σ.toAlgHom.comp (IntermediateField.val _)).liftNormal_commutes _ _).symm
   right_inv f := by ext x; simpa using! f.liftNormal_commutes _ _
 
+set_option backward.isDefEq.respectTransparency.types false in
 open MulAction in
 lemma InfiniteGalois.evalAlgHom_bijective [IsGalois K L] [Finite X]
     [ContinuousSMulDiscrete (L ≃ₐ[K] L) X] :
@@ -195,7 +197,7 @@ lemma InfiniteGalois.evalMulActionHom_bijective [Algebra.Etale K A] [IsGalois K 
     intros f₁ f₂ e
     ext g
     obtain ⟨σ, hσ⟩ : ∃ σ : L ≃ₐ[K] L, σ • emb (RingHom.ker g) = Ideal.kerLiftAlg g := by
-      letI := (emb (RingHom.ker g)).toAlgebra
+      let := (emb (RingHom.ker g)).toAlgebra
       have : IsScalarTower K (A ⧸ RingHom.ker g) L :=
         .of_algebraMap_eq' (emb (RingHom.ker g)).comp_algebraMap.symm
       exact ⟨.ofBijective ((Ideal.kerLiftAlg g).liftNormal L) (AlgHom.normal_bijective _ _ _ _),
@@ -230,7 +232,7 @@ open IntermediateField in
 instance {K L : Type*} [Field K] [Field L] [Algebra K L] [Algebra.IsAlgebraic K L] :
     CompactSpace (L ≃ₐ[K] L) := by
   classical
-  letI := IsTopologicalGroup.rightUniformSpace (L ≃ₐ[K] L)
+  let := IsTopologicalGroup.rightUniformSpace (L ≃ₐ[K] L)
   rw [← isCompact_univ_iff, isCompact_iff_totallyBounded_isComplete]
   refine ⟨IsTopologicalGroup.totallyBounded fun s hs ↦ ?_, ?_⟩
   · obtain ⟨E, hE, H⟩ := (krullTopology_mem_nhds_one_iff _ _ _).mp hs
@@ -303,7 +305,7 @@ instance {K L : Type*} [Field K] [Field L] [Algebra K L] [Algebra.IsAlgebraic K 
   refine ⟨_, ?_, K⟮x⟯.fixingSubgroup_isOpen.smul σ, 1, one_mem _, by simp⟩
   rintro _ ⟨τ, hτ, rfl⟩
   have := (mem_fixingSubgroup_iff _).mp hτ x (IntermediateField.mem_adjoin_simple_self K x)
-  simp only [smul_eq_mul, Set.mem_setOf_eq, mul_smul, this, hσ]
+  simp only [smul_eq_mul, Set.mem_ofPred_eq, mul_smul, this, hσ]
 
 instance {K L : Type*} [Field K] [Field L] [Algebra K L] [IsGalois K L] :
     Algebra.IsInvariant K L (L ≃ₐ[K] L) :=

@@ -202,13 +202,13 @@ theorem valuation_evalInt_sub_sum_le (q : k) (hq : valuation k q < 1)
         ((PowerSeries.coeff n ((F.trunc N : Polynomial ℤ) : ℤ⟦X⟧) : ℤ) : k) * q ^ n = 0 := by
       intro n hn
       rw [Polynomial.coeff_coe, PowerSeries.coeff_trunc,
-        if_neg (by simpa using hn), Int.cast_zero, zero_mul]
+        ite_eq_right (by simpa using hn), Int.cast_zero, zero_mul]
     refine (hasSum_sum_of_ne_finset_zero h0).tsum_eq.trans ?_
     exact Finset.sum_congr rfl fun n hn ↦ by
-      rw [Polynomial.coeff_coe, PowerSeries.coeff_trunc, if_pos (Finset.mem_range.mp hn)]
+      rw [Polynomial.coeff_coe, PowerSeries.coeff_trunc, ite_eq_left (Finset.mem_range.mp hn)]
   rw [← htrunc, ← evalInt_sub (summable_evalInt q hq _) (summable_evalInt q hq _)]
   refine valuation_evalInt_le_pow q hq fun m hm ↦ ?_
-  rw [map_sub, Polynomial.coeff_coe, PowerSeries.coeff_trunc, if_pos hm, sub_self]
+  rw [map_sub, Polynomial.coeff_coe, PowerSeries.coeff_trunc, ite_eq_left hm, sub_self]
 
 -- Now let `l` be a second nonarchimedean local field and let `k → l` be a morphism of
 -- fields inducing the valuative relation on `k` from the one on `l` (the

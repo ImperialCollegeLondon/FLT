@@ -45,7 +45,7 @@ theorem RestrictedProduct.isOpen_forall_mem_of_eventually_eq
   convert ((isOpen_set_pi hU' (fun i _ ↦ hU i)).preimage continuous_coe).inter
     (isOpen_forall_imp_mem hC (p := fun i ↦ C i = U i)) using 1
   ext v
-  simp only [Set.mem_setOf_eq, Set.mem_inter_iff, Set.mem_preimage, Set.mem_pi, Set.mem_compl_iff,
+  simp only [Set.mem_ofPred_eq, Set.mem_inter_iff, Set.mem_preimage, Set.mem_pi, Set.mem_compl_iff,
     ← forall_and]
   exact forall_congr' fun i ↦ by by_cases C i = U i <;> aesop
 
@@ -61,7 +61,7 @@ theorem RestrictedProduct.isCompact_forall_mem_of_eventually_subset
     (isCompact_univ_pi hU) (fun x hx ↦ ⟨⟨x, fun i hi ↦ hi (by simp_all)⟩, rfl⟩)).image
     (isOpenEmbedding_inclusion_principal hC (Filter.le_principal_iff.mpr hU')).continuous using 1
   ext v
-  simp only [Set.mem_setOf_eq, Set.mem_image, Set.mem_preimage, Set.mem_pi, Set.mem_univ,
+  simp only [Set.mem_ofPred_eq, Set.mem_image, Set.mem_preimage, Set.mem_pi, Set.mem_univ,
     SetLike.mem_coe, forall_const]
   refine ⟨fun h ↦ ⟨⟨_, by aesop⟩, h, rfl⟩, by aesop⟩
 
@@ -106,6 +106,7 @@ section binary
 variable {ι : Type*} {ℱ : Filter ι} {A B : ι → Type*}
   {C : (i : ι) → Set (A i)} {D : (i : ι) → Set (B i)}
 
+set_option backward.isDefEq.respectTransparency.types false in
 /--
 The forward direction of `Equiv.restrictedProductProd` is continuous with any filter, not just the
 cofinite one
@@ -120,7 +121,7 @@ lemma Equiv.continuous_restrictedProductProd
 lemma Equiv.continuous_restrictedProductProd_symm {S : Set ι}
     [∀ i, TopologicalSpace (A i)] [∀ i, TopologicalSpace (B i)] :
     Continuous (Equiv.restrictedProductProd (C := C) (D := D) (ℱ := .principal S)).symm := by
-  simp only [restrictedProductProd, coe_fn_symm_mk]
+  simp only [restrictedProductProd]
   rw [continuous_rng_of_principal_iff_forall]
   intro i
   rw [continuous_prodMk]
@@ -561,7 +562,7 @@ lemma RestrictedProduct.mem_nhds_of_exists_nhds_of_cofinite {x : Πʳ i, [G i, C
   · apply hy.left i h
   · simp only [Set.mem_union, not_or] at h
     have hy' : y i ∈ C i := hy.right i h.right
-    simp only [hIval, Set.mem_setOf_eq, not_not] at h
+    simp only [hIval, Set.mem_ofPred_eq, not_not] at h
     exact h.left hy'
 
 /-- The classical condition for a set to be a neighborhood in the restricted product. -/
@@ -581,7 +582,7 @@ lemma RestrictedProduct.mem_nhds_iff_of_cofinite {x : Πʳ i, [G i, C i]} {U : S
       rw [← hx]
       apply Filter.inter_mem (Filter.mem_of_superset (hs i) Set.subset_union_left)
       apply IsOpen.mem_nhds (IsOpen.union (hCopen i) isOpen_const)
-      rw [Set.mem_union, Set.mem_setOf_eq, or_iff_not_imp_right]
+      rw [Set.mem_union, Set.mem_ofPred_eq, or_iff_not_imp_right]
       apply x'.eventually
     · filter_upwards [hIf.compl_mem_cofinite, x.eventually] with i (hI : i ∉ I) hC
       simp [hI, hC, hTval]
@@ -642,6 +643,7 @@ lemma RestrictedProduct.secondCountableTopology {ι : Type*} [Countable ι]
 
 section equivs
 
+set_option backward.isDefEq.respectTransparency.types false in
 open Classical Filter in
 /-- The canonical homeomorphism between a restricted product `Πʳ i, [R i, A i]_[𝓟 J]` over
 a principal filter, and the corresponding product `(Π i : J, A i) × (Π i : Jᶜ, R i)`.

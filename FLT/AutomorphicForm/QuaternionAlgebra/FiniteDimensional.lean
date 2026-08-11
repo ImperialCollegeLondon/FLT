@@ -28,7 +28,7 @@ is a finitely generated `R`-module.
 namespace TotallyDefiniteQuaternionAlgebra
 
 open IsDedekindDomain NumberField IsQuaternionAlgebra.NumberField
-open scoped TensorProduct TensorProduct.RightActions Adele
+open scoped TensorProduct TensorProduct.RightActions NumberField.AdeleRing
 
 -- let F be a number field
 variable {F : Type*} [Field F] [NumberField F]
@@ -46,6 +46,7 @@ open TotallyDefiniteQuaternionAlgebra
 
 open scoped FLT
 
+set_option backward.isDefEq.respectTransparency.types false in
 variable (D) in
 /-- For any open `U ⊆ GL₂(𝔸_F)`, `Dˣ\GL₂(𝔸_F)/U` is finite.
 (where `Dˣ` is viewed as a subgroup of `GL₂(𝔸_F)` under the identification `M₂(𝔸_F) ≃ D ⊗ 𝔸_F`) -/

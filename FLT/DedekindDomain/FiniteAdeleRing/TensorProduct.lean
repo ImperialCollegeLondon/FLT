@@ -79,6 +79,7 @@ lemma TensorProduct.localcomponent_id_apply (p : HeightOneSpectrum R)
     apply evalContinuousAlgebraMap_singleContinuousLinearMap
   simp [localcomponent, ContinuousLinearMap.rTensor', ← LinearMap.rTensor_comp_apply, this]
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma TensorProduct.localcomponent_comp_apply (p : HeightOneSpectrum R)
     (φ ψ : FiniteAdeleRing R K ⊗[K] V →L[FiniteAdeleRing R K]
       FiniteAdeleRing R K ⊗[K] V) (x : p.adicCompletion K ⊗[K] V) :

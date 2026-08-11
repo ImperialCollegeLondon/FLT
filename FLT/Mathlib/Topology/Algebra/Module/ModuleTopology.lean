@@ -109,8 +109,8 @@ open scoped TensorProduct
 include R in
 @[continuity, fun_prop]
 theorem continuous_mul : Continuous (fun ab ↦ ab.1 * ab.2 : D × D → D) := by
-  letI : TopologicalSpace (D ⊗[R] D) := moduleTopology R _
-  haveI : IsModuleTopology R (D ⊗[R] D) := { eq_moduleTopology' := rfl }
+  let : TopologicalSpace (D ⊗[R] D) := moduleTopology R _
+  have : IsModuleTopology R (D ⊗[R] D) := { eq_moduleTopology' := rfl }
   convert! continuous_bilinear_of_finite_left <| (LinearMap.mul R D : D →ₗ[R] D →ₗ[R] D)
 
 include R in
@@ -154,8 +154,8 @@ variable (M : Type*) [AddCommGroup M] [Module R M] [Module S M] [IsScalarTower R
 
 lemma _root_.Algebra.moduleTopology_le [IsTopologicalModule R S] :
     moduleTopology R M ≤ moduleTopology S M := by
-  letI : TopologicalSpace M := moduleTopology S M
-  haveI : ContinuousAdd M := continuousAdd S M
+  let : TopologicalSpace M := moduleTopology S M
+  have : ContinuousAdd M := continuousAdd S M
   have ⟨cts_smul⟩ : ContinuousSMul S M := continuousSMul S M
   suffices ContinuousSMul R M from _root_.moduleTopology_le R M
   constructor
@@ -170,9 +170,9 @@ lemma _root_.moduleTopology.trans [IsTopologicalRing R] [Module.Finite R S] [IsM
     moduleTopology R M = moduleTopology S M := by
   have := IsModuleTopology.isTopologicalModule
   refine le_antisymm (Algebra.moduleTopology_le _ _ _) ?_
-  letI : TopologicalSpace M := moduleTopology R M
-  haveI : IsModuleTopology R M := isModuleTopology R M
-  haveI : ContinuousAdd M := continuousAdd R M
+  let : TopologicalSpace M := moduleTopology R M
+  have : IsModuleTopology R M := isModuleTopology R M
+  have : ContinuousAdd M := continuousAdd R M
   have ⟨cts_smul⟩ : ContinuousSMul R M := continuousSMul R M
   suffices ContinuousSMul S M from _root_.moduleTopology_le S M
   constructor
@@ -341,11 +341,11 @@ def continuousLinearEquivOfIsBiscalar {A B : Type*} (S' : Type*) {S : Type*}
   toLinearEquiv := e
   continuous_toFun := by
     change Continuous (e.changeScalars S')
-    letI := IsModuleTopology.toContinuousAdd
+    let := IsModuleTopology.toContinuousAdd
     exact IsModuleTopology.continuous_of_linearMap _
   continuous_invFun := by
     change Continuous (e.changeScalars S').symm
-    letI := IsModuleTopology.toContinuousAdd
+    let := IsModuleTopology.toContinuousAdd
     exact IsModuleTopology.continuous_of_linearMap _
 
 /--
@@ -363,11 +363,11 @@ def continuousAlgEquivOfIsBiscalar {A B : Type*} (S' : Type*) {S : Type*}
     -- switch the scalars of `e` from `S` over to `S'`
     change Continuous (e.changeScalars S').toLinearEquiv
     -- then this is an `S'`-linear map on the `S'`-module topology, so is continuous
-    letI := IsModuleTopology.toContinuousAdd
+    let := IsModuleTopology.toContinuousAdd
     exact IsModuleTopology.continuous_of_linearMap _
   continuous_invFun := by
     change Continuous (e.changeScalars S').toLinearEquiv.symm
-    letI := IsModuleTopology.toContinuousAdd
+    let := IsModuleTopology.toContinuousAdd
     exact IsModuleTopology.continuous_of_linearMap _
 
 @[simp]

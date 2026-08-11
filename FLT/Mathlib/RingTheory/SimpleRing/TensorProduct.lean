@@ -165,12 +165,12 @@ lemma TwoSidedIdeal.eq_bot_of_map_comap_eq_bot [hA : IsSimpleRing A]
       set g : ι → K := fun i ↦ if h : i ∈ s then k i h else 1
       have hg : ∑ i ∈ insert j s, g i • 𝓑 i = 0 := by
         unfold g
-        rw [Finset.sum_insert hjs, dif_neg hjs, one_smul, ← Finset.sum_attach]
-        simp_rw [dif_pos (Subtype.prop _)]
+        rw [Finset.sum_insert hjs, dite_eq_right hjs, one_smul, ← Finset.sum_attach]
+        simp_rw [dite_eq_left (Subtype.prop _)]
         exact hkey
       have hb := linearIndependent_iff'.mp 𝓑.linearIndependent (insert j s) g hg j
         (Finset.mem_insert_self _ _)
-      simp [g, dif_neg hjs] at hb
+      simp [g, dite_eq_right hjs] at hb
   refine eq_bot_iff.mpr fun x hx ↦ ?_
   obtain ⟨s, c, rfl⟩ := Submodule.mem_span_range_iff_exists.mp <|
     Submodule.eq_top_iff'.mp (𝓑.baseChange A).span_eq x

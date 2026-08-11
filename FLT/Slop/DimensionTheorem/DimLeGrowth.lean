@@ -66,8 +66,9 @@ variable {R : Type*} [CommRing R] [IsLocalRing R] [IsNoetherianRing R]
 
 /-! ### Auxiliary lemmas -/
 
+omit [IsNoetherianRing R] in
 private lemma hilbertSamuel_zero : hilbertSamuel R 0 = 0 := by
-  haveI : Subsingleton (R ⧸ (maximalIdeal R ^ 0)) := by
+  have : Subsingleton (R ⧸ (maximalIdeal R ^ 0)) := by
     rw [pow_zero, Ideal.one_eq_top]
     exact Submodule.Quotient.subsingleton_iff.mpr rfl
   unfold hilbertSamuel colength
@@ -77,22 +78,24 @@ private lemma hilbertSamuel_zero : hilbertSamuel R 0 = 0 := by
 private lemma hilbertSamuel_coe (n : ℕ) :
     (hilbertSamuel R n : ℕ∞) = Module.length R (R ⧸ maximalIdeal R ^ n) := by
   rcases Nat.eq_zero_or_pos n with rfl | hn
-  · haveI : Subsingleton (R ⧸ (maximalIdeal R ^ 0)) := by
+  · have : Subsingleton (R ⧸ (maximalIdeal R ^ 0)) := by
       rw [pow_zero, Ideal.one_eq_top]
       exact Submodule.Quotient.subsingleton_iff.mpr rfl
     rw [hilbertSamuel_zero, Module.length_eq_zero, Nat.cast_zero]
   · exact colength_coe (radical_pow_eq_of_radical_eq
       (maximalIdeal.isMaximal R).isPrime.radical hn.ne')
 
+omit [IsNoetherianRing R] in
 /-- The image of the maximal ideal in a proper quotient is the maximal ideal. -/
 private lemma map_mk_maximalIdeal (I : Ideal R) [Nontrivial (R ⧸ I)] :
     (maximalIdeal R).map (Ideal.Quotient.mk I) = maximalIdeal (R ⧸ I) := by
   have hI : I ≠ ⊤ := Ideal.Quotient.nontrivial_iff.mp ‹_›
-  haveI := IsLocalHom.of_surjective (Ideal.Quotient.mk I) Ideal.Quotient.mk_surjective
+  have := IsLocalHom.of_surjective (Ideal.Quotient.mk I) Ideal.Quotient.mk_surjective
   ext x
   obtain ⟨x, rfl⟩ := Ideal.Quotient.mk_surjective x
   simp [Ideal.mem_quotient_iff_mem_sup, sup_eq_left.mpr (le_maximalIdeal hI)]
 
+omit [IsLocalRing R] [IsNoetherianRing R] in
 /-- The length of a double quotient over `R ⧸ I` equals the length of the
 corresponding single quotient over `R`. -/
 private lemma length_quotient_map_quotient (I J : Ideal R) :
@@ -103,6 +106,7 @@ private lemma length_quotient_map_quotient (I J : Ideal R) :
       (by rw [Ideal.Quotient.algebraMap_eq]; exact Ideal.Quotient.mk_surjective)]
   exact (DoubleQuot.quotQuotEquivQuotSupₐ R I J).toLinearEquiv.length_eq
 
+omit [IsNoetherianRing R] in
 /-- The Hilbert–Samuel function of `R ⧸ I` as a colength in `R`. -/
 private lemma hilbertSamuel_quotient_eq (I : Ideal R) [Nontrivial (R ⧸ I)] (n : ℕ) :
     hilbertSamuel (R ⧸ I) n = colength R (I ⊔ maximalIdeal R ^ n) := by
@@ -277,7 +281,7 @@ lemma ringKrullDim_le_zero_of_growthLE_zero
         (Submodule.map (Submodule.mkQ ((maximalIdeal R ^ (n + 1) : Ideal R) : Submodule R R))
           ((maximalIdeal R ^ n : Ideal R) : Submodule R R)) = 0 :=
       WithTop.add_right_cancel hfin (hadd.symm.trans (zero_add _).symm)
-    haveI := Module.length_eq_zero_iff.mp hmid0
+    have := Module.length_eq_zero_iff.mp hmid0
     have hbot' :
         Submodule.map
           (Submodule.mkQ ((maximalIdeal R ^ (n + 1) : Ideal R) : Submodule R R))
@@ -296,7 +300,7 @@ lemma ringKrullDim_le_zero_of_growthLE_zero
   -- Step 4: every prime is the maximal ideal, so the dimension is `0`.
   have hprime : ∀ p : PrimeSpectrum R, p.asIdeal = maximalIdeal R := by
     intro p
-    haveI := p.2
+    have := p.2
     refine le_antisymm (le_maximalIdeal p.2.ne_top) ?_
     have hle : maximalIdeal R ^ n ≤ p.asIdeal := hpow ▸ bot_le
     exact (Ideal.IsPrime.pow_le_iff (by omega : n ≠ 0)).mp hle
@@ -313,9 +317,9 @@ lemma ringKrullDim_le_of_forall_minimalPrimes {n : ℕ}
     ringKrullDim R ≤ (n : WithBot ℕ∞) := by
   rw [ringKrullDim, Order.krullDim, iSup_le_iff]
   intro c
-  haveI : c.head.asIdeal.IsPrime := c.head.2
+  have : c.head.asIdeal.IsPrime := c.head.2
   obtain ⟨p, hp, hple⟩ := Ideal.exists_minimalPrimes_le (bot_le (a := c.head.asIdeal))
-  haveI hpprime : p.IsPrime := hp.1.1
+  have hpprime : p.IsPrime := hp.1.1
   have hmono : ∀ i : Fin (c.length + 1), p ≤ (c i).asIdeal := fun i =>
     le_trans hple (c.monotone (Fin.zero_le i) : c.head.asIdeal ≤ (c i).asIdeal)
   have hcomap : ∀ I : Ideal R, p ≤ I →
@@ -326,7 +330,7 @@ lemma ringKrullDim_le_of_forall_minimalPrimes {n : ℕ}
   have hprime' : ∀ i : Fin (c.length + 1),
       (((c i).asIdeal).map (Ideal.Quotient.mk p)).IsPrime := by
     intro i
-    haveI := (c i).2
+    have := (c i).2
     exact Ideal.map_isPrime_of_surjective Ideal.Quotient.mk_surjective
       (by rw [Ideal.mk_ker]; exact hmono i)
   let c' : LTSeries (PrimeSpectrum (R ⧸ p)) :=
@@ -357,9 +361,9 @@ theorem ringKrullDim_le_of_growthLE :
     intro R _ _ _ h
     apply ringKrullDim_le_of_forall_minimalPrimes
     intro p hp
-    haveI hpp : p.IsPrime := hp.1.1
-    haveI : Nontrivial (R ⧸ p) := Ideal.Quotient.nontrivial_iff.mpr hpp.ne_top
-    haveI : IsDomain (R ⧸ p) := Ideal.Quotient.isDomain p
+    have hpp : p.IsPrime := hp.1.1
+    have : Nontrivial (R ⧸ p) := Ideal.Quotient.nontrivial_iff.mpr hpp.ne_top
+    have : IsDomain (R ⧸ p) := Ideal.Quotient.isDomain p
     have hS : GrowthLE (hilbertSamuel (R ⧸ p)) (d + 1) :=
       h.of_le fun m => hilbertSamuel_quotient_le p m
     by_cases hm : maximalIdeal (R ⧸ p) = ⊥
@@ -369,7 +373,7 @@ theorem ringKrullDim_le_of_growthLE :
     · obtain ⟨x, hxmem, hx0⟩ := (Submodule.ne_bot_iff _).mp hm
       have hxle : Ideal.span {x} ≤ maximalIdeal (R ⧸ p) :=
         (Ideal.span_singleton_le_iff_mem _).mpr hxmem
-      haveI : Nontrivial ((R ⧸ p) ⧸ Ideal.span {x}) :=
+      have : Nontrivial ((R ⧸ p) ⧸ Ideal.span {x}) :=
         Ideal.Quotient.nontrivial_iff.mpr
           (ne_top_of_le_ne_top (maximalIdeal.isMaximal _).ne_top hxle)
       obtain ⟨c, hc, hAR⟩ := exists_hilbertSamuel_quotient_span_singleton_add_le hxmem hx0

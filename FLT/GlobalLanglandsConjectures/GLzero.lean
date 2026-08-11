@@ -57,6 +57,7 @@ namespace GL0
 
 variable (ρ : Weight 0)
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Make an automorphic form for GL₀/ℚ from a complex number -/
 def ofComplex (c : ℂ) : AutomorphicFormForGLnOverQ 0 ρ := {
     toFun := fun _ => c,

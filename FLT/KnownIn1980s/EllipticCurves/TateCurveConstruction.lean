@@ -549,7 +549,7 @@ private lemma corrector_row_eval {τ : ℂ} (hτ : 0 < τ.im) (n : ℤ) :
     simp
   · rw [sum_int_inv_sq' _ (show ((n : ℂ) * τ).im ≠ 0 by
         simpa [Complex.mul_im] using mul_ne_zero (Int.cast_ne_zero.mpr hn) hτ.ne'),
-      e_intMul, if_neg hn, add_zero]
+      e_intMul, ite_eq_right hn, add_zero]
 
 /-- The `q`-expansion of the Weierstrass `℘`-function (Silverman, *Advanced topics*,
 Theorem I.6.2): for `τ` in the upper half plane and `0 < im z < im τ` (which forces
@@ -841,7 +841,7 @@ private lemma G_q_expansion (τ : ℂ) (hτ : 0 < τ.im) {k j : ℕ} (hj : j ≠
         tsum_congr fun m ↦ by norm_num, hZ.tsum_eq, Int.natAbs_zero, pow_zero,
         tsum_natCast_pow_mul_one j]
       simp
-    · rw [row_eval_ne_zero hτ hkeven hrow hn, if_neg hn, add_zero]
+    · rw [row_eval_ne_zero hτ hkeven hrow hn, ite_eq_right hn, add_zero]
   -- Step 3: sum the rows (Fubini, which also gives summability of the row values)
   have hrowsHS : ∀ n : ℤ, HasSum (fun m : ℤ ↦ (((n : ℂ) * τ + m) ^ k)⁻¹)
       (C * ∑' d : ℕ, (d : ℂ) ^ j * (e τ ^ n.natAbs) ^ d + (if n = 0 then Z else 0)) := by
@@ -1400,14 +1400,14 @@ private theorem coeffs_eq_zero_of_hasSum_punctured (c : ℕ → ℂ) (r : ℝ) (
   refine hp.eq_zero_of_eventually ?_
   simpa [Filter.EventuallyEq] using
     (AnalyticAt.frequently_zero_iff_eventually_zero ⟨_, hp⟩).mp
-      (eventually_mem_nhdsWithin.mono fun z hz ↦ if_neg (by simpa using hz)).frequently
+      (eventually_mem_nhdsWithin.mono fun z hz ↦ ite_eq_right (by simpa using hz)).frequently
 
 private theorem ratFunc_eq_zero_of_evalAt_eq_zero_on_infinite (r : RatFunc ℚ) (S : Set ℂ)
     (hS : S.Infinite) (h : ∀ u ∈ S, evalAt u r = 0) : r = 0 := by
   rw [← RatFunc.num_eq_zero_iff,
     ← Polynomial.map_eq_zero_iff (FaithfulSMul.algebraMap_injective ℚ ℂ)]
   have hfin : {u : ℂ | ((RatFunc.denom r).map (algebraMap ℚ ℂ)).IsRoot u}.Finite :=
-    Polynomial.finite_setOf_isRoot ((Polynomial.map_ne_zero_iff
+    Polynomial.finite_setOfPred_isRoot ((Polynomial.map_ne_zero_iff
       (FaithfulSMul.algebraMap_injective ℚ ℂ)).mpr r.denom_ne_zero)
   refine Polynomial.eq_zero_of_infinite_isRoot _ ((hS.sdiff hfin).mono fun u hu ↦ ?_)
   have heval : Polynomial.eval₂ (algebraMap ℚ ℂ) u r.num /

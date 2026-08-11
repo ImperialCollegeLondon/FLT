@@ -6,7 +6,7 @@ Authors: Matthew Jasper
 module
 
 public import Mathlib.Analysis.Normed.Ring.Lemmas
-public import Mathlib.NumberTheory.RamificationInertia.Inertia
+public import Mathlib.RingTheory.RamificationInertia.Inertia
 public import Mathlib.RingTheory.Valuation.Discrete.Basic
 public import Mathlib.Topology.Path
 public import Mathlib.RingTheory.DedekindDomain.AdicValuation
@@ -47,6 +47,7 @@ namespace IsDedekindDomain.HeightOneSpectrum
 section Multiplicative
 
 open scoped WithZero
+set_option backward.isDefEq.respectTransparency.types false in
 lemma exists_ofAdd_natCast_of_le_one {x : ℤᵐ⁰} (hx : x ≠ 0) (hx' : x ≤ 1) :
     ∃ (k : ℕ), (Multiplicative.ofAdd (-(k : ℤ))) = x := by
   lift x to Multiplicative ℤ using hx
@@ -56,6 +57,7 @@ lemma exists_ofAdd_natCast_of_le_one {x : ℤᵐ⁰} (hx : x ≠ 0) (hx' : x ≤
   rw [← hk, Int.neg_neg]
   rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma exists_ofAdd_natCast_lt {x : ℤᵐ⁰} (hx : x ≠ 0) :
     ∃ (k : ℕ), (Multiplicative.ofAdd (-(k : ℤ))) < x := by
   obtain ⟨y, hnz, hyx⟩ := WithZero.exists_ne_zero_and_lt hx
@@ -108,7 +110,7 @@ lemma exists_adicValued_mul_sub_le {a b : A} {γ : WithZero (Multiplicative ℤ)
   have hm : emultiplicity v.asIdeal (Ideal.span {a}) ≤ n :=
     le_of_eq_of_le
       (emultiplicity_eq_of_valuation_eq_ofAdd v <| intValuation_eq_coe_neg_multiplicity v hnz)
-      (ENat.coe_le_coe.mpr hle)
+      (ENat.natCast_le_natCast.mpr hle)
   have hb : b ∈ v.asIdeal ^ multiplicity v.asIdeal (Ideal.span {a}) := by
     rwa [← intValuation_le_pow_iff_mem, ← intValuation_eq_coe_neg_multiplicity _ hnz]
   -- Now make use of
@@ -215,7 +217,7 @@ theorem closureAlgebraMapIntegers_eq_integers :
     · use a
       rfl
     · apply hγ
-      simp only [sub_zero, WithVal.equiv_symm_apply, Set.mem_setOf_eq]
+      simp only [sub_zero, WithVal.equiv_symm_apply, Set.mem_ofPred_eq]
       rwa [← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,
         valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective
         (valuedAdicCompletion_surjective K v)]
@@ -310,9 +312,11 @@ noncomputable def ResidueFieldEquivCompletionResidueField :
     rw [Valuation.Integer.not_isUnit_iff_valuation_lt_one]
   exact exists_adicValued_sub_lt_of_adicCompletionInteger K v x 1
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem inertiaDeg_asIdeal_completionIdeal :
-    Ideal.inertiaDeg' v.asIdeal (v.completionIdeal K) = 1 := by
-  rw [Ideal.inertiaDeg'_algebraMap]
+    Ideal.inertiaDeg (v.completionIdeal K) A = 1 := by
+  have := IsLocalRing.maximalIdeal.isMaximal (v.adicCompletionIntegers K)
+  rw [Ideal.inertiaDeg_eq_of_isMaximal v.asIdeal]
   have f : (A ⧸ v.asIdeal) ≃ₗ[A ⧸ v.asIdeal]
       ((adicCompletionIntegers K v) ⧸ completionIdeal K v) := {
     __ := ResidueFieldEquivCompletionResidueField K v
@@ -390,7 +394,7 @@ theorem closureAlgebraMapIntegers_eq_prodIntegers {ι : Type*}
     · rw [RingHom.coe_range]
       exact Set.mem_range_self a
     · refine hts fun w hw ↦ hg' w ?_
-      rw [Set.mem_setOf_eq, ← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,
+      rw [Set.mem_ofPred_eq, ← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,
         valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective
           (valuedAdicCompletion_surjective K (v w))]
       exact ha w hw
@@ -491,6 +495,7 @@ theorem uniformizer_not_isUnit {π : v.adicCompletionIntegers K}
   rw [WithZero.coe_lt_coe, Multiplicative.ofAdd_lt]
   omega
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem eq_pow_uniformizer_mul_unit {x : v.adicCompletionIntegers K} (hx : x ≠ 0)
     {π : v.adicCompletionIntegers K} (hπ : Valued.v π.1 = Multiplicative.ofAdd (-1 : ℤ)) :
     ∃ (n : ℕ) (u : (v.adicCompletionIntegers K)ˣ), x = π ^ n * u := by

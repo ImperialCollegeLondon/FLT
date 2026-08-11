@@ -70,7 +70,7 @@ lemma not_isField_integralClosure
     ¬ IsField (IntegralClosure R L) := by
   have : FaithfulSMul K L := inferInstance
   contrapose! hR
-  letI := hR.toField
+  let := hR.toField
   let F := IsFractionRing.liftAlgHom (K := K) (g := Algebra.ofId R (IntegralClosure R L))
     (FaithfulSMul.algebraMap_injective _ _)
   refine top_le_iff.mp fun x _ ↦ ?_
@@ -91,6 +91,7 @@ instance isInvariant_integralClosure
     obtain ⟨x, rfl⟩ := (IsIntegralClosure.isIntegral_iff (A := R)).mp hx
     exact ⟨x, rfl⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance continuousSMulDiscrete_integralClosure
     {G R L : Type*} [CommRing R] [Field L] [Algebra R L] [Group G] [MulSemiringAction G L]
     [SMulCommClass G R L] [TopologicalSpace G] [ContinuousSMulDiscrete G L] :

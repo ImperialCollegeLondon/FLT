@@ -586,12 +586,6 @@ def DinfTensorPiEquivPiTensorMulEquiv :
   map_mul' _ _ := tensorPi_equiv_piTensor_map_mul ..
 }
 
-instance : IsTopologicalRing (Dinf K D) := inferInstance -- instance shortcut
-instance (vi : InfinitePlace K) : TopologicalSpace (D ⊗[K] vi.Completion) := inferInstance
-
-set_option synthInstance.maxHeartbeats 40000 in
--- https://github.com/ImperialCollegeLondon/FLT/issues/891
-set_option maxHeartbeats 400000 in
 open scoped NumberField.AdeleRing in
 lemma isCentralSimple_infinite_addHaarScalarFactor_left_mul_eq_right_mul
     [Algebra.IsCentral K D] (u : (Dinf K D)ˣ) :
@@ -964,7 +958,7 @@ lemma incl₂_isClosedEmbedding : Topology.IsClosedEmbedding (incl₂ K D) := by
     (Subgroup.subtype_injective (ringHaarCharKer (D ⊗[K] AdeleRing (𝓞 K) K))) ?_
   simp only [Subgroup.coe_subtype]
   refine Topology.IsInducing.isClosedMap ({ eq_induced := rfl }) ?_
-  simp only [Subtype.range_coe_subtype, SetLike.setOf_mem_eq]
+  simp only [Subtype.range_coe_subtype, SetLike.setOfPred_mem_eq]
   exact IsClosed.preimage (continuous_id')
     (IsClosed.preimage (map_continuous ringHaarChar) (by simp))
 

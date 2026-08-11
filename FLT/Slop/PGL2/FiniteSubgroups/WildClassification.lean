@@ -121,7 +121,7 @@ theorem fixes_infinity_coprime_isCyclic (H : Subgroup (PGLOf (K p))) [Finite H]
     h_equiv with
     map_mul' := fun x y ↦ Subtype.ext (map_mul f x y)
   }
-  haveI h_finite : Finite f.range := h_iso.finite_iff.mp inferInstance
+  have h_finite : Finite f.range := h_iso.finite_iff.mp inferInstance
   exact (MulEquiv.isCyclic h_iso).mpr inferInstance
 
 end DiagRatio
@@ -140,7 +140,7 @@ theorem sylow_comm_exp_p (G : Subgroup (PGLOf (K p))) [Finite G]
     (P : Sylow p G) :
     (∀ g h : P.toSubgroup, g * h = h * g) ∧ (∀ g : P.toSubgroup, g ^ p = 1) := by
   let H := P.toSubgroup.map G.subtype
-  haveI : Finite H := Finite.of_surjective
+  have : Finite H := Finite.of_surjective
     (fun g : P.toSubgroup ↦ (⟨g.1.1, Subgroup.mem_map_of_mem G.subtype g.2⟩ : H))
     (fun ⟨y, hy⟩ ↦ by
       obtain ⟨x, hx, rfl⟩ := Subgroup.mem_map.mp hy
@@ -203,7 +203,7 @@ theorem fixes_point_coprime_isCyclic (H : Subgroup (PGLOf (K p))) [Finite H]
   obtain ⟨c, hc⟩ : ∃ c : PGLOf (K p), c • x = infinity p := exists_smul_eq_infinity p x
   let e := MulEquiv.subgroupMap (MulAut.conj c) H
   let H' := H.map (MulAut.conj c).toMonoidHom
-  haveI : Finite H' := Finite.of_equiv H e.toEquiv
+  have : Finite H' := Finite.of_equiv H e.toEquiv
   have hH'_fix : ∀ g : H', (g : PGLOf (K p)) • infinity p = infinity p := by
     intro ⟨g, hg⟩
     obtain ⟨h, hh, rfl⟩ := Subgroup.mem_map.mp hg
@@ -220,7 +220,7 @@ theorem complement_order_coprime (G : Subgroup (PGLOf (K p))) [Finite G]
     (K : Subgroup G) (hK : P.toSubgroup.IsComplement' K) :
     Nat.Coprime (Nat.card K) p := by
   have h_card_G : Nat.card G = p ^ (Nat.factorization (Nat.card G) p) * Nat.card K := by
-    have h1 : Nat.card G = Nat.card P * Nat.card K := hK.card_mul.symm
+    have h1 : Nat.card G = Nat.card P * Nat.card K := hK.card_mul_card.symm
     rw [P.card_eq_multiplicity] at h1
     exact h1
   exact Nat.Coprime.symm <| (Nat.Prime.coprime_iff_not_dvd (Fact.out : Nat.Prime p)).mpr fun h ↦
@@ -233,7 +233,7 @@ theorem complement_isCyclic (G : Subgroup (PGLOf (K p))) [Finite G]
     IsCyclic K := by
   let K' := K.map G.subtype
   let e : K ≃* K' := Subgroup.equivMapOfInjective K G.subtype Subtype.coe_injective
-  haveI : Finite K' := Finite.of_equiv K e.toEquiv
+  have : Finite K' := Finite.of_equiv K e.toEquiv
   let x := sylowFixedPoint p G hG_p P
   -- `Dickson.K` is written out in full here because the local complement `K` shadows it
   have hK'_fix : ∀ g : K', (g : PGLOf (Dickson.K p)) • x = x := fun ⟨_, hg⟩ ↦ by
@@ -247,7 +247,7 @@ omit h_odd in
 theorem mul_elem_abelian_iso (G : Type*) [CommGroup G]
     [Finite G] (hexp : ∀ x : G, x ^ p = 1) :
     ∃ m : ℕ, Nonempty (G ≃* Multiplicative (Fin m → ZMod p)) := by
-  haveI : Module (ZMod p) (Additive G) := AddCommGroup.zmodModule (fun x ↦ hexp (Additive.toMul x))
+  have : Module (ZMod p) (Additive G) := AddCommGroup.zmodModule (fun x ↦ hexp (Additive.toMul x))
   exact ⟨Module.finrank (ZMod p) (Additive G),
     ⟨(Module.finBasis (ZMod p) (Additive G)).equivFun.toAddEquiv.toMultiplicative⟩⟩
 
@@ -268,9 +268,9 @@ theorem branch1_semidirect (G : Subgroup (PGLOf (K p))) [Finite G]
       Nonempty (G ≃* (Multiplicative (Fin m → ZMod p)) ⋊[φ] Multiplicative (ZMod t)) := by
   obtain ⟨K, hK⟩ := Subgroup.exists_right_complement'_of_coprime (Sylow.card_coprime_index P)
   have ⟨hP_comm, hP_exp⟩ := sylow_comm_exp_p p G P
-  letI : CommGroup P.toSubgroup := { (inferInstance : Group P.toSubgroup) with mul_comm := hP_comm }
+  let : CommGroup P.toSubgroup := { (inferInstance : Group P.toSubgroup) with mul_comm := hP_comm }
   obtain ⟨m, ⟨fP⟩⟩ := mul_elem_abelian_iso p P.toSubgroup hP_exp
-  haveI hK_cyclic := complement_isCyclic p G hG_p P hP_normal K hK
+  have hK_cyclic := complement_isCyclic p G hG_p P hP_normal K hK
   have hK_coprime := complement_order_coprime p G P K hK
   have ⟨fK⟩ : Nonempty (K ≃* Multiplicative (ZMod (Nat.card K))) := ⟨(zmodCyclicMulEquiv ‹IsCyclic K›).symm⟩
   obtain ⟨φ, hφ⟩ := semidirect_of_complement_iso hK fP fK
@@ -284,7 +284,7 @@ theorem branch1_semidirect (G : Subgroup (PGLOf (K p))) [Finite G]
   have ht_div : Nat.card K ∣ p ^ m - 1 := by
     have hdvd := normalizer_complement_divides_main p G P hG_p
     have h_card_norm : Nat.card (Subgroup.normalizer (SetLike.coe P.toSubgroup)) = Nat.card G := by
-      haveI := hP_normal
+      have := hP_normal
       rw [Subgroup.normalizer_eq_top]
       exact Nat.card_congr ⟨fun x ↦ x.1, fun x ↦ ⟨x, trivial⟩, fun _ ↦ rfl, fun _ ↦ rfl⟩
     have h_card_G : Nat.card G = p ^ m * Nat.card K := by
@@ -447,7 +447,7 @@ theorem recognition_PGL_iso (G : Subgroup (PGLOf (K p)))
         Subgroup.center (GL (Fin 2) (GaloisField p m)))) := by
   have hm1 : m ≥ 1 := m_ge_one_of_pow_ge_three p m hm
   let H := (pglMap (galoisFieldRingHom (p := p) m)).range
-  haveI : Finite H := Set.finite_range _ |>.to_subtype
+  have : Finite H := Set.finite_range _ |>.to_subtype
   obtain ⟨g, hg⟩ := pgl_subgroups_conjugate p G H m hm1 hn <|
     (Nat.card_congr (Equiv.ofInjective (pglMap (galoisFieldRingHom (p := p) m)) (pglMap_injective _ (RingHom.injective (galoisFieldRingHom (p := p) m)))).symm).trans (by rw [card_PGL2, Fintype.card_eq_nat_card.trans (GaloisField.card p m (ne_of_gt hm1)), pow_mul'])
   have h_pgl_iso_H : PGLOf (GaloisField p m) ≃* ↥H :=
@@ -580,12 +580,12 @@ theorem partition_equation
         rw [← Nat.cast_mul, Nat.div_mul_cancel hD_dvd]
       rw [← mul_div_cancel_right₀ (z2 : ℚ) hD_pos, h_mul]
     by_cases hz1 : z1 = 1
-    · simp only [partitionTerm, if_pos hz1, Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, Nat.cast_one, Nat.cast_ofNat, one_mul]
+    · simp only [partitionTerm, ite_eq_left hz1, Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, Nat.cast_one, Nat.cast_ofNat, one_mul]
       rw [hz2_eq, h_n_eq, h_D_eq, hz1]
       simp only [Nat.cast_one, mul_one]
       field_simp [hpm_pos, hz1_pos, hnp_pos]
       ring
-    · simp only [partitionTerm, if_neg hz1, Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, Nat.cast_one, Nat.cast_ofNat, one_mul]
+    · simp only [partitionTerm, ite_eq_right hz1, Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, Nat.cast_one, Nat.cast_ofNat, one_mul]
       rw [hz2_eq, h_n_eq, h_D_eq]
       field_simp [hpm_pos, hz1_pos, hnp_pos]
       ring
@@ -614,7 +614,7 @@ theorem dickson_branch2_z1_eq_1 (G : Subgroup (PGLOf (K p))) [Finite G]
   subst hz1_eq
   have h_eq_subst : (1 : ℚ) / pm - 1 / n = ∑ i, partitionTerm (s i) (z i) := by
     have h_eval : partitionTerm (if 1 = 1 then 1 else 2) 1 = 0 := by
-      rw [if_pos rfl, partitionTerm]
+      rw [ite_eq_left rfl, partitionTerm]
       norm_num
     rw [h_eval] at h_eq
     push_cast at h_eq

@@ -58,7 +58,7 @@ The desired instances are constructed later as `scoped` instances in `FLT.Number
 -/
 
 @[expose] public section
-open scoped TensorProduct Adele
+open scoped TensorProduct NumberField.AdeleRing
 
 universe u
 
@@ -75,7 +75,7 @@ variable (K L : Type*) [Field K] [NumberField K] [Field L] [NumberField L]
 section BaseChange
 
 /-- `𝔸 K` for `K` a number field, is notation for `AdeleRing (𝓞 K) K`. -/
-scoped[Adele] notation:max "𝔸" K => AdeleRing (𝓞 K) K
+scoped notation:max "𝔸" K => AdeleRing (𝓞 K) K
 
 instance [SMul (𝔸 K) (𝔸 L)] : SMul (K∞ × 𝔸ᶠ[K]) (L∞ × 𝔸ᶠ[L]) :=
   inferInstanceAs (SMul (𝔸 K) (𝔸 L))
@@ -394,7 +394,9 @@ theorem Rat.AdeleRing.integral_and_norm_lt_one (x : ℚ)
     (h2 : ∀ v, ((algebraMap ℚ (FiniteAdeleRing (𝓞 ℚ) ℚ)) x) v ∈
       IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers ℚ v)
     (h1 : ∀ (v : InfinitePlace ℚ), ‖algebraMap ℚ (InfiniteAdeleRing ℚ) x v‖ < 1) : x = 0 := by
-  simp only [InfiniteAdeleRing.algebraMap_apply, UniformSpace.Completion.norm_coe] at h1
+  simp only [InfiniteAdeleRing.algebraMap_apply,
+    NumberField.InfinitePlace.Completion.norm_ofCompletion,
+    UniformSpace.Completion.norm_coe] at h1
   specialize h1 Rat.infinitePlace
   change ‖(x : ℂ)‖ < 1 at h1
   simp only [Complex.norm_ratCast] at h1
@@ -402,7 +404,7 @@ theorem Rat.AdeleRing.integral_and_norm_lt_one (x : ℚ)
     obtain ⟨z, hz⟩ := IsDedekindDomain.HeightOneSpectrum.mem_integers_of_valuation_le_one
         ℚ x <| fun v ↦ by
       specialize h2 v
-      letI : UniformSpace ℚ := v.adicValued.toUniformSpace
+      let : UniformSpace ℚ := v.adicValued.toUniformSpace
       rw [IsDedekindDomain.HeightOneSpectrum.mem_adicCompletionIntegers] at h2
       rwa [← IsDedekindDomain.HeightOneSpectrum.valuedAdicCompletion_eq_valuation']
     use Rat.ringOfIntegersEquiv z
@@ -425,7 +427,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
   use {f | ∀ v, f v ∈ (Metric.ball 0 1)} ×ˢ integralAdeles
   refine ⟨?_, ?_⟩
   · apply IsOpen.prod
-    · rw [Set.setOf_forall]
+    · rw [Set.ofPred_forall]
       apply isOpen_iInter_of_finite
       intro v
       exact Metric.isOpen_ball.preimage (continuous_apply v)
@@ -440,7 +442,7 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       rw [Set.mem_prod] at hx
       obtain ⟨h1, h2⟩ := hx
       dsimp only at h1 h2
-      simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq] at h1
+      simp only [Metric.mem_ball, dist_zero_right, Set.mem_ofPred_eq] at h1
       exact Rat.AdeleRing.integral_and_norm_lt_one x h2 h1
     · intro x
       simp only [Set.mem_singleton_iff, Set.mem_preimage]
@@ -449,13 +451,13 @@ theorem Rat.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 ℚ) ℚ),
       change (0, 0) ∈ _
       simp only [Prod.mk_zero_zero]
       constructor
-      · simp only [Metric.mem_ball, dist_zero_right, Set.mem_setOf_eq]
+      · simp only [Metric.mem_ball, dist_zero_right, Set.mem_ofPred_eq]
         intro v
         have : ‖(0:InfiniteAdeleRing ℚ) v‖ = 0 := by
           simp only [norm_eq_zero]
           rfl
         simp [this, zero_lt_one]
-      · simp only [integralAdeles, Set.mem_setOf_eq]
+      · simp only [integralAdeles, Set.mem_ofPred_eq]
         intro v
         apply zero_mem
 
@@ -466,7 +468,7 @@ theorem NumberField.AdeleRing.zero_discrete : ∃ U : Set (AdeleRing (𝓞 K) K)
   obtain ⟨V, hV, hV0⟩ := Rat.AdeleRing.zero_discrete
   use (piEquiv ℚ K) '' {f | ∀i, f i ∈ V }
   constructor
-  · rw [← (piEquiv ℚ K).coe_toHomeomorph, Homeomorph.isOpen_image, Set.setOf_forall]
+  · rw [← (piEquiv ℚ K).coe_toHomeomorph, Homeomorph.isOpen_image, Set.ofPred_forall]
     apply isOpen_iInter_of_finite
     intro i
     exact hV.preimage (continuous_apply i)

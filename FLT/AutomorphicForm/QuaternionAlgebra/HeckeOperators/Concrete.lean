@@ -169,7 +169,7 @@ lemma LocalLevelStruct.heckeOperator_mul_comm_of_ne
   congr! 3 with a ha b hb
   rw [GL2.mul_comm_of_toAdicCompletion_eq_one _ _ _ (by simp [hvw.symm])]
 
-open scoped Adele
+open scoped NumberField.AdeleRing
 
 local notation "𝓓ˣ" => MonoidHom.range (WithRigidification.unitsIncl F D)
 local notation "𝓕ˣ" =>
@@ -193,6 +193,7 @@ lemma _root_.QuotientGroup.exists_bijOn_mk_image_mul_singleton
   rw [Set.injOn_image_iff Quotient.out_injective.injOn]
   simp
 
+set_option backward.isDefEq.respectTransparency.types false in
 open scoped Pointwise in
 lemma LocalLevelStruct.heckeOperator_eq_finsetSum (v : HeightOneSpectrum (𝓞 F)) (hv : ℒ.χ v = 1)
     (g : GL₂(v.adicCompletion F)) (s : Finset GL₂(v.adicCompletion F))
@@ -408,7 +409,7 @@ def U₁ (𝒮 : U₁Data F R p) : WeightTwoAutomorphicForm.LocalLevelStruct F R
   US_eq_of_notMem := by simp +contextual
   χ v := if h : v ∈ 𝒮.S ∧ v ∉ 𝒮.Q then
     ((𝒮.χS v).comp (GL2.localIwahoriLevel.char v)).comp
-      (MulEquiv.subgroupCongr ((if_neg h.2).trans (if_pos h.1))).toMonoidHom else 1
+      (MulEquiv.subgroupCongr ((ite_eq_right h.2).trans (ite_eq_left h.1))).toMonoidHom else 1
   χ_eq_of_notMem := by simp +contextual
   range_unitsMap_le_ker_χ v hv := by
     by_cases h : v ∈ 𝒮.S ∧ v ∉ 𝒮.Q; swap; · simp [h]
@@ -569,6 +570,7 @@ lemma U₁Data.χ_apply_pow (𝒮 : U₁Data F R p) (v x) : ((U₁ 𝒮).χ v x)
 
 @[simp] lemma U₁Data.χ_pow (𝒮 : U₁Data F R p) (v) : (U₁ 𝒮).χ v ^ p = 1 := by ext; simp
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp] lemma U₁Data.toStruct_χ_apply_pow (𝒮 : U₁Data F R p) (x) :
     (U₁ 𝒮).toStruct.χ x ^ p = 1 := by
   simp only [WeightTwoAutomorphicForm.LocalLevelStruct.toStruct]
@@ -639,7 +641,7 @@ instance (𝒮 : U₁Data F R p) [IsQuaternionAlgebra F D] [IsTotallyReal F]
       rw [𝒮.prime.coprime_iff_not_dvd]
       exact mt (Nat.le_of_dvd (by decide)) (not_le_of_gt (.trans_le (by decide) 𝒮.five_le))
 
-open scoped Adele
+open scoped NumberField.AdeleRing
 namespace HeckeOperator
 
 variable (M) in
@@ -731,6 +733,7 @@ lemma U_smul [SMulCommClass R S M]
   ((U₁ 𝒮).heckeOperatorL _ _ _ v (by simp [U₁_χ, hvQ]; rfl)
     (Matrix.GeneralLinearGroup.diagonal ![.mk0 α.1 (by simpa), 1])).map_smul r f
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma U_apply (𝒮 : U₁Data F R p) (v : HeightOneSpectrum (𝓞 F))
     (hvQ : v ∈ 𝒮.Q) (α : v.adicCompletionIntegers F) (hα : α ≠ 0) (x)
     (s : Finset (v.adicCompletionIntegers F))
@@ -758,6 +761,7 @@ lemma U_apply (𝒮 : U₁Data F R p) (v : HeightOneSpectrum (𝓞 F))
     exact ((HeckeOperator.Local.GL2.unipotentMulDiag_injective _).comp
       Subtype.val_injective).injOn
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma U_apply_of_isUnit (𝒮 : U₁Data F R p) (v : HeightOneSpectrum (𝓞 F))
     (hvQ : v ∈ 𝒮.Q) (α : v.adicCompletionIntegers F) (hα : α ≠ 0) (hα' : IsUnit α) (x) :
     (U D M 𝒮 v hvQ α hα x).1 =
@@ -933,7 +937,7 @@ noncomputable def U (𝒮 : U₁Data F R p)
     · simp [hy]
     simp only [mul_eq_zero, hx, hy, or_self, ↓reduceDIte, ne_eq]
     exact Subtype.ext (U_mul_U D 𝒮 v hv x y hx hy).symm
-  map_zero' := dif_pos rfl
+  map_zero' := dite_eq_left rfl
 
 set_option backward.isDefEq.respectTransparency false in
 lemma adjoin_T_U_eq_top :
@@ -960,6 +964,7 @@ noncomputable instance :
     IsScalarTower R (Algebra.adjoin _ _) _
   (TensorProduct.comm _ _ _ ≪≫ₗ (U₁ 𝒮).toStruct.formTensorScalar D M R).symm.toAddEquiv.module _
 
+set_option backward.isDefEq.respectTransparency.types false in
 private lemma smul_formTensorScalar_aux (𝒮 : U₁Data F R p)
     (T : HeckeAlgebra D 𝒮) (m : M) (f : (U₁ 𝒮).toStruct.form D R) :
     T • (U₁ 𝒮).toStruct.formTensorScalar D M R (m ⊗ₜ f) =
@@ -1003,6 +1008,7 @@ lemma T_smul_def (v : HeightOneSpectrum (𝓞 F))
     simp [smul_formTensorScalar, ← apply_eq_smul]
     rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma U_smul_def (v : HeightOneSpectrum (𝓞 F))
     (hvQ : v ∈ 𝒮.Q) (a : v.adicCompletionIntegers F) (ha : a ≠ 0) (f : (U₁ 𝒮).toStruct.form D M) :
     U D 𝒮 v hvQ a • f = HeckeOperator.U D M 𝒮 v hvQ a ha f := by
@@ -1032,9 +1038,9 @@ lemma formMap_smul {N : Type*} [AddCommGroup N] [Module R N] (𝒮 : U₁Data F 
 noncomputable instance :
     IsScalarTower R (HeckeAlgebra D 𝒮) ((U₁ 𝒮).toStruct.form D M) :=
   .of_algebraMap_smul fun r f ↦ by
-    letI : Module (HeckeAlgebra D 𝒮) ((U₁ 𝒮).toStruct.form D R) :=
+    let : Module (HeckeAlgebra D 𝒮) ((U₁ 𝒮).toStruct.form D R) :=
       inferInstanceAs <| Module (Algebra.adjoin _ _) _
-    letI : IsScalarTower R (HeckeAlgebra D 𝒮) ((U₁ 𝒮).toStruct.form D R) := inferInstanceAs <|
+    let : IsScalarTower R (HeckeAlgebra D 𝒮) ((U₁ 𝒮).toStruct.form D R) := inferInstanceAs <|
       IsScalarTower R (Algebra.adjoin _ _) _
     change (U₁ 𝒮).toStruct.formTensorScalar D M R _ = _
     conv_lhs => enter [2, 2]; tactic => exact algebraMap_smul (HeckeAlgebra D 𝒮) r _

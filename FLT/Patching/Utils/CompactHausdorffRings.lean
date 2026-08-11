@@ -106,7 +106,7 @@ theorem CommGroup.no_compact_automorphisms
   let W : Set (A →ₜ* A) := {f | Set.MapsTo f Set.univ U}
   have hW : IsOpen W :=
     (ContinuousMonoidHom.isInducing_toContinuousMap A A).continuous.isOpen_preimage _
-      (ContinuousMap.isOpen_setOf_mapsTo isCompact_univ hU)
+      (ContinuousMap.isOpen_setOfPred_mapsTo isCompact_univ hU)
   have hW1 : 1 ∈ W := by simpa [W]
   replace hW1 : W ∈ nhds 1 := hW.mem_nhds hW1
   have : CompactSpace K := isCompact_iff_compactSpace.mp hK
@@ -115,7 +115,7 @@ theorem CommGroup.no_compact_automorphisms
     (continuousAt_subtype_val.preimage_mem_nhds (by exact hW1))).forall_exists_of_atTop 1
   replace hn0 : n ≠ 0 := by grind
   rw [Set.mem_preimage, Subgroup.coe_pow, Subtype.coe_mk,
-    Set.mem_setOf_eq, Set.mapsTo_univ_iff, ← Set.range_subset_iff] at hnf
+    Set.mem_ofPred_eq, Set.mapsTo_univ_iff, ← Set.range_subset_iff] at hnf
   change (f ^ n).range ≤ U at hnf
   suffices f.range ≤ (f ^ n).range by
     exact (Set.Subset.trans this hnf) ⟨a, rfl⟩ rfl

@@ -43,19 +43,19 @@ def ZHat : Type := {
     ZMod.castHom h (ZMod D) (f N) = f D },
   zero_mem' := by simp
   neg_mem' := fun {x} hx => by
-    simp only [ZMod.castHom_apply, Set.mem_setOf_eq, Pi.neg_apply] at *
+    simp only [ZMod.castHom_apply, Set.mem_ofPred_eq, Pi.neg_apply] at *
     peel hx with D N hD hx
     rw [ZMod.cast_neg hD, hx]
   add_mem' := fun {a b} ha hb => by
-    simp only [ZMod.castHom_apply, Set.mem_setOf_eq, Pi.add_apply] at *
+    simp only [ZMod.castHom_apply, Set.mem_ofPred_eq, Pi.add_apply] at *
     intro D N hD
     rw [ZMod.cast_add hD, ha _ _ hD, hb _ _ hD]
   one_mem' := by
-    simp only [ZMod.castHom_apply, Set.mem_setOf_eq, Pi.one_apply]
+    simp only [ZMod.castHom_apply, Set.mem_ofPred_eq, Pi.one_apply]
     intro D N hD
     rw [ZMod.cast_one hD]
   mul_mem' := fun {a b} ha hb => by
-    simp only [ZMod.castHom_apply, Set.mem_setOf_eq, Pi.mul_apply] at *
+    simp only [ZMod.castHom_apply, Set.mem_ofPred_eq, Pi.mul_apply] at *
     intro D N hD
     rw [ZMod.cast_mul hD, ha _ _ hD, hb _ _ hD]
   : Subring (Π n : ℕ+, ZMod n)}
@@ -63,6 +63,7 @@ deriving CommRing
 
 namespace ZHat
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : DFunLike ZHat ℕ+ (fun (N : ℕ+) ↦ ZMod N) where
   coe z := z.1
   coe_injective M N := by simp_all
@@ -92,6 +93,7 @@ lemma ext (x y : ZHat) (h : ∀ n : ℕ+, x n = y n) : x = y :=
 
 instance commRing : CommRing ZHat := inferInstance
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma zeroNeOne : (0 : ZHat) ≠ 1 := by
   intro h
   have h2 : (0 : ZHat) 2 = (1 : ZHat) 2 := by simp [h]
@@ -100,6 +102,7 @@ lemma zeroNeOne : (0 : ZHat) ≠ 1 := by
 
 instance nontrivial : Nontrivial ZHat := ⟨0, 1, zeroNeOne⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance charZero : CharZero ZHat := ⟨ fun a b h ↦ by
   rw [ZHat.ext_iff] at h
   specialize h ⟨_, (max a b).succ_pos⟩
@@ -207,7 +210,7 @@ lemma e_not_in_Int : ∀ a : ℤ, e ≠ a := by
       rwa [add_comm, e_factorial_succ, ZMod.val_natCast,
         mod_eq_of_lt (sum_factorial_lt_factorial_succ honelt)]
     · have : a + 1 < N := lt_of_le_of_lt (Nat.le_add_right _ _) hj
-      rw [ha, intCast_val, Int.cast_negSucc, ZMod.neg_val, ZMod.val_natCast, if_neg,
+      rw [ha, intCast_val, Int.cast_negSucc, ZMod.neg_val, ZMod.val_natCast, ite_eq_right,
         mod_eq_of_lt this]
       rw [ZMod.natCast_eq_zero_iff]
       contrapose! this
@@ -227,6 +230,7 @@ lemma nat_mul_apply (N : ℕ) (z : ZHat) (k : ℕ+) : (N * z) k = N * (z k) := r
 @[simp]
 lemma pnat_mul_apply (N : ℕ+) (z : ZHat) (k : ℕ+) : (N * z) k = N * (z k) := rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem eq_zero_of_mul_eq_zero (N : ℕ+) (a : ZHat) (ha : N * a = 0) : a = 0 := by
   ext j
   rw [zero_val, ← a.prop j (N * j) (by simp)]
@@ -264,6 +268,7 @@ instance ZHat_flat : Module.Flat ℤ ZHat := by
     rw [neg_mul, neg_eq_zero] at hN
     exact eq_zero_of_mul_eq_zero ⟨N + 1, by omega⟩ _ hN
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma y_mul_N_eq_z (N : ℕ+) (z : ZHat) (hz : z N = 0) (j : ℕ+) :
     N * ((z (N * j)).val / (N : ℕ) : ZMod j) = z j := by
   have hhj := z.prop N (N * j) (by simp only [PNat.mul_coe, dvd_mul_right])

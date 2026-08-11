@@ -169,6 +169,7 @@ noncomputable def FiniteAdeleRing.Aux.g {ι : Type*} [Fintype ι]
     (fun _ v ↦ isOpenAdicCompletionIntegers K v)
   f.trans (ψ.toContinuousAddEquiv.trans f.symm)
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma FiniteAdeleRing.Aux.g_commSq {ι : Type*} [Fintype ι]
     (ψ : (ι → (FiniteAdeleRing (𝓞 K) K)) ≃L[FiniteAdeleRing (𝓞 K) K]
       (ι → (FiniteAdeleRing (𝓞 K) K))) :
@@ -323,6 +324,7 @@ lemma basis_eq_global
 end auxiliary_basis_lemmas
 
 -- this should really be just after the definition of `localcomponent`
+set_option backward.isDefEq.respectTransparency.types false in
 /-- `TensorProduct.localcomponent φ` as `v.adicCompletion K`-linear map -/
 noncomputable def φLocalKvLinear (v : HeightOneSpectrum (𝓞 K))
     (φ : FiniteAdeleRing (𝓞 K) K ⊗[K] B ≃L[FiniteAdeleRing (𝓞 K) K]
@@ -366,9 +368,9 @@ lemma localcomponent_matrix (v : HeightOneSpectrum (𝓞 K))
     letI bLocal := Module.Basis.baseChange (v.adicCompletion K) b₀
     (LinearMap.toMatrix bLocal bLocal) (φLocalKvLinear K B v φ) i j =
     (LinearMap.toMatrix b b φ.toLinearMap i j) v := by
-  letI b₀ := Module.Free.chooseBasis K B
-  letI b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
-  letI bLocal := Module.Basis.baseChange (v.adicCompletion K) b₀
+  let b₀ := Module.Free.chooseBasis K B
+  let b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
+  let bLocal := Module.Basis.baseChange (v.adicCompletion K) b₀
   change (LinearMap.toMatrix bLocal bLocal) (φLocalKvLinear K B v φ) i j =
     RingHom.mapMatrix
       (evalRingHom (fun (p : HeightOneSpectrum (𝓞 K)) ↦ p.adicCompletion K) v)
@@ -527,9 +529,9 @@ lemma FiniteAdeleRing.Aux.f_g_local_global
     (fun v ↦ e _ _ _ (FiniteAdeleRing.TensorProduct.localcomponentEquiv (𝓞 K) K B v φ))
     (FiniteAdeleRing.Aux.almost_always_bijOn _ _ _) := by
   ext1 r; ext1 v; ext1 j;
-  letI b₀ := Module.Free.chooseBasis K B
-  letI b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
-  letI bLocal := Module.Basis.baseChange (v.adicCompletion K) b₀
+  let b₀ := Module.Free.chooseBasis K B
+  let b := Module.Basis.baseChange (FiniteAdeleRing (𝓞 K) K) b₀
+  let bLocal := Module.Basis.baseChange (v.adicCompletion K) b₀
   let m := LinearMap.toMatrix b b φ.toLinearMap
   dsimp [e]
   rw [ContinuousAddEquiv.restrictedProductCongrRight_apply]

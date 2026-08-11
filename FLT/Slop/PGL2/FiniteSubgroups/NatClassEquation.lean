@@ -225,7 +225,7 @@ lemma card_conjClassElements {G' : Type*} [Group G'] [Fintype G']
     congr 1
     exact Fintype.card_of_subtype S (by
       simp only [S, Finset.mem_filter, Finset.mem_univ,
-        true_and, Set.mem_setOf_eq, implies_true]) |>.symm
+        true_and, Set.mem_ofPred_eq, implies_true]) |>.symm
 
 lemma natClassEquation {G' : Type*} [Group G'] [Fintype G']
     (r : ℕ) (H : Fin r → Subgroup G')

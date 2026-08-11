@@ -78,8 +78,7 @@ open scoped TensorProduct
 
 namespace NumberField.InfiniteAdeleRing
 
-/-- `K∞` is notation for `InfiniteAdeleRing K`. -/
-scoped notation:10000 K "∞" => InfiniteAdeleRing K
+open scoped NumberField.AdeleRing
 
 /-- The canonical map from the infinite adeles of K to the infinite adeles of L -/
 noncomputable def baseChange :
@@ -160,7 +159,7 @@ instance [Algebra K∞ L∞]
         funext w
         simp [TensorProduct.smul_tmul', baseChangeAlgEquiv_tmul,
           Pi.FiberwiseSMul.map_smul _ _ Completion (σ := w.toExtension K), RingHom.smul_toAlgebra,
-          Isometry.mapRingHom, WithAbs.semialgebraMap, UniformSpace.Completion.mapSemialgHom]
+          Completion.comapHom]
         ring
     | add x y _ _ => simp_all
 

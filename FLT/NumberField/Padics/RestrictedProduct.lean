@@ -66,6 +66,7 @@ theorem padicNatDen_ne_zero (x : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]) :
   intro p hp
   simp [p.2.ne_zero]
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem padicNatDen_norm_of_mem {x : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]} {p : Nat.Primes}
     (hp : p ∈ x.indexSupport) :
     ‖(x.padicNatDen : ℚ_[p])‖ = (p.1 : ℝ) ^ (-((x p).valuation.natAbs : ℤ)) := by
@@ -77,6 +78,7 @@ theorem padicNatDen_norm_of_mem {x : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]
     · simp
     · exact (Nat.coprime_primes p.2 q.2).2 (by simpa [Subtype.val_inj] using! hpq.symm)
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem padicNatDen_norm_of_notMem {x : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]} {p : Nat.Primes}
     (hp : p ∉ x.indexSupport) :
     ‖(x.padicNatDen : ℚ_[p])‖ = 1 := by
@@ -102,6 +104,7 @@ theorem padicNatDen_norm_mul_le_one (x : Πʳ (p : Nat.Primes), [ℚ_[p], subrin
 noncomputable def padicNum (x : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]) (p : Nat.Primes) : ℤ_[p] :=
   ⟨x.padicNatDen * x p, x.padicNatDen_norm_mul_le_one p⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem padic_exists_sub_mem_padicInt
     (x : Πʳ (p : Nat.Primes), [ℚ_[p], subring p]) :
     ∃ q : ℚ, ∀ p : Nat.Primes, q - x p ∈ subring p := by

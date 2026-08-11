@@ -130,7 +130,7 @@ theorem cyclic_base_change
     (hF : Even (Module.finrank ℚ F))
     -- let E/F be a finite solvable extension
     {E : Type*} [Field E] [NumberField E] [IsTotallyReal E]
-    [Algebra F E] [IsGalois F E] [IsSolvable (E ≃ₐ[F] E)]
+    [Algebra F E] [IsGalois F E] [Group.IsSolvable (E ≃ₐ[F] E)]
     -- let p be a prime
     (p : ℕ) [Fact p.Prime] (hp : 2 < Module.finrank F (CyclotomicField p F))
     (hpE : 2 < Module.finrank E (CyclotomicField p E))

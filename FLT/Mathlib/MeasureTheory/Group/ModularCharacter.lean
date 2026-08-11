@@ -413,7 +413,7 @@ instance {R : Type*} [CommRing R] [TopologicalSpace R] [IsTopologicalRing R] [Is
       · exact fun _ ↦ (Matrix.isUnit_iff_isUnit_det _).mp
   · convert (IsOpenUnits.isOpenEmbedding_unitsVal (M := R)).isOpen_range.preimage
       (continuous_id.matrix_det (n := n))
-    simp only [Units.range_val, id_eq, Set.preimage_setOf_eq]
+    simp only [Units.range_val, id_eq, Set.preimage_ofPred_eq]
     ext
     simp [Matrix.isUnit_iff_isUnit_det]
 

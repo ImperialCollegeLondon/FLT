@@ -52,6 +52,7 @@ variable {R : Type*} [CommRing R] [IsLocalRing R] [IsNoetherianRing R]
 -- Several helper lemmas below do not use the local/Noetherian hypotheses.
 set_option linter.unusedSectionVars false
 
+omit [IsLocalRing R] [IsNoetherianRing R] in
 /-- A product of a multiset of elements of an ideal lies in the corresponding
 power of the ideal. -/
 private lemma multiset_prod_mem_pow {q : Ideal R} {t : Multiset R}
@@ -67,6 +68,7 @@ private lemma multiset_prod_mem_pow {q : Ideal R} {t : Multiset R}
 private def monomial (s : Finset R) {n : ℕ} (a : Sym {x // x ∈ s} n) : R :=
   (Multiset.map Subtype.val (a : Multiset {x // x ∈ s})).prod
 
+omit [IsLocalRing R] [IsNoetherianRing R] in
 private lemma monomial_mem (s : Finset R) {n : ℕ} (a : Sym {x // x ∈ s} n) :
     monomial s a ∈ Ideal.span (s : Set R) ^ n := by
   have hmem : ∀ x ∈ Multiset.map Subtype.val (a : Multiset {x // x ∈ s}),
@@ -77,6 +79,7 @@ private lemma monomial_mem (s : Finset R) {n : ℕ} (a : Sym {x // x ∈ s} n) :
   have h := multiset_prod_mem_pow hmem
   rwa [Multiset.card_map, Sym.card_coe] at h
 
+omit [IsLocalRing R] [IsNoetherianRing R] in
 /-- `qⁿ` is spanned by the degree-`n` monomials in a generating set of `q`. -/
 private lemma span_pow_eq_span_monomial (s : Finset R) (n : ℕ) :
     Ideal.span (s : Set R) ^ n = Ideal.span (Set.range (monomial s (n := n))) := by
@@ -101,6 +104,7 @@ private lemma span_pow_eq_span_monomial (s : Finset R) (n : ℕ) :
   · rintro x ⟨a, rfl⟩
     exact monomial_mem s a
 
+omit [IsLocalRing R] [IsNoetherianRing R] in
 /-- A module spanned by finitely many elements each killed by `q` has length at
 most `(number of generators) * length (R ⧸ q)`. -/
 private lemma length_span_range_le {M : Type*} [AddCommGroup M] [Module R M]
@@ -143,6 +147,7 @@ private lemma length_span_range_le {M : Type*} [AddCommGroup M] [Module R M]
     _ = (Fintype.card ι : ℕ∞) * Module.length R (R ⧸ q) := by
         rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
 
+omit [IsLocalRing R] [IsNoetherianRing R] in
 /-- The key counting bound: for an ideal `q` spanned by a finset `s` of size
 `k ≥ 1`, the length of `qⁿ/qⁿ⁺¹` is bounded by the length of `R/q` times
 `(n+1)^(k-1)`, a bound on the number of degree-`n` monomials in `k` variables. -/
@@ -184,7 +189,7 @@ lemma colength_pow_le (s : Finset R) (hs : 1 ≤ s.card)
     intro m
     induction m with
     | zero =>
-      haveI : Subsingleton (R ⧸ (q ^ 0 : Ideal R)) := by
+      have : Subsingleton (R ⧸ (q ^ 0 : Ideal R)) := by
         rw [pow_zero, Ideal.one_eq_top]
         exact Submodule.Quotient.subsingleton_iff.mpr rfl
       rw [Module.length_eq_zero]
@@ -215,8 +220,8 @@ lemma colength_pow_le (s : Finset R) (hs : 1 ≤ s.card)
         _ = ((colength R q * (m + 1 + 1) ^ s.card : ℕ) : ℕ∞) := by
             push_cast; ring
   have hne : Module.length R (R ⧸ (q ^ n : Ideal R)) ≠ ⊤ :=
-    ne_top_of_le_ne_top (ENat.coe_ne_top _) (key n)
-  rw [colength, ← Nat.cast_le (α := ℕ∞), ENat.coe_toNat hne]
+    ne_top_of_le_ne_top (ENat.natCast_ne_top _) (key n)
+  rw [colength, ← Nat.cast_le (α := ℕ∞), ENat.natCast_toNat hne]
   exact key n
 
 /-- **`d(R) ≤ δ(R)`, main lemma**: the Hilbert–Samuel function grows at most
@@ -232,7 +237,7 @@ theorem growthLE_hilbertSamuel_spanFinrank {I : Ideal R}
   · refine ⟨colength R I, fun n => ?_⟩
     cases n with
     | zero =>
-      haveI : Subsingleton (R ⧸ (maximalIdeal R ^ 0 : Ideal R)) := by
+      have : Subsingleton (R ⧸ (maximalIdeal R ^ 0 : Ideal R)) := by
         rw [pow_zero, Ideal.one_eq_top]
         exact Submodule.Quotient.subsingleton_iff.mpr rfl
       have h0 : hilbertSamuel R 0 = 0 := by

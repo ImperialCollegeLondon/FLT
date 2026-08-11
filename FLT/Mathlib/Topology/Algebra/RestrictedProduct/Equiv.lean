@@ -181,6 +181,7 @@ section add_equiv
 variable [(i : ι₁) → AddMonoid (R₁ i)] [(i : ι₂) → AddMonoid (R₂ i)]
   [(i : ι₁) → AddSubmonoidClass (S₁ i) (R₁ i)] [(i : ι₂) → AddSubmonoidClass (S₂ i) (R₂ i)]
   {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The additive monoid isomorphism between restricted
 products on the same factors on different indices, when the indices are equivalent, with
 compatibility on the restriction filters. Applying the equivalence on the right-hand side. -/
@@ -212,6 +213,7 @@ variable [(i : ι₁) → Monoid (R₁ i)] [(i : ι₂) → Monoid (R₂ i)]
 -- @[to_additive (attr := simps! apply)  should be re-added when we bump beyond 4.28.0; we want
 -- to revert the changes in this file made in
 -- https://github.com/ImperialCollegeLondon/FLT/pull/859/changes
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The multiplicative monoid isomorphism between restricted products on the same factors on
 different indices, when the indices are equivalent, with compatibility on the restriction
 filters. Applying the equivalence on the right-hand side. -/
@@ -374,6 +376,7 @@ variable [(i : ι₁) → Semiring (R₁ i)] [(i : ι₂) → Semiring (R₂ i)]
   [(i : ι₁) → SubsemiringClass (S₁ i) (R₁ i)] [(i : ι₂) → SubsemiringClass (S₂ i) (R₂ i)]
 variable {A₁ : (i : ι₁) → S₁ i} {A₂ : (i : ι₂) → S₂ i}
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The ring isomorphism between restricted products when the indices and factors
 are equivalent, provided compatibility criteria on the restriction filters and factors. -/
 def RingEquiv.restrictedProductCongr (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e)
@@ -383,6 +386,7 @@ def RingEquiv.restrictedProductCongr (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕�
   __ := AddEquiv.restrictedProductCongr e h (fun _ ↦ (φ _).toAddEquiv) hφ
   map_mul' _ _ := by ext j; obtain ⟨i, rfl⟩ := e.surjective j; simp
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
 theorem RingEquiv.restrictedProductCongr_apply_apply {e : ι₁ ≃ ι₂} {h : 𝓕₁ = 𝓕₂.comap e}
     {φ : (i : ι₁) → R₁ i ≃+* R₂ (e i)}
@@ -411,6 +415,7 @@ variable [(i : ι₁) → Module T (R₁ i)] [(i : ι₂) → Module T (R₂ i)]
   [(i : ι₁) → AddSubmonoidClass (S₁ i) (R₁ i)] [(i : ι₂) → AddSubmonoidClass (S₂ i) (R₂ i)]
   [(i : ι₁) → SMulMemClass (S₁ i) T (R₁ i)] [(i : ι₂) → SMulMemClass (S₂ i) T (R₂ i)]
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- The linear isomorphism between restricted products when the indices and factors
 are equivalent, provided compatibility criteria on the restriction filters and factors. -/
 def LinearEquiv.restrictedProductCongr (e : ι₁ ≃ ι₂) (h : 𝓕₁ = 𝓕₂.comap e)
@@ -610,7 +615,7 @@ def principalEquivProd : Πʳ i, [R i, A i]_[𝓟 S] ≃
   right_inv x := by
     ext i
     · simp
-    · simp [dif_neg i.2]
+    · simp [dite_eq_right i.2]
 
 end type
 

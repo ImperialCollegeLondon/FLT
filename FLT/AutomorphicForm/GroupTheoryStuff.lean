@@ -56,8 +56,8 @@ lemma Nat.exists_coprime_and_dvd_pow (a b : ℕ) (ha : a ≠ 0) :
 
 
 /-- The "maximal `p`-quotient" of `(ℤ, +)` is `ℤ/⋂ₙ pⁿℤ = ℤ`, not a `p`-group. -/
-lemma MaximalPQuotient.isPGroup_of_isTorsion
-    (G : Type*) [Group G] (p : ℕ) (hG : Monoid.IsTorsion G) :
+lemma MaximalPQuotient.isPGroup_of_isMulTorsion
+    (G : Type*) [Group G] (p : ℕ) (hG : IsMulTorsion G) :
     IsPGroup p (MaximalPQuotient G p) := by
   intro x
   obtain ⟨x, rfl⟩ := MaximalPQuotient.mk_surjective x
@@ -202,6 +202,7 @@ def liftOfRightInverseAux' (hf : Function.RightInverse f_inv f) (g : G₁ →* G
     simp [← map_mul, mul_assoc]
     simp [hf _]
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[to_additive (attr := simp)]
 theorem liftOfRightInverseAux'_comp_apply (hf : Function.RightInverse f_inv f) (g : G₁ →* G₃)
     (hg : f.ker ≤ g.ker) (x : G₁) : (f.liftOfRightInverseAux' f_inv hf g hg) (f x) = g x := by
@@ -309,6 +310,7 @@ lemma map_inv_eq_map_comm
   rw [← ((Group.isUnit x).map f).mul_left_inj, iff_comm, ← ((Group.isUnit y).map f).mul_right_inj]
   simp [← map_mul]
 
+set_option backward.isDefEq.respectTransparency.types false in
 lemma Units.range_map_subtype {M : Type*} [Monoid M] {S : Submonoid M} :
     (Units.map S.subtype).range = S.units := by
   ext x

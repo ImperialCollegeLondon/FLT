@@ -47,7 +47,7 @@ example (𝓞 : Type u) [CommRing 𝓞]
   let φ : 𝓞 →+* R := algebraMap 𝓞 R
   have hφ : IsLocalHom φ := IsLocalProartinianAlgebra.toIsLocalHom
   have hR : Nontrivial R := IsLocalRing.toNontrivial
-  haveI : Nontrivial 𝓞 := RingHom.domain_nontrivial φ
+  have : Nontrivial 𝓞 := RingHom.domain_nontrivial φ
   apply of_nonunits_add
   intros a b ha hb
   rw [mem_nonunits_iff, ← isUnit_map_iff φ, ← mem_nonunits_iff] at ha hb ⊢
@@ -263,6 +263,7 @@ lemma to_residueField_apply {R : 𝓒 𝓞} (f : R ⟶ residueField) (r : R.carr
     exact IsResidueAlgebra.preimage_spec _ _
   · erw [AlgHom.commutes]; rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 noncomputable
 instance (R : ProartinianCat 𝓞) : Unique (R ⟶ residueField) := by
   refine ⟨⟨toResidueField R⟩, fun f ↦ ?_⟩

@@ -123,6 +123,7 @@ instance [IsNoetherianRing R] : IsHausdorff (maximalIdeal R) R where
     rw [← Ideal.iInf_pow_eq_bot_of_isLocalRing _ (maximalIdeal.isMaximal R).ne_top]
     simpa [SModEq.zero] using hx
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance [CompactSpace R] : IsPrecomplete (maximalIdeal R) R where
   prec' f H := by
     simp_rw [← Ideal.one_eq_top, smul_eq_mul, mul_one] at H
@@ -138,6 +139,7 @@ instance [CompactSpace R] : IsPrecomplete (maximalIdeal R) R where
         simpa using! (H e).symm⟩)
     simpa [funext_iff, eq_comm (b := Ideal.Quotient.mk _ (f _))] using! this
 
+set_option backward.isDefEq.respectTransparency.types false in
 variable {R} in
 lemma compactSpace_of_finite_residueField [IsNoetherianRing R] [Finite (ResidueField R)]
     [IsAdicComplete (maximalIdeal R) R] :

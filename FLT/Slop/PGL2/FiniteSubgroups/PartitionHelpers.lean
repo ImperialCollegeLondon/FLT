@@ -74,11 +74,11 @@ theorem sylow_unique_fixedPoint (G : Subgroup (PGLOf (K p))) [Finite G]
       ∀ g : PGLOf (K p), g ∈ (P : Subgroup G).map (Subgroup.subtype G) → g • x = x := by
   let P' : Subgroup (PGLOf (K p)) := Subgroup.map (Subgroup.subtype G) (P : Subgroup G)
   let e : (P : Subgroup G) ≃ P' := (Subgroup.equivMapOfInjective _ _ Subtype.coe_injective).toEquiv
-  haveI : Finite P' := Finite.of_equiv _ e
+  have : Finite P' := Finite.of_equiv _ e
 
   refine (isPGroup_comm_exponent_fixedPoint p P' (P.2.map (Subgroup.subtype G)) ?_).2.2
   by_contra h
-  haveI : Unique P' := ⟨⟨1⟩, fun x ↦ by_contra fun hx ↦ h (Nontrivial.mk ⟨x, 1, hx⟩)⟩
+  have : Unique P' := ⟨⟨1⟩, fun x ↦ by_contra fun hx ↦ h (Nontrivial.mk ⟨x, 1, hx⟩)⟩
   have h1: Nat.card P' = 1 := Nat.card_unique
   have h3: Nat.card P' ≥ 3 := Nat.card_congr e ▸ sylow_card_ge_3 p G hG_p P
   linarith only [h1, h3]
@@ -101,7 +101,7 @@ theorem sylow_element_order_p (G : Subgroup (PGLOf (K p))) [Finite G]
     (g : G) (hg : g ∈ (P : Subgroup G)) (hg_ne : g ≠ 1) :
     orderOf (g : PGLOf (K p)) = p := by
   let P' : Subgroup (PGLOf (K p)) := (P : Subgroup G).map (Subgroup.subtype G)
-  haveI : Finite P' := Finite.of_equiv P (Subgroup.equivMapOfInjective _ _ Subtype.coe_injective).toEquiv
+  have : Finite P' := Finite.of_equiv P (Subgroup.equivMapOfInjective _ _ Subtype.coe_injective).toEquiv
   exact isPGroup_orderOf_eq_prime p P' (P.2.map (Subgroup.subtype G))
     ⟨(g : PGLOf (K p)), Subgroup.mem_map_of_mem (Subgroup.subtype G) hg⟩
     (fun h ↦ hg_ne <| Subtype.ext <| congr_arg (fun x : P' ↦ x.1) h)
@@ -202,7 +202,7 @@ theorem count_order_p_elements (G : Subgroup (PGLOf (K p))) [Finite G]
 
   have h_elements_order_p : {g : G | orderOf g = p} = ⋃ Q ∈ (Finset.univ : Finset (Sylow p G)), ((Q : Subgroup G) \ {1} : Set G) := by
     ext g
-    simp only [Set.mem_setOf_eq, Set.mem_iUnion, Finset.mem_univ, exists_prop, true_and, Set.mem_sdiff, Set.mem_singleton_iff]
+    simp only [Set.mem_ofPred_eq, Set.mem_iUnion, Finset.mem_univ, exists_prop, true_and, Set.mem_sdiff, Set.mem_singleton_iff]
     refine ⟨fun hg ↦ ?_, fun ⟨Q, hgQ, hg_ne_one⟩ ↦ ?_⟩
     · have h_sylow : IsPGroup p (Subgroup.zpowers g) := fun ⟨x, hx⟩ ↦ by
         obtain ⟨k, rfl⟩ := Subgroup.mem_zpowers_iff.mp hx
@@ -422,7 +422,7 @@ theorem stabilizer_conj_eq_P (G : Subgroup (PGLOf (K p))) [Finite G]
     (h : ↑(P : Subgroup G)) (hh_ne : h ≠ 1) :
     MulAction.stabilizer (↑(Subgroup.normalizer ((P : Subgroup G) : Set G))) h =
     (P : Subgroup G).subgroupOf (Subgroup.normalizer ((P : Subgroup G) : Set G)) := by
-  haveI : Finite ↥(P.map G.subtype) := Set.Finite.to_subtype (Set.Finite.subset (Set.finite_range G.subtype) (by
+  have : Finite ↥(P.map G.subtype) := Set.Finite.to_subtype (Set.Finite.subset (Set.finite_range G.subtype) (by
     rintro x ⟨y, _, rfl⟩
     exact Set.mem_range_self y))
   have h_abelian : ∀ g : G, g ∈ (P : Subgroup G) → g * h.val * g⁻¹ = h.val := by
@@ -442,13 +442,13 @@ theorem normalizer_complement_divides_main (G : Subgroup (PGLOf (K p))) [Finite 
     (P : Sylow p G) (hG_p : p ∣ Nat.card G) :
     Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) / Nat.card P ∣
       Nat.card P - 1 := by
-  haveI := Fintype.ofFinite G
-  letI : MulAction (Subgroup.normalizer ((P : Subgroup G) : Set G)) (P : Subgroup G) := conjOnP p G P
-  letI : SMul (Subgroup.normalizer ((P : Subgroup G) : Set G)) (P : Subgroup G) := (conjOnP p G P).toSMul
+  have := Fintype.ofFinite G
+  let : MulAction (Subgroup.normalizer ((P : Subgroup G) : Set G)) (P : Subgroup G) := conjOnP p G P
+  let : SMul (Subgroup.normalizer ((P : Subgroup G) : Set G)) (P : Subgroup G) := (conjOnP p G P).toSMul
 
   have h_orbit_card : ∀ h : (P : Subgroup G), h ≠ 1 → Nat.card (MulAction.orbit (Subgroup.normalizer ((P : Subgroup G) : Set G)) h) = Nat.card (Subgroup.normalizer ((P : Subgroup G) : Set G)) / Nat.card P := by
     intro h hh_ne
-    haveI : Nonempty (MulAction.stabilizer (Subgroup.normalizer ((P : Subgroup G) : Set G)) h) := ⟨1⟩
+    have : Nonempty (MulAction.stabilizer (Subgroup.normalizer ((P : Subgroup G) : Set G)) h) := ⟨1⟩
     have e : ↥((P : Subgroup G).subgroupOf (Subgroup.normalizer ((P : Subgroup G) : Set G))) ≃ (P : Subgroup G) :=
       ⟨fun x ↦ ⟨x.1.1, x.2⟩, fun x ↦ ⟨⟨x.1, Subgroup.le_normalizer x.2⟩, x.2⟩, fun _ ↦ rfl, fun _ ↦ rfl⟩
     have h_stab : Nat.card (MulAction.stabilizer (Subgroup.normalizer ((P : Subgroup G) : Set G)) h) = Nat.card P := by

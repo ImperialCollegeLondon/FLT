@@ -16,7 +16,7 @@ degrees and generators of the simple extension `F[X]/(q)`.
 
 @[expose] public section
 
-open IsLocalRing Polynomial
+open Polynomial
 
 universe u
 
