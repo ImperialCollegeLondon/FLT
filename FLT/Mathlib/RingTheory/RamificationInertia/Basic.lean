@@ -21,6 +21,8 @@ maximal ideal of `S`, and the identity becomes `e * f = finrank R S`.
 
 namespace Ideal
 
+-- `ramificationIdx_mul_inertiaDeg_of_isLocalRing` is deprecated
+-- in Aug 2026 so we use a longer name
 /-- The **fundamental identity** `e * f = [S : R]` for a local ring `S`, finite over a Dedekind
 domain `R`, and `p` a nonzero maximal ideal of `R`. -/
 theorem ramificationIdx_mul_inertiaDeg_eq_finrank_of_isLocalRing
