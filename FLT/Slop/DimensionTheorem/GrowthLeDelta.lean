@@ -52,9 +52,9 @@ variable {R : Type*} [CommRing R] [IsLocalRing R] [IsNoetherianRing R]
 -- Several helper lemmas below do not use the local/Noetherian hypotheses.
 set_option linter.unusedSectionVars false
 
+omit [IsLocalRing R] [IsNoetherianRing R] in
 /-- A product of a multiset of elements of an ideal lies in the corresponding
 power of the ideal. -/
-@[nolint unusedArguments]
 private lemma multiset_prod_mem_pow {q : Ideal R} {t : Multiset R}
     (h : ∀ x ∈ t, x ∈ q) : t.prod ∈ q ^ Multiset.card t := by
   induction t using Multiset.induction with
@@ -68,6 +68,7 @@ private lemma multiset_prod_mem_pow {q : Ideal R} {t : Multiset R}
 private def monomial (s : Finset R) {n : ℕ} (a : Sym {x // x ∈ s} n) : R :=
   (Multiset.map Subtype.val (a : Multiset {x // x ∈ s})).prod
 
+omit [IsLocalRing R] [IsNoetherianRing R] in
 private lemma monomial_mem (s : Finset R) {n : ℕ} (a : Sym {x // x ∈ s} n) :
     monomial s a ∈ Ideal.span (s : Set R) ^ n := by
   have hmem : ∀ x ∈ Multiset.map Subtype.val (a : Multiset {x // x ∈ s}),
@@ -78,6 +79,7 @@ private lemma monomial_mem (s : Finset R) {n : ℕ} (a : Sym {x // x ∈ s} n) :
   have h := multiset_prod_mem_pow hmem
   rwa [Multiset.card_map, Sym.card_coe] at h
 
+omit [IsLocalRing R] [IsNoetherianRing R] in
 /-- `qⁿ` is spanned by the degree-`n` monomials in a generating set of `q`. -/
 private lemma span_pow_eq_span_monomial (s : Finset R) (n : ℕ) :
     Ideal.span (s : Set R) ^ n = Ideal.span (Set.range (monomial s (n := n))) := by
@@ -102,9 +104,9 @@ private lemma span_pow_eq_span_monomial (s : Finset R) (n : ℕ) :
   · rintro x ⟨a, rfl⟩
     exact monomial_mem s a
 
+omit [IsLocalRing R] [IsNoetherianRing R] in
 /-- A module spanned by finitely many elements each killed by `q` has length at
 most `(number of generators) * length (R ⧸ q)`. -/
-@[nolint unusedArguments]
 private lemma length_span_range_le {M : Type*} [AddCommGroup M] [Module R M]
     (q : Ideal R) {ι : Type*} [Fintype ι] (w : ι → M)
     (hw : ∀ r ∈ q, ∀ i, r • w i = 0) :
@@ -145,6 +147,7 @@ private lemma length_span_range_le {M : Type*} [AddCommGroup M] [Module R M]
     _ = (Fintype.card ι : ℕ∞) * Module.length R (R ⧸ q) := by
         rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
 
+omit [IsLocalRing R] [IsNoetherianRing R] in
 /-- The key counting bound: for an ideal `q` spanned by a finset `s` of size
 `k ≥ 1`, the length of `qⁿ/qⁿ⁺¹` is bounded by the length of `R/q` times
 `(n+1)^(k-1)`, a bound on the number of degree-`n` monomials in `k` variables. -/
