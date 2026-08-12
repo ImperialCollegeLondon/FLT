@@ -52,6 +52,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      # docgen-action does not install elan: it calls `~/.elan/bin/lake`
+      # directly and assumes the caller has already set Lean up (in
+      # blueprint.yml that is the "Build and lint project" step). Without this,
+      # build_docs.sh fails immediately with `lake: No such file or directory`.
+      # This also warms the Mathlib cache that the documentation build needs.
+      - name: Set Lean up and build the project
+        uses: leanprover/lean-action@v1
+        with:
+          build: true
+          test: false
+          lint: false
+
       # Only the API documentation: the blueprint and the Jekyll homepage are
       # built by blueprint.yml on every push to main, and are not wanted here.
       - name: Build API documentation
