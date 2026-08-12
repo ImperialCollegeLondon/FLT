@@ -102,13 +102,16 @@ jobs:
           relevant-labels: FLT
           include-drafts: true
 
-      # Documentation compilation disabled: docgen regularly runs for hours and
-      # then fails at the very end, turning CI red for reasons unrelated to the
-      # actual project. Disabling it until it can be made reliable again.
+      # This step builds the blueprint and the Jekyll homepage, and (on pushes
+      # to main only) deploys them to GitHub Pages. It is the only thing in this
+      # repository that deploys Pages at all.
       #
-      # - name: Compile documentation
-      #   uses: leanprover-community/docgen-action@7b5b9a1822650bd45aaeb4182d94bceba2030f89 # 2026-04-14
-      #   with:
-      #     # leanblueprint (incl. checkdecls) disabled while migrating to a verso blueprint
-      #     blueprint: false
-      #     homepage: docs
+      # `api-docs: false` skips doc-gen4, which regularly ran for hours and then
+      # failed at the very end; that unreliability is why this whole step was
+      # disabled in #1066. Re-enable it once docgen can be made reliable again.
+      - name: Compile documentation
+        uses: leanprover-community/docgen-action@10db47458f91456d87804787d3dfcd914b9a19e3 # 2026-06-07
+        with:
+          api-docs: false
+          blueprint: true
+          homepage: docs
