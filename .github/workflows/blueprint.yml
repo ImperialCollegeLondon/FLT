@@ -102,6 +102,25 @@ jobs:
           relevant-labels: FLT
           include-drafts: true
 
+      # Every Pages deploy replaces the whole site, so without this step the API
+      # documentation would vanish from https://.../FLT/docs/ at the next push
+      # to main. Building it here instead would add ~2 hours to every merge, so
+      # it is built on demand by api-docs.yml and merely republished here.
+      - name: Restore published API documentation
+        if: github.event_name == 'push' # only the deploying runs need it
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if gh release download api-docs-latest --pattern api-docs.tar.gz --clobber; then
+            mkdir -p docs
+            tar -xzf api-docs.tar.gz -C docs
+            rm api-docs.tar.gz
+            echo "Restored API documentation into docs/docs."
+          else
+            echo "No api-docs-latest release yet; publishing the site without API documentation."
+          fi
+
       # This step builds the blueprint and the Jekyll homepage, and (on pushes
       # to main only) deploys them to GitHub Pages. It is the only thing in this
       # repository that deploys Pages at all.
