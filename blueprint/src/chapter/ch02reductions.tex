@@ -64,7 +64,7 @@ Our next reduction is as follows:
 
 \begin{lemma}
   \label{FreyPackage.of_not_FermatLastTheorem_p_ge_5}
-  \lean{FreyPackage.of_not_FermatLastTheorem_p_ge_5}
+  \lean{FreyPackage.of_not_FermatLastTheoremFor_p_ge_5}
   \leanok
   \discussion{19}
   If Fermat's Last Theorem is false for $p \ge 5$ and prime, then there exists a Frey package.
@@ -171,14 +171,13 @@ Is it irreducible or not?
 
 \begin{theorem}[Mazur]
   \label{Mazur_Frey}
-  \lean{Mazur_Frey}
+  \lean{FreyPackage.mazur}
   \uses{FreyCurve}
   \leanok
   If $\rho$ is the mod $p$ Galois representation associated to a Frey package $(a,b,c,p)$ then
   $\rho$ is irreducible.
 \end{theorem}
 \begin{proof}
-  \uses{Frey_curve_irreducible}
   \notready
   This follows from a profound and long result of Mazur \cite{mazur-torsion} from 1977,
   namely the fact that the torsion subgroup of an elliptic curve over $\Q$ can have size at most~16.
@@ -193,7 +192,7 @@ a lot about the next result, which says the exact opposite.
 
 \begin{theorem}[Wiles,Taylor--Wiles, Ribet,\ldots]
   \label{Wiles_Frey}
-  \lean{Wiles_Frey}
+  \lean{FLT.Bosses.B4_proof}
   \uses{FreyCurve}
   \leanok
   If $\rho$ is the mod $p$ Galois representation associated to a Frey package $(a,b,c,p)$ then
@@ -208,12 +207,12 @@ a lot about the next result, which says the exact opposite.
 
 \begin{corollary}
   \label{FreyPackage.false}
-  \lean{FreyPackage.false}
+  \lean{FLT.Bosses.B3_proof}
   \uses{Mazur_Frey, Wiles_Frey}
   \leanok
   There is no Frey package.
 \end{corollary}
-\begin{proof}\leanok Follows immediately from the previous two
+\begin{proof} Follows immediately from the previous two
   theorems~\ref{Mazur_Frey} and~\ref{Wiles_Frey}.
 \end{proof}
 
@@ -221,14 +220,13 @@ We deduce
 
 \begin{corollary}
   \label{FLT}
-  \lean{Wiles_Taylor_Wiles}
+  \lean{flt}
   \leanok
   Fermat's Last Theorem is true. In other words, there are no positive integers $a,b,c$ and
   natural $n\geq3$ such that $a^n+b^n=c^n$.
 \end{corollary}
 \begin{proof}
   \uses{FermatLastTheorem.of_p_ge_5, FreyPackage.false, FreyPackage.of_not_FermatLastTheorem_p_ge_5}
-  \leanok
   Assume there is a there is a counterexample $a^n+b^n=c^n$.
   By Corollary \ref{FermatLastTheorem.of_p_ge_5} we may assume that there is also a counterexample
   $a^p+b^p=c^p$ with $p\geq 5$ and prime.
