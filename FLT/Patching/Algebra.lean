@@ -316,7 +316,7 @@ abbrev PatchingAlgebra.componentMapRingHom (k : ℕ) :
     fun i ↦ Ideal.quotientMap _ (f i) <| by
       rw [← Ideal.map_le_iff_le_comap, Ideal.map_pow]
       apply Ideal.pow_right_mono
-      exact ((local_hom_TFAE (f i)).out 0 2).mp (by infer_instance)
+      exact ((local_hom_TFAE (f i)).out 1 3).mp (by infer_instance)
 
 omit
   [∀ (i : ι), TopologicalSpace (R i)]
