@@ -1,0 +1,81 @@
+# Rebuilds the Lean API documentation, on demand only.
+#
+# doc-gen4 takes about two hours, so it deliberately does not run on ordinary
+# pushes to main. To refresh the documentation, push anything to the `api-docs`
+# branch:
+#
+#     git push --force origin main:api-docs
+#
+# This workflow builds the documentation and stores it as a tarball on the
+# `api-docs-latest` release. The next push to main republishes that tarball (see
+# "Restore published API documentation" in blueprint.yml), so the documentation
+# stays live at https://imperialcollegelondon.github.io/FLT/docs/ without every
+# merge paying the two hour cost. It goes stale until the next refresh, which is
+# the intended trade.
+#
+# Two constraints shaped this design:
+#
+#   * workflow_dispatch cannot be used. docgen-action gates its API
+#     documentation step on `github.event_name == 'push'`, so a manually
+#     dispatched run would silently build nothing at all.
+#   * This workflow cannot publish to Pages itself. The github-pages environment
+#     has a branch policy allowing main only, so deploying from here would be
+#     refused. Hence the hand-off through a release asset.
+name: API documentation
+
+on:
+  push:
+    branches:
+      - api-docs
+
+permissions:
+  contents: write # to upload the documentation tarball as a release asset
+
+jobs:
+  build_api_docs:
+    runs-on: ubuntu-latest
+    name: Build API documentation
+    steps:
+      - name: Cleanup to free disk space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: false
+          haskell: false
+          large-packages: false
+          docker-images: false
+          swap-storage: false
+
+      - name: Checkout project
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      # Only the API documentation: the blueprint and the Jekyll homepage are
+      # built by blueprint.yml on every push to main, and are not wanted here.
+      - name: Build API documentation
+        uses: leanprover-community/docgen-action@10db47458f91456d87804787d3dfcd914b9a19e3 # 2026-06-07
+        with:
+          api-docs: true
+          blueprint: false
+          build-page: false
+          deploy: false
+          homepage: docs
+
+      - name: Archive the documentation onto the api-docs-latest release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          echo "Built documentation size:"
+          du -sh docs/docs
+          tar -czf api-docs.tar.gz -C docs docs
+          ls -lh api-docs.tar.gz
+          # The release is a fixed handle that blueprint.yml reads from; create
+          # it once, then overwrite the asset on every refresh.
+          gh release create api-docs-latest \
+            --title "Latest API documentation" \
+            --notes "Tarball of the generated Lean API documentation, republished by blueprint.yml on every push to main. Rebuilt by pushing to the api-docs branch." \
+            || echo "Release already exists."
+          gh release upload api-docs-latest api-docs.tar.gz --clobber
