@@ -215,7 +215,7 @@ lemma Continuous.of_isLocalHom {R S : Type*} [CommRing R] [IsLocalRing R] [Topol
   simp only [SetLike.mem_coe, true_and, forall_const, ← SetLike.le_def, ← Ideal.mem_comap,
     ← Ideal.map_le_iff_le_comap, Ideal.map_pow]
   intro n
-  exact ⟨n, Ideal.pow_right_mono (((local_hom_TFAE f).out 0 2).mp ‹_›) _⟩
+  exact ⟨n, Ideal.pow_right_mono (((local_hom_TFAE f).out 1 3).mp ‹_›) _⟩
 
 /-- The default `WithIdeal` structure on a local ring `R`, picking out the maximal ideal. -/
 abbrev withIdeal {R} [CommRing R] [IsLocalRing R] : WithIdeal R := ⟨maximalIdeal R⟩
