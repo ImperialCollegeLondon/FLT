@@ -135,11 +135,11 @@ theorem AdjoinRoot.isDiscreteValuationRing_of_irreducible_map_residue
     ((Ideal.map_eq_bot_iff_of_injective hinj).mp
       (hmaxS ▸ IsLocalRing.isField_iff_maximalIdeal_eq.mp hf))
   have : IsDiscreteValuationRing (AdjoinRoot P) :=
-    ((IsDiscreteValuationRing.TFAE (AdjoinRoot P) hSnotfield).out 4 0).mp
+    ((IsDiscreteValuationRing.TFAE (AdjoinRoot P) hSnotfield).out 5 1).mp
       (hmaxS ▸ Submodule.IsPrincipal.map_ringHom _
         (IsPrincipalIdealRing.principal (maximalIdeal R)))
   exact ⟨hmS_max, inferInstance,
-    ((local_hom_TFAE (algebraMap R (AdjoinRoot P))).out 2 0).mp (le_of_eq hmaxS.symm)⟩
+    ((local_hom_TFAE (algebraMap R (AdjoinRoot P))).out 3 1).mp (le_of_eq hmaxS.symm)⟩
 
 /-- Clearing denominators in `L = K[X]/(P·K)` over `S = R[X]/(P)`: any element of `L`, multiplied
 by (the image of) a suitable nonzero element of `R`, lies in the image of `S`
