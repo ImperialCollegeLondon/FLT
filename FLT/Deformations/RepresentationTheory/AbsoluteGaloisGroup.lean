@@ -18,9 +18,10 @@ import Mathlib.FieldTheory.Galois.Infinite
 /-!
 # Functoriality of the absolute Galois group
 
-For a field extension `K → L`, we define the induced map between absolute
-Galois groups `Γ L → Γ K` and prove its continuity, together with finite-index
-results for fixing subgroups.
+For a field extension `K → L`, the induced map between absolute Galois groups
+`Γ L → Γ K` is `Field.absoluteGaloisGroup.map` in Mathlib; here we record how it
+interacts with the chosen embedding of the algebraic closures, together with
+finite-index results for fixing subgroups.
 -/
 
 @[expose] public section
@@ -44,65 +45,16 @@ local notation "Ω" K => IsDedekindDomain.HeightOneSpectrum (𝓞 K)
 local notation "Kᵥ" => IsDedekindDomain.HeightOneSpectrum.adicCompletion K v
 local notation "𝒪ᵥ" => IsDedekindDomain.HeightOneSpectrum.adicCompletionIntegers K v
 
-set_option backward.isDefEq.respectTransparency false in
-/-- Given a field extension, this is a map between its absolute galois group.
-Note that this relies on an arbitrarily chosen embedding of the algebraic closures -/
-noncomputable
-def Field.absoluteGaloisGroup.mapAux (f : K →+* L) : Γ L →* Γ K where
-  toFun σ :=
-    letI := f.toAlgebra
-    letI := (AlgebraicClosure.map f).toAlgebra
-    ((σ.restrictScalars K).toAlgHom.comp
-      (IsAlgClosed.lift : Kᵃˡᵍ →ₐ[K] Lᵃˡᵍ)).restrictNormal' (Kᵃˡᵍ)
-  map_one' := by
-    let := f.toAlgebra
-    let := (AlgebraicClosure.map f).toAlgebra
-    apply AlgEquiv.ext fun i ↦ ?_
-    apply (IsAlgClosed.lift : Kᵃˡᵍ →ₐ[K] Lᵃˡᵍ).injective
-    refine (AlgHom.restrictNormal_commutes _ _ _).trans (by simp)
-  map_mul' σ₁ σ₂ := by
-    let := f.toAlgebra
-    let := (AlgebraicClosure.map f).toAlgebra
-    apply AlgEquiv.ext fun i ↦ ?_
-    apply (AlgebraicClosure.map f).injective
-    refine (AlgHom.restrictNormal_commutes _ _ _).trans ?_
-    refine ((AlgHom.restrictNormal_commutes _ _ _).trans ?_).symm
-    simpa [absoluteGaloisGroup] using! AlgHom.restrictNormal_commutes _ _ _
-
-/-- Given a field extension, this is a continuous map between its absolute galois group.
-Note that this relies on an arbitrarily chosen embedding of the algebraic closures -/
-noncomputable
-def Field.absoluteGaloisGroup.map (f : K →+* L) : Γ L →ₜ* Γ K where
-  __ := Field.absoluteGaloisGroup.mapAux f
-  continuous_toFun := by
-    classical
-    let := f.toAlgebra
-    let F : Kᵃˡᵍ →ₐ[K] Lᵃˡᵍ := IsAlgClosed.lift
-    let := F.toRingHom.toAlgebra
-    apply continuous_of_continuousAt_one (Field.absoluteGaloisGroup.mapAux f)
-    rw [ContinuousAt, map_one]
-    refine ((galGroupBasis L (Lᵃˡᵍ)).nhds_one_hasBasis.tendsto_iff
-      (galGroupBasis K (Kᵃˡᵍ)).nhds_one_hasBasis).mpr ?_
-    rintro _ ⟨_, ⟨K', hK', rfl⟩, rfl⟩
-    refine ⟨_, ⟨_, ⟨.adjoin _ (K'.map F), ?_, rfl⟩, rfl⟩, fun σ hσ x ↦ ?_⟩
-    · have : FiniteDimensional _ _ := hK'
-      obtain ⟨s, hs⟩ := K'.fg_iff_finiteType.mpr (inferInstanceAs (Algebra.FiniteType K K'))
-      obtain rfl := IntermediateField.eq_adjoin_of_eq_algebra_adjoin _ _ _ hs.symm
-      simp only [IntermediateField.adjoin_map, IntermediateField.adjoin_adjoin_right,
-        ← Finset.coe_image]
-      refine IntermediateField.finiteDimensional_adjoin fun _ _ ↦ Algebra.IsIntegral.isIntegral _
-    · exact F.injective ((AlgHom.restrictNormal_commutes _ _ _).trans
-        (hσ ⟨F x, IntermediateField.subset_adjoin _ _ ⟨_, x.2, rfl⟩⟩))
-
 set_option allowUnsafeReducibility true in
 attribute [reducible] Field.absoluteGaloisGroup -- lol WTF is going on here
 
+omit [NumberField K] in
 set_option backward.isDefEq.respectTransparency false in
 lemma Field.absoluteGaloisGroup.lift_map (f : K →+* L) (σ : Γ L) (x : Kᵃˡᵍ) :
     AlgebraicClosure.map f (map f σ x) = σ (AlgebraicClosure.map f x) := by
   let := f.toAlgebra
   let := (AlgebraicClosure.map f).toAlgebra
-  exact AlgHom.restrictNormal_commutes _ _ _
+  exact AlgEquiv.restrictNormal_commutes _ _ _
 
 
 attribute [local instance 100000]

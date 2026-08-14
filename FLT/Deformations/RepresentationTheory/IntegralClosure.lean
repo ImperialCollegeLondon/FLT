@@ -86,7 +86,7 @@ instance isInvariant_integralClosure
   isInvariant := by
     rintro ⟨x, hx : IsIntegral _ _⟩ hx'
     obtain ⟨x, rfl⟩ := Algebra.IsInvariant.isInvariant (A := K) x fun g ↦ congr($(hx' g).1)
-    rw [isIntegral_algebraMap_iff (algebraMap K L).injective] at hx
+    rw [isIntegral_algebraMap_iff] at hx
     have : IsIntegrallyClosed R := GCDMonoid.toIsIntegrallyClosed
     obtain ⟨x, rfl⟩ := (IsIntegralClosure.isIntegral_iff (A := R)).mp hx
     exact ⟨x, rfl⟩

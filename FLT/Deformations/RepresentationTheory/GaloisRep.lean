@@ -78,6 +78,7 @@ def GaloisRep.map (ρ : GaloisRep K A M) (f : K →+* L) : GaloisRep L A M :=
   ρ.comp (Field.absoluteGaloisGroup.map f)
 
 -- remark: `.toMonoidHom` added in bump to v4.30.0-rc1
+omit [NumberField K] in
 @[simp]
 lemma GaloisRep.ker_map (ρ : GaloisRep K A M) (f : K →+* L) :
     (ρ.map f).ker = ρ.ker.comap (Field.absoluteGaloisGroup.map f).toMonoidHom := rfl
@@ -111,6 +112,7 @@ omit [NumberField K] in
 lemma GaloisRep.conj_apply_apply (ρ : GaloisRep K A M) (e : M ≃ₗ[A] N) (σ : Γ K) (x : N) :
     ρ.conj e σ x = e (ρ σ (e.symm x)) := rfl
 
+omit [NumberField K] in
 @[simp]
 lemma GaloisRep.map_conj (ρ : GaloisRep K A M) (e : M ≃ₗ[A] N) (f : K →+* L) :
     (ρ.conj e).map f = (ρ.map f).conj e := rfl
@@ -240,7 +242,7 @@ lemma GaloisRep.ker_baseChange [IsTopologicalRing B] [Algebra A B] [ContinuousSM
     ρ.ker ≤ (ρ.baseChange B).ker := by
   intro _; simp +contextual [baseChange]
 
-omit [IsTopologicalRing A] in
+omit [IsTopologicalRing A] [NumberField K] in
 lemma GaloisRep.baseChange_map [IsTopologicalRing B] [Algebra A B] [ContinuousSMul A B]
     [Module.Finite A M] [Module.Free A M]
     (ρ : GaloisRep K A M) (f : K →+* L) : (ρ.baseChange B).map f = (ρ.map f).baseChange B := rfl
@@ -282,6 +284,7 @@ lemma FramedGaloisRep.baseChange_def [IsTopologicalRing B]
   rw [GaloisRep.frame_baseChange]
   rfl
 
+omit [NumberField K] in
 lemma FramedGaloisRep.baseChange_map [IsTopologicalRing B]
     (ρ : FramedGaloisRep K A n) (f : A →+* B) (hf : Continuous f)
     (g : K →+* L) : (ρ.baseChange f hf).map g = (ρ.map g).baseChange f hf := rfl
