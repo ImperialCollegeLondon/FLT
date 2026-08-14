@@ -1044,13 +1044,6 @@ private theorem evalAtHom_ratFuncX (u : ℂ) (hu : Transcendental ℚ u) :
 
 /-! ### Transfer of `HasSum` between `ℕ` and `ℕ+`, and decomposition of `ℤ`-sums -/
 
-private lemma hasSum_pnat_of_nat {f : ℕ → ℂ} {a : ℂ} (h : HasSum f a) (h0 : f 0 = 0) :
-    HasSum (fun N : ℕ+ ↦ f (N : ℕ)) a := by
-  have hs : Summable fun N : ℕ+ ↦ f (N : ℕ) :=
-    h.summable.comp_injective PNat.coe_injective
-  have h2 := hs.hasSum
-  rwa [tsum_pnat_of_zero f h0, h.tsum_eq] at h2
-
 /-- Splitting a summable `ℤ`-indexed sum into the term at `0` and the two tails. -/
 private lemma tsum_int_decomp {f : ℤ → ℂ} (hf : Summable f) :
     ∑' n : ℤ, f n
@@ -1069,12 +1062,14 @@ private lemma tsum_int_decomp {f : ℤ → ℂ} (hf : Summable f) :
 
 private lemma hasSum_pnat_lambert₁ {v : ℂ} (hv : ‖v‖ < 1) :
     HasSum (fun m : ℕ+ ↦ ((m : ℕ) : ℂ) * v ^ (m : ℕ)) (v / (1 - v) ^ 2) :=
-  hasSum_pnat_of_nat (hasSum_coe_mul_geometric_of_norm_lt_one hv) (by simp)
+  hasSum_pnat_iff (f := fun n : ℕ ↦ (n : ℂ) * v ^ n) |>.mpr
+    (by simpa using hasSum_coe_mul_geometric_of_norm_lt_one hv)
 
 private lemma hasSum_pnat_lambert₂ {v : ℂ} (hv : ‖v‖ < 1) :
     HasSum (fun m : ℕ+ ↦ (((m : ℕ).choose 2 : ℕ) : ℂ) * v ^ (m : ℕ))
       (v ^ 2 / (1 - v) ^ 3) := by
-  simpa [div_eq_mul_inv] using hasSum_pnat_of_nat (hasSum_choose_two_mul_geometric hv) (by simp)
+  simpa [div_eq_mul_inv] using (hasSum_pnat_iff (f := fun n : ℕ ↦ n.choose 2 * v ^ n) |>.mpr
+    (by simpa using hasSum_choose_two_mul_geometric hv))
 
 private lemma hasSum_pnat_lambert₂' {v : ℂ} (hv : ‖v‖ < 1) :
     HasSum (fun m : ℕ+ ↦ ((((m : ℕ) + 1).choose 2 : ℕ) : ℂ) * v ^ (m : ℕ))
@@ -1090,7 +1085,8 @@ private lemma hasSum_pnat_lambert₂' {v : ℂ} (hv : ‖v‖ < 1) :
       refine (h1.mul_left v⁻¹).congr_fun fun m ↦ ?_
       field_simp
       ring
-    have h3 := hasSum_pnat_of_nat h2 (by simp)
+    have h3 := hasSum_pnat_iff (f := fun n : ℕ ↦ (n + 1).choose 2 * v ^ n)
+      (a := (v⁻¹ * (v ^ 2 * ((1 - v) ^ 3)⁻¹)) ) |>.mpr (by simpa using h2)
     rwa [show v⁻¹ * (v ^ 2 * ((1 - v) ^ 3)⁻¹) = v / (1 - v) ^ 3 by
       rw [pow_two, mul_assoc, inv_mul_cancel_left₀ hv0, ← div_eq_mul_inv]] at h3
 
