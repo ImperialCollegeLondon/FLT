@@ -1051,16 +1051,6 @@ private lemma hasSum_pnat_of_nat {f : ℕ → ℂ} {a : ℂ} (h : HasSum f a) (h
   have h2 := hs.hasSum
   rwa [tsum_pnat_of_zero f h0, h.tsum_eq] at h2
 
-private lemma hasSum_nat_of_pnat_add {f : ℕ → ℂ} {a : ℂ}
-    (h : HasSum (fun N : ℕ+ ↦ f (N : ℕ)) a) : HasSum f (a + f 0) := by
-  have hinj : Function.Injective Nat.succPNat := fun a b hab ↦ by
-    simpa using congrArg PNat.natPred hab
-  have hs1 : HasSum (fun n : ℕ ↦ f (n + 1)) a :=
-    ((hinj.hasSum_iff (f := fun N : ℕ+ ↦ f (N : ℕ))
-      (fun x hx ↦ absurd (Set.mem_range.mpr ⟨x.natPred, PNat.succPNat_natPred x⟩) hx)).mpr
-      h).congr_fun fun n ↦ by simp [Nat.succPNat_coe, Nat.succ_eq_add_one]
-  simpa using (hasSum_nat_add_iff (f := f) 1).mp hs1
-
 /-- Splitting a summable `ℤ`-indexed sum into the term at `0` and the two tails. -/
 private lemma tsum_int_decomp {f : ℤ → ℂ} (hf : Summable f) :
     ∑' n : ℤ, f n
@@ -1262,8 +1252,7 @@ theorem hasSum_X_eval {u q : ℂ} (hu : Transcendental ℚ u) (h0 : 0 < ‖q‖)
   have hdiv := hasSum_divisor_collect (x := q)
     (fun d : ℕ ↦ (d : ℂ) * (u ^ d + u⁻¹ ^ d - 2))
     (((hA.add hB).sub ((hasSum_prodC hq1).mul_left 2)).congr_fun fun p ↦ by ring)
-  have hfull := hasSum_nat_of_pnat_add
-    (f := fun n : ℕ ↦ evalAt u ((PowerSeries.coeff n) X) * q ^ n)
+  have hfull := (hasSum_pnat_iff (f := fun n : ℕ ↦ evalAt u ((PowerSeries.coeff n) X) * q ^ n)).mp
     (hdiv.congr_fun fun N ↦ by rw [evalAt_coeff_X hu N.pos.ne'])
   -- identify the value with `XAn u q`
   have hposEq : ∀ n : ℕ+, q ^ (((n : ℕ) : ℤ)) * u / (1 - q ^ (((n : ℕ) : ℤ)) * u) ^ 2
@@ -1273,11 +1262,12 @@ theorem hasSum_X_eval {u q : ℂ} (hu : Transcendental ℚ u) (h0 : 0 < ‖q‖)
     rw [zpow_neg_natCast_mul, inv_div_one_sub_inv_sq
       (mul_ne_zero (pow_ne_zero _ hq0) (inv_ne_zero hu0))]
   convert hfull using 1
-  rw [XAn, tsum_int_decomp (summable_V hq0 h1 h2),
-    show q ^ (0 : ℤ) * u / (1 - q ^ (0 : ℤ) * u) ^ 2 = u / (1 - u) ^ 2 by
-      rw [zpow_zero, one_mul],
-    tsum_congr hposEq, tsum_congr hnegEq, evalAt_coeff_X_zero hu, pow_zero, mul_one]
-  ring
+  · rfl
+  · rw [XAn, tsum_int_decomp (summable_V hq0 h1 h2),
+      show q ^ (0 : ℤ) * u / (1 - q ^ (0 : ℤ) * u) ^ 2 = u / (1 - u) ^ 2 by
+        rw [zpow_zero, one_mul],
+      tsum_congr hposEq, tsum_congr hnegEq, evalAt_coeff_X_zero hu, pow_zero, mul_one]
+    ring
 
 /-- Rearrangement for `Y`: for `0 < ‖q‖ < ‖u‖ < 1` with `u` transcendental, the
 coefficients of the formal series `TateCurve.Y` evaluated at `u` sum to `Yₐ(u, q)`.
@@ -1304,8 +1294,7 @@ theorem hasSum_Y_eval {u q : ℂ} (hu : Transcendental ℚ u) (h0 : 0 < ‖q‖)
     (fun d : ℕ ↦ ((d.choose 2 : ℕ) : ℂ) * u ^ d - (((d + 1).choose 2 : ℕ) : ℂ) * u⁻¹ ^ d
       + (d : ℂ))
     (((hA.sub hB).add (hasSum_prodC hq1)).congr_fun fun p ↦ by ring)
-  have hfull := hasSum_nat_of_pnat_add
-    (f := fun n : ℕ ↦ evalAt u ((PowerSeries.coeff n) Y) * q ^ n)
+  have hfull := (hasSum_pnat_iff (f := fun n : ℕ ↦ evalAt u ((PowerSeries.coeff n) Y) * q ^ n)).mp
     (hdiv.congr_fun fun N ↦ by rw [evalAt_coeff_Y hu N.pos.ne'])
   -- identify the value with `YAn u q`
   have hposEq : ∀ n : ℕ+,
@@ -1317,12 +1306,13 @@ theorem hasSum_Y_eval {u q : ℂ} (hu : Transcendental ℚ u) (h0 : 0 < ‖q‖)
     rw [zpow_neg_natCast_mul, inv_sq_div_one_sub_inv_cube
       (mul_ne_zero (pow_ne_zero _ hq0) (inv_ne_zero hu0))]
   convert hfull using 1
-  rw [YAn, tsum_int_decomp (summable_V₂ hq0 h1 h2),
-    show (q ^ (0 : ℤ) * u) ^ 2 / (1 - q ^ (0 : ℤ) * u) ^ 3 = u ^ 2 / (1 - u) ^ 3 by
-      rw [zpow_zero, one_mul],
-    tsum_congr hposEq, tsum_congr hnegEq, tsum_neg, evalAt_coeff_Y_zero hu, pow_zero,
-    mul_one]
-  ring
+  · rfl
+  · rw [YAn, tsum_int_decomp (summable_V₂ hq0 h1 h2),
+      show (q ^ (0 : ℤ) * u) ^ 2 / (1 - q ^ (0 : ℤ) * u) ^ 3 = u ^ 2 / (1 - u) ^ 3 by
+        rw [zpow_zero, one_mul],
+      tsum_congr hposEq, tsum_congr hnegEq, tsum_neg, evalAt_coeff_Y_zero hu, pow_zero,
+      mul_one]
+    ring
 
 private theorem evalAt_ratCast (u : ℂ) (r : ℚ) : evalAt u (r : RatFunc ℚ) = (r : ℂ) := by
   simpa [evalAt] using
