@@ -95,7 +95,7 @@ private lemma span_pow_eq_span_monomial (s : Finset R) (n : ℕ) :
           ≤ Ideal.span (s : Set R) * Ideal.span (Set.range (monomial s (n := n))) :=
             Ideal.mul_mono le_rfl ih
         _ = Ideal.span ((s : Set R) * Set.range (monomial s (n := n))) :=
-            Ideal.span_mul_span' _ _
+            Ideal.span_mul_span _ _
         _ ≤ Ideal.span (Set.range (monomial s (n := n + 1))) := by
             refine Ideal.span_mono ?_
             rintro x ⟨y, hy, _, ⟨a, rfl⟩, rfl⟩
