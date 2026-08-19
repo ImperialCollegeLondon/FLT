@@ -254,17 +254,17 @@ need, with the Lambert-type sums on the right-hand side in closed form
 Mathlib's `tsum_coe_mul_geometric_of_norm_lt_one` and
 `tsum_sq_mul_geometric_of_norm_lt_one`). -/
 
-/-- The Lambert-type sum `∑_{n ≥ 0} (n choose 2)rⁿ = r²/(1 - r)³` for `‖r‖ < 1`, by
-shifting the index in `∑' n, ((n + 2).choose 2) * rⁿ = 1/(1 - r)³`. -/
+/-- The Lambert-type sum `∑_{n ≥ 0} (n choose 2)rⁿ = r²/(1 - r)³` for `‖r‖ < 1`,
+halving the descending-factorial sum `∑' n, n(n-1)rⁿ = 2r²/(1 - r)³`
+(`hasSum_descFactorial_mul_geometric_of_norm_lt_one`), using `n(n-1) = 2(n choose 2)`. -/
 private lemma hasSum_choose_two_mul_geometric {r : ℂ} (hr : ‖r‖ < 1) :
     HasSum (fun n : ℕ ↦ ((n.choose 2 : ℕ) : ℂ) * r ^ n) (r ^ 2 * ((1 - r) ^ 3)⁻¹) := by
-  have h := (hasSum_choose_mul_geometric_of_norm_lt_one 2 hr).mul_left (r ^ 2)
-  have heq : (fun n ↦ r ^ 2 * ((n + 2).choose 2 * r ^ n)) =
-      fun n ↦ (n + 2).choose 2 * r ^ (n + 2) := by
-    funext n
+  have h := (hasSum_descFactorial_mul_geometric_of_norm_lt_one 2 hr).div_const 2
+  rw [show r ^ 2 * ((1 - r) ^ 3)⁻¹ = (2 : ℕ).factorial * r ^ 2 / (1 - r) ^ 3 / 2 by
+    push_cast [Nat.factorial_two]; ring]
+  exact h.congr_fun fun n ↦ by
+    push_cast [Nat.descFactorial_eq_factorial_mul_choose, Nat.factorial_two]
     ring
-  rw [heq] at h
-  simpa [Finset.sum_range_succ] using (hasSum_nat_add_iff (f := fun n ↦ n.choose 2 * r ^ n) 2).mp h
 
 /-- Row sum, exponent `k + 1 ≥ 2`, with the Lambert sum in series form: for `w` in the
 upper half plane, `∑_{m : ℤ} (w + m)⁻⁽ᵏ⁺¹⁾ = ((-2πi)ᵏ⁺¹/k!) ∑_{d ≥ 0} dᵏ e(w)ᵈ`.
