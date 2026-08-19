@@ -251,7 +251,8 @@ differentiation; for exponents `k ≥ 2` and `w` in the upper half plane this is
 `EisensteinSeries.qExpansion_identity` in Mathlib. We state the two special cases we
 need, with the Lambert-type sums on the right-hand side in closed form
 (`∑_{d ≥ 1} d vᵈ = v/(1-v)²` and `∑_{d ≥ 1} d² vᵈ = v(1+v)/(1-v)³` for `‖v‖ < 1`,
-by differentiating the geometric series). -/
+Mathlib's `tsum_coe_mul_geometric_of_norm_lt_one` and
+`tsum_sq_mul_geometric_of_norm_lt_one`). -/
 
 /-- The Lambert-type sum `∑_{n ≥ 0} (n choose 2)rⁿ = r²/(1 - r)³` for `‖r‖ < 1`, by
 shifting the index in `∑' n, ((n + 2).choose 2) * rⁿ = 1/(1 - r)³`. -/
@@ -264,28 +265,6 @@ private lemma hasSum_choose_two_mul_geometric {r : ℂ} (hr : ‖r‖ < 1) :
     ring
   rw [heq] at h
   simpa [Finset.sum_range_succ] using (hasSum_nat_add_iff (f := fun n ↦ n.choose 2 * r ^ n) 2).mp h
-
-/-- The Lambert-type sum `∑_{n ≥ 0} n²rⁿ = r(1 + r)/(1 - r)³` for `‖r‖ < 1`, from the
-`n(n-1)/2`- and `n`-sums (`hasSum_choose_two_mul_geometric`,
-`hasSum_coe_mul_geometric_of_norm_lt_one`). -/
-private lemma tsum_sq_mul_geometric_of_norm_lt_one {r : ℂ} (hr : ‖r‖ < 1) :
-    ∑' n : ℕ, (n : ℂ) ^ 2 * r ^ n = r * (1 + r) / (1 - r) ^ 3 := by
-  have hr1 : (1 : ℂ) - r ≠ 0 := by
-    intro hr1
-    rw [sub_eq_zero] at hr1
-    simp [← hr1] at hr
-  -- combine via `n² = 2(n choose 2) + n`
-  have h3 := ((hasSum_choose_two_mul_geometric hr).mul_left 2).add
-    (hasSum_coe_mul_geometric_of_norm_lt_one hr)
-  have heq : (fun n : ℕ ↦ 2 * (((n.choose 2 : ℕ) : ℂ) * r ^ n) + (n : ℂ) * r ^ n) =
-      fun n : ℕ ↦ (n : ℂ) ^ 2 * r ^ n := by
-    funext n
-    rw [Nat.cast_choose_two]
-    ring
-  rw [heq] at h3
-  rw [h3.tsum_eq]
-  field_simp
-  ring
 
 /-- Row sum, exponent `k + 1 ≥ 2`, with the Lambert sum in series form: for `w` in the
 upper half plane, `∑_{m : ℤ} (w + m)⁻⁽ᵏ⁺¹⁾ = ((-2πi)ᵏ⁺¹/k!) ∑_{d ≥ 0} dᵏ e(w)ᵈ`.
