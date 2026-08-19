@@ -7,6 +7,8 @@ module
 
 public import FLT.Data.Hurwitz
 public import FLT.Data.QHat
+public import Mathlib.LinearAlgebra.TensorProduct.Pi
+public import Mathlib.RingTheory.Flat.TorsionFree
 import Mathlib.CategoryTheory.Category.Init
 import Mathlib.Tactic.Positivity.Finset
 
@@ -27,6 +29,25 @@ free rank-4 modules over the corresponding base ring.
 @[expose] public section
 
 open scoped TensorProduct
+
+lemma flat_of_torsion_free_int (M : Type*) [AddCommGroup M]
+    (h_tf : ∀ (n : ℤ) (m : M), n ≠ 0 → n • m = 0 → m = 0) :
+    Module.Flat ℤ M := by
+  rw [IsDedekindDomain.flat_iff_torsion_eq_bot]
+  rw [eq_bot_iff]
+  intro x hx
+  simp only [Submodule.mem_torsion'_iff, Subtype.exists, Submonoid.mk_smul,
+    exists_prop, Submodule.mem_bot, mem_nonZeroDivisors_iff_ne_zero] at hx ⊢
+  obtain ⟨n, hn⟩ := hx
+  cases n
+  case ofNat n =>
+    obtain ⟨hn1, hn2⟩ := hn
+    simp only [ne_eq, Int.ofNat_eq_natCast] at hn1 hn2
+    exact h_tf (n : ℤ) x (by simpa using hn1) hn2
+  case negSucc n =>
+    obtain ⟨hn1, hn2⟩ := hn
+    simp only [ne_eq, Int.negSucc_ne_zero, not_false_eq_true] at hn1 hn2
+    exact h_tf (Int.negSucc n) x (by simp) hn2
 
 /-- The base change of the Hurwitz quaternions to ZHat. -/
 noncomputable def HurwitzHat : Type := 𝓞 ⊗[ℤ] ZHat
@@ -70,8 +91,65 @@ noncomputable instance : Ring D^ := Algebra.TensorProduct.instRing
 noncomputable abbrev j₁ : D →ₐ[ℤ] D^ := Algebra.TensorProduct.includeLeft
 -- (Algebra.TensorProduct.assoc ℤ ℚ 𝓞 ZHat).symm.trans Algebra.TensorProduct.includeLeft
 
+noncomputable def hurwitzAddEquivPi : 𝓞 ≃+ (Fin 4 → ℤ) where
+  toFun z := ![z.re, z.imO, z.imI, z.imOI]
+  invFun v := ⟨v 0, v 1, v 2, v 3⟩
+  left_inv z := by ext <;> rfl
+  right_inv v := by ext i; fin_cases i <;> rfl
+  map_add' x y := by ext i; fin_cases i <;> rfl
+
+noncomputable def hurwitzEquivPi : 𝓞 ≃ₗ[ℤ] (Fin 4 → ℤ) :=
+  hurwitzAddEquivPi.toIntLinearEquiv
+
+noncomputable def hurwitzHatEquivPi : 𝓞^ ≃ₗ[ℤ] (Fin 4 → ZHat) :=
+  (TensorProduct.comm ℤ 𝓞 ZHat).trans <|
+  (TensorProduct.congr (LinearEquiv.refl ℤ ZHat) hurwitzEquivPi).trans <|
+  (TensorProduct.piScalarRight ℤ ℤ ZHat (Fin 4))
+
+noncomputable def hurwitzRatEquivPi : D ≃ₗ[ℤ] (Fin 4 → ℚ) :=
+  (TensorProduct.congr (LinearEquiv.refl ℤ ℚ) hurwitzEquivPi).trans <|
+  (TensorProduct.piScalarRight ℤ ℤ ℚ (Fin 4))
+
+noncomputable instance : Module.Flat ℤ (Fin 4 → ZHat) := by
+  apply flat_of_torsion_free_int
+  intro n f hn h_smul
+  funext i
+  have hi : n • f i = 0 := congrFun h_smul i
+  cases n
+  case ofNat n =>
+    have hn_pos : 0 < n := by cases n; · simp at hn; · exact Nat.succ_pos _
+    exact ZHat.eq_zero_of_mul_eq_zero ⟨n, hn_pos⟩ (f i) (by simpa [zsmul_eq_mul] using hi)
+  case negSucc n =>
+    have : (- (n + 1 : ℤ)) • f i = 0 := hi
+    rw [neg_zsmul, neg_eq_zero] at this
+    exact ZHat.eq_zero_of_mul_eq_zero ⟨n + 1, by omega⟩ (f i) (by simpa [zsmul_eq_mul] using this)
+
+noncomputable instance : Module.Flat ℤ (Fin 4 → ℚ) := by
+  apply flat_of_torsion_free_int
+  intro n f hn h_smul
+  funext i
+  have hi : (n : ℚ) * f i = 0 := by simpa [zsmul_eq_mul] using congrFun h_smul i
+  have hn_q : (n : ℚ) ≠ 0 := by exact_mod_cast hn
+  exact (mul_eq_zero.mp hi).resolve_left hn_q
+
+noncomputable instance : Module.Flat ℤ 𝓞^ :=
+  Module.Flat.of_linearEquiv (R := ℤ) hurwitzHatEquivPi
+
+noncomputable instance : Module.Flat ℤ D :=
+  Module.Flat.of_linearEquiv (R := ℤ) hurwitzRatEquivPi
+
 lemma injective_hRat :
-    Function.Injective j₁ := sorry -- flatness
+    Function.Injective j₁ := by
+  intro a b h
+  have h₁ := LinearMap.lTensor_tmul D (f := Algebra.linearMap ℤ ZHat) a 1
+  have h₂ := LinearMap.lTensor_tmul D (f := Algebra.linearMap ℤ ZHat) b 1
+  simp only [Algebra.linearMap_apply, map_one] at h₁ h₂
+  change a ⊗ₜ (1 : ZHat) = b ⊗ₜ (1 : ZHat) at h
+  rw [← h₁, ← h₂] at h
+  replace h := Module.Flat.lTensor_preserves_injective_linearMap
+    (M := D) (Algebra.linearMap ℤ ZHat) (fun _ _ ↦ by simp) h
+  have := congrArg (TensorProduct.rid ℤ D) h
+  simpa using this
 
 -- this stopped working in 4.29
 noncomputable instance : Ring (ℚ ⊗[ℤ] 𝓞^) := Algebra.TensorProduct.instRing
@@ -86,8 +164,23 @@ noncomputable abbrev j₂ : 𝓞^ →ₐ[ℤ] D^ :=
   ((Algebra.TensorProduct.assoc ℤ ℤ ℤ ℚ 𝓞 ZHat).symm : ℚ ⊗[ℤ] 𝓞^ ≃ₐ[ℤ] D ⊗[ℤ] ZHat).toAlgHom.comp
   (Algebra.TensorProduct.includeRight : 𝓞^ →ₐ[ℤ] ℚ ⊗[ℤ] 𝓞^)
 
+lemma injective_includeRight_hurwitzHat :
+    Function.Injective (Algebra.TensorProduct.includeRight (R := ℤ) (A := ℚ) (B := 𝓞^)) := by
+  intro a b h
+  have h₁ := LinearMap.rTensor_tmul 𝓞^ (f := Algebra.linearMap ℤ ℚ) a 1
+  have h₂ := LinearMap.rTensor_tmul 𝓞^ (f := Algebra.linearMap ℤ ℚ) b 1
+  simp only [Algebra.linearMap_apply, map_one] at h₁ h₂
+  change (1 : ℚ) ⊗ₜ a = (1 : ℚ) ⊗ₜ b at h
+  rw [← h₁, ← h₂] at h
+  replace h := Module.Flat.rTensor_preserves_injective_linearMap
+    (M := 𝓞^) (Algebra.linearMap ℤ ℚ) (fun _ _ ↦ by simp) h
+  have := congrArg (TensorProduct.lid ℤ 𝓞^) h
+  simpa using this
+
 lemma injective_zHat :
-    Function.Injective j₂ := sorry -- flatness
+    Function.Injective j₂ :=
+  ((Algebra.TensorProduct.assoc ℤ ℤ ℤ ℚ 𝓞 ZHat).symm : ℚ ⊗[ℤ] 𝓞^ ≃ₐ[ℤ] D ⊗[ℤ] ZHat).injective.comp
+    injective_includeRight_hurwitzHat
 
 -- should I rearrange tensors? Not sure if D^ should be (ℚ ⊗ 𝓞) ⊗ ℤhat or ℚ ⊗ (𝓞 ⊗ Zhat)
 lemma canonicalForm (z : D^) : ∃ (N : ℕ+) (z' : 𝓞^), z = j₁ ((N⁻¹ : ℚ) ⊗ₜ 1 : D) * j₂ z' := by
