@@ -6,6 +6,7 @@ import VersoBlueprint.Commands.Summary
 import FLTBlueprint.Chapters.Level01Statement
 import FLTBlueprint.Chapters.Level02ReductionToPrimeCase
 import FLTBlueprint.Chapters.Level03FreyPackages
+import FLTBlueprint.Chapters.Level04FreyCurves
 
 open Verso.Genre
 open Verso.Genre.Manual
@@ -35,6 +36,7 @@ these institutions for their ongoing support of this nonstandard research.
 {include 0 FLTBlueprint.Chapters.Level01Statement}
 {include 0 FLTBlueprint.Chapters.Level02ReductionToPrimeCase}
 {include 0 FLTBlueprint.Chapters.Level03FreyPackages}
+{include 0 FLTBlueprint.Chapters.Level04FreyCurves}
 
 {blueprint_graph}
 {blueprint_summary}
