@@ -106,6 +106,14 @@ end assumptions
 
 variable [Algebra.IsIntegral A B] [IsFractionRing B L] [IsDedekindDomain B]
 
+/- The `K_v`-algebra structure on `∏_{w|v} L_w` is built through `adicCompletion.semialgHomPi`,
+`Pi.semialgHom` and `RingHom.pi`, so instance-implicit defeq checks (e.g. relating `ψ.toAlgebra`
+with the componentwise `Pi` instances) must be able to see through them at `instances`
+transparency (`backward.isDefEq.respectTransparency := true`, the default since Lean v4.29).
+`semialgHomPi` and FLT's own `Pi.semialgHom` are tagged `@[implicit_reducible]` at their
+definitions; mathlib-owned `RingHom.pi` gets a local attribute here. -/
+attribute [local implicit_reducible] RingHom.pi
+
 namespace IsDedekindDomain.HeightOneSpectrum
 
 variable (v : HeightOneSpectrum A) {A B}
@@ -251,6 +259,7 @@ namespace adicCompletion
 variable (B)
 
 /-- The canonical map `K_v → ∏_{w|v} L_w` extending K → L. -/
+@[implicit_reducible]
 noncomputable def semialgHomPi :
     v.adicCompletion K →ₛₐ[algebraMap K L] ∀ w : v.Extension B, w.1.adicCompletion L :=
   Pi.semialgHom _ _ fun i ↦ i.adicCompletionSemialgHom K L
@@ -291,7 +300,6 @@ noncomputable local instance :
     · apply ne_of_lt
       rwa [valuation_of_algebraMap, intValuation_lt_one_iff_mem]
 
-set_option backward.isDefEq.respectTransparency false in
 open scoped TensorProduct.RightActions in
 /-- The canonical map `L ⊗[K] K_v → ∏_{w|v} L_w` is surjective. -/
 lemma baseChangeRight_surjective [FiniteDimensional K L] :
@@ -800,7 +808,6 @@ noncomputable def baseChangeAlgEquiv :
     L ⊗[K] v.adicCompletion K ≃ₐ[L] Π w : v.Extension B, w.1.adicCompletion L :=
   AlgEquiv.ofBijective (baseChange K L B v) <| baseChange_bijective K L B v
 
-set_option backward.isDefEq.respectTransparency false in
 open scoped TensorProduct.RightActions in
 /-- The continuous L-algebra isomorphism `L ⊗[K] K_v ≅ ∏_{w|v} L_w`. -/
 noncomputable def baseChangeContinuousAlgEquiv :
