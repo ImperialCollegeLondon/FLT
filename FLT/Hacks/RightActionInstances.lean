@@ -235,7 +235,7 @@ variable (R A B M : Type*) [CommRing R]
     [AddCommGroup M] [Module R M]
 
 scoped instance [TopologicalSpace A] [Module.Finite R M] :
-    IsTopologicalAddGroup (M ⊗[R] A) := IsModuleTopology.topologicalAddGroup A (M ⊗[R] A)
+    IsTopologicalAddGroup (M ⊗[R] A) := IsModuleTopology.isTopologicalAddGroup A (M ⊗[R] A)
 
 scoped instance [TopologicalSpace A] [IsTopologicalRing A] [Module.Finite R B] :
     IsTopologicalRing (B ⊗[R] A) :=

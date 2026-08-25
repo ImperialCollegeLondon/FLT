@@ -198,7 +198,7 @@ local instance (v : HeightOneSpectrum (𝓞 K)) :
 
 local instance (v : HeightOneSpectrum (𝓞 K)) :
     IsTopologicalAddGroup (adicCompletion K v ⊗[K] B) :=
-  IsModuleTopology.topologicalAddGroup (adicCompletion K v) _
+  IsModuleTopology.isTopologicalAddGroup (adicCompletion K v) _
 
 local instance (v : HeightOneSpectrum (𝓞 K)) :
     IsTopologicalRing (adicCompletion K v ⊗[K] B) :=

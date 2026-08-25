@@ -36,7 +36,7 @@ scoped instance topologicalSpace : TopologicalSpace (M1 →L[k] M2) :=
   TopologicalSpace.induced (fun f ↦ ⟨f.toFun, f.cont⟩ : (M1 →L[k] M2) → C(M1, M2)) inferInstance
 
 scoped instance isTopologicalAddGroup : IsTopologicalAddGroup (M1 →L[k] M2) :=
-  Topology.IsInducing.topologicalAddGroup
+  Topology.IsInducing.isTopologicalAddGroup
     ({ toFun f := ⟨f, f.cont⟩
        map_zero' := rfl
        map_add' _ _ := rfl } : (M1 →L[k] M2) →+ C(M1, M2)) ⟨rfl⟩

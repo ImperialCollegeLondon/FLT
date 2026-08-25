@@ -23,12 +23,12 @@ on a fixed finite type is itself finite.
 
 @[to_additive]
 instance {α : Type*} [Finite α] : Finite (Monoid α) :=
-  .of_injective (fun g ↦ g.1.1.1)
+  .of_injective (fun g ↦ g.mul)
     fun g₁ g₂ e ↦ by ext a b; exact congr_fun (congr_fun e a) b
 
 @[to_additive]
 instance {α : Type*} [Finite α] : Finite (Group α) :=
-  .of_injective (fun g ↦ g.1.1.1.1.1)
+  .of_injective (fun g ↦ g.mul)
     fun g₁ g₂ e ↦ by ext a b; exact congr_fun (congr_fun e a) b
 
 @[to_additive]
@@ -37,7 +37,7 @@ instance {α : Type*} [Finite α] : Finite (CommGroup α) :=
 
 instance {α : Type*} [Finite α] : Finite (Ring α) :=
   .of_injective (fun g ↦ (g.toMonoid, g.toAddMonoid))
-    fun g₁ g₂ e ↦ by ext a b; exacts [congr(($e).2.1.1.1 a b), congr(($e).1.1.1.1 a b)]
+    fun g₁ g₂ e ↦ by ext a b; exacts [congr(($e).2.add a b), congr(($e).1.mul a b)]
 
 section Module
 

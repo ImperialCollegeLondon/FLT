@@ -251,9 +251,10 @@ theorem of_continuous_isOpenMap_algebraMap (hcont : Continuous (algebraMap R S))
       Set.image_preimage_eq_of_subset hUS ▸ hopen _ <|
         @Continuous.isOpen_preimage R S _ (moduleTopology R S) _ hcont_alg U h
     -- To finish the proof, we now show that the neighbourhoods of zero in `τS` and `τ_R_S` coincide
-    rw [IsTopologicalRing.to_topologicalAddGroup.ext_iff <|
+    rw [IsTopologicalRing.isTopologicalAddGroup.ext_iff <|
       -- `(S, τRS)` is a topological add group
-      @IsModuleTopology.topologicalAddGroup R _ _ S _ _ (moduleTopology R S) (isModuleTopology R S)]
+      @IsModuleTopology.isTopologicalAddGroup R _ _ S _ _ (moduleTopology R S)
+        (isModuleTopology R S)]
     -- It is enough to show that the basis of neighbourhoods of zero are contained within each other
     apply (nhds_basis_opens 0).ext (@nhds_basis_opens S (moduleTopology R S) 0)
     · -- Assume `U` is open in `(S, τS)`, then it is open in `(S, τRS)` by `hopen_mpr` above.
@@ -400,7 +401,7 @@ theorem t2Space (R : Type*) {M : Type*} [Semiring R] [AddCommGroup M] [Module R 
     [TopologicalSpace R] [TopologicalSpace M] [T2Space R]
     [ContinuousAdd R] [ContinuousMul R] [IsModuleTopology R M]
     : T2Space M := by
-  have := IsModuleTopology.topologicalAddGroup R M
+  have := IsModuleTopology.isTopologicalAddGroup R M
   rw [IsTopologicalAddGroup.t2Space_iff_zero_closed]
   let f := (Module.Free.chooseBasis R M).repr |>.toLinearMap
   let g : (Module.Free.ChooseBasisIndex R M →₀ R) →ₗ[R] (Module.Free.ChooseBasisIndex R M → R) := {
@@ -531,9 +532,8 @@ lemma _root_.Module.Finite.secondCountabletopology (R M : Type*)
     [AddCommGroup M] [Module R M] [Module.Finite R M] [TopologicalSpace M]
     [IsModuleTopology R M] : SecondCountableTopology M := by
   obtain ⟨n, φ, hφ⟩ := Module.Finite.exists_fin' R M
-  have := isQuotientMap_of_surjective hφ
-  apply Topology.IsQuotientMap.secondCountableTopology <| isQuotientMap_of_surjective hφ
-  exact isOpenMap_of_surjective hφ
+  exact Topology.IsOpenQuotientMap.secondCountableTopology
+    (.of_isOpenMap_isQuotientMap (isOpenMap_of_surjective hφ) (isQuotientMap_of_surjective hφ))
 
 end SecondCountableTopology
 
