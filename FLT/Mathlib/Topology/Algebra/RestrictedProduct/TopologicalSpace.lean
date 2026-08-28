@@ -696,7 +696,7 @@ The inclusion from a factor into the restricted product of topological additive 
 as a continuous group homomorphism.
 -/
 noncomputable def singleContinuousAddMonoidHom (j : ι) : A j →ₜ+ Πʳ i, [A i, B i] where
-  __ := singleAddMonoidHom A j
+  __ := singleAddMonoidHom B j
   continuous_toFun := by
     let S : Set ι := {j}ᶜ
     let single' : A j → Πʳ i, [A i, B i]_[𝓟 S] :=

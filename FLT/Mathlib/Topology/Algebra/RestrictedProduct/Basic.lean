@@ -315,27 +315,4 @@ theorem mem_structureSubring_iff {ι : Type*} {R : ι → Type*} {S : ι → Typ
 
 end structure_map
 
-section single
-
-/-
-
-## Maps from a factor into a restricted product
-
--/
-
-variable {ι : Type*} [DecidableEq ι] (A : ι → Type*) {𝓕 : Filter ι}
-    {S : ι → Type*}
-    [(i : ι) → SetLike (S i) (A i)] {B : (i : ι) → S i} (j : ι) [(i : ι) → AddMonoid (A i)]
-    [∀ (i : ι), AddSubmonoidClass (S i) (A i)]
-
-set_option backward.isDefEq.respectTransparency.types false in
-/-- The inclusion from a factor into a restricted product of additive groups. -/
-noncomputable def singleAddMonoidHom (j : ι) : A j →+ Πʳ i, [A i, B i] where
-  toFun x := ⟨Pi.single j x, by
-    simpa using (Set.finite_singleton j).subset fun i _ ↦ by by_cases h : i = j <;> simp_all⟩
-  map_zero' := by ext; simp
-  map_add' _ _ := by ext; simp [Pi.single_add]
-
-end single
-
 end RestrictedProduct

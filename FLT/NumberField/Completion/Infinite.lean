@@ -40,7 +40,7 @@ variable {K L : Type*} [Field K] [Field L] [Algebra K L] {v : InfinitePlace K} {
   {wv : v.Extension L}
 
 instance : wv.1.1.LiesOver v.1 where
-  comp_eq := by simp [← wv.2, InfinitePlace.comap]
+  under_eq := by simp [AbsoluteValue.under_def, ← wv.2, InfinitePlace.comap]
 
 instance {v : InfinitePlace K} : NontriviallyNormedField v.Completion where
   non_trivial :=
@@ -63,14 +63,14 @@ theorem denseRange_algebraMap_subtype_pi (p : InfinitePlace K → Prop) [NumberF
 above the infinite place `v` of `K`. -/
 abbrev comapHom (h : w.comap (algebraMap K L) = v) :
     v.Completion →ₛₐ[algebraMap K L] w.Completion :=
-  have : w.1.LiesOver v.1 := ⟨by simp [← h, InfinitePlace.comap]⟩
+  have : w.1.LiesOver v.1 := ⟨by simp [AbsoluteValue.under_def, ← h, InfinitePlace.comap]⟩
   RingHom.toSemialgHom (NumberField.LiesOver.completionMap (v := v) (w := w)) fun r x ↦ by
     rw [Algebra.smul_def, Algebra.smul_def, map_mul]
     congr 1
     exact NumberField.LiesOver.completionMap_coe _
 
 theorem comapHom_cont (h : w.comap (algebraMap K L) = v) : Continuous (comapHom h) :=
-  have : w.1.LiesOver v.1 := ⟨by simp [← h, InfinitePlace.comap]⟩
+  have : w.1.LiesOver v.1 := ⟨by simp [AbsoluteValue.under_def, ← h, InfinitePlace.comap]⟩
   NumberField.LiesOver.continuous_completionMap
 
 variable (L v)
@@ -108,7 +108,8 @@ abbrev baseChangeRight :
 theorem mem_placesOver_iff_comap (v : InfinitePlace K) (w : InfinitePlace L) :
     w ∈ placesOver L v ↔ w.comap (algebraMap K L) = v := by
   simp only [placesOver, Set.mem_ofPred_eq]
-  exact ⟨fun _ ↦ LiesOver.comap_eq _ _, fun h ↦ ⟨by simp [← h, InfinitePlace.comap]⟩⟩
+  exact ⟨fun _ ↦ LiesOver.comap_eq _ _,
+    fun h ↦ ⟨by simp [AbsoluteValue.under_def, ← h, InfinitePlace.comap]⟩⟩
 
 variable [NumberField L]
 
