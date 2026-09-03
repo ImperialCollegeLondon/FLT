@@ -104,7 +104,7 @@ instance : Zero 𝓞 := ⟨zero⟩
 @[simp] lemma zero_im_oi : imOI (0 : 𝓞) = 0 := rfl
 
 lemma toQuaternion_zero : toQuaternion 0 = 0 := by
-  ext <;> (simp [toQuaternion]) <;> rfl
+  ext <;> simp [toQuaternion]
 
 @[simp]
 lemma toQuaternion_eq_zero_iff {z} : toQuaternion z = 0 ↔ z = 0 :=
@@ -127,7 +127,7 @@ instance : One 𝓞 := ⟨one⟩
 @[simp] lemma one_im_oi : imOI (1 : 𝓞) = 0 := rfl
 
 lemma toQuaternion_one : toQuaternion 1 = 1 := by
-  ext <;> (simp [toQuaternion]) <;> rfl
+  ext <;> simp [toQuaternion]
 
 /-! ## Neg (-) -/
 

@@ -381,7 +381,7 @@ local notation "ι𝔸" => Units.map (RingHom.toMonoidHom (algebraMap (𝔸ᶠ[F
 local notation "ℙ(" K ")" => HeightOneSpectrum (𝓞 K)
 local notation "𝒪_[" K ", " v "]" => HeightOneSpectrum.adicCompletionIntegers K v
 
-instance : (𝔸ˣ F).Normal := Subgroup.normal_of_le_center _ <| by
+instance : (𝔸ˣ F).Normal := Subgroup.normal_of_le_center <| by
   rintro _ ⟨x, rfl⟩
   simp [Subgroup.mem_center_iff, Units.ext_iff, (Algebra.commute_algebraMap_left ..).eq]
 
@@ -503,7 +503,7 @@ instance isFiniteRelIndex_Δ [NumberField.IsTotallyReal F] [IsQuaternionAlgebra 
 scoped[FLT] notation D "ˣ＼GL₂(𝔸 " F ")／" U:max =>
   DoubleCoset.Quotient (G := GL₂(𝔸ᶠ[F])) (MonoidHom.range <| WithRigidification.unitsIncl F D) U
 
-instance : 𝓕ˣ.Normal := Subgroup.normal_of_le_center _ (by
+instance : 𝓕ˣ.Normal := Subgroup.normal_of_le_center (by
   rintro _ ⟨x, rfl⟩
   simp [Subgroup.mem_center_iff, Units.ext_iff, Algebra.commutes])
 
@@ -1003,6 +1003,8 @@ lemma inf_U_eq_iff (ℒ ℒ' : LevelStruct F R) :
   refine ⟨fun H ↦ ?_, fun H ↦ (inf_U_le ..).antisymm ?_⟩
   · have := H.symm
     convert (inf_le_left : ℒ ⊓ ℒ' ≤ ℒ).2.symm.trans (inf_le_right : ℒ ⊓ ℒ' ≤ ℒ').2
+    -- the two `MulOneClass GL₂(𝔸ᶠ[F])` instance paths `convert` is left with are defeq
+    rfl
   · rintro x h
     refine ⟨⟨x, h⟩, ?_, rfl⟩
     simpa [div_eq_one, Units.ext_iff] using congr($H ⟨x, h⟩)

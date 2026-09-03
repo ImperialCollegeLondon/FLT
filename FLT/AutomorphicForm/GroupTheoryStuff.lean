@@ -318,10 +318,6 @@ lemma Units.range_map_subtype {M : Type*} [Monoid M] {S : Submonoid M} :
   · rintro ⟨x, rfl⟩; simp [Submonoid.mem_units_iff]
   · rintro ⟨h₁, h₂⟩; exact ⟨⟨⟨x, h₁⟩, ⟨_, h₂⟩, by simp, by simp⟩, rfl⟩
 
-lemma Subgroup.normal_of_le_center {G : Type*} [Group G] (H : Subgroup G)
-    (hH : H ≤ .center G) : H.Normal where
-  conj_mem h hh g := by simpa [mul_assoc, ← ((hH hh).comm g).eq]
-
 instance {G H : Type*} [Group G] [Monoid H] [MulAction G H]
     [IsScalarTower G H H] [SMulCommClass G H H] :
     IsScalarTower G Hˣ Hˣ where

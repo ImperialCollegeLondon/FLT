@@ -39,6 +39,9 @@ theorem intEquiv_apply_coe (z : R) :
 
 end IsIntegralClosure
 
+-- `Ideal.absNorm` needs this; local because the discrimination key is just `Infinite _`.
+local instance : Infinite R := .of_injective _ (IsIntegralClosure.intEquiv R).symm.injective
+
 theorem pow_natGenerator_dvd_iff (v : HeightOneSpectrum R) {n : ℕ} (m : ℕ) :
     natGenerator v ^ m ∣ n ↔ ↑n ∈ (v.asIdeal.map (IsIntegralClosure.intEquiv R)) ^ m := by
   rw [← span_natGenerator, Ideal.span_singleton_pow, Ideal.mem_span_singleton]

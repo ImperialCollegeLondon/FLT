@@ -104,7 +104,7 @@ lemma unitsMap_algebraMap_le_center {R S : Type*} [CommSemiring R] [Semiring S] 
 
 instance {R S : Type*} [CommSemiring R] [Semiring S] [Algebra R S] :
     (Units.map (algebraMap R S).toMonoidHom).range.Normal :=
-  Subgroup.normal_of_le_center _ unitsMap_algebraMap_le_center
+  Subgroup.normal_of_le_center unitsMap_algebraMap_le_center
 
 instance {G : Type*} [Group G] [TopologicalSpace G] [MeasurableSpace G] [SeparatelyContinuousMul G]
     [BorelSpace G] [PolishSpace G]
