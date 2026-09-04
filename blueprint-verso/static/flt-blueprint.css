@@ -19,9 +19,13 @@
   `html[data-bp-style] div.bp_wrapper`, with an unprefixed twin for the moment
   before the switcher's JS runs.  The three settings should now look alike.
 
-  NOTE ON REBUILDS.  Lake hashes file *contents* and does not track
-  `include_str`, so editing this file alone rebuilds nothing and `touch` does
-  not help.  The artifacts must be removed:
+  NOTE ON REBUILDS.  Use ./scripts/ci-pages.sh (or ./scripts/serve.sh, which
+  calls it).  It runs FLTBlueprintMain.lean from source, so this file is re-read
+  every time.
+
+  If you instead build the compiled generator by hand, note that Lake hashes
+  file *contents* and does not track `include_str`: editing this file alone
+  rebuilds nothing, and `touch` does not help.  The artifacts must be removed:
 
       rm -f .lake/build/lib/lean/FLTBlueprintMain.olean* \
             .lake/build/lib/lean/FLTBlueprintMain.trace \
