@@ -1002,9 +1002,8 @@ lemma inf_U_eq_iff (ℒ ℒ' : LevelStruct F R) :
       ℒ.χ.comp (Subgroup.inclusion inf_le_left) = ℒ'.χ.comp (Subgroup.inclusion inf_le_right) := by
   refine ⟨fun H ↦ ?_, fun H ↦ (inf_U_le ..).antisymm ?_⟩
   · have := H.symm
-    convert (inf_le_left : ℒ ⊓ ℒ' ≤ ℒ).2.symm.trans (inf_le_right : ℒ ⊓ ℒ' ≤ ℒ').2
+    convert! (inf_le_left : ℒ ⊓ ℒ' ≤ ℒ).2.symm.trans (inf_le_right : ℒ ⊓ ℒ' ≤ ℒ').2
     -- the two `MulOneClass GL₂(𝔸ᶠ[F])` instance paths `convert` is left with are defeq
-    rfl
   · rintro x h
     refine ⟨⟨x, h⟩, ?_, rfl⟩
     simpa [div_eq_one, Units.ext_iff] using congr($H ⟨x, h⟩)
