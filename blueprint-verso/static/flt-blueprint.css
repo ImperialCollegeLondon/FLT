@@ -1,0 +1,327 @@
+/*
+  FLT blueprint house style: default LaTeX (article class).
+
+  Targets the look of an unmodified `\documentclass{article}` with `amsthm`:
+  Computer Modern throughout, black on white, a ~345pt measure, justified and
+  indented paragraphs with no blank line between them, bold roman section
+  headings, and run-in theorem headings with no boxes and no rules.
+
+  Injected into every page's <head> by FLTBlueprintMain.lean as the last
+  <style> in the document.
+
+  NOTE ON SPECIFICITY.  VersoBlueprint ships three looks, chosen by a floating
+  switcher that sets `data-bp-style` on <html> to "blueprint" (default),
+  "modern" or "bold".  All three draw each environment as a bordered card:
+
+      html[data-bp-style="blueprint"] .bp_wrapper { border: ...; background: ... }
+
+  which outranks a bare `.bp_wrapper`.  Resets below are therefore written as
+  `html[data-bp-style] div.bp_wrapper`, with an unprefixed twin for the moment
+  before the switcher's JS runs.  The three settings should now look alike.
+
+  NOTE ON REBUILDS.  Lake hashes file *contents* and does not track
+  `include_str`, so editing this file alone rebuilds nothing and `touch` does
+  not help.  The artifacts must be removed:
+
+      rm -f .lake/build/lib/lean/FLTBlueprintMain.olean* \
+            .lake/build/lib/lean/FLTBlueprintMain.trace \
+            .lake/build/bin/blueprint-gen*
+      lake build blueprint-gen && lake exe blueprint-gen --output _out/site
+*/
+
+/* ------------------------------------------------------------------ *
+ * 1. Computer Modern
+ * ------------------------------------------------------------------ *
+ * KaTeX_Main *is* Computer Modern.  KaTeX is already bundled in
+ * -verso-data/katex/ and its katex.css is linked on every page, so these
+ * @font-face rules are live: no CDN, no extra download, works offline.
+ *
+ * The fallbacks matter.  KaTeX_Main is a text-mode math font whose glyph
+ * coverage is narrower than a full text face; anything it lacks drops through
+ * to Latin Modern (usually present via MacTeX) and then Times.
+ */
+:root {
+    --verso-text-font-family: KaTeX_Main, "Latin Modern Roman",
+        "TeX Gyre Termes", "Times New Roman", Times, serif;
+    --verso-structure-font-family: KaTeX_Main, "Latin Modern Roman",
+        "TeX Gyre Termes", "Times New Roman", Times, serif;
+
+    /* article's \textwidth is 345pt, i.e. about 34.5em at 10pt. */
+    --verso-content-max-width: 34.5em;
+
+    --verso-text-color: black;
+    --verso-structure-color: black;
+}
+
+main section {
+    /* LaTeX single spacing is 12pt on a 10pt body, i.e. 1.2.  A hair more
+       here, since screens are read further from the eye than paper. */
+    line-height: 1.25;
+    text-align: justify;
+    hyphens: auto;
+}
+
+/* ------------------------------------------------------------------ *
+ * 2. Paragraphs: indented, not spaced
+ * ------------------------------------------------------------------ *
+ * The single most recognisable thing about LaTeX output.
+ */
+main section > p {
+    margin: 0;
+    text-indent: 1.5em;
+}
+
+/* \section et al. suppress the indent on the paragraph that follows. */
+main section > h1 + p,
+main section > h2 + p,
+main section > h3 + p,
+main section > h4 + p,
+main section > h5 + p,
+main section > h6 + p {
+    text-indent: 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * 3. Section headings
+ * ------------------------------------------------------------------ *
+ * article sets these in bold roman at \Large / \large / \normalsize, ranged
+ * left, black -- never a coloured sans.
+ */
+main h1, main h2, main h3, main h4, main h5, main h6 {
+    font-family: inherit;
+    color: inherit;
+    font-weight: bold;
+    font-style: normal;
+    text-align: left;
+    hyphens: none;
+    line-height: 1.2;
+}
+
+main h1 { font-size: 1.728em; margin: 0 0 1em; }      /* title */
+main h2 { font-size: 1.44em;  margin: 1.9em 0 0.7em; } /* \section */
+main h3 { font-size: 1.2em;   margin: 1.6em 0 0.6em; } /* \subsection */
+main h4, main h5, main h6 { font-size: 1em; margin: 1.4em 0 0.5em; }
+
+/* ------------------------------------------------------------------ *
+ * 4. No Lean source in the middle of the prose
+ * ------------------------------------------------------------------ *
+ * For each `(lean := "...")` anchor VersoBlueprint emits a panel holding the
+ * declaration's signature (twice: a wide and a narrow copy), its docstring and
+ * one <pre> per structure field -- thirteen of them for `FreyPackage`.  A
+ * LaTeX blueprint has none of this in the body; the `L∃∀N` chip in the heading
+ * still lists the declarations.  Delete this rule to get the panels back.
+ */
+div.bp_wrapper.bp_code_panel_wrapper,
+html[data-bp-style] div.bp_wrapper.bp_code_panel_wrapper {
+    display: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * 5. Theorem environments: amsthm run-in
+ * ------------------------------------------------------------------ *
+ * "**Lemma 3.3.** *Statement...*" on one line: no box, no background, no rule,
+ * no indent.  Verso emits heading and body as sibling divs, so both are made
+ * inline and the body's first paragraph is pulled up onto the heading's line.
+ */
+div.bp_wrapper,
+html[data-bp-style] div.bp_wrapper {
+    display: block;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    margin: 1em 0;
+}
+
+div.bp_heading,
+html[data-bp-style] div.bp_heading,
+div.bp_heading_title_row {
+    display: inline;
+    border-bottom: none;
+    padding-bottom: 0;
+    font-weight: bold;
+    line-height: inherit;
+}
+
+/* Setting the heading inline drops the flex `gap` that separated the words, so
+   "Definition" and "3.1" ran together.  A margin restores it without colliding
+   with the full stop that proof captions add via ::after. */
+span.bp_caption {
+    margin-right: 0.33em;
+}
+
+/* amsthm puts a full stop after the number. */
+span.bp_label::after {
+    content: ".";
+}
+
+div.bp_content,
+html[data-bp-style] div.bp_content {
+    display: inline;
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+    border-left: none;
+}
+
+/* Run the opening paragraph in after the heading; indent any that follow. */
+div.bp_content > p {
+    margin: 0;
+    text-indent: 1.5em;
+}
+
+div.bp_content > p:first-child {
+    display: inline;
+    text-indent: 0;
+}
+
+div.bp_content > p:first-child::before {
+    content: " ";
+}
+
+/* amsthm's `plain` style (theorem, lemma, corollary, proposition) sets the
+   statement in italic; `definition` and `remark` leave it upright. */
+div.theorem-style-plain div.bp_content,
+html[data-bp-style] div.theorem-style-plain div.bp_content {
+    font-style: italic;
+}
+
+div.theorem-style-definition div.bp_content,
+div.theorem-style-remark div.bp_content,
+html[data-bp-style] div.theorem-style-definition div.bp_content,
+html[data-bp-style] div.theorem-style-remark div.bp_content {
+    font-style: normal;
+}
+
+/* ------------------------------------------------------------------ *
+ * 6. Proofs
+ * ------------------------------------------------------------------ *
+ * amsthm sets "Proof." in italic, runs the body in after it upright, and ends
+ * with an open QED box flush right.
+ *
+ * Verso captions these "Proof for Lemma 3.3" rather than plain "Proof"; that
+ * text comes from VersoBlueprint and cannot be changed from CSS.  It is
+ * arguably worth keeping in a hyperlinked blueprint, where a proof may sit far
+ * from its statement.
+ */
+div.proof_heading,
+html[data-bp-style] div.proof_heading {
+    display: inline;
+    font-style: italic;
+    font-weight: normal;
+}
+
+span.proof_caption::after {
+    content: ".";
+}
+
+div.proof_content,
+html[data-bp-style] div.proof_content {
+    display: inline;
+    font-style: normal;
+    font-weight: normal;
+    border-left: none;
+    margin: 0;
+    padding: 0;
+}
+
+div.proof_content > p:last-child::after,
+div.proof_content > div:last-child > p:last-child::after {
+    content: "\25A1";        /* □ */
+    float: right;
+}
+
+/* ------------------------------------------------------------------ *
+ * 7. Dependency and Lean chips
+ * ------------------------------------------------------------------ *
+ * These have no LaTeX counterpart, but they are how the blueprint is
+ * navigated.  Floated to the right margin so they stay out of the run-in line,
+ * and kept faint until pointed at.
+ */
+div.bp_wrapper,
+html[data-bp-style] div.bp_wrapper {
+    position: relative;
+}
+
+/* `float: right` still reserves space in the line box, which chopped the run-in
+   statement in half, and overlaying the chips on the text meant that merely
+   reading a proof popped an opaque chip over the words.  Instead they go in the
+   right-hand gutter, which is where LaTeX puts a \marginpar -- out of the
+   measure entirely, so they can neither break a line nor mask one.
+   `left: 100%` is relative to .bp_wrapper, which spans the text column. */
+.bp_extras {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    right: auto;
+    margin-left: 0.7em;
+    width: 15rem;
+    z-index: 2;
+    float: none;
+    /* VersoBlueprint lays the chips out as a grid whose fixed tracks total
+       ~329px.  Inside a 15rem margin note that overflows, and because the grid
+       is `justify-content: end` the overflow spills leftwards -- back over the
+       statement.  Flex with wrapping lets them stack in the gutter instead. */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-content: flex-start;
+    gap: 0.15em 0.55em;
+    font-size: 0.6em;
+    font-style: normal;
+    font-weight: normal;
+    opacity: 0.32;
+    transition: opacity 0.15s ease;
+}
+
+div.bp_wrapper:hover .bp_extras,
+.bp_extras:hover,
+.bp_extras:focus-within {
+    opacity: 1;
+}
+
+/* The dependency popup is `width: min(50rem, 92vw)` anchored `right: 0` to its
+   chip.  That assumes the chip sits near the right edge of a wide column; with
+   a 34.5em measure an 800px right-anchored panel ran off the left of the
+   window and was clipped mid-identifier.  Moving the chips into the gutter
+   fixes the anchor; this clamp keeps it on screen regardless. */
+.bp_relation_panel {
+    width: min(34rem, calc(100vw - 2rem));
+    min-width: 0;
+}
+
+/* Below this width there is no gutter to put the chips in, and overlaying them
+   on the text is worse than not showing them.  The same links remain reachable
+   from the Dependency Graph page. */
+@media (max-width: 1120px) {
+    .bp_extras {
+        display: none;
+    }
+}
+
+/* ------------------------------------------------------------------ *
+ * 8. Site header
+ * ------------------------------------------------------------------ *
+ * Not a LaTeX construct, but broken as shipped: the header is
+ * `position: fixed` and the search box is laid over its right-hand 400px, so a
+ * long book title runs underneath it and is clipped mid-word.  Reserve the
+ * space the search box occupies and set the title at running-head size.
+ */
+body > header .header-title-wrapper {
+    min-width: 0;
+    box-sizing: border-box;
+    padding-right: 26rem;
+    overflow: hidden;
+}
+
+body > header .header-title-wrapper h1,
+body > header .header-title h1 {
+    font-family: var(--verso-text-font-family);
+    font-size: 1.05rem;
+    font-weight: bold;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
