@@ -618,7 +618,8 @@ theorem Rat.AdeleRing.cocompact :
       refine (isCompact_univ_pi fun v => ?_).prod
         (FiniteAdeleRing.isCompact_integralAdeles _)
       exact isCompact_iff_isClosed_bounded.2 ⟨isClosed_closedBall, isBounded_closedBall⟩
-    have h_W_image : QuotientAddGroup.mk' (principalSubgroup (𝓞 ℚ) ℚ) '' W = Set.univ := by
+    have h_W_image :
+        QuotientAddGroup.mk' (AdeleRing.principalSubgroup (𝓞 ℚ) ℚ) '' W = Set.univ := by
       refine Set.eq_univ_iff_forall.2 fun x => ?_
       choose xf hf using FiniteAdeleRing.sub_mem_integralAdeles x.out.2
       choose xi hi using InfiniteAdeleRing.exists_sub_norm_le_one (x.out.1 - algebraMap _ _ xf)
@@ -788,7 +789,7 @@ theorem Rat.AdeleRing.isAddFundamentalDomain :
 variable (K L : Type*) [Field K] [Field L] [NumberField K] [NumberField L] [Algebra K L]
 
 theorem NumberField.AdeleRing.cocompact :
-    CompactSpace (AdeleRing (𝓞 K) K ⧸ principalSubgroup (𝓞 K) K) :=
+    CompactSpace (AdeleRing (𝓞 K) K ⧸ AdeleRing.principalSubgroup (𝓞 K) K) :=
   letI := Rat.AdeleRing.cocompact
   (piQuotientEquiv ℚ K).compactSpace
 
