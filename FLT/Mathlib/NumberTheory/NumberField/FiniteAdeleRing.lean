@@ -9,6 +9,7 @@ module
 
 public import FLT.Mathlib.RingTheory.DedekindDomain.FiniteAdeleRing
 public import Mathlib.NumberTheory.NumberField.AdeleRing
+public import Mathlib.NumberTheory.NumberField.FiniteAdeleRing
 import FLT.Mathlib.LinearAlgebra.Countable
 import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 import FLT.NumberField.Completion.Finite

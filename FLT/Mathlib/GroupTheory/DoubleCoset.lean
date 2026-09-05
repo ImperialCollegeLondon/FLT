@@ -351,7 +351,7 @@ lemma DoubleCoset.σ_one : σ (mk H K 1) = 1 :=
   simp only [Subgroup.coe_mul, ← mul_assoc, DoubleCoset.σ_spec]
   convert DoubleCoset.σ_spec H K (g * k) using 4
   · simp
-  · exact (DoubleCoset.eq _ _ _ _).mpr ⟨1, by simp, k, k.2, by simp⟩
+  · exact DoubleCoset.eq.mpr ⟨1, by simp, k, k.2, by simp⟩
 
 lemma DoubleCoset.σLeft_one : σLeft H K 1 = 1 := by rw [← σ_one, σLeft_σ]
 

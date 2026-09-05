@@ -9,6 +9,7 @@ public import Mathlib.RingTheory.DedekindDomain.AdicValuation
 import FLT.DedekindDomain.AdicValuation
 public import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
 import FLT.Mathlib.Topology.Algebra.Valued.WithZeroMulInt
+import Mathlib.LinearAlgebra.FreeModule.IdealQuotient
 import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
 import Mathlib.NumberTheory.Padics.HeightOneSpectrum
 import Mathlib.NumberTheory.Padics.ProperSpace
