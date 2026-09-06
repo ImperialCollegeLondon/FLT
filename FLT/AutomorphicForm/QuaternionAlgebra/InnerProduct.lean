@@ -188,7 +188,7 @@ lemma LevelStruct.inner_eq_of_map_le_map
   · refine Finset.sum_congr rfl fun y hy ↦ ?_
     obtain ⟨y, rfl⟩ := Quotient.mk_surjective y
     obtain ⟨_, ⟨d, rfl⟩, u, hu, rfl⟩ :=
-      (DoubleCoset.eq _ _ _ _).mp ((Finset.mem_filter_univ _).mp hy:)
+      DoubleCoset.eq.mp ((Finset.mem_filter_univ _).mp hy:)
     have Hf := ℒ'.apply_mul_eq_χA_smul _ f.2 ⟨u, hu⟩ y
     have Hg := ℒ'.apply_mul_eq_χA_smul _ g.2 ⟨u, hu⟩ y
     dsimp at Hf Hg
