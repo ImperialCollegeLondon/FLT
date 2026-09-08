@@ -515,6 +515,14 @@ instance (vi : InfinitePlace K) : IsModuleTopology ℝ (D ⊗[K] vi.Completion) 
 instance : IsModuleTopology ℝ (Π vi : InfinitePlace K, (D ⊗[K] vi.Completion)) :=
   IsModuleTopology.instPi
 
+/- This lemma still needs the pre-Lean-v4.29 permissive defeq behaviour: its `simp_all` calls
+unfold `ringEquiv_mixedSpace`, and re-typechecking the resulting structure literals requires
+unfolding the field auxiliaries (`instCommRingInfiniteAdeleRing._aux_*`) of the `deriving`-
+generated `CommRing (InfiniteAdeleRing K)` instance, e.g.
+`f i * g i =?= instCommRingInfiniteAdeleRing._aux_13 K f g i` and
+`f i + g i =?= instCommRingInfiniteAdeleRing._aux_1 K f g i`. Those auxiliaries are
+machine-generated (unstable names), so they cannot reasonably be marked `implicit_reducible`
+here; fixing this needs an upstream mathlib change to how the instance is derived. -/
 set_option backward.isDefEq.respectTransparency false in
 omit [NumberField K] in
 lemma algebraMap_completion {vi : InfinitePlace K} {x : ℝ} :
@@ -530,7 +538,6 @@ lemma algebraMap_completion {vi : InfinitePlace K} {x : ℝ} :
 
 end RealAlgebra
 
-set_option backward.isDefEq.respectTransparency false in
 omit [NumberField K] in
 lemma tensorPi_equiv_piTensor_map_mul {x y : Dinf K D} :
     tensorPiEquivPiTensor K D InfinitePlace.Completion (x * y)
@@ -538,6 +545,14 @@ lemma tensorPi_equiv_piTensor_map_mul {x y : Dinf K D} :
       * tensorPiEquivPiTensor K D InfinitePlace.Completion y := by
   -- we need that `tensorPiEquivPiTensor` is a ring hom
   -- **TODO** this is certainly true in more generality and so can go elsewhere later on
+  -- Restate everything at the `Π v, v.Completion` spelling (a definitional change), so that
+  -- the `simp` lemmas below apply without having to see through the type synonym
+  -- `InfiniteAdeleRing` at `instances` transparency.
+  suffices h : ∀ x y : D ⊗[K] ((i : InfinitePlace K) → i.Completion),
+      tensorPiEquivPiTensor K D InfinitePlace.Completion (x * y)
+      = tensorPiEquivPiTensor K D InfinitePlace.Completion x
+        * tensorPiEquivPiTensor K D InfinitePlace.Completion y from h x y
+  intro x y
   refine TensorProduct.induction_on x
     (by simp only [LinearEquiv.map_zero, zero_mul])
     (fun x₁ x₂ ↦ ?_) (fun x₁ x₂ hx₁ hx₂ ↦ by
@@ -547,9 +562,8 @@ lemma tensorPi_equiv_piTensor_map_mul {x y : Dinf K D} :
     (fun y₁ y₂ ↦ ?_) (fun y₁ y₂ hy₁ hy₂ ↦ by
       simp_all only [LinearEquiv.map_add, mul_add])
   funext vi
-  simp [Dinf, InfiniteAdeleRing, tensorPi_equiv_piTensor_apply]
+  simp [tensorPi_equiv_piTensor_apply]
 
-set_option backward.isDefEq.respectTransparency false in
 /-- `tensorPiEquivPiTensor` applied to `Dinf`, as a `ℝ`-linear equiv. -/
 def DinfTensorPiEquivPiTensorAux :
     (Dinf K D) ≃ₗ[ℝ] Π vi : InfinitePlace K, (D ⊗[K] vi.Completion) := {
@@ -563,10 +577,12 @@ def DinfTensorPiEquivPiTensorAux :
     have h₂ :
         (algebraMap ℝ ((i : InfinitePlace K) → D ⊗[K] i.Completion)) x
         = fun (i : InfinitePlace K) ↦ 1 ⊗ₜ[K] (algebraMap ℝ i.Completion x) := rfl
-    rw [h₁, h₂, tensorPi_equiv_piTensor_apply]
-    funext vi
-    congr
-    exact algebraMap_completion _
+    rw [h₁, h₂]
+    -- cross the `K∞`/`Π v, v.Completion` spelling boundary with a term-level `exact`
+    -- (defeq at default transparency) instead of `rw`, whose pattern matching cannot see
+    -- through the type synonym `InfiniteAdeleRing` at `instances` transparency
+    exact (tensorPi_equiv_piTensor_apply K D InfinitePlace.Completion 1 _).trans
+      (by funext vi; congr 1; exact algebraMap_completion _)
 }
 
 /-- `tensorPiEquivPiTensor` applied to `Dinf`, as a continuous `ℝ`-linear equiv. -/
@@ -928,7 +944,13 @@ abbrev toQuot (a : ringHaarCharKer D_𝔸) : (_root_.Quotient (QuotientGroup.rig
 lemma toQuot_cont : Continuous (toQuot K D) where
   isOpen_preimage := fun _ a ↦ a
 
-set_option backward.isDefEq.respectTransparency false in
+/- The proof below mixes the spellings `H.subgroupOf N` and `Subgroup.comap N.subtype H` of
+the same subgroup (`Subgroup.subgroupOf` is a plain `def` of the latter), inside `Quotient`
+types of `QuotientGroup.rightRel`. Instance-implicit defeq checks between the two spellings
+must succeed at `instances` transparency (`backward.isDefEq.respectTransparency := true`, the
+default since Lean v4.29), so mark the definition `implicit_reducible`. -/
+attribute [local implicit_reducible] Subgroup.subgroupOf
+
 lemma toQuot_surjective [Algebra.IsCentral K D] : (toQuot K D) '' (M K D) = Set.univ := by
   rw [Set.eq_univ_iff_forall]
   rintro ⟨a, ha⟩
