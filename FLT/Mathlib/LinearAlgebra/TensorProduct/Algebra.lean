@@ -28,7 +28,6 @@ def AlgHom.rTensor {R : Type*} [CommSemiring R] (M : Type*) {N : Type*}
     __ := LinearMap.rTensor M f
     map_smul' n x := by
       induction x with
-      | zero => simp
       | tmul x y =>
         rw [smul_tmul']
         change (LinearMap.rTensor M f.toLinearMap) _ = _

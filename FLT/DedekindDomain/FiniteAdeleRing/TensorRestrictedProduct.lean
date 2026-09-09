@@ -95,8 +95,7 @@ lemma coe_lTensorLeft_eq_lTensor (R M : Type*) [CommRing R] [CommRing M] [Algebr
     (ℱ : Filter ι) :
     ⇑(lTensorLeft R M N ℱ L) = lTensor R M N ℱ L := by
   ext x i
-  induction x using TensorProduct.induction_on with
-  | zero => rw [map_zero, map_zero, zero_apply]; rfl -- need rfl after 4.29, unsure how to fix
+  induction x using TensorProduct.inductionOn with
   | tmul x y => simp [lTensorLeft_tmul]; rfl
   | add x y hx hy => simp_all; rfl
 

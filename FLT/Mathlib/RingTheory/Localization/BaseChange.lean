@@ -77,7 +77,6 @@ noncomputable def leftModuleTensorEquiv {R : Type*} (M' : Type*)
   __ := IsLocalization.moduleTensorEquiv S A M₁ M₂
   map_smul' r x := by
     induction x with
-    | zero => simp
     | tmul m₁ m₂ => simp [TensorProduct.smul_tmul']
     | add => simp_all
 

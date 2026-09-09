@@ -127,8 +127,8 @@ lemma HenselianLocalRing.exists_completeOrthogonalIdempotents_forall_isLocalRing
       rw [Ideal.under, Ideal.comap_comap]
       trans M.comap ((algebraMap R A).comp ψ.toRingHom); swap
       · congr 1; ext; simp [ψ']
-      · rw [hPeq, ← Ideal.comap_comap,
-          eq_maximalIdeal (Ideal.isMaximal_comap_of_isIntegral_of_isMaximal (R := R) M)]⟩).1
+      · rw [hPeq, ← Ideal.comap_comap, ← Ideal.under_def,
+          eq_maximalIdeal (Ideal.isMaximal_under_of_isIntegral_of_isMaximal (R := R) M)]⟩).1
     simp only [AlgHom.toRingHom_eq_coe, Ideal.mem_comap, RingHom.coe_coe, Ideal.span_le,
       Set.singleton_subset_iff, SetLike.mem_coe] at this heM
     exact Ideal.one_notMem M (by convert add_mem this heM; ring)
@@ -141,8 +141,8 @@ lemma HenselianLocalRing.exists_completeOrthogonalIdempotents_forall_isLocalRing
     have _ : Q.LiesOver 𝓂[R] :=
       inferInstanceAs (((P' i).comap Algebra.TensorProduct.includeRight).LiesOver _)
     have _ : (P' i).LiesOver 𝓂[R] := .trans _ P _
-    have : Q.IsMaximal := Ideal.isMaximal_of_isIntegral_of_isMaximal_comap (R := R) _
-      (by rw [← Ideal.under, ← Q.over_def 𝓂[R]]; infer_instance)
+    have : Q.IsMaximal := Ideal.isMaximal_of_isIntegral_of_isMaximal_under (R := R) _
+      (by rw [← Q.over_def 𝓂[R]]; infer_instance)
     have hψ' : Function.Surjective ψ'.toRingHom := fun x ↦ ⟨1 ⊗ₜ x, by simp [ψ']⟩
     have hQP' : Q.comap ψ'.toRingHom = P' i := by
       have : (Ideal.comap ψ'.toRingHom Q).LiesOver P := by
@@ -170,7 +170,7 @@ lemma HenselianLocalRing.exists_completeOrthogonalIdempotents_forall_isLocalRing
       simp only [AlgHom.toRingHom_eq_coe, ← AlgHom.comp_toRingHom, ψ', Function.comp_apply, le_refl,
         Algebra.TensorProduct.lift_comp_includeRight', AlgHom.id_toRingHom, Ideal.comap_id]
     refine (H _ inferInstance ⟨?_⟩).2 _ ?_
-    · rw [hPeq, ← eq_maximalIdeal (Ideal.isMaximal_comap_of_isIntegral_of_isMaximal (R := R)
+    · rw [hPeq, ← eq_maximalIdeal (Ideal.isMaximal_under_of_isIntegral_of_isMaximal (R := R)
         (Q'.comap (algebraMap A he₀.Corner)))]
       simp only [Ideal.under, Ideal.comap_comap, RingHom.comp_assoc]
       congr 2; ext; simp [ψ']

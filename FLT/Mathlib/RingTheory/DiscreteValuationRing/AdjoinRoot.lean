@@ -71,7 +71,7 @@ theorem IsLocalRing.of_isMaximal_map_maximalIdeal {R S : Type*} [CommRing R] [Is
     (hmax : ((maximalIdeal R).map (algebraMap R S)).IsMaximal) : IsLocalRing S :=
   of_unique_max_ideal ⟨(maximalIdeal R).map (algebraMap R S), hmax, fun M hM ↦ by
     have hc : (M.comap (algebraMap R S)).IsMaximal :=
-      Ideal.isMaximal_comap_of_isIntegral_of_isMaximal M
+      Ideal.isMaximal_under_of_isIntegral_of_isMaximal M
     have hle : (maximalIdeal R).map (algebraMap R S) ≤ M := by
       rw [← eq_maximalIdeal hc]; exact Ideal.map_comap_le
     exact (hmax.eq_of_le hM.ne_top hle).symm⟩
