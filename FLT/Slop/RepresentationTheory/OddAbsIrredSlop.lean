@@ -413,8 +413,7 @@ lemma isIrreducible_of_baseChange (l : Type*) [Field l] [Algebra k l]
     have : Subsingleton (l ⊗[k] V) := by
       refine ⟨fun a b => ?_⟩
       have hz : ∀ x : l ⊗[k] V, x = 0 := fun x => by
-        induction x using TensorProduct.induction_on with
-        | zero => rfl
+        induction x using TensorProduct.inductionOn with
         | tmul a v => rw [Subsingleton.elim v (0 : V), TensorProduct.tmul_zero]
         | add a b ha hb => rw [ha, hb, add_zero]
       rw [hz a, hz b]

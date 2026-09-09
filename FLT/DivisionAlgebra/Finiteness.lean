@@ -538,12 +538,10 @@ lemma tensorPi_equiv_piTensor_map_mul {x y : Dinf K D} :
       * tensorPiEquivPiTensor K D InfinitePlace.Completion y := by
   -- we need that `tensorPiEquivPiTensor` is a ring hom
   -- **TODO** this is certainly true in more generality and so can go elsewhere later on
-  refine TensorProduct.induction_on x
-    (by simp only [LinearEquiv.map_zero, zero_mul])
+  refine TensorProduct.inductionOn x
     (fun x₁ x₂ ↦ ?_) (fun x₁ x₂ hx₁ hx₂ ↦ by
       simp_all only [LinearEquiv.map_add, add_mul])
-  refine TensorProduct.induction_on y
-    (by simp only [LinearEquiv.map_zero, mul_zero])
+  refine TensorProduct.inductionOn y
     (fun y₁ y₂ ↦ ?_) (fun y₁ y₂ hy₁ hy₂ ↦ by
       simp_all only [LinearEquiv.map_add, mul_add])
   funext vi

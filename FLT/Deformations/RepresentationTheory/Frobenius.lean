@@ -71,7 +71,7 @@ lemma exists_of_isInvariant_of_profinite
   let P := Q.under R
   have : Algebra.IsIntegral R S := Algebra.IsInvariant.isIntegral_of_profinite (G := G)
   -- have : Q.IsMaximal := Ideal.Quotient.maximal_of_isField _ (Finite.isField_of_domain (S ⧸ Q))
-  have : P.IsMaximal := Ideal.isMaximal_comap_of_isIntegral_of_isMaximal Q
+  have : P.IsMaximal := Ideal.isMaximal_under_of_isIntegral_of_isMaximal Q
   obtain ⟨p, hc⟩ := CharP.exists (R ⧸ P)
   -- have : Finite (R ⧸ P) := .of_injective _ Ideal.algebraMap_quotient_injective
   cases nonempty_fintype (R ⧸ P)
@@ -102,8 +102,8 @@ lemma exists_primesOver_isConj_of_profinite (P : Ideal R) [Finite (R ⧸ P)] [P.
   have (Q' : Ideal.primesOver P S) : ∃ σ : G, Q'.1 = σ • Q :=
     Algebra.IsInvariant.exists_smul_of_under_eq_of_profinite _ _ (hQ₂.over.symm.trans Q'.2.2.over)
   choose τ hτ using this
-  have : Q.IsMaximal := Ideal.isMaximal_of_isIntegral_of_isMaximal_comap (R := R) Q
-    (by rwa [← Ideal.under, ← hQ₂.over])
+  have : Q.IsMaximal := Ideal.isMaximal_of_isIntegral_of_isMaximal_under (R := R) Q
+    (by rwa [← hQ₂.over])
   have : Finite (R ⧸ Q.under R) := by rwa [← hQ₂.over]
   obtain ⟨σ, hσ⟩ := exists_of_isInvariant_of_profinite R G Q
   refine ⟨fun Q' ↦ τ Q' * σ * (τ Q')⁻¹, fun Q' ↦ hτ Q' ▸ hσ.conj (τ Q'), fun Q₁ Q₂ ↦

@@ -92,14 +92,14 @@ lemma TensorProduct.localcomponent_comp_apply (p : HeightOneSpectrum R)
       = (localIdempotent R K p) • x :=
     have {a : FiniteAdeleRing R K} := congr_arg (fun f ↦ f a)
       (singleContinuousAlgebraMap_comp_evalContinuousLinearMap R K p)
-    TensorProduct.induction_on x (by simp)
+    TensorProduct.inductionOn x
       (fun _ _ ↦ by simp_all [TensorProduct.smul_tmul'])
       (fun _ _ ↦ by simp +contextual)
   have rTensor_eval_localIdempotent (x : FiniteAdeleRing R K ⊗[K] V) :
       (LinearMap.rTensor V (evalContinuousAlgebraMap R K p).toContinuousLinearMap) x
       = (LinearMap.rTensor V (evalContinuousAlgebraMap R K p).toContinuousLinearMap.toLinearMap)
         (localIdempotent R K p • x) :=
-    TensorProduct.induction_on x (by simp)
+    TensorProduct.inductionOn x
       (fun _ _ ↦ by simp_all [TensorProduct.smul_tmul', eval_localIdempotent])
       (fun _ _ ↦ by simp +contextual)
   simp [localcomponent, ContinuousLinearMap.rTensor',
@@ -129,7 +129,6 @@ lemma TensorProduct.localcomponent_apply
     (FiniteAdeleRing R K) (FiniteAdeleRing R K) (localIdempotent R K p)).restrictScalars K
   have hf : LinearMap.rTensor V f x = (localIdempotent R K p) • x := by
     induction x with
-    | zero => simp
     | tmul x y => exact LinearMap.rTensor_tmul _ _ _ _
     | add x y _ _ => simp_all
   rw [hf, ContinuousLinearMap.map_smul]

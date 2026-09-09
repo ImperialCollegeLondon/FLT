@@ -893,9 +893,9 @@ noncomputable instance instAlgebra :
 noncomputable instance :
     IsMulCommutative (HeckeAlgebra D 𝒮) := by
   refine Algebra.isMulCommutative_adjoin R ?_
-  rintro x (⟨v, hvS, hvQ, rfl⟩|⟨v, hv, α, hα, rfl⟩) y (⟨w, hwS, hwQ, rfl⟩|⟨w, hw, β, hβ, rfl⟩)
+  rintro x (⟨v, hvS, hvQ, rfl⟩|⟨v, hv, α, hα, rfl⟩) y (⟨w, hwS, hwQ, rfl⟩|⟨w, hw, β, hβ, rfl⟩) -
   · obtain rfl | hvw := eq_or_ne v w
-    · rfl
+    · exact .refl _
     · exact (U₁ 𝒮).heckeOperator_mul_comm_of_ne _ _ _ _ _ _ hvw
   · obtain rfl | hvw := eq_or_ne v w
     · contradiction
@@ -904,7 +904,7 @@ noncomputable instance :
     · contradiction
     · exact (U₁ 𝒮).heckeOperator_mul_comm_of_ne _ _ _ _ _ _ hvw
   · obtain rfl | hvw := eq_or_ne v w
-    · rw [U_mul_U, U_mul_U]; rw! [mul_comm]; rfl
+    · rw [commute_iff_eq, U_mul_U, U_mul_U]; rw! [mul_comm]; rfl
     · exact (U₁ 𝒮).heckeOperator_mul_comm_of_ne _ _ _ _ _ _ hvw
 
 noncomputable instance instCommRing :
@@ -1000,7 +1000,6 @@ lemma T_smul_def (v : HeightOneSpectrum (𝓞 F))
     T D 𝒮 v hvS hvQ • f = HeckeOperator.T D M 𝒮 v hvS f := by
   obtain ⟨f, rfl⟩ := ((U₁ 𝒮).toStruct.formTensorScalar D M R).surjective f
   induction f with
-  | zero => simp
   | add x y _ _ => simp only [*, map_add, smul_add]
   | tmul x y =>
     dsimp [HeckeOperator.T]
@@ -1014,7 +1013,6 @@ lemma U_smul_def (v : HeightOneSpectrum (𝓞 F))
     U D 𝒮 v hvQ a • f = HeckeOperator.U D M 𝒮 v hvQ a ha f := by
   obtain ⟨f, rfl⟩ := ((U₁ 𝒮).toStruct.formTensorScalar D M R).surjective f
   induction f with
-  | zero => simp
   | add x y _ _ => simp only [*, map_add, smul_add]
   | tmul x y =>
     dsimp [HeckeOperator.U]
@@ -1027,7 +1025,6 @@ lemma formMap_smul {N : Type*} [AddCommGroup N] [Module R N] (𝒮 : U₁Data F 
     (U₁ 𝒮).toStruct.formMap D φ (T • f) = T • (U₁ 𝒮).toStruct.formMap D φ f := by
   obtain ⟨f, rfl⟩ := ((U₁ 𝒮).toStruct.formTensorScalar D M R).surjective f
   induction f with
-  | zero => simp
   | add x y _ _ => simp only [*, map_add, smul_add]
   | tmul x y =>
     rw [smul_formTensorScalar]

@@ -217,7 +217,7 @@ theorem closureAlgebraMapIntegers_eq_integers :
     · use a
       rfl
     · apply hγ
-      simp only [sub_zero, WithVal.equiv_symm_apply, Set.mem_ofPred_eq]
+      simp only [sub_zero, Set.mem_ofPred_eq]
       rwa [← (valueGroup₀_equiv_withZeroMulInt_strictMono _).lt_iff_lt,
         valueGroup₀_equiv_withZeroMulInt_restrict_apply_of_surjective
         (valuedAdicCompletion_surjective K v)]

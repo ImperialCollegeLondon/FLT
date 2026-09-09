@@ -80,8 +80,7 @@ instance [Algebra R S] [CommSemiring A] [Algebra R A] [CommSemiring B] [Algebra 
   __ := ψ.toAlgebra
   map_smul₁ s x := ψ.baseChangeOfAlgebraMap.map_smul_of_tower ..
   map_smul₂ a x := by
-    induction x using TensorProduct.induction_on with
-    | zero => simp
+    induction x using TensorProduct.inductionOn with
     | tmul x y =>
       simp [TensorProduct.smul_tmul', -algebraMap_smul,
         algebra_compatible_smul B a, SemialgHom.baseChange_of_algebraMap_tmul,

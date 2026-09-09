@@ -770,7 +770,6 @@ lemma Eigenform.pi_lift_injective :
     simp_all
   clear e
   induction a with
-  | zero => simp
   | add x y _ _ => simp only [map_add, LinearMap.add_apply, add_smul, *]
   | tmul x y =>
   have := Eigenform.mem_eigenspace_iff.mp hf
@@ -780,7 +779,6 @@ lemma Eigenform.pi_lift_injective :
   obtain ⟨f, rfl⟩ := ((U₁ 𝒮).toStruct.formTensorScalar D ℂ ℂ).surjective f
   simp only [LinearEquiv.symm_apply_apply, map_smul]
   induction f with
-  | zero => simp
   | add x y H₁ H₂ => simp only [map_add, smul_add, *]
   | tmul a b =>
   simp [Subalgebra.smul_def, smul_formTensorScalar_tmul, TensorProduct.smul_tmul', mul_comm]
