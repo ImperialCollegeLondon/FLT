@@ -9,6 +9,8 @@ public import Mathlib.AlgebraicGeometry.EllipticCurve.Affine.Point
 public import Mathlib.Topology.Instances.ZMod
 public import FLT.Deformations.RepresentationTheory.GaloisRep
 
+import Mathlib.Topology.LocallyConstant.Basic
+
 /-!
 
 See
@@ -106,19 +108,130 @@ noncomputable instance WeierstrassCurve.galoisRepresentationSmul
 noncomputable instance WeierstrassCurve.galoisRepresentation
     (K : Type u) [Field K] [DecidableEq K] [Algebra k K] :
     DistribMulAction (K ≃ₐ[k] K) (E⁄K).Point where
-      one_smul := sorry -- these should all be easy
-      mul_smul := sorry
-      smul_zero := sorry
-      smul_add := sorry
+      one_smul := by
+        intro P
+        change WeierstrassCurve.Affine.Point.map (AlgHom.id k K) P = P
+        exact WeierstrassCurve.Affine.Point.map_id P
+      mul_smul := by
+        intro g h P
+        change WeierstrassCurve.Affine.Point.map ((g * h : K ≃ₐ[k] K) : K →ₐ[k] K) P =
+        WeierstrassCurve.Affine.Point.map (g : K →ₐ[k] K)
+            (WeierstrassCurve.Affine.Point.map (h : K →ₐ[k] K) P)
+        exact (WeierstrassCurve.Affine.Point.map_map (h : K →ₐ[k] K) (g : K →ₐ[k] K) P).symm
+      smul_zero := by
+        intro g
+        exact (WeierstrassCurve.Affine.Point.map (g : K →ₐ[k] K)).map_zero
+      smul_add := by
+        intro g P Q
+        exact (WeierstrassCurve.Affine.Point.map (g : K →ₐ[k] K)).map_add P Q
 
--- the next `sorry` is data but the only thing which should be missing is
--- the continuity argument, which follows from the finiteness asserted above.
+omit [E.IsElliptic] [DecidableEq k] in
+/-- The Galois action on points is continuous when the points have the discrete topology. -/
+instance WeierstrassCurve.continuousSMulDiscrete_points
+    (K : Type u) [Field K] [DecidableEq K] [Algebra k K] [Algebra.IsAlgebraic k K] :
+    ContinuousSMulDiscrete (K ≃ₐ[k] K) (E⁄K).Point where
+  isOpen_smul_eq := by
+    intro P Q
+    cases P with
+    | zero =>
+      by_cases h : Q = 0
+      · subst Q
+        change IsOpen {g : K ≃ₐ[k] K | (0 : (E⁄K).Point) = 0}
+        simpa only [Set.ofPred_true] using
+          (isOpen_univ : IsOpen (Set.univ : Set (K ≃ₐ[k] K)))
+      · change IsOpen {g : K ≃ₐ[k] K | (0 : (E⁄K).Point) = Q}
+        simpa only [Ne.symm h, Set.ofPred_false] using
+          (isOpen_empty : IsOpen (∅ : Set (K ≃ₐ[k] K)))
+    | some x y hP =>
+      cases Q with
+      | zero =>
+        change IsOpen {g : K ≃ₐ[k] K | Point.map (g : K →ₐ[k] K) (.some x y hP) = 0}
+        simpa only [Point.map_some, reduceCtorEq, Set.ofPred_false] using isOpen_empty
+      | some x' y' hQ =>
+        change IsOpen {g : K ≃ₐ[k] K |
+          Point.map (g : K →ₐ[k] K) (.some x y hP) = .some x' y' hQ}
+        simpa only [Point.map_some, Point.some.injEq, Set.ofPred_and, AlgEquiv.smul_def,
+          AlgEquiv.coe_toAlgHom] using
+          (ContinuousSMulDiscrete.isOpen_smul_eq (K ≃ₐ[k] K) x x').inter
+            (ContinuousSMulDiscrete.isOpen_smul_eq (K ≃ₐ[k] K) y y')
 
 /-- A classical decidable instance on `AlgebraicClosure ℚ`, given that there is
 no hope of a constructive one with the current definition of algebraic closure. -/
 noncomputable instance : DecidableEq (AlgebraicClosure ℚ) := Classical.typeDecidableEq _
 
+/-- The algebraic Galois representation on the `n`-torsion of an elliptic curve. -/
+noncomputable def WeierstrassCurve.torsionGaloisRepresentation
+    {K : Type u} [Field K] (E : WeierstrassCurve K)
+    [DecidableEq (AlgebraicClosure K)] (n : ℕ) :
+    Field.absoluteGaloisGroup K →*
+      Module.End (ZMod n) ((E.map (algebraMap K (AlgebraicClosure K))).nTorsion n) := by
+  -- Identify the two presentations of the base-changed curve when synthesizing the action.
+  letI : DistribMulAction (Field.absoluteGaloisGroup K)
+      ((E.map (algebraMap K (AlgebraicClosure K)))⁄(AlgebraicClosure K)).Point :=
+    inferInstanceAs (DistribMulAction (AlgebraicClosure K ≃ₐ[K] AlgebraicClosure K)
+      (E⁄(AlgebraicClosure K)).Point)
+  exact
+    { toFun := fun g ↦ AddMonoidHom.toZModLinearMap n
+        { toFun := fun P ↦ ⟨g • P.val, by
+            change (n : ℤ) • (g • P.val) = 0
+            have hP : (n : ℤ) • P.val = 0 := P.property
+            rw [smul_comm, hP, smul_zero]⟩
+          map_zero' := Subtype.ext (smul_zero g)
+          map_add' := fun P Q ↦ Subtype.ext (smul_add g P.val Q.val) }
+      map_one' := by
+        ext P
+        exact one_smul _ P.val
+      map_mul' := fun g h ↦ by
+        ext P
+        exact mul_smul g h P.val }
+
+/-- The torsion representation acts by applying the field automorphism to the point. -/
+@[simp] theorem WeierstrassCurve.torsionGaloisRepresentation_apply
+    {K : Type u} [Field K] (E : WeierstrassCurve K)
+    [DecidableEq (AlgebraicClosure K)] (n : ℕ)
+    (g : Field.absoluteGaloisGroup K)
+    (P : (E.map (algebraMap K (AlgebraicClosure K))).nTorsion n) :
+    (E.torsionGaloisRepresentation n g P).val =
+      Point.map (W' := E) (g : AlgebraicClosure K →ₐ[K] AlgebraicClosure K) P.val := rfl
+
+/-- Finitely many torsion points make the entire Galois representation locally constant. -/
+theorem WeierstrassCurve.isLocallyConstant_torsionGaloisRepresentation
+    {K : Type u} [Field K] (E : WeierstrassCurve K) [E.IsElliptic]
+    [DecidableEq (AlgebraicClosure K)] (n : ℕ) (hn : 0 < n) :
+    IsLocallyConstant (E.torsionGaloisRepresentation n) := by
+  let := (E.map (algebraMap K (AlgebraicClosure K))).n_torsion_finite hn
+  apply IsLocallyConstant.iff_isOpen_fiber.mpr
+  intro f
+  -- A fiber of the representation is a finite intersection of open point-action fibers.
+  have hf : (E.torsionGaloisRepresentation n) ⁻¹' {f} =
+      ⋂ P, {g | (E.torsionGaloisRepresentation n g P).val = (f P).val} := by
+    ext g
+    simp only [Set.mem_preimage, Set.mem_singleton_iff, Set.mem_iInter, Set.mem_ofPred_eq]
+    exact ⟨fun h P ↦ congrArg (fun f ↦ (f P).val) h,
+      fun h ↦ LinearMap.ext fun P ↦ Subtype.ext (h P)⟩
+  rw [hf]
+  apply isOpen_iInter_of_finite
+  intro P
+  change IsOpen {g : AlgebraicClosure K ≃ₐ[K] AlgebraicClosure K |
+    g • (show (E⁄(AlgebraicClosure K)).Point from P.val) =
+      (show (E⁄(AlgebraicClosure K)).Point from (f P).val)}
+  exact ContinuousSMulDiscrete.isOpen_smul_eq _ _ _
+
 /-- The continuous Galois representation associated to an elliptic curve over a field. -/
-def WeierstrassCurve.galoisRep {K : Type u} [Field K] (E : WeierstrassCurve K) [E.IsElliptic]
-    [DecidableEq K] [DecidableEq (AlgebraicClosure K)] (n : ℕ) (hn : 0 < n) :
-  GaloisRep K (ZMod n) ((E.map (algebraMap K (AlgebraicClosure K))).nTorsion n) := sorry
+noncomputable def WeierstrassCurve.galoisRep
+    {K : Type u} [Field K] (E : WeierstrassCurve K) [E.IsElliptic]
+    [DecidableEq (AlgebraicClosure K)] (n : ℕ) (hn : 0 < n) :
+  GaloisRep K (ZMod n) ((E.map (algebraMap K (AlgebraicClosure K))).nTorsion n) :=
+  letI := moduleTopology (ZMod n)
+    (Module.End (ZMod n) ((E.map (algebraMap K (AlgebraicClosure K))).nTorsion n))
+  { E.torsionGaloisRepresentation n with
+    continuous_toFun := (E.isLocallyConstant_torsionGaloisRepresentation n hn).continuous }
+
+/-- The continuous representation retains the coordinate action on torsion points. -/
+@[simp] theorem WeierstrassCurve.galoisRep_apply
+    {K : Type u} [Field K] (E : WeierstrassCurve K) [E.IsElliptic]
+    [DecidableEq (AlgebraicClosure K)] (n : ℕ) (hn : 0 < n)
+    (g : Field.absoluteGaloisGroup K)
+    (P : (E.map (algebraMap K (AlgebraicClosure K))).nTorsion n) :
+    (E.galoisRep n hn g P).val =
+      Point.map (W' := E) (g : AlgebraicClosure K →ₐ[K] AlgebraicClosure K) P.val := rfl
