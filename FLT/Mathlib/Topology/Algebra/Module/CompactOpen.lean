@@ -45,4 +45,19 @@ scoped instance continuousSMul [ContinuousSMul k M2] :
     ContinuousSMul k (M1 →L[k] M2) :=
   Topology.IsInducing.continuousSMul (X := C(M1, M2)) ⟨rfl⟩ continuous_id rfl
 
+/-- Evaluation at a point of `M1`, as a continuous linear map on the space `M1 →L[k] M2` of
+continuous linear maps carrying the topology induced from the compact-open topology. -/
+def evalCLM [ContinuousConstSMul k M2] (m : M1) : (M1 →L[k] M2) →L[k] M2 where
+  toFun φ := φ m
+  map_add' _ _ := rfl
+  map_smul' _ _ := rfl
+  cont := by
+    change Continuous fun φ : M1 →L[k] M2 ↦ (⟨φ.toFun, φ.cont⟩ : C(M1, M2)) m
+    exact (continuous_eval_const m).comp continuous_induced_dom
+
+omit [TopologicalSpace k] [IsTopologicalAddGroup M1] in
+@[simp]
+lemma evalCLM_apply [ContinuousConstSMul k M2] (m : M1) (φ : M1 →L[k] M2) :
+    evalCLM m φ = φ m := rfl
+
 end ContinuousLinearMap.CompactOpen
