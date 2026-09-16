@@ -156,8 +156,7 @@ instance [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
     IsBiscalar L (𝔸 K) (baseChangeAlgEquiv K L).toAlgHom where
   map_smul₁ l x := (baseChangeAlgEquiv K L).toAlgHom.map_smul_of_tower l x
   map_smul₂ a x := by
-    induction x using TensorProduct.induction_on with
-    | zero => simp
+    induction x using TensorProduct.inductionOn with
     | tmul l r =>
         apply Prod.ext
         · simp only [AlgEquiv.coe_toAlgHom, smul_def, TensorProduct.comm_tmul,
@@ -309,8 +308,7 @@ instance [Algebra K∞ L∞] [Algebra (𝔸 K) (𝔸 L)]
     IsBiscalar L (𝔸 K) (ModuleBaseChangeLinearEquiv K L V) where
   map_smul₁ l x := (ModuleBaseChangeLinearEquiv K L V).map_smul l x
   map_smul₂ a x := by
-    induction x using TensorProduct.induction_on with
-    | zero => simp
+    induction x using TensorProduct.inductionOn with
     | tmul l r =>
         have := IsBiscalar.map_smul₂ L (S := 𝔸 K) (f := (baseChangeAlgEquiv K L).toAlgHom) a
         rw [AlgEquiv.coe_toAlgHom] at this
@@ -598,7 +596,7 @@ theorem Rat.InfiniteAdeleRing.exists_sub_norm_le_one (a : InfiniteAdeleRing ℚ)
     ∃ (x : 𝓞 ℚ), ∀ v, ‖a v - algebraMap ℚ (InfiniteAdeleRing ℚ) x v‖ ≤ 1 := by
   obtain ⟨x, hx1, -⟩ := Rat.InfiniteAdeleRing.exists_unique_sub_mem_Ico a
   use x
-  peel hx1 with v hv
+  gconvert hx1 with v hv
   rw [Subsingleton.elim v Rat.infinitePlace] at *
   rw [← (isometry_extensionEmbeddingOfIsReal isReal_infinitePlace).norm_map_of_map_zero
       (map_zero _), Real.norm_eq_abs]
@@ -834,7 +832,6 @@ lemma baseChangeAdeleAlgHom_bijective : Function.Bijective (baseChangeAdeleAlgHo
   have eqEquiv : ⇑(baseChangeAdeleAlgHom K L) = ⇑(linearEquiv) := by
     ext x
     induction x with
-    | zero => rfl
     | tmul x y => rfl
     | add x y _ _ => simp_all
   rw [eqEquiv]
@@ -860,7 +857,6 @@ noncomputable def baseChangeEquiv' :
 -- this isn't rfl. Explanation below
 example (x : L ⊗[K] 𝔸 K) : baseChangeEquiv K L x = baseChangeEquiv' K L x := by
   induction x with
-  | zero => rfl
   | tmul x y => rfl
   | add x y _ _ => simp_all
 

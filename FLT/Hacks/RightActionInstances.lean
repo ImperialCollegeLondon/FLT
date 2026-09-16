@@ -83,8 +83,6 @@ scoped instance : Algebra S (B ⊗[R] S) where
   algebraMap := Algebra.TensorProduct.includeRight.toRingHom
   commutes' s bs := by
     induction bs with
-    | zero => simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
-      Algebra.TensorProduct.includeRight_apply, mul_zero, zero_mul]
     | tmul x y =>
         simp only [AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
           Algebra.TensorProduct.includeRight_apply, Algebra.TensorProduct.tmul_mul_tmul, one_mul,
@@ -94,8 +92,6 @@ scoped instance : Algebra S (B ⊗[R] S) where
           Algebra.TensorProduct.includeRight_apply, mul_add, add_mul]
   smul_def' s bs := by
     induction bs with
-    | zero => simp only [smul_zero, AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
-      Algebra.TensorProduct.includeRight_apply, mul_zero]
     | tmul b s =>
         simp only [smul_def, TensorProduct.comm_tmul, AlgHom.toRingHom_eq_coe, RingHom.coe_coe,
           Algebra.TensorProduct.includeRight_apply, Algebra.TensorProduct.tmul_mul_tmul, one_mul]
@@ -125,8 +121,6 @@ def Module.TensorProduct.comm : A ⊗[R] M ≃ₗ[A] M ⊗[R] A where
   __ := (_root_.TensorProduct.comm R A M).toAddEquiv
   map_smul' a am := by
     induction am with
-    | zero => simp only [smul_zero, AddHom.toFun_eq_coe, LinearMap.coe_toAddHom,
-      map_zero, RingHom.id_apply]
     | tmul x y =>
         simp only [smul_tmul', smul_eq_mul, AddHom.toFun_eq_coe, LinearMap.coe_toAddHom,
           LinearEquiv.coe_coe, comm_tmul, RingHom.id_apply, smul_def, comm_symm_tmul]

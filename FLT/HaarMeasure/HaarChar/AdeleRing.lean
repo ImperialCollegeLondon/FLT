@@ -120,7 +120,7 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
       Units.val_inv_eq_inv_val, MulEquiv.prodUnits, MulEquiv.coe_mk, Equiv.coe_fn_mk,
       MonoidHom.prod_apply, Units.coe_map, MonoidHom.coe_coe, MonoidHom.coe_snd, Units.coe_map_inv,
       RestrictedProduct.mk_apply]
-    rw [AdeleRing.algebraMap_snd_apply, WithVal.equiv_symm_apply]
+    rw [AdeleRing.algebraMap_snd_apply]
     rw [NumberField.FinitePlace.norm_embedding']
     simp  [FinitePlace.norm_def]
 
@@ -211,7 +211,6 @@ lemma MeasureTheory.addHaarScalarFactor_tensor_adeles_eq_one (φ : V ≃ₗ[K] V
   · apply MeasureTheory.addHaarScalarFactor_tensor_adeles_rat_eq_one
   · intro x
     induction x with
-    | zero => simp
     | tmul x y => rfl
     | add x y hx hy => simp at hx hy; simp [hx, hy]
 
@@ -230,7 +229,6 @@ lemma NumberField.AdeleRing.units_mem_ringHaarCharacter_ker
   ext c
   change _ = (ContinuousLinearEquiv.baseChange K _ _ _ _) c
   induction c with
-  | zero => simp
   | tmul x y => simp [LinearEquiv.mulLeft]
   | add x y hx hy => simp_all [mul_add]
 
@@ -249,6 +247,5 @@ lemma NumberField.AdeleRing.addEquivAddHaarChar_mulRight_unit_eq_one
   ext c
   change _ = (ContinuousLinearEquiv.baseChange K _ _ _ _) c
   induction c with
-  | zero => simp
   | tmul x y => simp [LinearEquiv.mulRight]
   | add x y hx hy => simp_all [add_mul]

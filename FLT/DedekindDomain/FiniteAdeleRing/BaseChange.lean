@@ -239,8 +239,7 @@ theorem baseChange_bijective [FiniteDimensional K L] :
   -- not L-linear; maybe write `IsLocalization.tensorProduct_ext'` which allows
   -- for L-linear maps out of a K-linear tensor product?
   apply congr_arg _ <| LinearMap.ext fun x ↦ ?_
-  induction x using TensorProduct.induction_on with
-  | zero => simp
+  induction x using TensorProduct.inductionOn with
   | tmul l x =>
     ext1 w
     obtain ⟨⟨b, s⟩, hl : (s : B) • l = algebraMap B L b⟩ :=

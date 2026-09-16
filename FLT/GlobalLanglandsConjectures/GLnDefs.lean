@@ -62,10 +62,8 @@ noncomputable instance instLieAlgebra'
     [LieAlgebra R L] [Algebra S A] [SMulCommClass R S A] :
     LieAlgebra S (A ⊗[R] L) where
   lie_smul a x y := by
-    induction x using TensorProduct.induction_on generalizing y
-    · simp
-    · induction y using TensorProduct.induction_on
-      · simp
+    induction x using TensorProduct.inductionOn generalizing y
+    · induction y using TensorProduct.inductionOn
       · simp [TensorProduct.smul_tmul']
       · simp_all
     · simp_all [add_lie]
@@ -147,9 +145,8 @@ def LieModuleHom.baseChange
       map_lie' := by
         simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
         intro x m
-        induction x using TensorProduct.induction_on
-        · simp only [zero_lie, map_zero]
-        · induction m using TensorProduct.induction_on <;> simp_all
+        induction x using TensorProduct.inductionOn
+        · induction m using TensorProduct.inductionOn <;> simp_all
         · simp_all only [add_lie, map_add]
 
 /-- Base change of a Lie algebra homomorphism `f : L →ₗ⁅R⁆ L'` along a commutative
@@ -164,9 +161,8 @@ def LieHom.baseChange
   map_lie' := by
     simp only [AddHom.toFun_eq_coe, LinearMap.coe_toAddHom]
     intro x m
-    induction x using TensorProduct.induction_on
-    · simp only [zero_lie, map_zero]
-    · induction m using TensorProduct.induction_on <;> simp_all
+    induction x using TensorProduct.inductionOn
+    · induction m using TensorProduct.inductionOn <;> simp_all
     · simp_all only [add_lie, map_add]
 
 /-- Complexification of `AutomorphicForm.GLn.action`: the Lie action of the complexified Lie algebra

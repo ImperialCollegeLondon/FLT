@@ -44,8 +44,8 @@ def ZHat : Type := {
   zero_mem' := by simp
   neg_mem' := fun {x} hx => by
     simp only [ZMod.castHom_apply, Set.mem_ofPred_eq, Pi.neg_apply] at *
-    peel hx with D N hD hx
-    rw [ZMod.cast_neg hD, hx]
+    gconvert hx using 3 with D N hD
+    rw [ZMod.cast_neg hD, this]
   add_mem' := fun {a b} ha hb => by
     simp only [ZMod.castHom_apply, Set.mem_ofPred_eq, Pi.add_apply] at *
     intro D N hD
@@ -328,10 +328,7 @@ noncomputable example : QHat := (22 / 7) ⊗ₜ ZHat.e
 namespace QHat
 
 lemma canonicalForm (z : QHat) : ∃ (N : ℕ+) (z' : ZHat), z = (1 / N : ℚ) ⊗ₜ z' := by
-  induction z using TensorProduct.induction_on with
-  | zero =>
-    refine ⟨1, 0, ?_⟩
-    simp
+  induction z using TensorProduct.inductionOn with
   | tmul q z =>
     refine ⟨⟨q.den, q.den_pos ⟩, q.num * z, ?_⟩
     simp_rw [← zsmul_eq_mul, TensorProduct.tmul_smul, TensorProduct.smul_tmul']

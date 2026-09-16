@@ -220,7 +220,7 @@ lemma valued_adicCompletionSemialgHom (x) :
   intro a
   simp only [Function.comp_apply, adicCompletion.valued_ofCompletion,
     Valued.valuedCompletion_apply, w.2, adicCompletionSemialgHom_coe,
-    WithVal.equiv_symm_apply, WithVal.valued_toVal, ← valuation_comap A K L B w.1 _]
+    WithVal.valued_toVal, ← valuation_comap A K L B w.1 _]
   rw [WithVal.valued_toVal]
 
 /-- The canonical map K_v → L_w sends 𝓞_v to 𝓞_w. -/
@@ -383,10 +383,6 @@ lemma tensorAdicCompletionIntegersTo_range_subset_closure [FiniteDimensional K L
     closure (algebraMap B (L ⊗[K] adicCompletion K v)).range := by
   rintro _ ⟨s, rfl⟩
   induction s with
-    | zero =>
-        apply subset_closure
-        use 0
-        simp
     | add x y hx hy =>
         -- The closure of a subgroup is a subgroup
         rw [RingHom.map_add]

@@ -35,18 +35,15 @@ instance {A : Type*} [CommRing A] [Bialgebra K A] : Monoid (A →ₐ[K] L) where
       (fun _ _ ↦ .all _ _) $(Coalgebra.coassoc_apply (R := K) x))
     · change Algebra.TensorProduct.lift _ c (fun _ _ ↦ .all _ _) (Coalgebra.comul x) = _
       induction Coalgebra.comul (R := K) x with
-      | zero => simp only [map_zero]
       | add x y _ _ => simp only [map_add, *]
       | tmul x y =>
         change (Algebra.TensorProduct.lift a b (fun _ _ ↦ .all _ _) (Coalgebra.comul x)) * _ = _
         dsimp
         induction Coalgebra.comul (R := K) x with
-        | zero => simp only [map_zero, zero_mul, TensorProduct.zero_tmul]
         | add x y _ _ => simp only [map_add, add_mul, TensorProduct.add_tmul, *]
         | tmul x z => exact mul_assoc _ _ _
     · change Algebra.TensorProduct.lift a _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x) = _
       induction Coalgebra.comul (R := K) x with
-      | zero => simp only [map_zero]
       | add x y _ _ => simp only [map_add, *]
       | tmul x y => rfl
   one := (Algebra.ofId K L).comp (Bialgebra.counitAlgHom K A)
@@ -56,7 +53,6 @@ instance {A : Type*} [CommRing A] [Bialgebra K A] : Monoid (A →ₐ[K] L) where
     convert congr(Algebra.TensorProduct.lift (Algebra.ofId K L)
       f (fun _ _ ↦ .all _ _) $(Coalgebra.rTensor_counit_comul (R := K) x))
     · induction Coalgebra.comul (R := K) x with
-      | zero => simp only [map_zero]
       | add x y _ _ => simp only [map_add, *]
       | tmul x y =>
         simp only [Algebra.TensorProduct.lift_tmul, LinearMap.rTensor_tmul]
@@ -68,7 +64,6 @@ instance {A : Type*} [CommRing A] [Bialgebra K A] : Monoid (A →ₐ[K] L) where
     convert congr(Algebra.TensorProduct.lift f (Algebra.ofId K L) (fun _ _ ↦ .all _ _)
       $(Coalgebra.lTensor_counit_comul (R := K) x))
     · induction Coalgebra.comul (R := K) x with
-      | zero => simp only [map_zero]
       | add x y _ _ => simp only [map_add, *]
       | tmul x y =>
         simp only [Algebra.TensorProduct.lift_tmul]
@@ -83,7 +78,6 @@ instance {A : Type*} [CommRing A] [Bialgebra K A] :
     change r (Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x)) =
       Algebra.TensorProduct.lift _ _ (fun _ _ ↦ .all _ _) (Coalgebra.comul x)
     induction Coalgebra.comul (R := K) x with
-    | zero => simp only [map_zero]
     | add x y _ _ => simp only [map_add, *]
     | tmul x y => simp; rfl
   smul_one r := by

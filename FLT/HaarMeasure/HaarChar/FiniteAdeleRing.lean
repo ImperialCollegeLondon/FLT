@@ -264,13 +264,13 @@ noncomputable abbrev bGlobal :=
 lemma basis_repr_eq (v : HeightOneSpectrum (𝓞 K)) {x : adicCompletion K v ⊗[K] B} :
     (bLocal K B v).repr x
     = (ContinuousLinearEquiv.chooseBasisPiScalarRight' K (v.adicCompletion K) B) x := by
-  refine TensorProduct.induction_on x (by simp) (fun _ _ ↦ ?_) (fun _ _ ↦ by simp +contextual)
+  refine TensorProduct.inductionOn x (fun _ _ ↦ ?_) (fun _ _ ↦ by simp +contextual)
   ext; simp; rfl
 
 lemma basis_repr_eq_global {x : (FiniteAdeleRing (𝓞 K) K) ⊗[K] B} :
     (bGlobal K B).repr x
     = (ContinuousLinearEquiv.chooseBasisPiScalarRight' K (FiniteAdeleRing (𝓞 K) K) B) x := by
-  refine TensorProduct.induction_on x (by simp) (fun _ _ ↦ ?_) (fun _ _ ↦ by simp +contextual)
+  refine TensorProduct.inductionOn x (fun _ _ ↦ ?_) (fun _ _ ↦ by simp +contextual)
   ext; simp; rfl
 
 lemma basis_eq_single (v : HeightOneSpectrum (𝓞 K))
@@ -338,7 +338,6 @@ noncomputable def φLocalKvLinear (v : HeightOneSpectrum (𝓞 K))
       kv • (AlgHom.rTensor B (FiniteAdeleRing.evalAlgebraMap (𝓞 K) K v)
       (φ (LinearMap.rTensor B (FiniteAdeleRing.singleLinearMap (𝓞 K) K v) x)))
     induction x with
-    | zero => simp only [AlgHom.toRingHom_eq_coe, smul_zero, map_zero]
     | tmul x y =>
       -- need to slowly move the `kv •` out on the LHS
       rw [LinearMap.rTensor_tmul, TensorProduct.smul_tmul',

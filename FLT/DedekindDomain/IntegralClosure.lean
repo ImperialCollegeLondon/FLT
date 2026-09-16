@@ -262,7 +262,6 @@ noncomputable def linearEquivTensorProductModuleLeft : L ⊗[K] M ≃ₗ[B] B �
         |>.trans (TensorProduct.comm A K B) |>.symm
     map_smul' b x := by
       induction x with
-      | zero => simp
       | tmul l m => simp [LinearEquivTensorProduct_symm_tmul, Algebra.smul_def]; ring
       | add => simp_all
     }

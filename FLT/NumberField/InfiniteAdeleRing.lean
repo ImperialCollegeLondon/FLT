@@ -153,8 +153,7 @@ instance [Algebra K∞ L∞]
     IsBiscalar L K∞ (baseChangeAlgEquiv K L).toAlgHom where
   map_smul₁ l x := (InfiniteAdeleRing.baseChangeAlgEquiv K L).toAlgHom.map_smul_of_tower l x
   map_smul₂ a x := by
-    induction x using TensorProduct.induction_on with
-    | zero => simp
+    induction x using TensorProduct.inductionOn with
     | tmul l r =>
         funext w
         simp [TensorProduct.smul_tmul', baseChangeAlgEquiv_tmul,

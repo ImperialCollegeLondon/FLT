@@ -192,8 +192,7 @@ lemma TensorProduct.map_comap_eq [IsSimpleRing A] [Algebra.IsCentral K A] [hB : 
     rw [hI, TwoSidedIdeal.coe_top, TwoSidedIdeal.le_iff]
     rintro x -
     rw [SetLike.mem_coe]
-    induction x using TensorProduct.induction_on with
-    | zero => simp
+    induction x using TensorProduct.inductionOn with
     | tmul a b =>
       rw [show a ⊗ₜ[K] b = (a ⊗ₜ 1) * (1 ⊗ₜ b) by simp]
       exact TwoSidedIdeal.mul_mem_left _ _ _ <| TwoSidedIdeal.subset_span ⟨b, ⟨⟩, rfl⟩

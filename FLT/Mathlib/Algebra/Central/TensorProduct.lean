@@ -34,7 +34,7 @@ lemma Subalgebra.sup_includeLeft_includeRight_eq_top
     = (⊤ : Subalgebra k (A ⊗[k] B)) := by
   ext x
   simp only [Algebra.mem_top, iff_true]
-  refine TensorProduct.induction_on x (by simp) (fun a b ↦ ?_) (fun _ _ ↦ AddMemClass.add_mem)
+  refine TensorProduct.inductionOn x (fun a b ↦ ?_) (fun _ _ ↦ AddMemClass.add_mem)
   have : a ⊗ₜ[k] b = a ⊗ₜ[k] 1 * 1 ⊗ₜ[k] b := by simp
   rw [this]
   exact Subalgebra.mul_mem _
@@ -67,12 +67,10 @@ lemma Submodule.tensorProduct_inf_eq_range_map
   let qT := T.projectionOnto T.exists_isCompl.choose T.exists_isCompl.choose_spec
   have hxS : TensorProduct.map (S.subtype.comp qS) LinearMap.id x = x := by
     rw [← hux]
-    exact TensorProduct.induction_on u (by simp)
-      (fun _ _ ↦ by simp_all [qS]) (fun _ _ ↦ by simp_all)
+    exact TensorProduct.inductionOn u (fun _ _ ↦ by simp_all [qS]) (fun _ _ ↦ by simp_all)
   have hxT : TensorProduct.map LinearMap.id (T.subtype.comp qT) x = x := by
     rw [← hvx]
-    exact TensorProduct.induction_on v (by simp)
-      (fun _ _ ↦ by simp_all [qT]) (fun _ _ ↦ by simp_all)
+    exact TensorProduct.inductionOn v (fun _ _ ↦ by simp_all [qT]) (fun _ _ ↦ by simp_all)
   have hxST : TensorProduct.map (S.subtype.comp qS) (T.subtype.comp qT) x = x := by
     conv_rhs => rw [← hxS, ← hxT]
     simp [← TensorProduct.map_comp, ← LinearMap.comp_apply]
@@ -108,7 +106,7 @@ instance (k A B : Type*) [Field k] [CommRing A] [Ring B]
     simpa [← Subalgebra.center_tensorProduct] using! hx
   rw [Algebra.IsCentral.center_eq_bot k B] at this
   obtain ⟨ab, rfl⟩ := this
-  refine TensorProduct.induction_on ab (by simp)
+  refine TensorProduct.inductionOn ab
     (fun a ⟨b, hb⟩ ↦ ?_) (fun _ _ ↦ by simpa using AddMemClass.add_mem)
   obtain ⟨kb, rfl⟩ := Algebra.mem_bot.mp hb
   refine Algebra.mem_bot.mpr ⟨kb • a, ?_⟩

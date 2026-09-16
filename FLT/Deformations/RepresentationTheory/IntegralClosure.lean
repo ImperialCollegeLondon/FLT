@@ -102,6 +102,6 @@ instance continuousSMulDiscrete_integralClosure
 
 instance {R S : Type*} [CommRing R] [CommRing S] {I : Ideal S} [Algebra R S]
     [Nontrivial R] [IsDomain S] [Algebra.IsIntegral R S] [NeZero I] : NeZero (I.under R) :=
-  ⟨fun H ↦ NeZero.ne I (Ideal.eq_bot_of_comap_eq_bot H)⟩
+  ⟨fun H ↦ NeZero.ne I (Ideal.eq_bot_of_under_eq_bot H)⟩
 
 end
