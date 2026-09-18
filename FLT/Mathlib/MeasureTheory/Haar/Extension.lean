@@ -65,14 +65,14 @@ theorem not_injOn_of_measure_gt
     (H : Subgroup G) [H.Normal] [DiscreteTopology H] [CompactSpace (G ⧸ H)] :
     ∃ B : NNReal, ∀ U : Set G, IsOpen U → B < haar U → ¬ U.InjOn (QuotientGroup.mk' H) := by
   have h := ofClosedSubgroup H
-  use ((haarScalarFactor ((h Subgroup.isClosed_of_discrete).inducedMeasure haar haar) haar)⁻¹ •
-    (haar (Set.univ : Set (G ⧸ H)) * haar ({1} : Set H))).toNNReal
+  use ((haarScalarFactor ((h Subgroup.isClosed_of_discreteTopology).inducedMeasure haar haar)
+    haar)⁻¹ • (haar (Set.univ : Set (G ⧸ H)) * haar ({1} : Set H))).toNNReal
   intro U hU hU'
   rw [ENNReal.coe_toNNReal] at hU'
   · rw [inv_smul_lt_iff_of_pos (haarScalarFactor_pos_of_isHaarMeasure _ _)] at hU'
-    apply (h Subgroup.isClosed_of_discrete).not_injOn_of_inducedMeasure_gt haar haar U hU
-    rwa [measure_isHaarMeasure_eq_smul_of_isOpen ((h Subgroup.isClosed_of_discrete).inducedMeasure
-      haar haar) haar hU]
+    apply (h Subgroup.isClosed_of_discreteTopology).not_injOn_of_inducedMeasure_gt haar haar U hU
+    rwa [measure_isHaarMeasure_eq_smul_of_isOpen
+      ((h Subgroup.isClosed_of_discreteTopology).inducedMeasure haar haar) haar hU]
   · apply ENNReal.nnreal_smul_ne_top
     apply ENNReal.mul_ne_top
     · exact isCompact_univ.measure_ne_top

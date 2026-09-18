@@ -262,7 +262,8 @@ instance compact_includeLeft_subgroup :
     have : DiscreteTopology (principalSubgroup (𝓞 K) K : Set (AdeleRing (𝓞 K) K)) :=
       discrete_principalSubgroup K
     have key := TopologicalAddGroup.IsSES.ofClosedAddSubgroup (principalSubgroup (𝓞 K) K)
-    exact IsOpenQuotientMap.piMap (fun _ ↦ (key AddSubgroup.isClosed_of_discrete).isOpenQuotientMap)
+    exact IsOpenQuotientMap.piMap
+      (fun _ ↦ (key AddSubgroup.isClosed_of_discreteTopology).isOpenQuotientMap)
   let φ : (Fin (Module.finrank K D) → AdeleRing (𝓞 K) K) →+ (D_𝔸 ⧸ H) :=
     AddMonoidHom.comp (QuotientAddGroup.mk' _) (D𝔸IsoTop K D).symm.toAddMonoidHom
   have hφ0 : π.ker ≤ φ.ker := by
@@ -863,8 +864,8 @@ lemma T_finite_extracted1 : IsCompact (Y K D ∩
   refine IsCompact.inter_right (Y_compact K D) ?_
   have : DiscreteTopology (includeLeftSubgroup K D).carrier := by
     infer_instance
-  simpa [includeLeftSubgroup] using AddSubgroup.isClosed_of_discrete
-    (H := includeLeftSubgroup K D)
+  simpa [includeLeftSubgroup] using AddSubgroup.isClosed_of_discreteTopology
+    (U := includeLeftSubgroup K D)
 
 lemma T_finite : Set.Finite (T K D) := by
   have h := IsCompact.finite (T_finite_extracted1 K D)

@@ -74,8 +74,7 @@ theorem intValuation_eq_padicValuation_iff_multiplicity_eq_multiplicity {x : R}
       multiplicity v.asIdeal (Ideal.span {x}) = multiplicity (primesEquiv v).1
         (IsIntegralClosure.intEquiv R x).natAbs := by
   simp [intValuation_eq_coe_neg_multiplicity _ hx, padicValuation, hx,
-    padicValInt, padicValNat_def <| Int.natAbs_ne_zero.2 <|
-      (IsIntegralClosure.intEquiv R).map_ne_zero_iff.2 hx]
+    padicValInt, Nat.padicValNat_def]
 
 variable [IsFractionRing R ℚ]
 
