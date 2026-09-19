@@ -85,7 +85,7 @@ def repnQuotFunctor : ProartinianCat 𝓞 ⥤ Type u where
     refine ⟨⟨.toConjAct (Matrix.GeneralLinearGroup.map f.hom.toRingHom g.ofConjAct), ?_⟩, ?_⟩
     · simpa [← Matrix.GeneralLinearGroup.map_comp_apply, ← Matrix.GeneralLinearGroup.map_comp,
         ← RingHom.coe_comp, ← ContinuousAlgHom.coe_comp,
-        -AlgHomClass.toRingHom_toAlgHom, ← AlgHom.comp_toRingHom, ← ProartinianCat.hom_comp,
+        -AlgHomClass.toRingHom_ofClass, ← AlgHom.comp_toRingHom, ← ProartinianCat.hom_comp,
         Subsingleton.elim _ R.toResidueField]
     · obtain ⟨g, rfl⟩ := ConjAct.toConjAct.surjective g
       ext1 γ
