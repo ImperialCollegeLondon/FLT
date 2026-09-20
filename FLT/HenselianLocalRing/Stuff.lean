@@ -70,7 +70,8 @@ instance {R S : Type*} [CommRing R] [CommRing S] [Algebra R S]
 
 lemma Ideal.isRadical_ker {R S : Type*} [CommRing R] [CommRing S] [IsReduced S] (f : R →+* S) :
     (RingHom.ker f).IsRadical := by
-  simpa [IsRadical, SetLike.le_def, Ideal.mem_radical_iff] using fun _ _ ↦ eq_zero_of_pow_eq_zero
+  simpa [IsRadical, IsConcreteLE.le_iff, Ideal.mem_radical_iff] using
+    fun _ _ ↦ eq_zero_of_pow_eq_zero
 
 lemma Ideal.IsRadical.pow_mem_iff {R : Type*} [CommRing R] {I : Ideal R} (hI : I.IsRadical)
     {x : R} {n : ℕ} (hn : n ≠ 0) :

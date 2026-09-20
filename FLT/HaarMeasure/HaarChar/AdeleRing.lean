@@ -113,13 +113,13 @@ lemma MeasureTheory.ringHaarChar_adeles_units_rat_eq_one (x : ℚˣ) :
           { __ := (Rat.HeightOneSpectrum.adicCompletion.padicEquiv p)
             commutes' := by simp },
       AlgEquiv.toEquiv_eq_coe, MulEquiv.toMonoidHom_eq_coe, ringHaarChar_padic, Units.coe_map,
-      MonoidHom.coe_coe, MulEquiv.coe_mk, EquivLike.coe_coe, ContinuousAlgEquiv.coe_toAlgEquiv,
+      MonoidHom.coe_ofClass, MulEquiv.coe_mk, EquivLike.coe_coe, ContinuousAlgEquiv.coe_toAlgEquiv,
       NNReal.coe_toRealHom, coe_nnnorm, Rat.HeightOneSpectrum.adicCompletion.padicEquiv_norm_eq,
       FinitePlace.equivHeightOneSpectrum, Equiv.coe_fn_symm_mk, FinitePlace.mk_apply,
       MulEquiv.restrictedProductUnits, RestrictedProduct.inv_apply,
       Units.val_inv_eq_inv_val, MulEquiv.prodUnits, MulEquiv.coe_mk, Equiv.coe_fn_mk,
-      MonoidHom.prod_apply, Units.coe_map, MonoidHom.coe_coe, MonoidHom.coe_snd, Units.coe_map_inv,
-      RestrictedProduct.mk_apply]
+      MonoidHom.prod_apply, Units.coe_map, MonoidHom.coe_ofClass, MonoidHom.coe_snd,
+      Units.coe_map_inv, RestrictedProduct.mk_apply]
     rw [AdeleRing.algebraMap_snd_apply]
     rw [NumberField.FinitePlace.norm_embedding']
     simp  [FinitePlace.norm_def]

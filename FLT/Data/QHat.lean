@@ -565,7 +565,7 @@ lemma _root_.Algebra.TensorProduct.one_tmul_intCast {R : Type*} {A : Type*} {B :
 lemma rat_meet_zHat : ratsub ⊓ zHatsub = zsub := by
   apply le_antisymm
   · intro x ⟨⟨l, hl⟩, ⟨r, hr⟩⟩
-    simp only [AddMonoidHom.coe_coe, Algebra.TensorProduct.includeLeft_apply,
+    simp only [AddMonoidHom.coe_ofClass, Algebra.TensorProduct.includeLeft_apply,
       Algebra.TensorProduct.includeRight_apply] at hl hr
     rcases lowestTerms x with ⟨⟨N, z, hNz, hx⟩, unique⟩
     have cop1 : IsCoprime l.den.toPNat' l.num := by
@@ -585,7 +585,7 @@ lemma rat_meet_zHat : ratsub ⊓ zHatsub = zsub := by
     use l.num; rw [hx, (unique _ 1 _ r ⟨hNz, cop2, hcanon.symm⟩).1]
     simp
   · exact fun x ⟨k, hk⟩ ↦ by constructor <;>
-      (use k; simp only [AddMonoidHom.coe_coe,
+      (use k; simp only [AddMonoidHom.coe_ofClass,
         map_intCast]; exact hk)
 
 lemma rat_join_zHat : ratsub ⊔ zHatsub = ⊤ := by
@@ -684,8 +684,9 @@ lemma unitsrat_meet_unitszHat : unitsratsub ⊓ unitszHatsub = unitszsub := by
       rw [← hxz, ← MonoidHom.comp_apply, ← Units.map_comp]
       congr
       ext x
-      · simp only [MonoidHom.coe_comp, MonoidHom.coe_coe, Function.comp_apply, Int.coe_castRingHom,
-        Algebra.TensorProduct.includeRight_apply, Algebra.TensorProduct.one_tmul_intCast]
+      · simp only [MonoidHom.coe_comp, MonoidHom.coe_ofClass, Function.comp_apply,
+        Int.coe_castRingHom, Algebra.TensorProduct.includeRight_apply,
+        Algebra.TensorProduct.one_tmul_intCast]
       simp
 
 @[simp]
@@ -717,19 +718,19 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
   suffices h : ∀ (u : QHatˣ), (u : QHat) ∈ zHatsub → u ∈ unitsratsub ⊔ unitszHatsub by
     specialize h xunit
     simp only [Algebra.TensorProduct.includeRight_apply, AddMonoidHom.mem_range,
-      AddMonoidHom.coe_coe, exists_apply_eq_apply, forall_const, Subgroup.mem_sup, xunit] at h
+      AddMonoidHom.coe_ofClass, exists_apply_eq_apply, forall_const, Subgroup.mem_sup, xunit] at h
     rcases h with ⟨w, ⟨v, rfl⟩, z, ⟨t, rfl⟩, wzx⟩
     rw [Subgroup.mem_sup]
     let q : ℚˣ := ⟨v / N, N / v, by field_simp, by field_simp⟩
     use ((Units.map ↑i₁) q)
     simp only [MonoidHom.mem_range, exists_exists_eq_and]
     refine ⟨⟨q, rfl⟩, t, ?_⟩
-    simp only [← Units.val_inj, hy, Units.map_mk, MonoidHom.coe_coe,
+    simp only [← Units.val_inj, hy, Units.map_mk, MonoidHom.coe_ofClass,
       Algebra.TensorProduct.includeLeft_apply, Units.val_mul, one_div, q]
     rw [← mul_one (N⁻¹ : ℚ), ← one_mul x, ← Algebra.TensorProduct.tmul_mul_tmul, div_eq_mul_inv,
       mul_comm (v : ℚ), ← mul_one 1, ← Algebra.TensorProduct.tmul_mul_tmul, mul_assoc, mul_one]
     congr
-    simpa only [← Units.val_inj, Units.val_mul, Units.coe_map, MonoidHom.coe_coe,
+    simpa only [← Units.val_inj, Units.val_mul, Units.coe_map, MonoidHom.coe_ofClass,
       Algebra.TensorProduct.includeLeft_apply, xunit, q] using wzx
   clear * -
   intro x hx
@@ -749,7 +750,7 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
     rw [Ideal.mem_span_singleton']
     use y
     apply injective_zHat
-    simp only [mul_comm, ← hX, AddMonoidHom.coe_coe, Algebra.TensorProduct.includeRight_apply,
+    simp only [mul_comm, ← hX, AddMonoidHom.coe_ofClass, Algebra.TensorProduct.includeRight_apply,
       Algebra.TensorProduct.tmul_mul_tmul, mul_one] at this
     rw [Algebra.TensorProduct.includeRight_apply, this, map_natCast,
       Algebra.TensorProduct.includeRight_apply, Algebra.TensorProduct.one_tmul_natCast]
@@ -782,9 +783,9 @@ lemma unitsrat_join_unitszHat : unitsratsub ⊔ unitszHatsub = ⊤ := by
       simp only [ne_eq, Rat.intCast_eq_zero_iff, Int.ne_of_gt gpos, not_false_eq_true]
     use ⟨g, G, gG, mul_comm _ G ▸ gG⟩
     use ⟨z, y, by rw[mul_comm]; exact this, this⟩
-    simp only [← Units.val_inj, ← hX, Units.map_mk, MonoidHom.coe_coe, map_intCast,
+    simp only [← Units.val_inj, ← hX, Units.map_mk, MonoidHom.coe_ofClass, map_intCast,
       Algebra.TensorProduct.includeLeft_apply, Algebra.TensorProduct.includeRight_apply,
-      Units.val_mul, AddMonoidHom.coe_coe]
+      Units.val_mul, AddMonoidHom.coe_ofClass]
     rw [← hz, ← mul_one 1, ← Algebra.TensorProduct.tmul_mul_tmul, mul_one, mul_comm,
       Algebra.TensorProduct.one_tmul_intCast]
   have hgx : Ideal.span {(g : ZHat)} ≤ Ideal.span {X} := by

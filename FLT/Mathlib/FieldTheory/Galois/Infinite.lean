@@ -249,7 +249,8 @@ instance {K L : Type*} [Field K] [Field L] [Algebra K L] [Algebra.IsAlgebraic K 
       obtain ⟨σ, hσ⟩ := f.nonempty_of_mem htf
       refine ⟨σ, t, htf, fun τ hτ τ₀ ↦ ?_⟩
       have : σ (τ.symm (τ (τ₀ x))) = τ (τ₀ x) := H τ hτ σ hσ ⟨τ (τ₀ x), by
-        refine SetLike.le_def.mp (le_iSup _ (τ.toAlgHom.comp <| τ₀.toAlgHom.comp (val _))) ?_
+        refine mem_of_le_of_mem (AlgHom.fieldRange_le_normalClosure
+          (τ.toAlgHom.comp <| τ₀.toAlgHom.comp (val K⟮x⟯))) ?_
         exact ⟨⟨_, subset_adjoin _ _ (by simp)⟩, rfl⟩⟩
       simpa using this.symm
     choose σ₀ t htf H using this

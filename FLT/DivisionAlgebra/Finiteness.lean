@@ -996,7 +996,7 @@ lemma rest₁_surjective : Function.Surjective (rest₁ K D) := by
     refine Units.val_inj.mp ?_
     simp only [MulEquiv.apply_symm_apply]
   · ext
-    simp only [ContinuousMonoidHom.coe_toMonoidHom, MonoidHom.coe_coe, NNReal.coe_one,
+    simp only [ContinuousMonoidHom.coe_toMonoidHom, MonoidHom.coe_ofClass, NNReal.coe_one,
       NNReal.coe_eq_one]
     have : (y⁻¹, x) = (y, 1)⁻¹ * (1, x) := by
       ext <;> simp

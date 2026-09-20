@@ -225,7 +225,7 @@ lemma DoubleCoset.ncard_toMapIdPreimage_preimage
         Subgroup.mem_pointwise_smul_iff_inv_smul_mem, QuotientGroup.eq,
         ConjAct.smul_def, mul_assoc, ← inv_mul_eq_iff_eq_mul] using this
     trans ∃ b, g * b * g⁻¹ ∈ H ∧ a⁻¹ * b⁻¹ * x ∈ K₁ ∧ b ∈ K₂
-    · have := SetLike.le_def.mp eK; grind
+    · have := mem_of_le_of_mem eK; grind
     conv_rhs => rw [(mul_right_surjective (x : G)).exists, inv_surjective.exists]
     simp [Subgroup.mul_mem_cancel_right]
     simp [← inv_mem_iff (x := _ * _⁻¹ * _), ← mul_assoc, and_comm]
@@ -251,7 +251,7 @@ lemma DoubleCoset.sum_filter_map_eq_relIndex_eq_relIndex
       have H₂ : ConjAct.toConjAct c • K₂ = K₂ :=
         Subgroup.conjAct_pointwise_smul_eq_self (Subgroup.le_normalizer (eK hc))
       have H₃ : (ConjAct.toConjAct b)⁻¹ • H = H :=
-        Subgroup.conjAct_pointwise_smul_eq_self (Subgroup.le_normalizer (inv_mem hb))
+        Subgroup.conjAct_pointwise_smul_eq_self (Subgroup.le_normalizer (inv_mem hb : b⁻¹ ∈ H))
       trans K₁.relIndex (K₂ ⊓ (ConjAct.toConjAct c)⁻¹ • (ConjAct.toConjAct a)⁻¹ • H)
       · rw [eq_comm, ← Subgroup.relIndex_pointwise_smul (ConjAct.toConjAct c)]
         simp [H₁, H₂]

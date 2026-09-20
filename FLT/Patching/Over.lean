@@ -190,7 +190,7 @@ lemma PatchingModule.mem_smul_top [IsTopologicalRing Λ] (x : PatchingModule Λ 
     replace H := Submodule.mem_map_of_mem (f := (submodule Λ M F).subtype.restrictScalars Λ) H
     replace H := Submodule.mem_map_of_mem (f := LinearMap.proj α) H
     simp only [Submodule.map_smul''] at H
-    exact SetLike.le_def.mp (Submodule.smul_mono le_rfl le_top) H
+    exact mem_of_le_of_mem (Submodule.smul_mono le_rfl le_top) H
   · intro H
     obtain ⟨s₀, hs⟩ := IsNoetherian.noetherian 𝔫
     let X (α : OpenIdeals Λ) := s₀ →₀ Component Λ M F α.1

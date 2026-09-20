@@ -32,7 +32,7 @@ noncomputable def mapSemialgHom {α : Type*} [CommRing α] [UniformSpace α]
   __ := UniformSpace.Completion.mapRingHom f hf
   map_smul' m x := by
     simp only [RingHom.toMonoidHom_eq_coe, OneHom.toFun_eq_coe, MonoidHom.toOneHom_coe,
-      MonoidHom.coe_coe]
+      MonoidHom.coe_ofClass]
     rw [Algebra.smul_def, map_mul, Algebra.smul_def]
     congr
     exact extensionHom_coe _ _ m

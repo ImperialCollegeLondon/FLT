@@ -46,7 +46,7 @@ lemma mem_eventuallyProd {F : Filter ι} {x} :
 lemma eventuallyProd_mono_left
     {N₁ N₂ : Π i, Submodule (R i) (M i)} (h : N₁ ≤ N₂) :
     eventuallyProd N₁ F ≤ eventuallyProd N₂ F := by
-  simp_rw [Pi.le_def, SetLike.le_def] at h
+  simp_rw [Pi.le_def, IsConcreteLE.le_iff] at h
   exact fun x hx ↦ Eventually.mp hx (by aesop)
 
 lemma eventuallyProd_mono_right {F G : Filter ι} (e : F ≤ G) :
@@ -154,6 +154,9 @@ instance : IsScalarTower R₀ (Π i, R i) (UltraProduct M F) := by
   intro r m
   obtain ⟨m, rfl⟩ := UltraProduct.πₗ_surjective R m
   change _ = _ • Submodule.mkQ (eventuallyProd (R := fun _ ↦ R₀) (M := M) ⊥ F) m
+  have : LinearMap.CompatibleSMul (Π i, M i)
+      ((Π i, M i) ⧸ eventuallyProd (R := fun _ ↦ R₀) (M := M) ⊥ F) R₀ (Π _ : ι, R₀) :=
+    LinearMap.IsScalarTower.compatibleSMul
   rw [← map_smul, ← LinearMap.map_smul_of_tower, algebraMap_smul]
   rfl
 

@@ -254,7 +254,7 @@ theorem piEquiv_map_principalSubgroup :
     (AddSubgroup.pi Set.univ (fun (_ : Fin (Module.finrank K L)) => principalSubgroup (𝓞 K) K)).map
       (piEquiv K L) = principalSubgroup (𝓞 L) L := by
   ext x
-  simp only [AddSubgroup.mem_map, AddMonoidHom.coe_coe]
+  simp only [AddSubgroup.mem_map, AddMonoidHom.coe_ofClass]
   refine ⟨fun ⟨a, h, ha⟩ => ha ▸ piEquiv_mem_principalSubgroup h, ?_⟩
   rintro ⟨a, rfl⟩
   use fun i => algebraMap K (𝔸 K) (Module.Finite.equivPi _ _ a i)

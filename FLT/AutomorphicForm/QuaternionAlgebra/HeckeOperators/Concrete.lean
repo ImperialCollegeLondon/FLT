@@ -417,7 +417,7 @@ def U₁ (𝒮 : U₁Data F R p) : WeightTwoAutomorphicForm.LocalLevelStruct F R
       MulEquiv.toMonoidHom_eq_coe, MonoidHom.ker_comp_mulEquiv,
       ← Subgroup.comap_equiv_eq_map_symm]
     rintro ⟨_, hg⟩ ⟨g, rfl⟩
-    simp only [Subgroup.mem_comap, MonoidHom.coe_coe, MonoidHom.mem_ker, MonoidHom.coe_comp,
+    simp only [Subgroup.mem_comap, MonoidHom.coe_ofClass, MonoidHom.mem_ker, MonoidHom.coe_comp,
       Function.comp_apply]
     rw [GL2.localIwahoriLevel.char_eq_one_iff.mpr, map_one]
     simp only [MulEquiv.subgroupCongr_apply]
@@ -427,7 +427,7 @@ def U₁ (𝒮 : U₁Data F R p) : WeightTwoAutomorphicForm.LocalLevelStruct F R
     rw [(IsOpen.isOpenEmbedding_subtypeVal _).isOpen_iff_image_isOpen]
     · simp only [h, SetLike.coe_sort_coe, not_false_eq_true, and_self, ↓reduceDIte,
         MulEquiv.toMonoidHom_eq_coe, MonoidHom.ker_comp_mulEquiv, Subgroup.coe_map,
-        MonoidHom.coe_coe, Set.image_image, MulEquiv.subgroupCongr_symm_apply]
+        MonoidHom.coe_ofClass, Set.image_image, MulEquiv.subgroupCongr_symm_apply]
       refine (IsOpen.isOpenEmbedding_subtypeVal
         (GL2.localIwahoriLevel.isOpen _)).isOpen_iff_image_isOpen.mp ?_
       refine Subgroup.isOpen_mono (G := GL2.localIwahoriLevel v)
