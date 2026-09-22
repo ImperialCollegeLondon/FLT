@@ -41,37 +41,44 @@ else
   echo "✅ Project build completed successfully."
 fi
 
-# Generate the PDF version of the blueprint
-echo "Generating PDF version of the blueprint..."
-if ! leanblueprint pdf; then
-  echo "❌ Error: Failed to generate PDF version of the blueprint."
-  echo "Press any key to exit..."
-  read
-  exit 1
-else
-  echo "✅ PDF version of the blueprint generated successfully."
-fi
+# The blueprint toolchain is optional: most contributors don't have leanblueprint
+# installed, and the blueprint CI step is currently disabled while the blueprint
+# migrates to Verso, so only run these steps when the tool is available.
+if command -v leanblueprint >/dev/null 2>&1; then
+  # Generate the PDF version of the blueprint
+  echo "Generating PDF version of the blueprint..."
+  if ! leanblueprint pdf; then
+    echo "❌ Error: Failed to generate PDF version of the blueprint."
+    echo "Press any key to exit..."
+    read
+    exit 1
+  else
+    echo "✅ PDF version of the blueprint generated successfully."
+  fi
 
-# Generate the web version of the blueprint
-echo "Generating web version of the blueprint..."
-if ! leanblueprint web; then
-  echo "❌ Error: Failed to generate web version of the blueprint."
-  echo "Press any key to exit..."
-  read
-  exit 1
-else
-  echo "✅ Web version of the blueprint generated successfully."
-fi
+  # Generate the web version of the blueprint
+  echo "Generating web version of the blueprint..."
+  if ! leanblueprint web; then
+    echo "❌ Error: Failed to generate web version of the blueprint."
+    echo "Press any key to exit..."
+    read
+    exit 1
+  else
+    echo "✅ Web version of the blueprint generated successfully."
+  fi
 
-# Check declarations
-echo "Checking if Lean declarations in the blueprint match the codebase..."
-if ! lake exe checkdecls blueprint/lean_decls; then
-  echo "❌ Error: Some declarations in the blueprint do not match Lean declarations in the codebase."
-  echo "Press any key to exit..."
-  read
-  exit 1
+  # Check declarations
+  echo "Checking if Lean declarations in the blueprint match the codebase..."
+  if ! lake exe checkdecls blueprint/lean_decls; then
+    echo "❌ Error: Some declarations in the blueprint do not match Lean declarations in the codebase."
+    echo "Press any key to exit..."
+    read
+    exit 1
+  else
+    echo "✅ All declarations match successfully."
+  fi
 else
-  echo "✅ All declarations match successfully."
+  echo "⏭️  leanblueprint not found — skipping blueprint PDF/web generation and declaration checks."
 fi
 
 # Final message on test completion
