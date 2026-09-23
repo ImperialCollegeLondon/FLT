@@ -386,7 +386,7 @@ theorem exists_smul_baseChange_and_map_eq {θ : L} (hθ : θ ∉ Set.range (alge
       field
   · ext <;>
       simp only [VariableChange.map, VariableChange.mul_def, negVariableChange, Units.coe_map,
-        Units.val_mul, Units.val_neg, Units.val_one, Units.val_mk0, hap, MonoidHom.coe_coe,
+        Units.val_mul, Units.val_neg, Units.val_one, Units.val_mk0, hap, MonoidHom.coe_ofClass,
         map_neg, map_mul, map_pow, map_sub, map_zero, map_a₁, map_a₃, baseChange,
         σ.commutes, hσσ] <;>
       ring
@@ -670,7 +670,7 @@ theorem quadraticTwistPointEquiv_map {N : Type*} [Field N] [Algebra K N] [Algebr
   -- The base-changed change of variables over `N` is the image under `f` of that over `M`.
   have hu : (((E.quadraticTwistVarChange L).baseChange N).u : N)
       = f (((E.quadraticTwistVarChange L).baseChange M).u : M) := by
-    simp only [VariableChange.baseChange, VariableChange.map, Units.coe_map, MonoidHom.coe_coe]
+    simp only [VariableChange.baseChange, VariableChange.map, Units.coe_map, MonoidHom.coe_ofClass]
     exact (f.commutes _).symm
   have hr : ((E.quadraticTwistVarChange L).baseChange N).r
       = f ((E.quadraticTwistVarChange L).baseChange M).r := (f.commutes _).symm

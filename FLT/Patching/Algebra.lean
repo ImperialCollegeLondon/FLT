@@ -165,7 +165,7 @@ instance : IsLocalHom (PatchingAlgebra.subring R F).subtype := by
   refine (isUnit_iff_exists_inv.mpr ⟨⟨fun i ↦ ↑((H i).unit⁻¹), fun i j hij ↦ ?_⟩,
     Subtype.ext (funext fun i ↦ (H i).mul_val_inv)⟩)
   dsimp only
-  rw [← MonoidHom.coe_coe, ← RingHom.toMonoidHom_eq_coe, ← Units.coe_map_inv]
+  rw [← MonoidHom.coe_ofClass, ← RingHom.toMonoidHom_eq_coe, ← Units.coe_map_inv]
   congr
   ext
   simpa using a.2 i j hij

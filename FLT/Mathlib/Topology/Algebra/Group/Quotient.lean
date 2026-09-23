@@ -28,11 +28,11 @@ def QuotientGroup.continuousMulEquiv {G H : Type*} [Group G] (N : Subgroup G)
   __ := QuotientGroup.congr N M e h
   continuous_toFun := by
     apply continuous_quot_lift
-    simp only [MonoidHom.coe_comp, coe_mk', MonoidHom.coe_coe]
+    simp only [MonoidHom.coe_comp, coe_mk', MonoidHom.coe_ofClass]
     exact Continuous.comp continuous_quot_mk e.continuous
   continuous_invFun := by
     apply continuous_quot_lift
-    simp only [MonoidHom.coe_comp, coe_mk', MonoidHom.coe_coe]
+    simp only [MonoidHom.coe_comp, coe_mk', MonoidHom.coe_ofClass]
     exact Continuous.comp continuous_quot_mk e.symm.continuous
 
 theorem QuotientGroup.isOpenQuotientMap_rightrel_mk {G : Type*} [Group G] [TopologicalSpace G]

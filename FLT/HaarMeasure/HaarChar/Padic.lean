@@ -86,7 +86,7 @@ lemma MeasureTheory.ringHaarChar_padic (x : ℚ_[p]ˣ) : ringHaarChar x = ‖(x 
   -- But this is what we proved in `ringHaarChar_padic_padicInt`.
   simp only [eqOn_range, g]
   ext x
-  simp only [MonoidHom.coe_coe, Function.comp_apply, MonoidHom.coe_mk,
+  simp only [MonoidHom.coe_ofClass, Function.comp_apply, MonoidHom.coe_mk,
     OneHom.coe_mk, Units.val_mk0, coe_nnnorm, PadicInt.padic_norm_e_of_padicInt,
     ringHaarChar_padic_padicInt]
 

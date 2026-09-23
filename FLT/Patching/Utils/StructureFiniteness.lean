@@ -47,7 +47,7 @@ instance {α : Type*} [Finite α] [AddCommGroup α] : Finite (Module R α) := by
   obtain ⟨s, hs⟩ := Algebra.FiniteType.out (self := ‹_›)
   refine .of_injective (fun g ↦ g.1.1.1.1.1 ∘ ((↑) : s → R)) fun g₁ g₂ e ↦ ?_
   ext r a
-  replace hs := SetLike.le_def.mp hs.ge (x := r) trivial
+  replace hs := mem_of_le_of_mem hs.ge (x := r) trivial
   induction hs using Algebra.adjoin_induction generalizing a with
   | mem x hx => exact congr_fun (congr_fun e ⟨x, hx⟩) a
   | algebraMap r =>

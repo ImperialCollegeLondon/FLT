@@ -157,7 +157,7 @@ def detConditionFunctor (l : ℕ) [Fact l.Prime] [Algebra ℤ_[l] 𝓞] :
   map {R S} f ρ hρ σ := by
     have := hρ σ
     simp only [toFramedGaloisRep_map, FramedGaloisRep.det_baseChange,
-      ContinuousMonoidHom.comp_toFun, ContinuousMonoidHom.coe_mk, MonoidHom.coe_coe,
+      ContinuousMonoidHom.comp_toFun, ContinuousMonoidHom.coe_mk, MonoidHom.coe_ofClass,
       RingHom.coe_coe] at this ⊢
     rw [this]
     exact f.hom.commutes ..

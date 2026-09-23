@@ -352,7 +352,7 @@ lemma GaloisRep.charFrob_eq (ρ : GaloisRep K A M) [ρ.IsUnramifiedAt v] (σ : �
   have := IsUnramifiedAt.localInertiaGroup_le (ρ := ρ)
     (hσ.mul_inv_mem_inertia (Field.AbsoluteGaloisGroup.isArithFrobAt_adicArithFrob v))
   replace this := congr($this * ρ.toLocal v Frobᵥ)
-  simp only [ContinuousMonoidHom.coe_toMonoidHom, ← map_mul, MonoidHom.coe_coe, one_mul,
+  simp only [ContinuousMonoidHom.coe_toMonoidHom, ← map_mul, MonoidHom.coe_ofClass, one_mul,
     inv_mul_cancel_right] at this
   rw [this, charFrob]
 

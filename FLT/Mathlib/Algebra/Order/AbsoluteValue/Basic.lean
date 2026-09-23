@@ -72,7 +72,8 @@ variable (w)
 
 omit [IsStrictOrderedRing S] in
 theorem pos_of_pos {a : F} (hv : 0 < v a) : 0 < w a := by
-  rwa [AbsoluteValue.pos_iff] at hv ⊢
+  rw [AbsoluteValue.pos_iff] at hv ⊢
+  assumption
 
 variable {R S : Type*} [Ring S] [PartialOrder S] [Semiring R]
   (v : AbsoluteValue R S) [IsDomain S] [Nontrivial R]

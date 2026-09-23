@@ -55,9 +55,10 @@ lemma _root_.AddSubgroup.comap_smul_one (R A : Type*) [CommRing R] [CommRing A] 
     (r : R) : AddSubgroup.comap (algebraMap R A) (r • (1 : Submodule R A).toAddSubgroup) =
     r • (1 : Submodule R R).toAddSubgroup := by
   ext s
-  simp only [AddSubgroup.mem_comap, AddMonoidHom.coe_coe, AddSubgroup.mem_smul_pointwise_iff_exists,
-    Submodule.mem_toAddSubgroup, Submodule.mem_one, exists_exists_eq_and, Ideal.one_eq_top,
-    Submodule.top_toAddSubgroup, AddSubgroup.mem_top, smul_eq_mul, true_and]
+  simp only [AddSubgroup.mem_comap, AddMonoidHom.coe_ofClass,
+    AddSubgroup.mem_smul_pointwise_iff_exists, Submodule.mem_toAddSubgroup, Submodule.mem_one,
+    exists_exists_eq_and, Ideal.one_eq_top, Submodule.top_toAddSubgroup, AddSubgroup.mem_top,
+    smul_eq_mul, true_and]
   apply exists_congr (fun t ↦ ?_)
   rw [Algebra.smul_def, ← map_mul, Injective.eq_iff]
   rwa [← faithfulSMul_iff_algebraMap_injective R A]

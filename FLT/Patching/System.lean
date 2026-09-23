@@ -365,7 +365,7 @@ lemma smul_lemma₀
   apply H
   refine Submodule.smul_mem_smul ?_ trivial
   rw [← Ideal.mem_comap]
-  refine SetLike.le_def.mp ?_ ((Ideal.Quotient.mk_eq_mk_iff_sub_mem _ _).mp (hi₂.trans hi₁.symm))
+  refine mem_of_le_of_mem ?_ ((Ideal.Quotient.mk_eq_mk_iff_sub_mem _ _).mp (hi₂.trans hi₁.symm))
   rw [← Ideal.map_le_iff_le_comap, Ideal.map_pow, ← IsLocalRing.map_maximalIdeal_of_surjective F hF]
 
 omit [Module.Finite R₀ M₀] in

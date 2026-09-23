@@ -212,7 +212,7 @@ lemma Continuous.of_isLocalHom {R S : Type*} [CommRing R] [IsLocalRing R] [Topol
   unfold ContinuousAt
   rw [map_zero]
   apply ((hasBasis_maximalIdeal_pow R).tendsto_iff (hasBasis_maximalIdeal_pow S)).mpr ?_
-  simp only [SetLike.mem_coe, true_and, forall_const, ← SetLike.le_def, ← Ideal.mem_comap,
+  simp only [SetLike.mem_coe, true_and, forall_const, ← IsConcreteLE.le_iff, ← Ideal.mem_comap,
     ← Ideal.map_le_iff_le_comap, Ideal.map_pow]
   intro n
   exact ⟨n, Ideal.pow_right_mono (((local_hom_TFAE f).out 1 3).mp ‹_›) _⟩
