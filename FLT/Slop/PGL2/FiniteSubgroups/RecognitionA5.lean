@@ -894,7 +894,7 @@ lemma simple_group_faithful_action_on_sylow {G : Type*} [Group G] [Finite G]
     (hn_ne_1 : Fintype.card (Sylow q G) ≠ 1) :
     Function.Injective (MulAction.toPermHom G (Sylow q G)) := by
   let hf := MulAction.toPermHom G (Sylow q G)
-  rcases hs.2 hf.ker (MonoidHom.normal_ker hf) with h | h
+  rcases (MonoidHom.normal_ker hf).eq_bot_or_eq_top with h | h
   · exact (MonoidHom.ker_eq_bot_iff hf).mp h
   · exact absurd (Fintype.card_eq_one_iff.mpr ⟨Classical.arbitrary _, fun P ↦ by
       obtain ⟨g, hg⟩ := MulAction.exists_smul_eq G P (Classical.arbitrary _)
@@ -924,7 +924,7 @@ lemma simple_60_n2_ne_15 (G : Type*) [Group G] [Finite G]
     exact fun x hx y hy ↦ Subtype.ext_iff.mp
       ((IsPGroup.isMulCommutative_of_card_eq_prime_sq (G := P) (p := 2)
         (hP_card.trans (rfl : 4 = 2 ^ 2))).is_comm.comm ⟨y, hy⟩ ⟨x, hx⟩)
-  rcases hs.2 _ (MonoidHom.normal_ker (MonoidHom.transferSylow P h_cent)) with h | h
+  rcases (MonoidHom.normal_ker (MonoidHom.transferSylow P h_cent)).eq_bot_or_eq_top with h | h
   · exact absurd (MonoidHom.ker_transferSylow_isComplement' P h_cent).card_mul_card
       (by rw [h, Subgroup.card_bot, hP_card, hn]; norm_num)
   · exact absurd (MonoidHom.ker_transferSylow_isComplement' P h_cent).card_mul_card
@@ -946,8 +946,9 @@ lemma simple_60_n2_eq_5 (G : Type*) [Group G] [Finite G]
   · obtain ⟨P, hP⟩ := Fintype.card_eq_one_iff.mp h1
     have hP_card : Nat.card (P : Subgroup G) = 4 :=
       P.card_eq_multiplicity.trans (by rw [hn, factorization_60_2]; rfl)
-    rcases hs.2 (P : Subgroup G)
-      ⟨fun _ hmem g ↦ hP (g • P) ▸ Subgroup.mem_map_of_mem _ hmem⟩ with h | h
+    have hP_normal : (P : Subgroup G).Normal :=
+      ⟨fun _ hmem g ↦ hP (g • P) ▸ Subgroup.mem_map_of_mem _ hmem⟩
+    rcases hP_normal.eq_bot_or_eq_top with h | h
     · exact absurd hP_card (by rw [h, Subgroup.card_bot]; norm_num)
     · exact absurd hP_card (by rw [h, Subgroup.card_top, hn]; norm_num)
   · exact absurd (hn ▸ Nat.card_le_card_of_injective _

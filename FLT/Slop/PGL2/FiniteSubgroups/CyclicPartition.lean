@@ -1385,7 +1385,7 @@ lemma card_sylow2_ne_one_of_simple_60 (G : Type*) [Group G] [Fintype G]
     rw [Sylow.card_eq_multiplicity P, hN,
         Nat.factorization_eq_two (m := 15) rfl Nat.prime_two (by norm_num)]
     norm_num
-  rcases Subgroup.Normal.eq_bot_or_eq_top hP_normal with h_bot | h_top
+  rcases hP_normal.eq_bot_or_eq_top with h_bot | h_top
 
   · rw [h_bot,
       Nat.card_eq_one_iff_unique.mpr ⟨⟨fun x y ↦ Subtype.ext (by rw [Subgroup.mem_bot.mp x.2,
@@ -1401,7 +1401,7 @@ lemma card_sylow2_ne_three_of_simple_60 (G : Type*) [Group G] [Fintype G]
     Nat.card (Sylow 2 G) ≠ 3 := by
   intro h
   let ϕ := MulAction.toPermHom G (Sylow 2 G)
-  rcases Subgroup.Normal.eq_bot_or_eq_top (MonoidHom.normal_ker ϕ) with h_bot | h_top
+  rcases (MonoidHom.normal_ker ϕ).eq_bot_or_eq_top with h_bot | h_top
 
   · exact absurd (Nat.card_le_card_of_injective ϕ (by rwa [MonoidHom.ker_eq_bot_iff] at h_bot))
       (by rw [hN, Nat.card_perm, h]; norm_num)
@@ -1437,7 +1437,7 @@ lemma card_sylow2_eq_five_of_simple_60 (G : Type*) [Group G] [Fintype G]
 
   · exfalso
     obtain ⟨K, hK_normal, hK_card⟩ := exists_normal_complement_of_sylow2_15 G hN hn
-    rcases Subgroup.Normal.eq_bot_or_eq_top hK_normal with rfl | rfl
+    rcases hK_normal.eq_bot_or_eq_top with rfl | rfl
 
     · rw [Nat.card_eq_one_iff_unique.mpr ⟨⟨fun x y ↦ Subtype.ext (by rw [Subgroup.mem_bot.mp x.2,
         Subgroup.mem_bot.mp y.2])⟩, ⟨1, Subgroup.one_mem ⊥⟩⟩] at hK_card
@@ -1451,7 +1451,7 @@ lemma toPermHom_injective_of_simple_60 (G : Type*) [Group G] [Fintype G]
     (hN : Nat.card G = 60) (hSimple : IsSimpleGroup G) :
     Function.Injective (MulAction.toPermHom G (Sylow 2 G)) := by
   let ϕ := MulAction.toPermHom G (Sylow 2 G)
-  rcases Subgroup.Normal.eq_bot_or_eq_top (MonoidHom.normal_ker ϕ) with h_bot | h_top
+  rcases (MonoidHom.normal_ker ϕ).eq_bot_or_eq_top with h_bot | h_top
 
   · rwa [MonoidHom.ker_eq_bot_iff] at h_bot
 
