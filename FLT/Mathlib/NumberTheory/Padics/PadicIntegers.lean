@@ -32,7 +32,7 @@ attribute [simp] coe_eq_zero
 
 lemma coe_injective : Injective ((↑) : ℤ_[p] → ℚ_[p]) := Subtype.val_injective
 
-@[simp] lemma coe_inj {x y : ℤ_[p]} : (x : ℚ_[p]) = (y : ℚ_[p]) ↔ x = y := coe_injective.eq_iff
+attribute [simp] coe_inj
 
 instance : Infinite ℤ_[p] := CharZero.infinite _
 
