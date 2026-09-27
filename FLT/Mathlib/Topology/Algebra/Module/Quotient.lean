@@ -6,7 +6,7 @@ Authors: Salvatore Mercuri, Kevin Buzzard, Pietro Monticone
 module
 
 public import Mathlib.LinearAlgebra.Quotient.Pi
-public import Mathlib.Topology.Algebra.Module.Equiv
+public import Mathlib.Topology.Algebra.Module.Equiv.Basic
 
 /-!
 # Quotient
