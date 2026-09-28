@@ -14,6 +14,7 @@ public import Mathlib.Topology.Algebra.Group.CompactOpen
 public import Mathlib.Topology.Algebra.Module.TransferInstance
 public import Mathlib.Topology.Compactness.Paracompact
 public import Mathlib.Topology.UniformSpace.Uniformizable
+import Mathlib.Topology.Algebra.Group.Units
 
 /-!
 

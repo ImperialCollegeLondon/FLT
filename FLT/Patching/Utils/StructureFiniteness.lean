@@ -9,6 +9,7 @@ public import FLT.Patching.Utils.TopologicallyFG
 public import Mathlib.Topology.Algebra.Module.Equiv.Basic
 public import Mathlib.Algebra.Algebra.TransferInstance
 public import FLT.Mathlib.Algebra.Module.TransferInstance
+import Mathlib.Algebra.Group.Ext
 import Mathlib.Algebra.Ring.Ext
 
 /-!

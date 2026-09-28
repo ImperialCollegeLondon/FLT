@@ -11,6 +11,7 @@ public import Mathlib.RingTheory.KrullDimension.Basic
 import Mathlib.GroupTheory.GroupAction.Ring
 import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
 import Mathlib.RingTheory.KrullDimension.NonZeroDivisors
+import Mathlib.RingTheory.Spectrum.Prime.RingHom
 import Mathlib.RingTheory.TensorProduct.Free
 import Mathlib.Tactic.Continuity.Init
 import Mathlib.Tactic.Positivity.Finset

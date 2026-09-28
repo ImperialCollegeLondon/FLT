@@ -7,6 +7,7 @@ module
 
 public import Mathlib.AlgebraicGeometry.EllipticCurve.VariableChange
 public import FLT.Mathlib.AlgebraicGeometry.EllipticCurve.Weierstrass
+import Mathlib.Algebra.Algebra.IsSimpleRing
 
 /-!
 # Complements on admissible changes of variables

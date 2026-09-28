@@ -10,6 +10,7 @@ public import FLT.Patching.Module
 public import FLT.Patching.Utils.AdicTopology
 public import Mathlib.Topology.Algebra.Nonarchimedean.TotallyDisconnected
 import FLT.Patching.Utils.InverseLimit
+import Mathlib.RingTheory.LocalRing.Quotient
 import Mathlib.Topology.Algebra.Nonarchimedean.TotallyDisconnected
 import Mathlib.Topology.Algebra.Ring.Compact
 

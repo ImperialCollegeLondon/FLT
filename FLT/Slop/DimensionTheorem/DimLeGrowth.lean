@@ -8,6 +8,8 @@ module
 public import Mathlib.RingTheory.KrullDimension.Field
 public import Mathlib.RingTheory.KrullDimension.Regular
 public import FLT.Slop.DimensionTheorem.Defs
+import Mathlib.RingTheory.Filtration
+import Mathlib.RingTheory.Ideal.Quotient.Noetherian
 
 /-!
 # `dim R ≤ d(R)`

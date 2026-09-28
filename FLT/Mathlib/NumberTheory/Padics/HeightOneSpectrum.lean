@@ -8,6 +8,7 @@ module
 public import Mathlib.NumberTheory.Padics.HeightOneSpectrum
 public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace
 import FLT.Mathlib.RingTheory.DedekindDomain.AdicValuation
+import Mathlib.RingTheory.Norm.Basic
 
 /-!
 # Height One Spectrum
