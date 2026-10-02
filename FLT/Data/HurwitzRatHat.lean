@@ -8,6 +8,7 @@ module
 public import FLT.Data.Hurwitz
 public import FLT.Data.QHat
 import Mathlib.CategoryTheory.Category.Init
+import Mathlib.RingTheory.Flat.TorsionFree
 import Mathlib.Tactic.Positivity.Finset
 
 /-!
@@ -38,6 +39,8 @@ scoped notation "𝓞^" => HurwitzHat
 
 noncomputable instance : Ring 𝓞^ := Algebra.TensorProduct.instRing
 
+instance : Module.Flat ℤ 𝓞^ := inferInstanceAs (Module.Flat ℤ (𝓞 ⊗[ℤ] ZHat))
+
 end HurwitzHat
 
 /-- The quaternion algebra ℚ + ℚi + ℚj + ℚk. -/
@@ -49,6 +52,8 @@ namespace HurwitzRat
 scoped notation "D" => HurwitzRat
 
 noncomputable instance : Ring D := Algebra.TensorProduct.instRing
+
+instance : Module.Flat ℤ D := inferInstanceAs (Module.Flat ℤ (ℚ ⊗[ℤ] 𝓞))
 
 end HurwitzRat
 
@@ -71,7 +76,17 @@ noncomputable abbrev j₁ : D →ₐ[ℤ] D^ := Algebra.TensorProduct.includeLef
 -- (Algebra.TensorProduct.assoc ℤ ℚ 𝓞 ZHat).symm.trans Algebra.TensorProduct.includeLeft
 
 lemma injective_hRat :
-    Function.Injective j₁ := sorry -- flatness
+    Function.Injective j₁ := by
+  intro a b h
+  have h₁ := LinearMap.lTensor_tmul D (f := Algebra.linearMap ℤ ZHat) a 1
+  have h₂ := LinearMap.lTensor_tmul D (f := Algebra.linearMap ℤ ZHat) b 1
+  simp only [Algebra.linearMap_apply, map_one] at h₁ h₂
+  replace h : a ⊗ₜ[ℤ] (1 : ZHat) = b ⊗ₜ[ℤ] 1 := h
+  rw [← h₁, ← h₂] at h
+  replace h := Module.Flat.lTensor_preserves_injective_linearMap
+    (M := D) (Algebra.linearMap ℤ ZHat) (FaithfulSMul.algebraMap_injective ℤ ZHat) h
+  have := congrArg (TensorProduct.rid ℤ D) h
+  simpa using this
 
 -- this stopped working in 4.29
 noncomputable instance : Ring (ℚ ⊗[ℤ] 𝓞^) := Algebra.TensorProduct.instRing
@@ -86,8 +101,22 @@ noncomputable abbrev j₂ : 𝓞^ →ₐ[ℤ] D^ :=
   ((Algebra.TensorProduct.assoc ℤ ℤ ℤ ℚ 𝓞 ZHat).symm : ℚ ⊗[ℤ] 𝓞^ ≃ₐ[ℤ] D ⊗[ℤ] ZHat).toAlgHom.comp
   (Algebra.TensorProduct.includeRight : 𝓞^ →ₐ[ℤ] ℚ ⊗[ℤ] 𝓞^)
 
+lemma injective_includeRight :
+    Function.Injective (Algebra.TensorProduct.includeRight : 𝓞^ →ₐ[ℤ] ℚ ⊗[ℤ] 𝓞^) := by
+  intro a b h
+  have h₁ := LinearMap.rTensor_tmul 𝓞^ (f := Algebra.linearMap ℤ ℚ) a 1
+  have h₂ := LinearMap.rTensor_tmul 𝓞^ (f := Algebra.linearMap ℤ ℚ) b 1
+  simp only [Algebra.linearMap_apply, map_one] at h₁ h₂
+  dsimp at h
+  rw [← h₁, ← h₂] at h
+  replace h := Module.Flat.rTensor_preserves_injective_linearMap
+    (M := 𝓞^) (Algebra.linearMap ℤ ℚ) (fun _ _ ↦ by simp) h
+  have := congrArg (TensorProduct.lid ℤ 𝓞^) h
+  simpa using this
+
 lemma injective_zHat :
-    Function.Injective j₂ := sorry -- flatness
+    Function.Injective j₂ :=
+  (Algebra.TensorProduct.assoc ℤ ℤ ℤ ℚ 𝓞 ZHat).symm.injective.comp injective_includeRight
 
 -- should I rearrange tensors? Not sure if D^ should be (ℚ ⊗ 𝓞) ⊗ ℤhat or ℚ ⊗ (𝓞 ⊗ Zhat)
 lemma canonicalForm (z : D^) : ∃ (N : ℕ+) (z' : 𝓞^), z = j₁ ((N⁻¹ : ℚ) ⊗ₜ 1 : D) * j₂ z' := by
