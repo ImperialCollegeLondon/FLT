@@ -98,6 +98,9 @@ public import FLT.Mathlib.Algebra.Group.Action.Hom
 public import FLT.Mathlib.Algebra.Homology.HomologicalComplex
 public import FLT.Mathlib.Algebra.IsDirectLimit
 public import FLT.Mathlib.Algebra.IsQuaternionAlgebra
+public import FLT.Mathlib.Algebra.Module.Bimodule.Basic
+public import FLT.Mathlib.Algebra.Module.Bimodule.Defs
+public import FLT.Mathlib.Algebra.Module.Bimodule.TensorProduct
 public import FLT.Mathlib.Algebra.Module.Submodule.Basic
 public import FLT.Mathlib.Algebra.Module.TransferInstance
 public import FLT.Mathlib.Algebra.Order.AbsoluteValue.Basic
@@ -214,6 +217,7 @@ public import FLT.Mathlib.Topology.MetricSpace.ProperSpace.InfinitePlace
 public import FLT.Mathlib.Topology.MetricSpace.Pseudo.Matrix
 public import FLT.Mathlib.Topology.Polish
 public import FLT.NumberField.AdeleRing
+public import FLT.NumberField.AdeleRing.Bimodule
 public import FLT.NumberField.Completion.Finite
 public import FLT.NumberField.Completion.Infinite
 public import FLT.NumberField.DiscriminantBounds
