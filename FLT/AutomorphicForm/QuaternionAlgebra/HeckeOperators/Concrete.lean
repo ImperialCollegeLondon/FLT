@@ -11,6 +11,7 @@ public import FLT.AutomorphicForm.QuaternionAlgebra.HeckeOperators.Local
 public import FLT.Mathlib.FieldTheory.SplittingField.IsSplittingField
 public import Mathlib.Algebra.Algebra.ZMod
 public import Mathlib.Topology.Algebra.Ring.Compact
+import Mathlib.RingTheory.Ideal.Quotient.Index
 
 /-!
 # Concrete Hecke operators on quaternionic automorphic forms

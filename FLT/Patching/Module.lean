@@ -14,6 +14,7 @@ public import Mathlib.RingTheory.Filtration
 public import Mathlib.RingTheory.FractionalIdeal.Basic
 public import Mathlib.Topology.Algebra.Ring.Compact
 import FLT.Patching.Utils.InverseLimit
+import Mathlib.RingTheory.LocalRing.Quotient
 import Mathlib.Topology.Algebra.Nonarchimedean.TotallyDisconnected
 import Mathlib.Topology.Algebra.Ring.Compact
 import Mathlib.Topology.Compactness.Paracompact

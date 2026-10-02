@@ -19,6 +19,7 @@ public import Mathlib.Topology.Algebra.Group.ClosedSubgroup
 
 import Mathlib.RingTheory.Etale.Field
 import Mathlib.RingTheory.HopkinsLevitzki
+import Mathlib.Topology.Algebra.OpenSubgroup
 
 /-!
 # Equivalence between continuous `G`-finite sets and `k`-etale algebras

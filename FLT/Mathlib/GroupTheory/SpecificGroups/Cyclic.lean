@@ -6,6 +6,7 @@ Authors: Kevin Buzzard, Claude
 module
 
 public import Mathlib.GroupTheory.SpecificGroups.Cyclic
+import Mathlib.Algebra.Group.TypeTags.Finite
 
 /-!
 # A group with two elements is `Multiplicative (ZMod 2)`

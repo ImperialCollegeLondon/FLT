@@ -13,6 +13,7 @@ public import Mathlib.RingTheory.Norm.Transitivity
 public import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
 public import Mathlib.Topology.Algebra.IsOpenUnits
 public import Mathlib.Topology.MetricSpace.Polish
+import Mathlib.Topology.Algebra.Group.Units
 
 /-! # Random assortments of API lemmas missing in mathlib. -/
 

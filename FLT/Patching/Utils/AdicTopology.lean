@@ -14,6 +14,7 @@ public import Mathlib.Topology.Algebra.Module.ModuleTopology
 public import Mathlib.Topology.Algebra.Ring.Ideal
 import FLT.Patching.Utils.InverseLimit
 import FLT.Patching.Utils.Lemmas
+import Mathlib.RingTheory.LocalRing.Quotient
 import Mathlib.Topology.Algebra.Algebra
 import Mathlib.Topology.Algebra.Ring.Compact
 import Mathlib.Topology.Connected.Separation

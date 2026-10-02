@@ -15,6 +15,7 @@ public import Mathlib.RingTheory.Henselian
 public import Mathlib.RingTheory.RegularLocalRing.Defs
 public import Mathlib.RingTheory.SimpleRing.Principal
 public import Mathlib.RingTheory.TensorProduct.Free
+import Mathlib.RingTheory.Flat.FaithfullyFlat.Basic
 
 /-!
 # Irreducible ↔ absolutely irreducible, given a one-dimensional fixed space: proofs

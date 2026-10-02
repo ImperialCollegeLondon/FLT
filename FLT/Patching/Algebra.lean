@@ -11,6 +11,7 @@ public import FLT.Deformations.Lemmas
 public import Mathlib.CategoryTheory.Types.Basic
 public import Mathlib.RingTheory.Filtration
 import FLT.Patching.Utils.InverseLimit
+import Mathlib.Topology.Algebra.Group.ClosedSubgroup
 import Mathlib.Topology.Algebra.Ring.Compact
 import Mathlib.Topology.Connected.Separation
 

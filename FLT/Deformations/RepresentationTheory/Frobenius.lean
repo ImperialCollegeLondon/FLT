@@ -7,6 +7,7 @@ module
 
 public import FLT.Mathlib.Topology.Algebra.ContinuousSMulDiscrete
 public import Mathlib.RingTheory.Frobenius
+import Mathlib.FieldTheory.Finite.Basic
 import Mathlib.RingTheory.Invariant.Profinite
 
 /-!

@@ -16,6 +16,7 @@ import Mathlib.LinearAlgebra.FreeModule.PID
 import Mathlib.RingTheory.Henselian
 import Mathlib.RingTheory.PicardGroup
 import Mathlib.RingTheory.SimpleModule.IsAlgClosed
+import Mathlib.RingTheory.SimpleRing.Congr
 import Mathlib.RingTheory.SimpleRing.Principal
 
 /-!
