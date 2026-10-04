@@ -77,8 +77,10 @@ def GaloisRep.IsAutomorphicOfLevel
     (ρ : GaloisRep F A V)
     -- `S` is the level of the modular form
     (S : Finset (HeightOneSpectrum (𝓞 F))) : Prop :=
-  -- We say `ρ` is *automorphic* if there's a quaternion algebra D over F of discriminant 1
+  -- We say `ρ` is *automorphic* if there's a totally definite quaternion algebra D over F
+  -- of discriminant 1
   ∃ (D : Type u) (_ : DivisionRing D) (_ : Algebra F D) (_ : IsQuaternionAlgebra F D)
+    (_ : IsQuaternionAlgebra.IsTotallyDefinite F D)
     (_ : IsQuaternionAlgebra.NumberField.WithRigidification F D)
   -- and an `A`-valued automorphic eigenform,
   -- by which we mean a ℤ_p-linear map from the ℤ_p-Hecke algebra for (D,S) to `A`,
@@ -92,6 +94,42 @@ def GaloisRep.IsAutomorphicOfLevel
     -- and the trace of `ρ(Frobᵥ)` is the eigenvalue of the form at `Tᵥ`
     LinearMap.trace A V (ρ.toLocal v (Frob v)) =
       π (HeckeAlgebra.T (R := ℤ_[p]) D ⟨Fact.out, S, ∅, 1, by simp, hp⟩ v hvS (by simp))
+
+set_option linter.unusedVariables false in
+/--
+A 2-dimensional mod-`p` (or `p`-adic) Galois representation `ρ` of the absolute Galois
+group of `ℚ` is said to be *potentially automorphic* if there is a totally real field
+`F`, Galois over `ℚ`, unramified at `p` and "disjoint from the field cut out by `ρ`"
+(formalized as: restricting `ρ` to the absolute Galois group of `F` does not shrink
+its image), such that the restriction of `ρ` to the absolute Galois group of `F` is
+automorphic of some level `S` coprime to `p`.
+-/
+@[nolint unusedArguments]
+def GaloisRep.IsPotentiallyAutomorphic (p : ℕ) [Fact p.Prime]
+    {A : Type*} [CommRing A] [TopologicalSpace A] [Algebra ℤ_[p] A]
+    [ContinuousSMul ℤ_[p] A]
+    -- `V` is the rank 2 free `A`-module on which the Galois group acts
+    {V : Type*} [AddCommGroup V] [Module A V] [Module.Finite A V]
+      [Module.Free A V] (hV : Module.finrank A V = 2)
+    -- `ρ` is the Galois representation
+    (ρ : GaloisRep ℚ A V) : Prop :=
+  -- We say `ρ` is *potentially automorphic* if there is a totally real field `F`,
+  ∃ (F : Type) (_ : Field F) (_ : NumberField F) (_ : IsTotallyReal F)
+    -- Galois over `ℚ`,
+    (_ : IsGalois ℚ F)
+    -- unramified at `p`,
+    (_ : Algebra.IsUnramifiedIn (𝓞 F) (Ideal.span {(p : ℤ)}))
+    -- and "disjoint from the field cut out by `ρ`", so that restriction to
+    -- the absolute Galois group of `F` loses no information,
+    (_ : Set.range ⇑(ρ.map (algebraMap ℚ F)) = Set.range ⇑ρ)
+    (hp : 2 < Module.finrank F (CyclotomicField p F))
+    -- and a finite set `S` of finite places of `F`
+    (S : Finset (HeightOneSpectrum (𝓞 F))),
+    -- coprime to `p`,
+    (∀ v ∈ S, ↑p ∉ v.asIdeal) ∧
+    -- such that the restriction of `ρ` to the absolute Galois group of `F` is
+    -- automorphic of level `S`.
+    (ρ.map (algebraMap ℚ F)).IsAutomorphicOfLevel p hp hV S
 
 instance {F E D : Type*}
     [Field F]

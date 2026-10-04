@@ -1,0 +1,221 @@
+\documentclass[11pt]{article}
+\usepackage{fltcourse}
+
+\title{Level 6: From $\ell$ to $3$}
+\author{Kevin Buzzard}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+In the previous level we reduced Fermat's Last Theorem to Statement $B_5$: for
+$\ell\geq5$ prime, every continuous hardly ramified representation
+$\rho\colon\GQ\to\Aut_{\F_\ell}(V)$ on a two-dimensional $\F_\ell$-vector space
+is reducible. All the terminology --- coefficient ring, hardly ramified,
+cyclotomic character $\chi$, flat at $\ell$ --- is as in the previous level;
+recall in particular that the definition of ``hardly ramified'' makes sense
+over any coefficient ring of odd residue characteristic, not only $\F_\ell$.
+
+\medskip\noindent
+Wiles' great insight was to study the prime $3$. We too shall pass from the
+prime $\ell$ to the prime $3$. But the Frey curve is long gone: our
+representations are now free-standing objects, and there is no elliptic curve
+to reduce modulo $3$. Passing from $\ell$ to $3$ must therefore be done
+entirely on the level of Galois representations. This level introduces the
+three deep statements that make the passage possible, and shows that together
+they imply $B_5$ --- and hence FLT. Proving the three statements themselves is
+the business of every subsequent level.
+
+\section{The three heads}
+
+We split $B_6$ into three statements $B_{6a}$, $B_{6b}$, $B_{6c}$, and set
+$B_6:=B_{6a}\wedge B_{6b}\wedge B_{6c}$. In all three, ``representation'' means
+``continuous representation on a free rank-two module over a coefficient ring
+of odd residue characteristic'', and ``hardly ramified'' is as before.
+
+\begin{Bn}{B_{6a}}
+\textup{(Lifting.)} Let $\ell\geq5$ be prime and let
+$\rhobar\colon\GQ\to\Aut_{\F_\ell}(V)$ be an irreducible hardly ramified
+$\F_\ell$-representation. Then there exist a finite extension $K/\Ql$ with ring
+of integers $\calO$ and maximal ideal $\m$, a free $\calO$-module $\calV$ of
+rank $2$, and a hardly ramified representation $\rho\colon\GQ\to\Aut_\calO(\calV)$
+whose reduction $\rho\bmod\m$ is isomorphic to the base change of $\rhobar$ to
+$\calO/\m$.
+\end{Bn}
+
+\noindent
+In slogan form: \emph{an irreducible hardly ramified mod $\ell$ representation
+lifts to an $\ell$-adic one}. (The reader who is still thinking about the Frey
+curve should note that its $\ell$-adic Tate module will not do as a lift: it is
+ramified at every prime dividing $abc$, so is not hardly ramified.)
+
+\begin{Bn}{B_{6b}}
+\textup{(Spreading out.)} Let $\ell\geq5$ be prime, let $K/\Ql$ be a finite
+extension with ring of integers $\calO$ and maximal ideal $\m$, let $\calV$ be
+a free rank-two $\calO$-module, and let $\rho\colon\GQ\to\Aut_\calO(\calV)$ be a
+hardly ramified representation. Assume that the reduction $\rho\bmod\m$ is
+absolutely irreducible and can be conjugated into $\GL_2(\F_\ell)$ \textup{(}i.e.\ is
+the base change of an irreducible $\F_\ell$-representation\textup{)}. Then:
+\begin{enumerate}
+\item[\textup{(i)}] there is a number field $M\subseteq K$ and elements
+$t_p\in M$, for all primes $p\neq2,\ell$, with $\tr\rho(\Frob_p)=t_p$; and
+\item[\textup{(ii)}] for every maximal ideal $P$ of the ring of integers
+$\calO_M$ of residue characteristic $p\neq2$, there is a hardly ramified
+$\calO_{M,P}$-representation $\rho_P\colon\GQ\to\GL_2(\calO_{M,P})$ with
+$\tr\rho_P(\Frob_q)=t_q$ for all primes $q\neq 2,p,\ell$.
+\end{enumerate}
+\end{Bn}
+
+\noindent
+In slogan form: \emph{an $\ell$-adic hardly ramified representation whose
+residual representation descends to $\F_\ell$ spreads out into a compatible
+family of hardly ramified $p$-adic representations, one for each odd residue
+characteristic $p$}. The traces $t_p$ live in a single number field $M$ and are
+common to the whole family: this is what ``compatible'' means. The remarkable
+feature is that there is \emph{no} hypothesis that anything be modular.
+
+\begin{Bn}{B_{6c}}
+\textup{(Classification at $3$.)} Let $K/\Q_3$ be a finite extension with ring
+of integers $\calO$, let $\calV$ be a free rank-two $\calO$-module, and let
+$\rho\colon\GQ\to\Aut_\calO(\calV)$ be a hardly ramified representation. Then,
+for a suitable basis,
+\[
+  \rho\;\cong\;\begin{pmatrix}\chi & * \\ 0 & 1\end{pmatrix},
+\]
+where $\chi$ is the $3$-adic cyclotomic character. In particular
+$\tr\rho(\Frob_p)=1+p$ for every prime $p\neq2,3$.
+\end{Bn}
+
+\begin{remark}[compatible families]
+It is worth pausing over what $B_{6b}$ asserts. We learn as undergraduates that
+two finite-dimensional representations with the same character are isomorphic
+--- but that is a statement about \emph{one} representation of \emph{one} group.
+The family $(\rho_P)_P$ consists of genuinely different representations of
+$\GQ$, with values in different rings, and yet their traces of Frobenius agree
+and lie in a common number field. The simplest instance is already striking:
+the $2$-adic and $3$-adic cyclotomic characters $\chi_2\colon\GQ\to\Z_2^\times$
+and $\chi_3\colon\GQ\to\Z_3^\times$ have disjoint kernels (cutting out the
+disjoint fields $\Q(\mu_{2^\infty})$ and $\Q(\mu_{3^\infty})$) and are in every
+sense different representations; yet for every prime $p\geq5$ one has
+$\chi_2(\Frob_p)=p=\chi_3(\Frob_p)$, a common rational integer. This
+coincidence of traces across a family is the first shadow of the theory of
+motives, and it is exactly the mechanism by which we shall transport
+information from $\ell$ to $3$.
+\end{remark}
+
+\section{An elementary lemma}
+
+The reduction of $B_5$ to $B_6$ passes through $B_{6b}$, whose hypothesis
+demands \emph{absolute} irreducibility of the residual representation. The
+following lemma, which uses nothing beyond the cyclotomic determinant and the
+existence of complex conjugation, closes the gap between irreducibility and
+absolute irreducibility for our representations.
+
+\begin{lemma}\label{lem:absirr}
+Let $\ell$ be an odd prime and let $\rhobar\colon\GQ\to\GL_2(\F_\ell)$ be an
+irreducible representation with $\det\rhobar=\chibar$, the mod $\ell$
+cyclotomic character. Then $\rhobar$ is absolutely irreducible, i.e.\ remains
+irreducible after extension of scalars to $\overline{\F}_\ell$.
+\end{lemma}
+
+\begin{proof}
+Let $c\in\GQ$ be a complex conjugation (the restriction to $\Qbar\subseteq\C$
+of complex conjugation for some embedding). Then $c^2=1$ and $c$ inverts every
+root of unity, so $\chibar(c)=-1$. Hence $\rhobar(c)$ is an involution of
+determinant $-1$; as $\ell$ is odd its eigenvalues are the distinct elements
+$+1,-1$ of $\F_\ell$, so $\rhobar(c)$ is diagonalisable with both eigenlines
+defined over $\F_\ell$. Now suppose $\overline{\F}_\ell^{\,2}$ had a
+$\rhobar(\GQ)$-stable line $\Lambda$. Then $\Lambda$ is $\rhobar(c)$-stable,
+hence equals one of the two eigenlines of $\rhobar(c)$, which are defined over
+$\F_\ell$. A $\GQ$-stable line defined over $\F_\ell$ contradicts the
+irreducibility of $\rhobar$ over $\F_\ell$. So no such $\Lambda$ exists and
+$\rhobar$ is absolutely irreducible.
+\end{proof}
+
+\section{The boss: $B_6$ implies FLT}
+
+\begin{theorem}[Boss of Level 6]\label{thm:boss6}
+Statements $B_{6a}$, $B_{6b}$ and $B_{6c}$ together imply Fermat's Last
+Theorem, modulo results known in the 1980s.
+\end{theorem}
+
+\begin{proof}
+By the boss theorem of the previous level it suffices to prove $B_5$. We argue
+by contradiction: suppose $\ell\geq5$ is prime and
+$\rhobar\colon\GQ\to\Aut_{\F_\ell}(V)$ is an \emph{irreducible} hardly ramified
+$\F_\ell$-representation, and let us derive a contradiction. (This proves that
+no such $\rho$ exists, i.e.\ that every hardly ramified
+$\F_\ell$-representation is reducible, which is $B_5$.)
+
+\medskip\noindent\emph{Lift.} By $B_{6a}$ there is a finite extension $K/\Ql$
+with ring of integers $\calO$ and maximal ideal $\m$, and a hardly ramified
+representation $\rho\colon\GQ\to\Aut_\calO(\calV)$ with
+$\rho\bmod\m\cong\rhobar\otimes_{\F_\ell}(\calO/\m)$.
+
+\medskip\noindent\emph{Verify the hypothesis of $B_{6b}$.} By
+Lemma~\ref{lem:absirr}, $\rhobar$ is absolutely irreducible; hence so is its
+base change $\rho\bmod\m$, which moreover is manifestly conjugate into
+$\GL_2(\F_\ell)$, being the base change of the $\F_\ell$-representation
+$\rhobar$. So $B_{6b}$ applies.
+
+\medskip\noindent\emph{Spread out to $3$.} By $B_{6b}$ there is a number field
+$M\subseteq K$, elements $t_p\in M$ with $\tr\rho(\Frob_p)=t_p$ for $p\neq2,\ell$,
+and a compatible family $(\rho_P)$. Since $\ell\geq5$, the prime $3$ satisfies
+$3\neq2,\ell$; choose a maximal ideal $P$ of $\calO_M$ above $3$, of residue
+characteristic $3$. Then $\rho_P\colon\GQ\to\GL_2(\calO_{M,P})$ is a hardly
+ramified $3$-adic representation with $\tr\rho_P(\Frob_q)=t_q$ for all
+$q\neq2,3,\ell$.
+
+\medskip\noindent\emph{Classify at $3$.} By $B_{6c}$, $\rho_P$ is conjugate to
+$\left(\begin{smallmatrix}\chi_3&*\\0&1\end{smallmatrix}\right)$, so
+$\tr\rho_P(\Frob_q)=\chi_3(q)+1=q+1$ for every $q\neq2,3$. Combining with the
+previous paragraph,
+\[
+  t_q=q+1\qquad\text{for all primes }q\neq2,3,\ell.
+\]
+Reducing modulo $\m$ (recall $t_q=\tr\rho(\Frob_q)$ and
+$\rho\bmod\m=\rhobar\otimes k$), we obtain
+\[
+  \tr\rhobar(\Frob_q)=q+1\qquad\text{for all primes }q\neq2,3,\ell,
+\]
+an identity in $\F_\ell$. But $q+1=\chibar(\Frob_q)+1=\tr\bigl((\mathbf1\oplus\chibar)(\Frob_q)\bigr)$,
+so $\rhobar$ and $\mathbf1\oplus\chibar$ have equal traces on every $\Frob_q$
+with $q\neq2,3,\ell$.
+
+\medskip\noindent\emph{Chebotarev and Brauer--Nesbitt.} Both $\rhobar$ and
+$\mathbf1\oplus\chibar$ have finite image and are unramified outside $\{2,\ell\}$;
+let $L/\Q$ be a finite Galois extension through which both factor, so both are
+inflated from representations of $\Gal(L/\Q)$, and $L$ is unramified outside
+$\{2,\ell\}$. Every prime $q\neq2,3,\ell$ is then unramified in $L$ and supplies
+a Frobenius conjugacy class $\Frob_q\subseteq\Gal(L/\Q)$. By the Chebotarev
+density theorem (1920s, certainly available), every conjugacy class of
+$\Gal(L/\Q)$ arises as $\Frob_q$ for infinitely many such $q$. As trace is a
+class function, we conclude that $\rhobar$ and $\mathbf1\oplus\chibar$ have
+\emph{equal character} on all of $\Gal(L/\Q)$. Both are semisimple ($\rhobar$
+because it is irreducible), so by the Brauer--Nesbitt theorem a semisimple
+representation is determined up to isomorphism by its character. (In residue
+characteristic $\ell$ one needs equal characteristic polynomials, not merely
+equal traces; but both representations have determinant $\chibar$ and $\ell>2$,
+so equal traces do give equal characteristic polynomials.) Hence
+$\rhobar\cong\mathbf1\oplus\chibar$.
+
+\medskip\noindent
+But $\mathbf1\oplus\chibar$ is visibly reducible, contradicting the
+irreducibility of $\rhobar$. This contradiction proves $B_5$, and with it the
+theorem.
+\end{proof}
+
+\begin{remark}
+The moral of the level is that profound theorems about $p$-adic Galois
+representations imply Fermat's Last Theorem, and that the passage from the
+prime $\ell$ to the manageable prime $3$ is effected purely by keeping track
+of traces of Frobenius in a compatible family. What remains is to prove
+$B_{6a}$, $B_{6b}$ and $B_{6c}$. Of the three, $B_{6c}$ is by far the most
+accessible: its proof, in the next level, rests on a classification of mod $3$
+hardly ramified representations by way of discriminant bounds, and needs
+nothing from after the 1980s. Statements $B_{6a}$ and $B_{6b}$ are the two
+faces of a single automorphy lifting theorem, and occupy the later levels.
+\end{remark}
+
+\end{document}

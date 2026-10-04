@@ -54,6 +54,7 @@ public import FLT.GaloisRepresentation.HardlyRamified.Frey
 public import FLT.GaloisRepresentation.HardlyRamified.Lift
 public import FLT.GaloisRepresentation.HardlyRamified.ModThree
 public import FLT.GaloisRepresentation.HardlyRamified.Threeadic
+public import FLT.GaloisRepresentation.SMinimal
 public import FLT.GlobalLanglandsConjectures.GLnDefs
 public import FLT.GlobalLanglandsConjectures.GLzero
 public import FLT.GroupScheme.FiniteFlat

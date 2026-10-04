@@ -1,0 +1,248 @@
+\documentclass[11pt]{article}
+\usepackage{fltcourse}
+
+\title{Level 5: Hardly ramified representations}
+\author{Kevin Buzzard}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+The object of this game is to prove Fermat's Last Theorem (FLT). Each level's
+boss is a theorem of the form ``Statement $B_n$ implies FLT''; beating the
+boss means proving that $B_n$ implies the boss statement $B_{n-1}$ of the
+previous level, so that the implications chain down to $B_1={}$FLT. We are
+allowed to assume, without proof, any theorem published in the 1980s or
+earlier, provided we state it cleanly. We are also free to use, without
+comment, any construction which is a standard part of the mathematical
+literature (and, in this project, is formalized in Lean or in its mathematics
+library \emph{mathlib}). What we may \emph{not} assume are the modularity and
+automorphy results of the 1990s and later; those we must prove.
+
+\medskip\noindent
+By the end of the previous four levels, FLT has been reduced to Statement
+$B_4$. Recall the ingredients.
+A \emph{Frey package} is a prime $p\geq 5$ together with three nonzero,
+pairwise coprime integers $a,b,c$ with $a\equiv 3\pmod 4$, $b$ even, and
+$a^p+b^p=c^p$. Its \emph{Frey curve} is the elliptic curve $E/\Q$ with
+Weierstrass equation
+\[
+  Y^2 = X\,(X-a^p)(X+b^p).
+\]
+Fixing a separable closure $\Qbar$ of $\Q$, the $p$-torsion $E(\Qbar)[p]$ is a
+two-dimensional $\F_p$-vector space carrying a continuous action of
+$\GQ$, the \emph{mod $p$ representation}
+$\rhobar_{E,p}\colon\GQ\to\Aut_{\F_p}\!\bigl(E(\Qbar)[p]\bigr)$.
+
+\begin{Bn}{B_4}
+For every Frey package $(a,b,c,p)$, every separable closure $\Qbar/\Q$, and the
+associated Frey curve $E$, the representation $\rhobar_{E,p}$ is reducible.
+\end{Bn}
+
+\noindent
+(Recall that a representation of a group on a vector space is \emph{reducible}
+if it has a nonzero proper stable subspace, and \emph{irreducible} otherwise.)
+The boss of the previous level was the theorem that $B_4$ implies FLT.
+
+\medskip\noindent
+In this level we do not prove anything hard. Instead we isolate exactly which
+features of $\rhobar_{E,p}$ are responsible for its reducibility, package them
+into a self-contained condition on a Galois representation --- being
+\emph{hardly ramified} --- and reduce $B_4$ to a statement, $B_5$, in which no
+elliptic curve appears. The whole of the rest of the course is then devoted to
+proving $B_5$.
+
+\section{Recollections}
+
+We recall, briefly, the standard notions on which the definition rests. All of
+them are part of the standard literature.
+
+A \emph{coefficient ring} is a commutative local ring $R$ equipped with a
+topology making it a compact Hausdorff topological ring. Its maximal ideal
+$\m$ is then open, and the residue field $R/\m$ is finite; the characteristic
+of $R/\m$ is a prime, the \emph{residue characteristic} of $R$. Examples: any
+finite local ring, such as $\Z/\ell^n\Z$; the $\ell$-adic integers $\Zl$; and
+the ring of integers $\calO_K$ of a finite extension $K/\Ql$, with its
+$\m$-adic topology. Every coefficient ring is the projective limit of its
+finite discrete quotients $R/J$ ($J$ ranging over the open ideals). We shall
+use one standard fact: \emph{a coefficient ring of residue characteristic
+$\ell$ carries a unique continuous ring homomorphism $\Zl\to R$}, so is
+canonically a $\Zl$-algebra.
+
+Let $R$ be a coefficient ring and $V$ a free $R$-module of finite rank. Then
+$\Aut_R(V)$ is a topological group. By an \emph{$R$-representation} of $\GQ$ we
+mean a continuous homomorphism $\rho\colon\GQ\to\Aut_R(V)$, where $\GQ$ carries
+its profinite topology. Choosing an $R$-basis of $V$ identifies $\Aut_R(V)$
+with $\GL_n(R)$, but the topology --- and hence the notion of continuity ---
+does not depend on the choice.
+
+For each prime $p$, an embedding $\Qbar\hookrightarrow\Qpbar$ realises the local
+group $\GQp=\Gal(\Qpbar/\Qp)$ as a \emph{decomposition subgroup} $D_p\subseteq
+\GQ$, with \emph{inertia subgroup} $I_p\subseteq D_p$. A different embedding
+conjugates $D_p$ and $I_p$ by an element of $\GQ$. A \emph{Frobenius element}
+$\Frob_p\in D_p$ is any element mapping to the arithmetic Frobenius
+$x\mapsto x^p$ of the residue field; it is well defined modulo $I_p$. An
+$R$-representation $\rho$ is \emph{unramified at $p$} if $I_p\subseteq\ker\rho$
+for one (equivalently every) choice of $I_p$; then $\rho(\Frob_p)$ is
+well-defined up to conjugacy, so its trace and determinant are honest
+invariants.
+
+The \emph{$\ell$-adic cyclotomic character}
+$\chi=\chi_\ell\colon\GQ\to\Zl^\times$ is characterised by
+$\sigma(\zeta)=\zeta^{\chi(\sigma)}$ for every $\ell$-power root of unity
+$\zeta$; its reduction modulo $\ell$ is $\chibar\colon\GQ\to\Fl^\times$. It is
+unramified outside $\ell$, with $\chi(\Frob_p)=p$ for $p\neq\ell$. If $R$ is a
+coefficient ring of residue characteristic $\ell$, we regard $\chi$ as a
+character $\GQ\to R^\times$ via the canonical map $\Zl\to R$.
+
+Finally we recall \emph{flatness}, the one notion which is genuinely subtle,
+because it is the arithmetic-geometric input that makes everything work. Let
+$K/\Ql$ be a finite extension. A finite abelian group $M$ with a continuous
+action of $\GK=\Gal(\Kbar/K)$ is \emph{flat} if it arises, $\GK$-equivariantly,
+as the group $A(\Kbar)$ of $\Kbar$-points of a finite flat commutative group
+scheme $A$ over $\calO_K$ --- equivalently, if there is a finite free
+$\calO_K$-Hopf algebra whose $\Kbar$-points, with their Galois action, recover
+$M$. A continuous $R$-representation $\rho\colon\GK\to\Aut_R(V)$ (with $R$ a
+coefficient ring of residue characteristic $\ell$, $V$ free) is \emph{flat} if
+$V/JV$ is flat in the previous sense for every open ideal $J\subseteq R$. We
+shall use the following stability properties, all of which were known in the
+1980s and go back to Raynaud's 1974 paper \emph{Sch\'emas en groupes de type
+$(p,\dots,p)$}: a subrepresentation or quotient of a flat representation is
+flat, and a finite direct sum of flat representations is flat.
+
+For a \emph{global} representation $\rho\colon\GQ\to\Aut_R(V)$ with $R$ of
+residue characteristic $\ell$, we say $\rho$ is \emph{flat at $\ell$} if its
+restriction to a decomposition group $D_\ell\cong\GQl$ (via any choice of
+$\Qbar\hookrightarrow\Qlbar$) is flat. Different choices give conjugate
+representations, so the condition is independent of the choice.
+
+\begin{remark}
+Flatness, not being unramified, is the correct ``good behaviour'' condition at
+the residue characteristic. The mod $\ell$ cyclotomic character
+$\chibar\colon\GQl\to\Fl^\times$ is ramified (tamely so, factoring through the
+totally ramified extension $\Ql(\zeta_\ell)/\Ql$), yet it is flat: it is cut
+out by the group scheme $\mu_\ell$ of $\ell$-th roots of unity. Its $\ell$-adic
+lift $\chi\colon\GQl\to\Zl^\times$ is even wildly ramified, and still flat. So
+even the simplest interesting characters are ramified but flat.
+\end{remark}
+
+\section{Hardly ramified representations}
+
+We can now give the central definition of the level. The adjective ``hardly
+ramified'' is bespoke to this course: it names precisely the collection of
+local conditions satisfied by the mod $p$ representation of a Frey curve.
+
+\begin{definition}\label{def:hr}
+Let $R$ be a coefficient ring of \emph{odd} residue characteristic $\ell$, let
+$V$ be a free $R$-module of rank $2$, and let $\rho\colon\GQ\to\Aut_R(V)$ be a
+continuous $R$-representation. We say $\rho$ is \emph{hardly ramified} if it
+satisfies the following four conditions.
+\begin{enumerate}
+\item[\textup{(HR1)}] \emph{(cyclotomic determinant)} $\det\rho=\chi$, the
+$\ell$-adic cyclotomic character, viewed in $R^\times$ via $\Zl\to R$.
+\item[\textup{(HR2)}] \emph{(ramification)} $\rho$ is unramified outside $2$
+and $\ell$; that is, $\rho$ is unramified at every prime $p\neq 2,\ell$.
+\item[\textup{(HR3)}] \emph{(flat at $\ell$)} $\rho$ is flat at $\ell$.
+\item[\textup{(HR4)}] \emph{(hardly ramified at $2$)} There is a
+$\Gal(\Qbar_2/\Q_2)$-stable $R$-line $W\subseteq V$ with free rank one quotient
+$V/W$, on which $\Gal(\Qbar_2/\Q_2)$ acts through an \emph{unramified}
+character $\psi$ with $\psi^2=1$.
+\end{enumerate}
+\end{definition}
+
+\noindent
+Condition (HR4) can be phrased matricially: for a suitable basis,
+\[
+  \rho|_{\Gal(\Qbar_2/\Q_2)}\;\cong\;
+  \begin{pmatrix}\psi\chi & * \\ 0 & \psi\end{pmatrix},
+\]
+with $\psi$ unramified, $\psi^2=1$, and $*$ unconstrained. (The upper-left
+entry is forced to be $\psi\chi$ by \textup{(HR1)}, since $\det=\chi$ and $\chi$
+is unramified at $2$.) It is the one place where we permit a controlled amount
+of ramification --- hence the name.
+
+\begin{example}\label{ex:1pluschi}
+The direct sum $\mathbf 1\oplus\chi$ of the trivial character and the
+cyclotomic character is hardly ramified over any coefficient ring of odd
+residue characteristic. Indeed $\det(\mathbf 1\oplus\chi)=\chi$; it is
+unramified away from $\ell$; both $\mathbf 1$ and $\chi$ are flat at $\ell$ (by
+$\Z/\ell$ and $\mu_\ell$), so their sum is; and at $2$ one takes $W$ the
+$\chi$-line and $\psi=\mathbf 1$. This is the representation the whole game is
+trying to trap.
+\end{example}
+
+The boss statement of this level asserts that, for coefficients $\F_\ell$ with
+$\ell\geq5$, Example~\ref{ex:1pluschi} is essentially the only possibility: no
+hardly ramified representation can be irreducible.
+
+\begin{Bn}{B_5}
+Let $\ell\geq5$ be prime, let $V$ be a two-dimensional $\F_\ell$-vector space,
+and let $\rho\colon\GQ\to\Aut_{\F_\ell}(V)$ be a continuous hardly ramified
+representation. Then $\rho$ is reducible.
+\end{Bn}
+
+\section{The boss: $B_5$ implies FLT}
+
+The link between $B_5$ and the Frey curve is a theorem of Serre from the
+1980s, which we assume.
+
+\begin{theorem}[Serre, 1987]\label{thm:frey-hr}
+Let $(a,b,c,p)$ be a Frey package with Frey curve $E$, and let $\Qbar$ be any
+separable closure of $\Q$. Then the mod $p$ representation
+$\rhobar_{E,p}\colon\GQ\to\Aut_{\F_p}(E(\Qbar)[p])$ is hardly ramified.
+\end{theorem}
+
+This is proved in Serre's paper \emph{Sur les repr\'esentations modulaires de
+degr\'e $2$ de $\Gal(\overline{\Q}/\Q)$} (Duke Math.\ J.\ \textbf{54}, 1987),
+whose results were all available in the 1980s. We record the shape of the
+argument, but as it is pre-1990 we give no proof.
+
+\begin{itemize}
+\item \emph{(HR1)}: the Weil pairing on $E[p]$ is an alternating perfect
+$\GQ$-equivariant pairing $E[p]\times E[p]\to\mu_p$, and its existence forces
+$\det\rhobar_{E,p}=\chi$.
+\item \emph{(HR2), (HR4)}: pairwise coprimality of $a,b,c$ makes $E$ semistable
+at every odd prime dividing $abc$, and the theory of the Tate curve shows the
+representation is unramified there. At $2$ the same theory, together with the
+normalisations $a\equiv3\pmod4$ and $b$ even (which put $E$ into a minimal
+model with multiplicative reduction at $2$), yields precisely the shape of
+\textup{(HR4)}.
+\item \emph{(HR3)}: if $p\nmid abc$ then $E$ has good reduction at $p$ and
+flatness is standard; if $p\mid abc$ the Tate-curve description again applies,
+and one checks flatness using that $v_p(j_E)$ is divisible by~$p$.
+\end{itemize}
+
+\begin{theorem}[Boss of Level 5]\label{thm:boss5}
+Statement $B_5$ implies Fermat's Last Theorem, modulo results known in the
+1980s.
+\end{theorem}
+
+\begin{proof}
+By the boss theorem of the previous level, it suffices to prove that $B_5$
+implies Statement $B_4$. Let $(a,b,c,p)$ be a Frey package, $\Qbar$ a separable
+closure of $\Q$, $E$ the Frey curve, and
+$\rhobar_{E,p}\colon\GQ\to\Aut_{\F_p}(E(\Qbar)[p])$ the mod $p$ representation.
+Since a Frey package has $p\geq5$, in particular $p$ is odd, so the
+coefficient ring $\F_p$ has odd residue characteristic and
+Definition~\ref{def:hr} applies with $\ell=p$. By Theorem~\ref{thm:frey-hr},
+$\rhobar_{E,p}$ is hardly ramified. Applying $B_5$ with $\ell=p$ to the
+two-dimensional $\F_p$-vector space $E(\Qbar)[p]$, we conclude that
+$\rhobar_{E,p}$ is reducible. As $(a,b,c,p)$ and $\Qbar$ were arbitrary, this
+is exactly Statement $B_4$. Hence $B_5\Rightarrow B_4\Rightarrow{}$FLT.
+\end{proof}
+
+\begin{remark}
+This reduction is, in essence, the beginning of Serre's 1987 paper: the whole
+of the argument so far --- the reduction of FLT to the reducibility of a single
+hardly ramified mod $p$ representation --- was available in the 1980s. What was
+\emph{not} available then, and what the remaining levels supply, is a proof
+that a hardly ramified representation is reducible without ever mentioning the
+Frey curve, modular forms, or Serre's conjecture. Statement $B_5$ would follow
+from the conjecture Serre stated in that very paper; but Serre's conjecture was
+not proved until the twenty-first century, and the argument we shall give uses
+ideas from its proof (by Khare and Wintenberger) rather than the conjecture
+itself.
+\end{remark}
+
+\end{document}

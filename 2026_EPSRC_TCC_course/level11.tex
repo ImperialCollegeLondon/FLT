@@ -1,0 +1,190 @@
+\documentclass[11pt]{article}
+\usepackage{fltcourse}
+
+\title{Level 11: Spreading out}
+\author{Kevin Buzzard}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+In Level 10 the automorphy lifting theorem (ALT) disposed of $B_{8a}$. We now
+use it to dispose of $B_{8b}$, spreading out: a hardly ramified $\ell$-adic
+representation whose residual representation is potentially automorphic and
+absolutely irreducible on $\Q(\zeta_\ell)$ is one member of a compatible family
+of hardly ramified $p$-adic representations. The boss statement drops $B_{8b}$:
+\[
+  B_{11} := B_{8c}\wedge\text{ALT}.
+\]
+
+\begin{theorem}[Boss of Level 11]\label{thm:boss11}
+Statement $B_{8c}$ together with the automorphy lifting theorem imply Fermat's
+Last Theorem, modulo results known in the 1980s.
+\end{theorem}
+
+By Level 10, ALT implies $B_{8a}$. So once we show ALT implies $B_{8b}$, the
+statement $B_{11}=B_{8c}\wedge\text{ALT}$ implies
+$B_{8a}\wedge B_{8b}\wedge B_{8c}=B_8$, hence FLT. The rest of the level proves
+ALT $\Rightarrow B_{8b}$. We concentrate on the crucial passage from $\ell$ to
+$3$; the routine local verifications that the resulting representations are
+hardly ramified are omitted.
+
+\section{From the Galois lift to an automorphic eigenform}
+
+Let $\rho\colon\GQ\to\GL_2(K)$ be a hardly ramified representation, $K/\Ql$
+finite, whose reduction $\rhobar$ is potentially automorphic with
+$\rhobar|_{\Q(\zeta_\ell)}$ absolutely irreducible. As in Level 10, potential
+automorphy furnishes a totally real field $F$ of even degree, Galois over $\Q$,
+unramified at $\ell$, disjoint from $K_{\rhobar}$, a totally definite quaternion
+algebra $D/F$ split at all finite places, and a level $U_0(S)$ with $S$ coprime to $\ell$ (and
+containing the primes above $2$) for which $\rhobar|_{\GF}$ is $S$-minimal and
+automorphic. The restriction $\rho|_{\GF}$ is an $S$-minimal deformation of
+$\rhobar|_{\GF}$, so corresponds to a homomorphism
+$R^{S\text{-}\minl}\to\calO_K$; by ALT\,(b), $\rho|_{\GF}$ is automorphic. Thus
+there is an eigenform $\phi\in\calA_D(U_0(S);K)$ with
+\[
+  \tr\rho|_{\GF}(\Frob_P)=t_P\qquad(P\text{ a good place of }F),
+\]
+where $t_P\in K$ is the $T_P$-eigenvalue of $\phi$.
+
+\section{Descending the eigenform to a number field}
+
+For any commutative ring $R$ the Hecke operators $T_P$ act $R$-linearly on the
+finite free module $\calA_D(U_0(S);R)\cong R^n$; let $\bbT_R\subseteq
+\End_R(\calA_D(U_0(S);R))$ be the commutative $R$-algebra they generate. The
+eigenform $\phi$ gives a $K$-algebra homomorphism $t\colon\bbT_K\to K$,
+$T_P\mapsto t_P$. Now $\bbT_\Q\subseteq M_n(\Q)$ is finite as a $\Q$-vector
+space, so the image of the composite $\bbT_\Q\to\bbT_K\xrightarrow{t}K$ lies in a
+number field $K_0\subseteq K$. The common eigenspace
+$\bigcap_P\ker(T_P-t_P)$ inside $\calA_D(U_0(S);K_0)$ is then nonzero (it is cut
+out over $K_0$ by the same equations that cut out $\phi$ over $K$), so contains a
+nonzero eigenform $\phi_0\in\calA_D(U_0(S);K_0)$ with eigenvalues $t_P\in K_0$.
+We have descended the automorphic data to a number field.
+
+\section{From $\ell$ to $3$ by Brauer and base change}
+
+We now attach a $3$-adic representation with the \emph{same} traces $t_P$. The
+obstacle is that Galois representations attached to automorphic forms live over
+$\GF$, not $\GQ$, and there is no ``non-solvable base change'' to bring them
+down. Brauer's theorem and cyclic base change together circumvent this.
+
+Let $G=\Gal(F/\Q)$. By Brauer's induction theorem, the trivial character of $G$
+is a $\Z$-linear combination of characters induced from \emph{solvable}
+subgroups:
+\[
+  \mathbf 1_G=\sum_i\sum_j n_{ij}\,\Ind_{H_i}^{G}\chi_{ij},
+  \qquad H_i\subseteq G\text{ solvable},\ \ n_{ij}\in\Z,
+\]
+the finitely many characters $\chi_{ij}$ taking values in some $\Q(\zeta_N)$,
+which we enlarge $K_0$ to contain. Let $E_i:=F^{H_i}$, so $\Gal(F/E_i)=H_i$ is
+solvable and $\Gal(\Fbar/E_i)=\Gal(\Qbar/E_i)$.
+
+Write $\rho_\ell:=\rho$. Tensoring the Brauer identity with $\rho_\ell$ (a
+representation of $\GQ$) and using the projection formula
+$\bigl(\Ind_{H}^{G}\chi\bigr)\otimes\rho\cong
+\Ind_{H}^{G}\bigl(\chi\otimes\rho|_H\bigr)$, we obtain, as virtual
+representations of $\GQ$,
+\[
+  \rho_\ell=\sum_{i,j} n_{ij}\,
+   \Ind_{\Gal(\Qbar/E_i)}^{\GQ}\!\bigl(\chi_{ij}\otimes\rho_\ell|_{\Gal(\Qbar/E_i)}\bigr).
+\]
+The right-hand side only ever restricts $\rho_\ell$ to the groups
+$\Gal(\Qbar/E_i)$ with $\Gal(F/E_i)$ solvable. Now we use:
+
+\begin{theorem}[Cyclic base change for $\GL_2$; Langlands, Arthur--Clozel]\label{thm:bc}
+Let $F/E$ be a finite Galois extension with solvable Galois group, with
+$[F:\Q]$ and $[E:\Q]$ even, let $p$ be a prime and $K'/\Q_p$ finite, and let
+$\sigma\colon\Gal(\Qbar/E)\to\GL_2(K')$ be irreducible. If $\sigma|_{\GF}$ is
+automorphic (associated to an automorphic form for a totally definite
+quaternion algebra over $F$), then $\sigma$ itself is automorphic (associated to
+one over $E$).
+\end{theorem}
+
+Since $\rho_\ell|_{\GF}$ is automorphic (from $\phi_0$), cyclic base change gives,
+for each $i$, an automorphic form $\phi_i$ over $E_i$ whose associated $\ell$-adic
+representation is $\rho_\ell|_{\Gal(\Qbar/E_i)}$. (For those $E_i$ of odd degree,
+over which no totally definite quaternion algebra split at all finite places
+exists, ``automorphic'' is meant in the sense of $\GL_2$, related to
+quaternionic forms by the Jacquet--Langlands correspondence; we suppress this
+bookkeeping.) Thus
+\[
+  \rho_\ell=\sum_{i,j} n_{ij}\,
+   \Ind_{\Gal(\Qbar/E_i)}^{\GQ}\!\bigl(\chi_{ij}\otimes\rho_{\phi_i,\ell}\bigr),
+\]
+where $\rho_{\phi_i,\ell}$ is the $\ell$-adic representation of $\Gal(\Qbar/E_i)$
+attached to $\phi_i$ by Taylor's theorem. Crucially, each $\phi_i$ is an
+honest automorphic form over the number field $K_0$, so it has an $\ell$-adic
+\emph{and} a $3$-adic incarnation. Completing $K_0$ at a place above $3$ and
+applying Taylor's theorem there produces the $3$-adic representation
+$\rho_{\phi_i,3}$ of $\Gal(\Qbar/E_i)$, with the same Hecke eigenvalues. Define
+the virtual representation of $\GQ$
+\[
+  \rho_3:=\sum_{i,j} n_{ij}\,
+   \Ind_{\Gal(\Qbar/E_i)}^{\GQ}\!\bigl(\chi_{ij}\otimes\rho_{\phi_i,3}\bigr).
+\]
+
+\section{$\rho_3$ is a genuine irreducible representation with the right traces}
+
+A priori $\rho_3$ is only a virtual representation --- a $\Z$-linear combination
+of irreducibles. We show it is a genuine two-dimensional irreducible
+representation.
+
+\emph{Dimension.} The (virtual) dimension is $\tr\rho_3(1)=\sum_{i,j}n_{ij}\,
+2[E_i:\Q]$, which is the same integer as $\tr\rho_\ell(1)=2$. So $\rho_3$ has
+dimension $2$.
+
+\emph{Norm.} Equip the free abelian group on isomorphism classes of continuous
+irreducible representations with the bilinear form $\langle\cdot,\cdot\rangle$
+for which distinct irreducibles are orthonormal; for genuine semisimple
+representations $\langle\sigma,\sigma'\rangle=\dim\Hom_{\GQ}(\sigma,\sigma')$.
+Expanding $\langle\rho_\ell,\rho_\ell\rangle$ via the Brauer formula, Frobenius
+reciprocity and Mackey's formula reduces it to a finite combinatorial expression
+in the $n_{ij}$, $\chi_{ij}$ and in which two constituents pair nontrivially
+exactly when the corresponding twisted automorphic forms share a system of Hecke
+eigenvalues. That data --- which eigenvalue systems coincide --- is identical for
+the $\ell$-adic and $3$-adic incarnations, since the eigenvalues all lie in the
+single number field $K_0$. Hence the \emph{same} expression computes
+$\langle\rho_3,\rho_3\rangle$, giving
+\[
+  \langle\rho_3,\rho_3\rangle=\langle\rho_\ell,\rho_\ell\rangle=1,
+\]
+the last equality because $\rho_\ell=\rho$ is irreducible. A virtual
+representation of norm $1$ is $\pm$ a single irreducible; as $\rho_3$ has
+positive dimension $2$, it is a genuine irreducible representation of dimension
+$2$.
+
+\emph{Traces.} For a good prime $p$, the trace $\tr\rho_3(\Frob_p)$ is given by
+the same formula in the Hecke eigenvalues of the $\phi_i$ that computes
+$\tr\rho_\ell(\Frob_p)$; as these eigenvalues lie in $K_0$ and are common to
+both incarnations, $\tr\rho_3(\Frob_p)=\tr\rho_\ell(\Frob_p)\in K_0$ for every
+good $p$. Thus $\rho_3$ and $\rho_\ell$ have equal traces of Frobenius, valued in
+the common number field $K_0$: they are members of one compatible family.
+
+\section{Conclusion}
+
+The representation $\rho_3\colon\GQ\to\GL_2(L)$ ($L$ a finite extension of
+$\Q_3$) is a $3$-adic representation with $\tr\rho_3(\Frob_p)=t_p$ for all good
+$p$. Running the analogous construction at every odd prime $p$ produces a
+representation $\rho_p$ with the same traces $t_p$, i.e.\ the required
+compatible family. That each $\rho_p$ is \emph{hardly ramified} is a finite list
+of local conditions (cyclotomic determinant, ramification only at $2$ and $p$,
+flatness at $p$, and the shape at $2$), each verified prime by prime from the
+local structure of the automorphic forms $\phi_i$; these verifications are
+standard and we do not carry them out. This establishes $B_{8b}$, and with it
+Theorem~\ref{thm:boss11}: $B_{11}=B_{8c}\wedge\text{ALT}$ implies
+$B_8$, hence FLT.
+
+\begin{remark}
+The whole passage from $\ell$ to $3$ has been achieved without any elliptic
+curve, and without descending the automorphic form $\phi_0$ itself from $F$ to
+$\Q$ (which would need a base change that does not exist). Brauer's theorem
+replaces the missing global descent by a formal identity of virtual
+representations, and cyclic base change supplies the automorphy of each solvable
+piece; the norm computation certifies that the formal $3$-adic combination is a
+genuine irreducible representation. It is a striking illustration of how a
+statement about $\GQ$ can be controlled entirely through automorphic data over
+auxiliary fields.
+\end{remark}
+
+\end{document}

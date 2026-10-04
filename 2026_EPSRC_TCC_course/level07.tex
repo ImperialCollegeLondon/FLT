@@ -1,0 +1,287 @@
+\documentclass[11pt]{article}
+\usepackage{fltcourse}
+
+\title{Level 7: The classification of mod $3$ hardly ramified representations}
+\author{Kevin Buzzard}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+In the previous level we reduced Fermat's Last Theorem to the conjunction of
+three statements $B_{6a}$ (lifting), $B_{6b}$ (spreading out) and $B_{6c}$
+(classification at $3$). In this level we \emph{prove} $B_{6c}$ outright, and so
+lop it off the list: the boss statement is
+\[
+  B_7 := B_{6a}\wedge B_{6b},
+\]
+and the boss theorem says that $B_7$ implies FLT. Everything here is known in
+the 1980s or earlier; the level is long only because the pieces must be
+assembled with care.
+
+\medskip\noindent
+Throughout, $\chi$ denotes the $3$-adic cyclotomic character and $\chibar$ its
+reduction modulo $3$. We freely use the notions from Level 5 (coefficient
+ring, hardly ramified, flat at a prime, decomposition/inertia/Frobenius). The
+heart of the matter is the following classification of mod $3$ hardly ramified
+representations, whose proof occupies most of the level.
+
+\begin{lemma}[Mod $3$ classification]\label{lem:mod3}
+Let $k$ be a finite field of characteristic $3$, let $V$ be a two-dimensional
+$k$-vector space, and let $\rhobar\colon\GQ\to\Aut_k(V)$ be a hardly ramified
+representation. Then, for a suitable basis,
+\[
+  \rhobar\;\cong\;\begin{pmatrix}\chibar & * \\ 0 & 1\end{pmatrix}.
+\]
+In particular, there are no irreducible mod $3$ hardly ramified
+representations.
+\end{lemma}
+
+We first show how Lemma~\ref{lem:mod3} yields $B_{6c}$ (and hence the boss),
+and then prove the lemma.
+
+\section{Two stability properties}
+
+The reduction of $B_{6c}$ to Lemma~\ref{lem:mod3} needs two facts about how
+the hardly ramified condition behaves. Both were implicit in Level 5; we make
+them explicit.
+
+\begin{proposition}[Base change of coefficients]\label{prop:basechange}
+Let $R_1\to R_2$ be a continuous homomorphism of coefficient rings of the same
+odd residue characteristic $\ell$. If $\rho_1\colon\GQ\to\Aut_{R_1}(\calV_1)$ is
+hardly ramified, then so is its base change
+$\rho_2:=\rho_1\otimes_{R_1}R_2$ on $\calV_2:=\calV_1\otimes_{R_1}R_2$.
+\end{proposition}
+
+\begin{proof}
+The determinant of $\rho_2$ is the image of $\det\rho_1=\chi$ under
+$R_1\to R_2$; by uniqueness of the map $\Zl\to R_2$ this is again $\chi$, giving
+(HR1). The kernel of $\rho_2$ contains that of $\rho_1$, so $\rho_2$ is
+unramified wherever $\rho_1$ is, giving (HR2). For (HR4), tensoring the
+$\Gal(\Qbar_2/\Q_2)$-stable line $\calW_1$ and its quotient (all free) with
+$R_2$ preserves the required shape, the unramified character $\psi$ being
+unchanged. Finally (HR3): given an open ideal $J_2\subseteq R_2$, its preimage
+$J_1\subseteq R_1$ is open, and $R_1/J_1\hookrightarrow R_2/J_2$ is an injection
+of finite rings; the finite Galois module $\calV_2/J_2\calV_2$ is obtained from
+the flat module $\calV_1/J_1\calV_1$ by writing $R_2/J_2$ as a quotient of a
+finite free $R_1/J_1$-module and using that flatness is preserved by finite
+sums and quotients. Hence $\rho_2$ is flat at $\ell$.
+\end{proof}
+
+\begin{proposition}[Change of lattice]\label{prop:lattice}
+Let $\calO$ be the ring of integers of a finite extension $K/\Ql$ ($\ell$
+odd), let $\rho\colon\GQ\to\Aut_\calO(\calV)$ be hardly ramified, and put
+$V:=\calV\otimes_\calO K$. If $\calV'\subseteq V$ is any $\GQ$-stable
+$\calO$-lattice \textup{(}free of rank $2$\textup{)}, then the associated
+representation $\rho'\colon\GQ\to\Aut_\calO(\calV')$ is again hardly ramified.
+\end{proposition}
+
+\begin{proof}
+Conditions (HR1) and (HR2) depend only on $V=\calV\otimes K=\calV'\otimes K$, so
+hold for $\rho'$. For (HR3), scaling $\calV'$ by a power of $\ell$ we may assume
+$\ell^N\calV\subseteq\calV'\subseteq\calV$; then for any open ideal $J$ the
+module $\calV'/J\calV'$ is a subquotient of $\calV/\ell^N J\calV$, which is
+flat as $\ell^N J$ is open, so $\calV'/J\calV'$ is flat. For (HR4), let
+$\calW\subseteq\calV$ be the given $\Gal(\Qbar_2/\Q_2)$-stable line; then
+$W:=\calW\otimes K\subseteq V$ is $\Gal(\Qbar_2/\Q_2)$-stable with $V/W$ acted on
+through $\psi$, and $\calW':=W\cap\calV'$ is a $\Gal(\Qbar_2/\Q_2)$-stable line
+in $\calV'$ whose quotient $\calV'/\calW'$ injects into $V/W\cong K$, hence is
+free of rank one with $\Gal(\Qbar_2/\Q_2)$ acting through $\psi$.
+\end{proof}
+
+\section{From the mod $3$ lemma to $B_{6c}$ and the boss}
+
+\begin{proposition}\label{prop:B6c}
+Lemma~\ref{lem:mod3} implies Statement $B_{6c}$.
+\end{proposition}
+
+\begin{proof}
+Let $\rho\colon\GQ\to\Aut_\calO(\calV)$ be hardly ramified, with $\calO$ the
+integers of a finite extension $K/\Q_3$; write $\m$ for its maximal ideal and
+$k=\calO/\m$ (a finite field of characteristic $3$), and put
+$V=\calV\otimes_\calO K$ and $\tilde\rho=\rho\otimes_\calO K$.
+
+By Proposition~\ref{prop:basechange} the reduction $\rhobar=\rho\bmod\m$ is
+hardly ramified over $k$, so by Lemma~\ref{lem:mod3} it is reducible, with
+$\rhobar^{\mathrm{ss}}\cong\chibar\oplus\mathbf1$ (and $\chibar\neq\mathbf1$).
+
+\emph{$\tilde\rho$ is reducible.} Suppose not. By Ribet's Lemma (see
+J.-P.~Serre's report, or Ribet's 1976 paper \emph{A modular construction of
+unramified $p$-extensions of $\Q(\mu_p)$}), an irreducible $\tilde\rho$ with
+$\rhobar^{\mathrm{ss}}$ a sum of two \emph{distinct} characters admits, for each
+of the two orderings, a $\GQ$-stable lattice whose reduction is a
+\emph{nonsplit} extension in that order. Taking the order opposite to the one
+provided by Lemma~\ref{lem:mod3}, we obtain a stable lattice $\calV'$ with
+$\calV'/\m\calV'\cong\left(\begin{smallmatrix}\mathbf1&*\\0&\chibar\end{smallmatrix}\right)$,
+nonsplit. By Proposition~\ref{prop:lattice} the lattice representation $\rho'$
+is hardly ramified, hence so is its reduction $\calV'/\m\calV'$; but a hardly
+ramified $k$-representation of this shape contradicts Lemma~\ref{lem:mod3}
+(which forces $\chibar$ on the stable line). So $\tilde\rho$ is reducible.
+
+\emph{Conclusion.} As $\tilde\rho$ is reducible, some $K$-basis of $V$ puts it
+in the form $\left(\begin{smallmatrix}\alpha_1&*\\0&\alpha_2\end{smallmatrix}\right)$
+with characters $\alpha_1,\alpha_2\colon\GQ\to K^\times$; choosing a stable
+lattice inside $V$ we may take $\rho$ itself upper-triangular over $\calO$. The
+restrictions $\alpha_i|_{\Gal(\Qbar_3/\Q_3)}$ are subquotients of the flat
+representation $\rho|_{\Gal(\Qbar_3/\Q_3)}$, hence flat. Because $3$ is odd, the
+ramification index $e=1$ of $\Q_3/\Q_3$ satisfies $e<3-1$, and in this range
+Fontaine's classification of $1$-dimensional flat representations (from his
+1977 Ast\'erisque memoir; cf.\ Raynaud, 1974) applies: \emph{the only flat
+$1$-dimensional representations of $\Gal(\Qbar_3/\Q_3)$ are the unramified
+characters and the unramified twists of the cyclotomic character.} The
+condition (HR4) at $2$ forces both eigenvalues of $\tilde\rho$ on an inertia
+group $I_2$ to be $1$, so $\alpha_1,\alpha_2$ are unramified at $2$; being also
+unramified away from $2,3$, they are unramified outside $3$. By the
+Kronecker--Weber theorem an abelian character unramified outside $3$ factors
+through $\Gal(\Q(\mu_{3^\infty})/\Q)$, on which inertia at $3$ acts through all
+of $\Z_3^\times$; there is thus no room for an unramified twist, and each
+$\alpha_i$ is either trivial or equal to $\chi$. Their product is
+$\det\rho=\chi$, so exactly one of them is $\chi$. By Lemma~\ref{lem:mod3}
+applied to the reduction, the trivial character is the quotient and $\chi$ the
+sub, giving $\rho\cong\left(\begin{smallmatrix}\chi&*\\0&1\end{smallmatrix}\right)$.
+This is $B_{6c}$.
+\end{proof}
+
+\begin{theorem}[Boss of Level 7]\label{thm:boss7}
+Statements $B_{6a}$ and $B_{6b}$ together imply Fermat's Last Theorem, modulo
+results known in the 1980s.
+\end{theorem}
+
+\begin{proof}
+By Lemma~\ref{lem:mod3} and Proposition~\ref{prop:B6c}, Statement $B_{6c}$
+holds unconditionally (modulo the 1980s). Hence $B_7=B_{6a}\wedge B_{6b}$
+implies $B_{6a}\wedge B_{6b}\wedge B_{6c}=B_6$, which by the boss of the
+previous level implies FLT.
+\end{proof}
+
+It remains to prove Lemma~\ref{lem:mod3}.
+
+\section{Discriminants and ramification}
+
+We shall bound the number field cut out by a mod $3$ hardly ramified
+representation, using its discriminant. Recall that a number field $L$ of
+degree $n$ has a \emph{discriminant} $\disc(L)\in\Z$, the determinant of the
+trace form $(e_i,e_j)\mapsto\tr_{L/\Q}(e_ie_j)$ on a $\Z$-basis of the ring of
+integers. We record the classical facts we need, all pre-1980.
+
+\begin{itemize}
+\item A prime $p$ divides $\disc(L)$ iff it ramifies in $L$, i.e.\ iff the
+image of an inertia group $I_p$ in $\Gal(L/\Q)$ is nontrivial.
+\item \emph{(Tame discriminant formula.)} If $L/\Q$ is Galois and $p$ is
+\emph{tamely} ramified with ramification index $e$ (the order of the image of
+$I_p$), then the exact power of $p$ dividing $\disc(L)$ is
+$p^{\,[L:\Q](e-1)/e}$. \textup{(}This follows from
+$v_{P}(\mathcal D_{L/\Q})=e-1$ for the different, and $\disc=N(\mathcal
+D)$.\textup{)}
+\item \emph{(Structure of inertia.)} An inertia group $I_p$ has a normal
+pro-$p$ subgroup $P_p$ \textup{(}wild inertia\textup{)} with pro-cyclic
+quotient $I_p/P_p\cong\prod_{q\neq p}\Z_q$, and any Frobenius acts on $I_p/P_p$
+by $x\mapsto x^p$.
+\item \emph{(Fontaine's bound.)} If $k$ has characteristic $p$ and
+$\rhobar\colon\Gal(L/\Q)\hookrightarrow\Aut_k(V)$ is flat at $p$, then the
+exact power $p^{b}$ of $p$ dividing $\disc(L)$ satisfies
+$b<\dfrac{p}{p-1}[L:\Q]$. \textup{(}Th\'eor\`eme~A of Fontaine, \emph{Il n'y a
+pas de vari\'et\'e ab\'elienne sur $\Z$}, 1985.\textup{)}
+\item \emph{(Odlyzko--Poitou discriminant bounds.)} There are explicit lower
+bounds for the \emph{root discriminant} $\disc(L)^{1/[L:\Q]}$ of a number field
+in terms of its degree. We use two consequences \textup{(}from Poitou,
+\emph{Sur les petits discriminants}, 1977, and Odlyzko\textup{)}: a totally
+imaginary field with $[L:\Q]\geq6$ has root discriminant $>4.557$; and a field
+with root discriminant $<8.25$ has $[L:\Q]\leq 14$.
+\end{itemize}
+
+\section{Proof of the mod $3$ classification (Lemma~\ref{lem:mod3})}
+
+Let $k$ be finite of characteristic $3$ and $\rhobar\colon\GQ\to\Aut_k(V)$
+hardly ramified, $V$ of rank $2$. Since $V$ is finite with the discrete
+topology, $\rhobar$ factors through an injection
+$\rhobar\colon\Gal(L/\Q)\hookrightarrow\Aut_k(V)$ for a finite Galois extension
+$L/\Q$; write $G=\Gal(L/\Q)$. By (HR2), $L$ is unramified outside $2$ and $3$,
+so $\disc(L)=\pm2^{a}3^{b}$ for some $a,b\geq0$. By (HR1) and the fact that
+$\det\rhobar=\chibar$ is the mod $3$ cyclotomic character, $L$ contains
+$\Q(\zeta_3)=\Q(\sqrt{-3})$; hence $[L:\Q]$ is even and $L$ is totally
+imaginary.
+
+\subsection*{Local analysis at $2$}
+By (HR4), $\rhobar|_{\Gal(\Qbar_2/\Q_2)}\cong\left(\begin{smallmatrix}\psi\chibar&*\\0&\psi\end{smallmatrix}\right)$
+with $\psi$ unramified and $\chibar$ unramified at $2$, so the image of an
+inertia group $I_2$ lies in the unipotent subgroup $\left(\begin{smallmatrix}1&*\\0&1\end{smallmatrix}\right)\cong k^{+}$,
+an elementary abelian $3$-group. As $I_2/P_2$ is pro-cyclic and $P_2$ (pro-$2$)
+maps trivially to a $3$-group, the image of $I_2$ is cyclic of order dividing
+$3$; thus $L$ is tame at $2$ with $e_2\in\{1,3\}$. By the tame discriminant
+formula, $a\in\{0,\ 2[L:\Q]/3\}$.
+
+\subsection*{Local analysis at $3$: the tame case}
+Let $J_3\subseteq G$ be the image of an inertia group $I_3$. Suppose first that
+$3\nmid|J_3|$ (tame case). Then $J_3$, a finite quotient of the pro-cyclic
+$I_3/P_3$, is cyclic of order prime to $3$; over a finite extension $k'$ of $k$
+it is diagonalisable, $\rhobar|_{J_3}\cong\phi_1\oplus\phi_2$ with
+$\phi_i\colon J_3\to k'^\times$. A Frobenius $\Frob_3$ acts on $J_3$ by
+$x\mapsto x^3$, and conjugating $\rhobar|_{J_3}$ by $\rhobar(\Frob_3)$ gives an
+isomorphic representation; therefore
+$\phi_1\oplus\phi_2\cong\phi_1^{3}\oplus\phi_2^{3}$. Hence
+$\{\phi_1,\phi_2\}=\{\phi_1^3,\phi_2^3\}$, so in either case $\phi_i^9=\phi_i$,
+i.e.\ $\phi_i^{8}=1$. Thus $|J_3|\mid 8$ (in fact $|J_3|\leq 8$), and by the
+tame formula $b\leq 7[L:\Q]/8$.
+
+Combining with $a\leq 2[L:\Q]/3$, the root discriminant satisfies
+\[
+  \disc(L)^{1/[L:\Q]}\;\leq\;2^{2/3}\,3^{7/8}\;<\;4.16.
+\]
+Since $L$ is totally imaginary, the Odlyzko--Poitou bound forces $[L:\Q]<6$;
+being even, $[L:\Q]\in\{2,4\}$. Then $G$ is abelian of order prime to $3$, so
+over some finite extension $k''$ of $k$ we have
+$\rhobar\cong\chi_1\oplus\chi_2$ with characters $\chi_i$. Each $\chi_i$ is
+unramified at $2$ (inertia at $2$ has order $1$ or $3$, but $|G|$ is prime to
+$3$, so it is $1$) and tame at $3$ (its order divides $4$); being unramified
+outside $3$ and tame at $3$, it factors through
+$\Gal(\Q(\zeta_3)/\Q)$, so $\chi_i\in\{\mathbf1,\chibar\}$. Their product is
+$\det\rhobar=\chibar$, so $\rhobar\cong\mathbf1\oplus\chibar$ over $k''$; by
+Brauer--Nesbitt the same holds over $k$, giving
+$\rhobar\cong\left(\begin{smallmatrix}\chibar&*\\0&1\end{smallmatrix}\right)$
+with $*=0$. This settles the tame case.
+
+\subsection*{Local analysis at $3$: the wild case}
+Now suppose $3\mid|J_3|$ (wild case). Since $\rhobar$ is flat at $3$,
+Fontaine's bound gives $b<\tfrac{3}{2}[L:\Q]$, whence
+\[
+  \disc(L)^{1/[L:\Q]}\;<\;2^{2/3}\,3^{3/2}\;<\;8.25 .
+\]
+By the Odlyzko--Poitou bound, $[L:\Q]\leq14$. But $[L:\Q]$ is even
+($\Q(\zeta_3)\subseteq L$) and divisible by $3$ (as $3\mid|J_3|$ divides
+$|G|=[L:\Q]$); hence $[L:\Q]\in\{6,12\}$.
+
+Set $H:=\Gal(L/\Q(\zeta_3))$, an index-$2$ (hence normal) subgroup of $G$, of
+order $3$ or $6$. A group of order $3$ or $6$ has a \emph{unique} subgroup $P$
+of order $3$; being unique it is characteristic in $H$, hence normal in $G$.
+Now $\rhobar$ is a faithful mod $3$ representation and $P$ has order $3$, so $P$
+acts nontrivially and unipotently on $V$; a $3$-group acting on a two-dimensional
+$k$-vector space with nonzero, proper fixed space fixes exactly a $k$-line. As
+$P$ is normal in $G$, this line is $G$-stable, so
+$\rhobar\cong\left(\begin{smallmatrix}\phi_1&*\\0&\phi_2\end{smallmatrix}\right)$
+where $\phi_1$ is the character on the stable line. Both $\phi_i$ have order
+prime to $3$ (their values lie in $k^\times$), are unramified at $2$ (by (HR4),
+as above) and tame at $3$; hence, exactly as in the tame case, each is $\mathbf1$
+or $\chibar$, with product $\chibar$. So one is $\chibar$ and the other
+$\mathbf1$.
+
+If $\phi_1=\chibar$ and $\phi_2=\mathbf1$ we are done. It remains to rule out
+$\phi_1=\mathbf1$, $\phi_2=\chibar$, i.e.\
+$\rhobar\cong\left(\begin{smallmatrix}\mathbf1&*\\0&\chibar\end{smallmatrix}\right)$.
+In that case $H=\Gal(L/\Q(\zeta_3))$ acts through
+$\left(\begin{smallmatrix}1&*\\0&1\end{smallmatrix}\right)$ (as $\chibar|_H=1$),
+so its faithful image is a $3$-group; since $|H|\in\{3,6\}$ this forces $|H|=3$
+and $|G|=6$. Then the image of a decomposition group $D_3$ is all of $G$, so the
+image of $\Gal(\Qbar_3/\Q_3)$ in $\Aut_k(V)$ has order divisible by $3$, and
+$\rhobar|_{\Gal(\Qbar_3/\Q_3)}$ is a nonsplit, ramified extension of $\chibar$
+by $\mathbf1$ which is flat at $3$. A theorem of Ribet (in the 1976 paper cited
+above), resting on Raynaud's uniqueness of finite flat models when $e<\ell-1$
+(here $\ell=3$, $e=1$), shows that no such flat extension exists. This
+contradiction rules out the case $\phi_1=\mathbf1$, and completes the wild
+case.
+
+\medskip
+In both cases $\rhobar\cong\left(\begin{smallmatrix}\chibar&*\\0&1\end{smallmatrix}\right)$,
+proving Lemma~\ref{lem:mod3}. \hfill$\square$
+\end{document}

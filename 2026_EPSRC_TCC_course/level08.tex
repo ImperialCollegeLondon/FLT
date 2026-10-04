@@ -1,0 +1,296 @@
+\documentclass[11pt]{article}
+\usepackage{fltcourse}
+
+\title{Level 8: Automorphic forms and potential automorphy}
+\author{Kevin Buzzard}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+We have reduced Fermat's Last Theorem to $B_7=B_{6a}\wedge B_{6b}$: an
+irreducible hardly ramified mod $\ell$ representation lifts to an $\ell$-adic
+one ($B_{6a}$), and, once its residual representation descends to $\F_\ell$,
+spreads out into a compatible family ($B_{6b}$). Both are theorems about Galois
+representations with no modularity hypothesis, and both are out of reach by
+purely Galois-theoretic means. The way forward is to bring in the
+\emph{automorphic} world, where the analogues of lifting and spreading out are
+easy, and to connect the two worlds.
+
+\medskip\noindent
+This level introduces just enough of the automorphic side to state the three
+statements $B_{8a}$, $B_{8b}$, $B_{8c}$ that make up $B_8$, and proves that
+$B_8$ implies $B_7$ (and hence FLT). As in Level 5, the definitions on the
+automorphic side are standard --- quaternion algebras, ad\`eles, automorphic
+forms, Hecke operators are all part of the literature (and of the formalized
+library) --- so we recall them briefly rather than build them up. The genuinely
+new mathematical content of the level is a theorem, proved in full, on the
+absolute irreducibility of hardly ramified representations.
+
+\section{Automorphic forms on a definite quaternion algebra}
+
+Let $F$ be a totally real number field (every embedding $F\hookrightarrow\C$
+lands in $\R$) with ring of integers $A$, and let $D$ be a \emph{totally
+definite} quaternion algebra over $F$: a four-dimensional central division
+algebra with $D\otimes_{F,v}\R\cong\bbH$ (Hamilton's quaternions) at every real
+place $v$. Let $\adele{F}=\prod'_P F_P$ be the finite ad\`eles of $F$
+(restricted product over the finite places $P$, with respect to the integer
+rings $A_P$), and put $D_f:=D\otimes_F\adele{F}$, a topological ring containing
+$D$. Its unit group $D_f^\times$ is a locally compact topological group
+containing $D^\times$.
+
+Total definiteness makes the archimedean symmetric space a point, so there is
+no analysis: for a coefficient ring or field $M$, a (weight-two, trivial
+coefficient) \emph{automorphic form} for $D$ valued in $M$ is simply a locally
+constant function $\phi\colon D_f^\times\to M$ with $\phi(\delta g)=\phi(g)$ for
+all $\delta\in D^\times$; equivalently a locally constant function
+$D^\times\backslash D_f^\times\to M$. Write $\calA_D(M)$ for the space of these;
+$D_f^\times$ acts by right translation, $(x\bullet\phi)(g)=\phi(gx)$. For an
+open compact subgroup $U\subseteq D_f^\times$ (a \emph{level}) put
+$\calA_D(U;M):=\calA_D(M)^U$, the forms fixed by $U$. The essential finiteness
+input (Fujisaki; known in the 1960s) is that $D^\times\backslash D_f^\times$ is
+compact, so $D^\times\backslash D_f^\times/U$ is finite and
+$\calA_D(U;M)\cong M^{\,n}$ with $n=|D^\times\backslash D_f^\times/U|$; when $M$
+is a commutative ring this is a finite free $M$-module.
+
+\emph{Hecke operators.} For $g\in D_f^\times$ and compact open subgroups $U,V$,
+the double coset $UgV=\coprod_{i=1}^{m} g_iV$ is a finite union of left cosets,
+and $[UgV]\phi:=\sum_i g_i\bullet\phi$ defines an $M$-linear map
+$\calA_D(V;M)\to\calA_D(U;M)$. Fix a maximal order in $D$ and, for each finite
+place $P$ splitting $D$, an identification with $\GL_2$ locally; this gives, for
+each finite set $S$ of finite places splitting $D$, the level
+$U_0(S)$ (matrices upper-triangular mod $P$ for $P\in S$), and for each finite
+place $P\notin S$ splitting $D$ the operator
+$T_P:=[U_0(S)\,\pi_P\,U_0(S)]$, where $\pi_P$ is the id\`ele
+$\bigl(\begin{smallmatrix}\varpi_P&0\\0&1\end{smallmatrix}\bigr)$ at $P$ and $1$
+elsewhere. The $T_P$ commute. A \emph{system of automorphic $M$-eigenvalues for
+$(F,D,U_0(S))$} is the family $(t_P)_{P\notin S}$ of eigenvalues of a common
+eigenvector $\phi\in\calA_D(U_0(S);M)$ (an \emph{eigenform}): $T_P\phi=t_P\phi$.
+
+\begin{example}
+The constant function $\phi\equiv1$ is an eigenform of every level, with
+$T_P\phi=(1+|A/P|)\phi$; so $t_P=1+|A/P|$. If $F=\Q$ and $P=(p)$ this is
+$t_p=1+p$, the trace of $\Frob_p$ on $\mathbf1\oplus\chi$.
+\end{example}
+
+The bridge to Galois representations is the following deep theorem, whose proof
+--- via the Jacquet--Langlands correspondence, the trace formula, and the
+cohomology of Shimura varieties --- was completed by Taylor in 1989. It is the
+single most substantial classical input to the whole proof, and we assume it.
+
+\begin{theorem}[Taylor, 1989]\label{thm:taylor}
+Let $k$ be a finite field of characteristic $\ell$, or a finite extension of
+$\Ql$. Let $F$ be totally real, $D/F$ totally definite ramified at the finite
+set $S_0$ of finite places, and let $(t_P)$ be a system of automorphic
+$k$-eigenvalues for $(F,D,U_0(S))$ with $S\cap S_0=\varnothing$. Then there is a
+continuous semisimple representation $\rho_t\colon\GF\to\GL_2(k)$ such that
+$\rho_t$ is unramified outside $S\cup S_0\cup\{P:\ell\in P\}$, and
+$\tr\rho_t(\Frob_P)=t_P$ for every $P$ outside this set. Its determinant is the
+cyclotomic character up to a finite-order character.
+\end{theorem}
+
+A representation $\GF\to\GL_2(k)$ arising this way is called \emph{automorphic}.
+
+\section{Potential automorphy}
+
+We cannot expect a mod $\ell$ representation of $\GQ$ to be automorphic on the
+nose; but it may become so after restriction to a suitable totally real field.
+Let $k$ be a finite field of characteristic $\ell$ and $\rhobar\colon\GQ\to\GL_2(k)$
+continuous, and let $K_{\rhobar}$ be the finite Galois extension of $\Q$ cut out
+by $\ker\rhobar$.
+
+\begin{definition}\label{def:potaut}
+We say $\rhobar$ is \emph{potentially automorphic} if there exist
+\begin{itemize}
+\item a totally real field $F$, Galois over $\Q$, unramified at $\ell$, and
+\emph{disjoint} from $K_{\rhobar}$ \textup{(}$F\cap K_{\rhobar}=\Q$\textup{)};
+\item a totally definite quaternion algebra $D/F$ split at all finite places
+\textup{(}so $[F:\Q]$ is even\textup{)};
+\item a finite set $S$ of finite places of $F$ coprime to $\ell$, and a system
+$(t_P)$ of automorphic $k$-eigenvalues for $(F,D,U_0(S))$;
+\end{itemize}
+such that the restriction $\rhobar|_{\GF}$ satisfies
+$\tr\rhobar|_{\GF}(\Frob_P)=t_P$ for every finite place $P\notin S$ with
+$\ell\notin P$.
+\end{definition}
+
+The disjointness $F\cap K_{\rhobar}=\Q$ ensures that $\rhobar|_{\GF}$ has the
+same image as $\rhobar$, so that no information is lost on restriction.
+
+\section{The three heads}
+
+Set $B_8:=B_{8a}\wedge B_{8b}\wedge B_{8c}$. In all three, $\ell\geq5$.
+
+\begin{Bn}{B_{8a}}
+\textup{(Automorphic lifting.)} Let $k$ be finite of characteristic $\ell$ and
+let $\rhobar$ be a hardly ramified $k$-representation which is potentially
+automorphic and such that $\rhobar|_{\Gal(\Qbar/\Q(\zeta_\ell))}$ is absolutely
+irreducible. Then $\rhobar$ lifts to a hardly ramified $\ell$-adic
+representation.
+\end{Bn}
+
+\begin{Bn}{B_{8b}}
+\textup{(Automorphic spreading out.)} Let $R$ be the ring of integers of a
+finite extension of $\Ql$, with residue field $k$, and let $\rho$ be a hardly
+ramified $R$-representation whose reduction $\rhobar$ is potentially automorphic
+and has $\rhobar|_{\Gal(\Qbar/\Q(\zeta_\ell))}$ absolutely irreducible. Then
+$\rho$ spreads out into a compatible family of hardly ramified $p$-adic
+representations.
+\end{Bn}
+
+\begin{Bn}{B_{8c}}
+\textup{(Potential automorphy.)} Every irreducible hardly ramified
+$\Z/\ell\Z$-representation of $\GQ$ is potentially automorphic.
+\end{Bn}
+
+\noindent
+The changes from $B_{6a},B_{6b}$ are exactly the replacement of ``residual
+representation defined over $\F_\ell$'' by the pair of conditions ``potentially
+automorphic'' and ``absolutely irreducible on $\Q(\zeta_\ell)$''. To recover
+$B_{6a},B_{6b}$ we must know that an irreducible hardly ramified
+$\Z/\ell\Z$-representation satisfies both.
+
+\section{The absolute irreducibility theorem}
+
+This is the one part of the level proved from scratch. It uses one piece of
+local arithmetic-geometry --- a bound of Raynaud, from his 1974 paper on group
+schemes of type $(p,\dots,p)$ --- which we assume; everything else is group
+theory and linear algebra.
+
+Throughout, $k$ is a finite field of characteristic $\ell\geq5$ with algebraic
+closure $\kbar$, and $\chibar\colon\GQ\to\Fl^\times\subseteq\kbar^\times$ is the
+mod $\ell$ cyclotomic character; put $G=\GQ$ and $H=\Gal(\Qbar/\Q(\zeta_\ell))$,
+so $G/H\cong\Fl^\times$ is cyclic of order $\ell-1$. Fix an embedding
+$\Qbar\hookrightarrow\Qlbar$, giving a decomposition group $D=\GQl\subseteq G$
+with inertia subgroup $I$.
+
+\subsection*{Assumed local inputs}
+We assume the following, all of which were available in the 1970s.
+\begin{itemize}
+\item[(L1)] \emph{(Raynaud's bound.)} Let $K/\Ql$ be a \emph{ramified quadratic}
+extension and $\psi\colon\Gal(\Qlbar/K)\to\kbar^\times$ a flat character. Then
+there is an integer $d$ with $0\leq d\leq2$ such that
+$\psi(\sigma^2)=\chibar(\sigma)^d$ for all $\sigma\in I$. \textup{(}Here
+$e(K/\Ql)=2<\ell-1$, the range where Raynaud's bound has content.\textup{)}
+\item[(L2)] \emph{(Flatness of stable-line characters.)} If $\rhobar$ is flat
+at $\ell$ and $K/\Ql$ is finite, any character by which $\Gal(\Qlbar/K)$ acts on
+a stable $\kbar$-line is a flat character of $\Gal(\Qlbar/K)$.
+\item[(L3)] \emph{(Complex conjugation.)} There is $c\in G$ with $c^2=1$ and
+$\chibar(c)=-1$.
+\item[(L4)] \emph{(Total ramification.)} $\chibar(I)=\Fl^\times$.
+\end{itemize}
+
+\begin{theorem}\label{thm:absirr}
+Let $\rhobar\colon\GQ\to\GL_2(k)$ be continuous, irreducible, flat at $\ell$,
+with $\det\rhobar=\chibar$ \textup{(}for instance, any irreducible hardly
+ramified $k$-representation with $\ell\geq5$\textup{)}. Then
+$\rhobar|_{H}=\rhobar|_{\Gal(\Qbar/\Q(\zeta_\ell))}$ is absolutely irreducible.
+\end{theorem}
+
+\begin{proof}
+Suppose not. We work over $\kbar$, on $\overline V=\kbar^2$.
+
+\emph{Step 1: $\rhobar$ is absolutely irreducible.} As in Level 6, using
+$c$ from (L3): $\rhobar(c)$ is an involution of determinant $\chibar(c)=-1$,
+with distinct eigenvalues $\pm1$ (as $\ell>2$) whose eigenlines are defined
+over $k$. Any $\rhobar(G)$-stable $\kbar$-line would be $\rhobar(c)$-stable,
+hence one of these $k$-rational lines, contradicting irreducibility over $k$.
+So $\rhobar\otimes\kbar$ is irreducible.
+
+\emph{Step 2: Clifford theory.} $H\trianglelefteq G$ with $G/H$ cyclic, and by
+hypothesis $(\rhobar\otimes\kbar)|_H$ is reducible. An $H$-stable line
+$\Lambda_1$ has $G$-translates that are again $H$-stable ($H$ normal); their sum
+is $G$-stable, hence all of $\overline V$ by Step 1, so
+$\overline V=\Lambda_1\oplus\Lambda_2$ with $H$ acting on $\Lambda_i$ by a
+character $\psi_i$. If $\psi_1=\psi_2$ then $H$ acts by scalars, every line is
+$H$-stable, and taking $g\in G$ lifting a generator of $G/H$, an eigenline of
+$\rhobar(g)$ is $\{g,H\}$-stable, hence $G$-stable: contradiction. So
+$\psi_1\neq\psi_2$.
+
+\emph{Step 3: the index-two subgroup.} Since $\psi_1\neq\psi_2$, the only
+$H$-stable lines are $\Lambda_1,\Lambda_2$, and $G$ permutes them, nontrivially
+by Step 1. Thus $L:=\{g:g\Lambda_1=\Lambda_1\}$ has index $2$ in $G$, contains
+$H$, acts on $\Lambda_1$ by a character $\psi$ extending $\psi_1$, and every
+$g\notin L$ swaps $\Lambda_1,\Lambda_2$. As $G/H\cong\Fl^\times$ is cyclic of
+even order $\ell-1$, its unique index-two subgroup is the squares, so
+$L=\chibar^{-1}\!\bigl((\Fl^\times)^2\bigr)$.
+
+\emph{Step 4: a good inertia element.} By (L4) pick $\tau\in I$ with
+$\chibar(\tau)$ a generator of $\Fl^\times$. Then $\chibar(\tau)$ is a nonsquare,
+so $\tau\notin L$; it has order $\ell-1\geq4$, so $\chibar(\tau)\neq-1$; and
+$\tau^2\in L$.
+
+\emph{Step 5: the determinant at $\tau$.} Take $0\neq v\in\Lambda_1$ and
+$w:=\rhobar(\tau)v$, which spans $\Lambda_2$ (as $\tau$ swaps the lines). Then
+$\rhobar(\tau)w=\rhobar(\tau^2)v=\psi(\tau^2)v$, so in the basis $(v,w)$,
+$\rhobar(\tau)=\left(\begin{smallmatrix}0&\psi(\tau^2)\\1&0\end{smallmatrix}\right)$
+and $\det\rhobar(\tau)=-\psi(\tau^2)$. Since $\det\rhobar=\chibar$,
+\[
+  \chibar(\tau)=-\psi(\tau^2). \qquad(*)
+\]
+
+\emph{Step 6: the local bound.} As $\tau\in D\setminus L$, the group
+$D\cap L=\Gal(\Qlbar/K)$ for a quadratic $K/\Ql$; and $\tau\in I\setminus L$
+shows $K/\Ql$ is \emph{ramified}. The line $\Lambda_1$ is stable under
+$\rhobar(D\cap L)$ via $\psi|_{D\cap L}$, which is flat by (L2). By (L1) there is
+$d\in\{0,1,2\}$ with $\psi(\sigma^2)=\chibar(\sigma)^d$ for all $\sigma\in I$; in
+particular $\psi(\tau^2)=\chibar(\tau)^d$.
+
+\emph{Step 7: contradiction.} Write $x=\chibar(\tau)$, of order $\ell-1\geq4$.
+By $(*)$, $x=-x^{d}$. If $d=1$ then $1=-1$, impossible as $\ell$ is odd. If
+$d=0$ then $x=-1$, of order $2$, contradicting order $\geq4$. If $d=2$ then
+$x=-x^2$, so $1=-x$, i.e.\ $x=-1$, the same contradiction. Hence $\rhobar|_H$ is
+absolutely irreducible.
+\end{proof}
+
+\begin{remark}
+The theorem genuinely fails for $\ell=3$: there are irreducible flat mod $3$
+representations with cyclotomic determinant induced from $\Q(\sqrt{-3})=\Q(\zeta_3)$
+whose restriction to $\Gal(\Qbar/\Q(\zeta_3))$ is reducible. This is why the
+prime $3$ was handled separately, and why $B_{8a},B_{8b}$ require $\ell\geq5$.
+\end{remark}
+
+\section{The boss: $B_8$ implies FLT}
+
+\begin{theorem}[Boss of Level 8]\label{thm:boss8}
+Statements $B_{8a}$, $B_{8b}$ and $B_{8c}$ together imply Fermat's Last
+Theorem, modulo results known in the 1980s.
+\end{theorem}
+
+\begin{proof}
+By the boss of the previous level it suffices to prove $B_{6a}$ and $B_{6b}$.
+
+For $B_{6a}$: let $\rhobar$ be an irreducible hardly ramified
+$\Z/\ell\Z$-representation, $\ell\geq5$. By $B_{8c}$ it is potentially
+automorphic, and by Theorem~\ref{thm:absirr} (which applies, a hardly ramified
+representation being flat at $\ell$ with cyclotomic determinant)
+$\rhobar|_{\Q(\zeta_\ell)}$ is absolutely irreducible. Hence $B_{8a}$ applies
+and $\rhobar$ lifts to a hardly ramified $\ell$-adic representation: this is
+$B_{6a}$.
+
+For $B_{6b}$: let $\rho$ be a hardly ramified $\calO$-representation whose
+reduction $\rhobar$ is the base change of an irreducible hardly ramified
+$\Z/\ell\Z$-representation $\rhobar_0$. By $B_{8c}$, $\rhobar_0$ is potentially
+automorphic; potential automorphy depends only on the traces of Frobenius,
+which are unchanged under the base change $\rhobar_0\rightsquigarrow\rhobar$, so
+$\rhobar$ is potentially automorphic as well. By Theorem~\ref{thm:absirr},
+$\rhobar_0|_{\Q(\zeta_\ell)}$ --- and hence its base change
+$\rhobar|_{\Q(\zeta_\ell)}$ --- is absolutely irreducible. So $B_{8b}$ applies
+and $\rho$ spreads out into a compatible family: this is $B_{6b}$.
+
+Therefore $B_8\Rightarrow B_7\Rightarrow{}$FLT.
+\end{proof}
+
+\begin{remark}
+Of the three heads, $B_{8a}$ and $B_{8b}$ are, on the automorphic side, soft:
+lifting a system of Hecke eigenvalues from characteristic $\ell$ to
+characteristic zero is the going-down theorem, and spreading a
+characteristic-zero system to another prime is elementary linear algebra over a
+number field. The difficulty is entirely in the word ``potentially'': these
+easy automorphic facts only control $\rho|_{\GF}$, not $\rho$ itself. Turning
+control of $\rho|_{\GF}$ into control of $\rho$ requires an automorphy lifting
+theorem, which is the subject of the remaining levels; $B_{8c}$ needs it too.
+\end{remark}
+
+\end{document}

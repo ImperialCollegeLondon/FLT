@@ -7,6 +7,7 @@ module
 
 public import FLT.Deformations.LiftFunctor
 public import FLT.Deformations.RepresentationTheory.Irreducible
+public import Mathlib.CategoryTheory.Subfunctor.Image
 public import Mathlib.NumberTheory.NumberField.InfinitePlace.TotallyRealComplex
 
 /-!
@@ -97,6 +98,15 @@ def narrowSLiftFunctor : Subfunctor (repnFunctor (Fin 2) (Γ K) 𝓞) :=
   (⨅ (v : Ω K) (_ : ↑l ∉ v.asIdeal) (_ : v ∉ S), unramifiedFunctor (Fin 2) 𝓞 v) ⊓
   (⨅ (v : Ω K) (_ : v ∈ S), narrowTraceConditionFunctor 𝓞 v) ⊓
   (⨅ (v : Ω K) (_ : ↑l ∈ v.asIdeal), flatFunctor (Fin 2) 𝓞 v)
+
+/--
+The functor of narrow `S`-deformations of `ρ`: narrow `S`-lifts of `ρ` up to conjugation
+by matrices reducing to the identity. When it is corepresentable, its corepresenting
+object is the universal `S`-minimal deformation ring appearing in the automorphy
+lifting theorem.
+-/
+noncomputable def narrowSDeformationFunctor : Subfunctor (repnQuotFunctor (Fin 2) (Γ K) 𝓞) :=
+  (narrowSLiftFunctor 𝓞 l S ρ).image (toRepnQuot (Fin 2) (Γ K) 𝓞)
 
 variable (hρ : ρ ∈ (narrowSLiftFunctor 𝓞 l S ρ).obj _)
 

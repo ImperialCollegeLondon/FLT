@@ -1,0 +1,183 @@
+\documentclass[11pt]{article}
+\usepackage{fltcourse}
+
+\title{Level 10: Lifting}
+\author{Kevin Buzzard}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+In the previous level we packaged the automorphy lifting theorem (ALT) into the
+boss statement $B_9=B_{8a}\wedge B_{8b}\wedge B_{8c}\wedge\text{ALT}$. We now
+begin to spend ALT. The first head it eats is $B_{8a}$, automorphic lifting: an
+irreducible hardly ramified mod $\ell$ representation which is potentially
+automorphic (and absolutely irreducible on $\Q(\zeta_\ell)$) lifts to a hardly
+ramified $\ell$-adic representation. The boss statement of this level therefore
+drops $B_{8a}$:
+\[
+  B_{10} := B_{8b}\wedge B_{8c}\wedge\text{ALT}.
+\]
+
+Throughout, $\ell\geq5$, and we use the deformation theory of Level 9: the
+universal hardly ramified deformation ring $R^{\hr}_{\rhobar}$ with its
+universal deformation $\rho^{\hr}$, the universal $S$-minimal deformation ring
+$R^{S\text{-}\minl}$, and Propositions on their Noetherianity and Krull
+dimension.
+
+\begin{theorem}[Boss of Level 10]\label{thm:boss10}
+Statements $B_{8b}$, $B_{8c}$ and the automorphy lifting theorem together imply
+Fermat's Last Theorem, modulo results known in the 1980s.
+\end{theorem}
+
+By the boss of Level 8, it suffices to prove that ALT implies $B_{8a}$; then
+$B_{10}=B_{8b}\wedge B_{8c}\wedge\text{ALT}$ implies
+$B_{8a}\wedge B_{8b}\wedge B_{8c}=B_8$, which implies FLT. The rest of this
+level proves ALT $\Rightarrow B_{8a}$.
+
+\section{Setting up the two deformation rings}
+
+Let $k$ be a finite field of characteristic $\ell\geq5$ and let
+$\rhobar\colon\GQ\to\GL_2(k)$ be hardly ramified, potentially automorphic, and
+with $\rhobar|_{\Gal(\Qbar/\Q(\zeta_\ell))}$ absolutely irreducible. In
+particular $\rhobar$ is absolutely irreducible, so by Level 9 the universal
+hardly ramified deformation ring $R^{\hr}_{\rhobar}$ exists, is Noetherian, and
+has Krull dimension at least $1$; write
+$\rho^{\hr}\colon\GQ\to\GL_2(R^{\hr}_{\rhobar})$ for the universal deformation.
+
+By potential automorphy (Definition of Level 8) there is a totally real field
+$F$, Galois over $\Q$, unramified at $\ell$, disjoint from $K_{\rhobar}$, and a
+totally definite quaternion algebra $D/F$ split at all finite places, together
+with a level $U_0(S)$ (with $S$ coprime to $\ell$) such that $\rhobar|_{\GF}$ is
+automorphic of level $S$. Enlarging $S$ if necessary, we assume $S$ contains all
+primes of $F$ above $2$; then $\rhobar|_{\GF}$ is $S$-minimal (its restriction
+of the hardly ramified conditions at $2$ becomes the $S$-minimal condition
+$\tr=2$ on inertia, and it is flat at the primes above $\ell$).
+
+The hypotheses of ALT hold for $\rhobar|_{\GF}$: it is absolutely irreducible
+(as $F\cap K_{\rhobar}=\Q$, its image equals that of $\rhobar$); it is
+absolutely irreducible on $F(\zeta_\ell)$ (again because $F$ is disjoint from
+$K_{\rhobar}$ and unramified at $\ell$, so restriction to $F(\zeta_\ell)$ does
+not shrink the image beyond restriction to $\Q(\zeta_\ell)$, which is absolutely
+irreducible by hypothesis); it is $S$-minimal; and it is automorphic. Hence,
+letting $R^{S\text{-}\minl}$ denote the universal $S$-minimal deformation ring
+of $\rhobar|_{\GF}$, ALT\,(a) gives:
+\[
+  R^{S\text{-}\minl}\text{ is module-finite over }\Zl.
+\]
+
+Now the restriction $\rho^{\hr}|_{\GF}$ of the universal hardly ramified
+deformation is itself an $S$-minimal deformation of $\rhobar|_{\GF}$ (it is
+unramified outside $\ell S$, has determinant $\chi$, is flat above $\ell$, and
+satisfies the tame condition at $S$). By the universal property of
+$R^{S\text{-}\minl}$ there is a canonical morphism
+\[
+  \varphi\colon R^{S\text{-}\minl}\longrightarrow R^{\hr}_{\rhobar}.
+\]
+
+\section{Surjectivity of $\varphi$}
+
+\begin{proposition}\label{prop:surj}
+The morphism $\varphi$ is surjective.
+\end{proposition}
+
+\begin{proof}
+Both rings are Noetherian local with residue field $k$, so by Nakayama's lemma
+it suffices to prove surjectivity modulo the maximal ideal
+$\m^{S\text{-}\minl}$; that is, that
+\[
+  R^{\hr}_{\rhobar}\otimes_{R^{S\text{-}\minl}}k
+    = R^{\hr}_{\rhobar}\big/\m^{S\text{-}\minl}R^{\hr}_{\rhobar}
+\]
+is isomorphic to $k$. This quotient ring represents the functor sending a
+$k$-algebra $A\in\calC_k$ (with structure map inducing the identity
+$k\to A\to A/\m_A=k$) to the set of hardly ramified deformations $\rho$ of
+$\rhobar$ to $A$ for which $\rho|_{\GF}$ is \emph{constant}, i.e.
+$\rho|_{\GF}\cong\rhobar|_{\GF}\otimes_k A$. We show every such $\rho$ is itself
+constant, $\rho\cong\rhobar\otimes_k A$; then the functor is a single point and
+the ring is $k$.
+
+So let $A\in\calC_k$ be a $k$-algebra and $\rho\colon\GQ\to\GL_2(A)$ a hardly
+ramified deformation of $\rhobar$ with $\rho|_{\GF}\cong\rhobar|_{\GF}\otimes_kA$.
+Choosing a basis, we may arrange that
+$\rho(f)=\rhobar(f)\in\GL_2(k)\subseteq\GL_2(A)$ for all $f\in\GF$. We claim
+$\rho(g)=\rhobar(g)$ for every $g\in\GQ$; equivalently that
+$M_g:=\rho(g)\,\rhobar(g)^{-1}$ is the identity.
+
+\emph{$M_g$ is central.} Fix $g\in\GQ$ and $f\in\GF$. Since $\GF$ is normal in
+$\GQ$, $g^{-1}fg\in\GF$, so
+\[
+  M_g\,\rhobar(f)
+  =\rho(g)\rhobar(g^{-1})\rhobar(f)
+  =\rho(g)\,\rhobar(g^{-1}fg)\,\rhobar(g^{-1}).
+\]
+Now $\rhobar(g^{-1}fg)=\rho(g^{-1}fg)$ (both equal the common value on $\GF$),
+so the right side is
+$\rho(g)\rho(g^{-1}fg)\rhobar(g^{-1})=\rho(fg)\rhobar(g^{-1})
+=\rho(f)\rho(g)\rhobar(g^{-1})=\rhobar(f)\,M_g$.
+Thus $M_g$ commutes with $\rhobar(f)$ for all $f\in\GF$. But $\rhobar|_{\GF}$ is
+absolutely irreducible, so its image spans $M_2(k)$ over $k$; hence $M_g$
+commutes with all of $M_2(k)$. Being $A$-linear, $M_g$ also commutes with $A$;
+so $M_g$ commutes with the $A$-algebra generated by $M_2(k)$ and $A$, which is
+$M_2(A)$. Therefore $M_g=\lambda\cdot\mathrm{Id}$ for some $\lambda\in A^\times$.
+
+\emph{$\lambda=1$.} Both $\rho$ and $\rhobar$ have cyclotomic determinant, so
+$\det M_g=1$, giving $\lambda^2=1$. And $\rho(g)\equiv\rhobar(g)\pmod{\m_A}$, so
+$\lambda\in1+\m_A$. As $\ell$ is odd, $\lambda^\ell=\lambda$; and $\lambda\in
+1+\m_A$ implies $\lambda^{\ell^n}\to1$ in the compact ring $A$. Hence
+$\lambda=\lambda^{\ell^n}\to1$, i.e.\ $\lambda=1$ and $M_g=\mathrm{Id}$.
+
+Thus $\rho(g)=\rhobar(g)$ for all $g$, so $\rho=\rhobar\otimes_kA$ as claimed.
+\end{proof}
+
+\section{Producing the lift}
+
+\begin{proposition}\label{prop:lift}
+ALT implies $B_{8a}$.
+\end{proposition}
+
+\begin{proof}
+By Proposition~\ref{prop:surj}, $R^{\hr}_{\rhobar}$ is a quotient of
+$R^{S\text{-}\minl}$, which is module-finite over $\Zl$ by ALT\,(a). Hence
+$R^{\hr}_{\rhobar}$ is itself a finite $\Zl$-module. It is also Noetherian with
+Krull dimension at least $1$ (Level 9). A finite $\Zl$-algebra has Krull
+dimension at most $1$, so $R^{\hr}_{\rhobar}$ has dimension exactly $1$.
+Quotienting by a minimal prime yields a domain $R^{\hr}_{\rhobar}/\mathfrak p$
+which is finite over $\Zl$ of dimension $1$, hence an order in a finite
+extension $K/\Ql$; in particular there is a continuous homomorphism
+$R^{\hr}_{\rhobar}\to\calO_K$ into the ring of integers of some finite extension
+$K/\Ql$.
+
+Composing the universal deformation with this homomorphism,
+\[
+  \rho:=\rho^{\hr}\otimes_{R^{\hr}_{\rhobar}}\calO_K
+   \colon\GQ\longrightarrow\GL_2(\calO_K),
+\]
+we obtain a continuous representation reducing to $\rhobar$ modulo the maximal
+ideal. Because $\rho^{\hr}$ is the \emph{universal hardly ramified}
+deformation, every specialisation of it is hardly ramified; in particular
+$\rho$ is a hardly ramified $\ell$-adic lift of $\rhobar$. This is exactly the
+conclusion of $B_{8a}$.
+\end{proof}
+
+\noindent\emph{Proof of Theorem~\ref{thm:boss10}.} By
+Proposition~\ref{prop:lift}, ALT implies $B_{8a}$. Hence
+$B_{10}=B_{8b}\wedge B_{8c}\wedge\text{ALT}$ implies
+$B_{8a}\wedge B_{8b}\wedge B_{8c}=B_8$, which implies FLT by the boss of Level
+8. \hfill$\square$
+
+\begin{remark}
+The mechanism deserves a second look. We knew almost nothing about
+$R^{\hr}_{\rhobar}$ on its own --- only that its Krull dimension is at least
+one, which does not even guarantee a characteristic-zero point (the ring could
+be $k[[T]]$). The automorphy lifting theorem supplies the missing bound from the
+\emph{automorphic} side: the Hecke algebra it is secretly equal to is
+manifestly finite over $\Zl$. Finiteness plus positive dimension forces
+dimension exactly one and hence an $\calO_K$-point, and the lift drops out. This
+is the pattern of every use of ALT: transport a finiteness that is obvious for
+Hecke algebras across the $R=T$ isomorphism to a deformation ring where it is
+not obvious at all.
+\end{remark}
+
+\end{document}

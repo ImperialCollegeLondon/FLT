@@ -1,0 +1,31 @@
+I asked Claude to look at the FLT LaTeX files and write Proof.lean. This is its effort so far. Note that it said this:
+
+  Bugs found in existing repo statements (flagging, not fixed except the last)
+
+  - IsHardlyRamified.mem_isCompatible (Family.lean) is false as stated: R :=
+  ZMod p, ρ := 1 ⊕ χ̄ satisfies every hypothesis but the conclusion demands a
+  ring hom ZMod p → AlgebraicClosure ℚ_[p]. It needs [Module.Free ℤ_[p] R] and
+  (to match the course) the residual hypotheses of B6b. Until then that sorry is
+  unfillable.
+  - IsHardlyRamified.lifts (Lift.lean) can't discharge B6a: its conclusion lacks
+  IsDomain R (the tex's 𝒪_K is a domain). Either strengthen lifts or B6a's
+  proof will need a quotient-by-minimal-prime step.
+  - three_adic only gives traces: B6c as stated (structurally, per the tex)
+  needs the structural classification; three_adic is its corollary.
+  - IsAutomorphicOfLevel was missing IsTotallyDefinite F D in its existential,
+  contradicting its own docstring (indefinite division algebras with abelian
+  eigensystems slipped through). I added the binder — this touches the sorried
+  cyclic_base_change statement's meaning, so please double-check you're happy
+  with that one-line change.
+  - Pre-existing and noted: IsHardlyRamified doesn't impose the coefficient-ring
+  3. B6c is structural (∃ surjective π : V →ₗ[R] R with trivial Galois action on the quotient — your mod_three shape), not the trace form.
+  4. B6b's descent hypothesis forces residue field exactly 𝔽_ℓ (Algebra R (ZMod ℓ)), slightly stronger than the tex's "base change of an 𝔽_ℓ-rep to 𝒪/𝔪" — but it composes
+  exactly with B6a's conclusion, which produces such a lift.
+  5. ALT(b) quantifies directly over S-minimal lifts σ over local orders (with the abs-irred / ζ_ℓ-abs-irred / automorphic hypotheses on σ's reduction) rather than over
+  homs R^{S-min} → K; the reviewers checked this is equivalent. hp : 2 < [F(ζ_ℓ):F] appears as an explicit hypothesis although it follows from unramifiedness when ℓ ≥ 5.
+
+
+***
+
+Resume this session with:
+claude --resume f743b319-e0d8-46ad-a88b-bb23a2b02740

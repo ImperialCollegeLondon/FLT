@@ -1,0 +1,102 @@
+%% fltcourse.sty
+%% Shared preamble for the "Formalizing Fermat" course notes (levels 5-12).
+%% These notes accompany a game whose object is to prove Fermat's Last Theorem.
+%% Each level's boss is a theorem of the form "statement B_n implies FLT".
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{fltcourse}[2026/07/08 Formalizing Fermat course notes]
+
+\RequirePackage{amsmath,amssymb,amsthm}
+\RequirePackage[margin=1in]{geometry}
+\RequirePackage{tikz-cd}
+% hyperref intentionally omitted: it pulls in a TS1 text-companion font whose
+% Type1 map is unavailable in some minimal TeX installs. Cross-references still
+% work (just without clickable links). Re-enable if your installation is full:
+% \RequirePackage{hyperref}
+
+% ---- number systems ----
+\newcommand{\A}{\mathbb{A}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Zhat}{\widehat{\Z}}
+\newcommand{\Zl}{\Z_\ell}
+\newcommand{\Zp}{\Z_p}
+\newcommand{\Ql}{\Q_\ell}
+\newcommand{\Qp}{\Q_p}
+\newcommand{\Fl}{\F_\ell}
+
+% ---- bars ----
+\newcommand{\Kbar}{\overline{K}}
+\newcommand{\Qbar}{\overline{\Q}}
+\newcommand{\Fbar}{\overline{F}}
+\newcommand{\Ebar}{\overline{E}}
+\newcommand{\kbar}{\overline{k}}
+\newcommand{\Abar}{\overline{A}}
+\newcommand{\Pbar}{\overline{P}}
+\newcommand{\Qpbar}{\overline{\Q}_p}
+\newcommand{\Qlbar}{\overline{\Q}_\ell}
+\newcommand{\rhobar}{\overline{\rho}}
+\newcommand{\chibar}{\overline{\chi}}
+\newcommand{\psibar}{\overline{\psi}}
+
+% ---- Galois groups ----
+\DeclareMathOperator{\Gal}{Gal}
+\newcommand{\GQ}{\Gal(\Qbar/\Q)}
+\newcommand{\GF}{\Gal(\Fbar/F)}
+\newcommand{\GK}{\Gal(\Kbar/K)}
+\newcommand{\GQl}{\Gal(\Qlbar/\Ql)}
+\newcommand{\GQp}{\Gal(\Qpbar/\Qp)}
+\newcommand{\GQtwo}{\Gal(\Qbar_2/\Q_2)}
+\newcommand{\GQthree}{\Gal(\Qbar_3/\Q_3)}
+
+% ---- operators ----
+\DeclareMathOperator{\GL}{GL}
+\DeclareMathOperator{\SL}{SL}
+\DeclareMathOperator{\PGL}{PGL}
+\DeclareMathOperator{\Aut}{Aut}
+\DeclareMathOperator{\End}{End}
+\DeclareMathOperator{\Hom}{Hom}
+\DeclareMathOperator{\Ind}{Ind}
+\DeclareMathOperator{\Spec}{Spec}
+\DeclareMathOperator{\Frac}{Frac}
+\DeclareMathOperator{\Frob}{Frob}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\disc}{disc}
+\DeclareMathOperator{\Nm}{N}
+\DeclareMathOperator{\charac}{char}
+
+% ---- misc ----
+\newcommand{\calO}{\mathcal{O}}
+\newcommand{\calV}{\mathcal{V}}
+\newcommand{\calW}{\mathcal{W}}
+\newcommand{\calA}{\mathcal{A}}
+\newcommand{\calC}{\mathcal{C}}
+\newcommand{\Ohat}{\widehat{\calO}}
+\newcommand{\m}{\mathfrak{m}}
+\newcommand{\bbH}{\mathbb{H}}
+\newcommand{\bbT}{\mathbb{T}}
+\newcommand{\univ}{\mathrm{univ}}
+\newcommand{\minl}{\mathrm{min}}
+\newcommand{\hr}{\mathrm{hr}}
+\newcommand{\adele}[1]{\A_{#1}^{f}}      % finite adeles of a field
+
+% ---- theorem environments ----
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% "Boss" statement environment: the B_n statements.
+% Usage: \begin{Bn}{B_5} ... \end{Bn}  ->  "Statement B_5.  <italic body>"
+\newenvironment{Bn}[1]%
+  {\par\medskip\noindent\textbf{Statement $#1$.}\begin{itshape}\quad}%
+  {\end{itshape}\par\medskip}

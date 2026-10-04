@@ -1,0 +1,188 @@
+\documentclass[11pt]{article}
+\usepackage{fltcourse}
+
+\title{Level 12: Potential automorphy}
+\author{Kevin Buzzard}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+This is the last level. In Levels 10 and 11 the automorphy lifting theorem
+(ALT) devoured the heads $B_{8a}$ (lifting) and $B_{8b}$ (spreading out). One
+head remains: $B_{8c}$, that every irreducible hardly ramified
+$\Z/\ell\Z$-representation is potentially automorphic. We show that ALT implies
+$B_{8c}$ as well, so that the boss statement of the level is simply
+\[
+  B_{12} := \text{ALT}.
+\]
+
+\begin{theorem}[Boss of Level 12]\label{thm:boss12}
+The automorphy lifting theorem implies Fermat's Last Theorem, modulo results
+known in the 1980s.
+\end{theorem}
+
+By Levels 10 and 11, ALT implies $B_{8a}$ and $B_{8b}$. So once we show ALT
+implies $B_{8c}$, we get $B_8=B_{8a}\wedge B_{8b}\wedge B_{8c}$, hence FLT. The
+rest of the level proves ALT $\Rightarrow B_{8c}$. The strategy --- Taylor's ---
+is a potential-modularity argument built around a clever double use of prime
+switching, in the spirit of the $(3,5)$-trick.
+
+Fix an irreducible hardly ramified $\Z/\ell\Z$-representation
+$\rhobar_\ell:=\rhobar\colon\GQ\to\GL_2(\Z/\ell\Z)$ with $\ell\geq5$. We must
+produce a totally real $F/\Q$, Galois, disjoint from $K_{\rhobar}$, unramified
+at $\ell$, and a totally definite $D/F$ split at all finite places, so that
+$\rhobar_\ell|_{\GF}$ is automorphic.
+
+\section{An auxiliary automorphic representation}
+
+We manufacture, at a second prime $\ell'$, a representation whose automorphy we
+already understand, using an imaginary quadratic field and class field theory.
+
+Choose an imaginary quadratic field $M$ in which $2$ and $\ell$ are unramified
+but some prime $>3$ ramifies, and a prime $p\nmid6\ell$ which splits in $M$ as
+$p=vv'$. Choose an auxiliary prime $\ell'\geq5$ with $\ell'\neq\ell$ (any
+sufficiently large prime will do). By class field theory, construct a
+continuous character $\theta\colon\Gal(\Qbar/M)\to\Z_{\ell'}^\times$ such that
+the induced representation
+\[
+  \rho_{\ell'}:=\Ind_{M}^{\Q}\theta\colon\GQ\longrightarrow\GL_2(\Z_{\ell'})
+\]
+is \emph{nice}: unramified outside $\ell'p\disc(M)$, with cyclotomic
+determinant, flat at $\ell'$, and tamely ramified at $p$ and at the primes
+dividing $\disc(M)$. The character can be chosen so that the reduction
+$\rhobar_{\ell'}$ is dihedral and, in particular, remains absolutely irreducible
+after restriction to $\Q(\zeta_{\ell'})$ (this is where the split prime $p$ is
+used).
+
+The crucial gain is that $\rho_{\ell'}$, being an induced representation of a
+character, is \emph{automorphic}: this is automorphic induction for the
+quadratic extension $M/\Q$, a phenomenon going back to Hecke --- the
+$L$-function of $\rho_{\ell'}$ equals that of the Hecke character $\theta$, and
+the functional equations of $\theta$ and its twists give the transformation law
+witnessing automorphy. So the automorphy of the $\ell'$-part is free.
+
+\section{A moduli space of elliptic curves}
+
+Set $N:=\ell\ell'$. Combining $\rhobar_\ell$ and $\rhobar_{\ell'}$ gives a
+representation
+\[
+  \rhobar_N\colon\GQ\longrightarrow\GL_2(\Z/N\Z),
+\]
+with cyclotomic determinant; let $V=(\Z/N\Z)^2$ carry the induced action.
+Because $\det\rhobar_N$ is cyclotomic, there is an alternating,
+$\GQ$-equivariant, perfect pairing $V\times V\to\mu_N(\Qbar)$. An elliptic curve
+$E/\Q$ (or over any base) supplies such a datum too, from its $N$-torsion
+$E[N]$ with the Weil pairing.
+
+Consider the functor on $\Q$-schemes $S$ parametrising elliptic curves $E/S$
+together with an isomorphism $E[N]\cong\rhobar_N$ of Galois-representations with
+their alternating pairings. This functor is representable by a smooth,
+geometrically irreducible curve $Y(\rhobar_N)$ over $\Q$; irreducibility is seen
+by uniformising its complex points by the upper half-plane. In general
+$Y(\rhobar_N)$ has large genus and no reason whatsoever to possess a rational
+point. To find points over a controlled field we invoke a theorem of the 1980s.
+
+\begin{theorem}[Moret--Bailly]\label{thm:mb}
+Let $Y/\Q$ be a smooth geometrically connected curve, let $\Q^{\mathrm{avoid}}$
+be a finite Galois extension of $\Q$, let $S$ be a finite set of places of $\Q$,
+and for each $v\in S$ let $L_v/\Q_v$ be a finite Galois extension together with a
+non-empty $\Gal(L_v/\Q_v)$-stable open $\Omega_v\subseteq Y(L_v)$. Then there
+exist a finite Galois extension $F/\Q$ disjoint from $\Q^{\mathrm{avoid}}$ with
+$F_w\cong L_v$ for all $w\mid v\in S$, and a point $P\in Y(F)$ with
+$P\in\Omega_v$ under each $F_w\cong L_v$.
+\end{theorem}
+
+\section{Producing the elliptic curve}
+
+Apply Theorem~\ref{thm:mb} to $Y=Y(\rhobar_N)$, with $\Q^{\mathrm{avoid}}$ the
+field cut out by $\rhobar_N$ (so in particular it contains $K_{\rhobar_\ell}$),
+and the following local data at $S=\{\infty,\ell,\ell'\}\cup S_1$, where $S_1$ is
+the set of primes at which $\rhobar_{\ell'}$ is ramified.
+
+\begin{itemize}
+\item At $\infty$: $L_\infty=\R$ and $\Omega_\infty=Y(\R)$. This is non-empty
+because there is a unique conjugacy class of real matrices of trace $0$ and
+determinant $-1$, realised by the $N$-torsion of a real elliptic curve at
+complex conjugation. Its only role is to force $F$ to be totally real.
+\item At $\ell$ and $\ell'$: for any prime $q$, a flat mod-$q$ representation of
+$\Gal(\Qbar_q/\Q_q)$ is realised by the $q$-torsion of an elliptic curve with
+good reduction over a finite unramified extension of $\Q_q$ (classification of
+finite flat group schemes). Applying this at $q=\ell$ and $q=\ell'$, choose
+$L_\ell/\Q_\ell$, $L_{\ell'}/\Q_{\ell'}$ so that the corresponding
+good-reduction loci $\Omega_\ell,\Omega_{\ell'}$ are non-empty.
+\item At the primes of $S_1$: choose $L_p/\Q_p$ so that
+$\rhobar_{\ell'}|_{\Gal(\overline L_p/L_p)}$ is unramified, and take
+$\Omega_p=Y(L_p)$.
+\end{itemize}
+
+The theorem outputs a totally real field $F$, Galois over $\Q$ and disjoint from
+$K_{\rhobar_N}\supseteq K_{\rhobar_\ell}$, together with an elliptic curve $E/F$
+such that:
+\begin{enumerate}
+\item[(i)] $E[\ell]\cong\rhobar_\ell|_{\GF}$ and
+$E[\ell']\cong\rhobar_{\ell'}|_{\GF}$ as $\GF$-representations;
+\item[(ii)] $E$ has good reduction at $\ell$ and $\ell'$, and $F$ is unramified
+at $\ell$ and $\ell'$;
+\item[(iii)] $E[\ell']|_{\GF}$ is unramified outside $\ell'$.
+\end{enumerate}
+(One may also arrange $[F:\Q]$ even, so that a totally definite quaternion
+algebra over $F$ split at all finite places exists.) Our goal, recall, is to
+show $\rhobar_\ell|_{\GF}=E[\ell]$ is automorphic; then $\rhobar_\ell$ is
+potentially automorphic.
+
+\section{The final prime switch}
+
+The curve $E$ is ``what we want'' at $\ell$, but bespoke at $\ell'$. Its virtue
+is that at $\ell'$ we already have automorphy: $E[\ell']=\rhobar_{\ell'}|_{\GF}$
+is the restriction of the automorphic representation $\rhobar_{\ell'}$, so is
+itself automorphic (induced characters remain automorphic on restriction to
+$\GF$).
+
+By (iii), $E[\ell']$ is unramified outside $\ell'$, so $E/F$ is semistable; let
+$S$ be its set of bad places. The $\ell'$-adic Tate module $T_{\ell'}(E)$ is an
+$S$-minimal deformation of $E[\ell']$, and $E[\ell']$ is automorphic and (being
+dihedral at $p$) absolutely irreducible on $F(\zeta_{\ell'})$. Applying the
+automorphy lifting theorem to $E[\ell']$ --- here at last we spend ALT ---
+part~(b) shows that $T_{\ell'}(E)$ is automorphic: there is an eigenform $\phi$
+over $F$ with $\tr T_{\ell'}(E)(\Frob_P)=t_P$ for all good $P$.
+
+Now comes the point. For an elliptic curve over a number field, the trace of a
+Frobenius element $\Frob_P$ at a good prime, acting on the $\lambda$-adic Tate
+module $T_\lambda(E)$, is a rational integer \emph{independent of $\lambda$}
+(the characteristic polynomial of $\Frob_P$ is $X^2-a_PX+|A/P|$ with
+$a_P\in\Z$). Therefore the very same eigenvalues $t_P=a_P$ are also the traces
+of Frobenius on the $\ell$-torsion $E[\ell]$. Reducing $\phi$ modulo $\ell$
+produces an automorphic form over $F$ whose Hecke eigenvalues are the $t_P
+\bmod\ell$, and these match $\tr E[\ell](\Frob_P)$ for all good $P$. Hence
+\[
+  E[\ell]=\rhobar_\ell|_{\GF}\ \text{is automorphic,}
+\]
+so $\rhobar_\ell$ is potentially automorphic. This is $B_{8c}$.
+
+\begin{proof}[Proof of Theorem~\ref{thm:boss12}]
+We have shown that ALT implies $B_{8c}$. By Level 10, ALT implies $B_{8a}$; by
+Level 11, ALT implies $B_{8b}$. Hence ALT implies
+$B_{8a}\wedge B_{8b}\wedge B_{8c}=B_8$, which by the boss of Level 8 implies
+Fermat's Last Theorem, modulo results known in the 1980s.
+\end{proof}
+
+\section*{The end of the game}
+
+We have arrived. Tracing the chain of bosses backwards:
+\[
+  \underbrace{\text{ALT}}_{B_{12}}
+  \Rightarrow B_8 \Rightarrow B_7 \Rightarrow B_6 \Rightarrow B_5
+  \Rightarrow B_4 \Rightarrow B_3 \Rightarrow B_2 \Rightarrow \underbrace{B_1}_{\text{FLT}},
+\]
+each implication holding modulo theorems available in the 1980s. Every trace of
+the Frey curve, of modular forms, and of Serre's conjecture has been eliminated
+from the \emph{statements}; what remains, distilled into a single theorem, is
+the automorphy lifting theorem. It is an ``$R=T$'' theorem: a Galois deformation
+ring, about which one knows almost nothing directly, is identified with a Hecke
+algebra, which one can compute. That identification is the one genuinely
+twentieth-century ingredient the proof still needs, and proving it --- a long
+but self-contained exercise in commutative algebra, modulo the 1980s --- is the
+subject of the sequel.
+\end{document}

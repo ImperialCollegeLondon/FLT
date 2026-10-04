@@ -1,0 +1,252 @@
+\documentclass[11pt]{article}
+\usepackage{fltcourse}
+
+\title{Level 9: Deformation theory and the automorphy lifting theorem}
+\author{Kevin Buzzard}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+We have reduced Fermat's Last Theorem to the three statements $B_{8a}$
+(automorphic lifting), $B_{8b}$ (automorphic spreading out) and $B_{8c}$
+(potential automorphy). Each of these is out of reach by soft means alone: as
+we noted, the automorphic analogues of lifting and spreading out are easy, but
+they only control a representation after restriction to a totally real field.
+The instrument that converts control of $\rho|_{\GF}$ into control of $\rho$ is
+an \emph{automorphy lifting theorem}, which identifies a Galois deformation
+ring with a Hecke algebra. This level develops the deformation theory the
+statement rests on, states the automorphy lifting theorem, and folds it into a
+new boss statement
+\[
+  B_9 := B_{8a}\wedge B_{8b}\wedge B_{8c}\wedge \text{(ALT)}.
+\]
+The boss theorem itself is then immediate; the real work --- using the
+automorphy lifting theorem to kill $B_{8a}$, $B_{8b}$, $B_{8c}$ one at a time
+--- is the business of the final three levels.
+
+\section{Deformation functors}
+
+The deformation theory below is due to Mazur (1989). We recall it briefly; the
+category-theoretic language is standard, and the constructions are formalized.
+
+Fix a finite field $k$ of characteristic $\ell$. Let $\calC_k$ be the category
+whose objects are coefficient rings $R$ equipped with an isomorphism
+$R/\m_R\xrightarrow{\sim}k$, and whose morphisms are continuous local
+homomorphisms compatible with the maps to $k$. (Working with a fixed
+identification of the residue field with $k$, rather than with ``rings with
+residue field $k$'', avoids a set-theoretic nuisance.) The initial object is
+$\Zl$ or, more generally, the Witt vectors $W(k)$; the residue field $k$ is
+terminal.
+
+Let $G$ be a profinite group, $V$ a finite-dimensional $k$-vector space, and
+$\rhobar\colon G\to\Aut_k(V)$ a continuous representation. The \emph{deformation
+functor} $D_{\rhobar}\colon\calC_k\to\mathrm{Set}$ sends $(R,i)$ to the set of
+isomorphism classes of pairs $(W,\rho)$, where $W$ is a finite free $R$-module,
+$\rho\colon G\to\Aut_R(W)$ is continuous, and there is a $G$-equivariant
+isomorphism $W\otimes_{R,i}k\cong V$; a morphism $\phi\colon R\to R'$ acts by
+base change $(W,\rho)\mapsto(W\otimes_{R,\phi}R',\rho\otimes R')$. A functor
+$\calC_k\to\mathrm{Set}$ isomorphic to $R\mapsto\Hom_{\calC_k}(R^{\univ},R)$ is
+\emph{representable}, by $R^{\univ}$.
+
+\begin{theorem}[Mazur, 1989]\label{thm:mazur}
+Let $K$ be a number field, $S$ a finite set of finite places, $K^S$ the maximal
+extension of $K$ unramified outside $S$, and $G=\Gal(K^S/K)$. If
+$\rhobar\colon G\to\Aut_k(V)$ is absolutely irreducible then $D_{\rhobar}$ is
+representable, by a \emph{universal deformation ring} $R^{\univ}_{\rhobar}$, with
+a universal deformation
+$\rho^{\univ}\colon G\to\GL(W^{\univ})$ through which every deformation
+uniquely factors.
+\end{theorem}
+
+The hypothesis on $G$ is the Hermite--Minkowski finiteness: $K$ has only finitely
+many extensions of bounded degree unramified outside $S$. Mazur's proof uses
+Schlessinger's criterion; there are also elementary proofs (Faltings, de
+Smit--Lenstra). We use the theorem as stated.
+
+\section{Deformation conditions}
+
+We shall want to deform not all the way, but subject to conditions --- ``flat
+at $\ell$'', ``cyclotomic determinant'', ``hardly ramified''. A
+\emph{deformation condition} is an isomorphism-invariant predicate $P$ on pairs
+$(W,\rho)\in D_{\rhobar}(R)$, defined for all $R\in\calC_k$; it cuts out a
+subset $P_{\rhobar}(R)\subseteq D_{\rhobar}(R)$. The following criterion, due to
+de Smit--Lenstra and Ramakrishna, tells us when it cuts out a
+\emph{representable} subfunctor, and this is the one place in the level where we
+prove something.
+
+\begin{theorem}[de Smit--Lenstra, Ramakrishna]\label{thm:condition}
+With $G$, $k$, $\rhobar$ as in Theorem~\ref{thm:mazur}, let $P$ be a deformation
+condition satisfying:
+\begin{enumerate}
+\item[\textup{(1)}] $(W,\rho)$ satisfies $P$ iff $W/JW$ satisfies $P$ for every
+open ideal $J\subseteq R$;
+\item[\textup{(2)}] if $I,J\subseteq R$ are open and $W/IW$, $W/JW$ satisfy
+$P$, then $W/(I\cap J)W$ satisfies $P$;
+\item[\textup{(3)}] for an inclusion $R\subseteq R'$ of finite objects of
+$\calC_k$ and $W$ over $R$, $W$ satisfies $P$ iff $W\otimes_R R'$ does.
+\end{enumerate}
+Then $P_{\rhobar}$ is representable by $R^{\univ}_{\rhobar}/J$ for a closed ideal
+$J$.
+\end{theorem}
+
+\begin{proof}
+For a deformation $W$ over $R$, let $J_W$ be the intersection of the open ideals
+$I$ with $W/IW$ satisfying $P$. By (2) this family is closed under finite
+intersection, so $R/J_W=\varprojlim_I R/I$ over it, and by (1) $W/J_WW$ satisfies
+$P$; moreover $W/IW$ satisfies $P$ iff $J_W\subseteq I$, and (again by (1), as
+$R$ is profinite) $W$ itself satisfies $P$ iff $J_W=0$.
+
+We claim $J_W$ is compatible with base change: for a morphism $\phi\colon R\to R'$
+and $W'=W\otimes_{R,\phi}R'$, we have $\phi(J_W)R'=J_{W'}$. Indeed, for an open
+ideal $I'\subseteq R'$ with preimage $I=\phi^{-1}(I')$, the map
+$R/I\hookrightarrow R'/I'$ is an injection of finite objects, so by (3),
+$W/IW$ satisfies $P$ iff $W'/I'W'$ does; that is, $J_W\subseteq I=\phi^{-1}(I')$
+iff $J_{W'}\subseteq I'$, i.e.\ $\phi(J_W)R'\subseteq I'$ iff $J_{W'}\subseteq I'$.
+As every closed ideal is the intersection of the open ideals containing it, the
+claim follows.
+
+In particular $J_{W'}=0$ iff $\phi(J_W)R'=0$ iff $\phi$ factors through
+$R/J_W$. Applying this to the universal deformation $W^{\univ}$ over
+$R^{\univ}_{\rhobar}$ and $J:=J_{W^{\univ}}$: a morphism $\phi\colon
+R^{\univ}_{\rhobar}\to R'$ has its associated deformation satisfying $P$ iff
+$\phi$ factors through $R^{\univ}_{\rhobar}/J$. Hence $P_{\rhobar}$ is
+represented by $R^{\univ}_{\rhobar}/J$.
+\end{proof}
+
+\begin{proposition}\label{prop:hr-condition}
+For $k$ finite of characteristic $\ell\geq3$ and $\rhobar$ an absolutely
+irreducible hardly ramified $k$-representation of $\Gal(\Q^{\{2,\ell\}}/\Q)$,
+the condition ``hardly ramified'' satisfies \textup{(1)}--\textup{(3)}. Hence
+there is a \emph{universal hardly ramified deformation ring}
+$R^{\hr}_{\rhobar}$ and a universal hardly ramified deformation
+$\rho^{\hr}\colon\GQ\to\GL_2(R^{\hr}_{\rhobar})$.
+\end{proposition}
+
+\begin{proof}[Proof sketch]
+``Unramified outside $2\ell$'' is built into $G=\Gal(\Q^{\{2,\ell\}}/\Q)$.
+``Cyclotomic determinant'' and ``flat at $\ell$'' satisfy (1)--(3) directly: (1)
+is the definition of flatness, and (2),(3) follow because flatness is preserved
+under finite sums and subquotients. The only condition needing care is (HR4) at
+$2$, namely $\rho|_{\GQtwo}\cong\left(\begin{smallmatrix}\chi\alpha&*\\0&\alpha\end{smallmatrix}\right)$
+with $\alpha$ unramified, $\alpha^2=1$. The forward implications of (1),(3) (that
+the shape is preserved by quotients and base change) are clear. For the reverse
+implications and (2), the key point is that the stable rank-one submodule is
+\emph{unique}: since $\rho(\Frob_2)=\left(\begin{smallmatrix}2u&?\\0&u\end{smallmatrix}\right)$
+with $u=\pm1$, its two eigenvalues $2u,u$ are distinct (their difference is
+$u\in R^\times$), so it has a unique eigenline. This forces the following
+descent lemma, which yields (2) and the reverse of (1),(3).
+
+\emph{Lemma.} Let $R$ be a coefficient ring, $G$ a group acting on a free
+rank-two $R$-module $W$, and $\alpha,\beta\colon G\to R^\times$ characters with
+$\alpha\not\equiv\beta\pmod{\m_R}$. Let $R\subseteq S$ and suppose $W\otimes_RS$
+has a free rank-one $G$-stable submodule with character $\beta$ and quotient
+character $\alpha$. Then $W$ itself has such a submodule.
+
+\emph{Proof.} Choose $g\in G$ with $\alpha(g)\not\equiv\beta(g)\pmod{\m_R}$, so
+$u:=\beta(g)-\alpha(g)\in R^\times$. By Cayley--Hamilton
+$\rho(g)$ has characteristic polynomial $(X-\alpha(g))(X-\beta(g))$, so
+$e:=(\rho(g)-\alpha(g))/u$ satisfies $e(e-1)=0$; thus $e$ is an idempotent and
+$W=eW\oplus(1-e)W$. Reducing mod $\m_R$, $eW/\m$ and $(1-e)W/\m$ are the
+$\beta(g)$- and $\alpha(g)$-eigenspaces of $\rhobar(g)$, each of dimension one
+(distinct eigenvalues), so by Nakayama $eW$ and $(1-e)W$ are free of rank one.
+Finally, over $S$ we have $W\otimes S=(eW\otimes S)\oplus((1-e)W\otimes S)$ with
+$g$ acting by $\beta(g),\alpha(g)$, so $eW\otimes S$ is the given $\beta$-stable
+submodule; hence $eW=(eW\otimes S)\cap W$ is $G$-stable, as required. $\square$
+
+Applying the descent lemma with the unramified character $\psi$ as quotient
+character and $\chi\psi$ as submodule character --- distinct modulo $\m$ because
+their ratio is $\chi$, with $\chibar(\Frob_2)=2\neq1$ in $k$ (well defined as
+$\chi$ is unramified at $2$, since $\ell\neq2$) --- gives the reverse
+implications and (2). Thus ``hardly ramified'' is a deformation condition, and
+Theorem~\ref{thm:condition} supplies $R^{\hr}_{\rhobar}$.
+\end{proof}
+
+We shall also use, following Mazur's methods (and global class field theory),
+the following, which we do not prove.
+
+\begin{proposition}[assumed]\label{prop:krull}
+If $\rhobar$ is an absolutely irreducible hardly ramified $k$-representation
+with $\ell\geq5$, then $R^{\hr}_{\rhobar}$ is Noetherian and has Krull dimension
+at least $1$.
+\end{proposition}
+
+\section{The automorphy lifting theorem}
+
+To connect with the automorphic side we deform over a totally real field, and
+must allow more ramification than ``hardly ramified''.
+
+\begin{definition}\label{def:Smin}
+Let $F$ be totally real, $\ell$ a prime unramified in $F$, $S$ a finite set of
+finite places of $F$ not dividing $\ell$, and $\rhobar\colon\GF\to\GL_2(k)$
+absolutely irreducible ($k$ finite of characteristic $\ell$). Call $\rhobar$
+(and its deformations) \emph{$S$-minimal} if: $\rhobar$ is unramified outside
+$\ell S$; $\det\rhobar=\chi$; $\rhobar$ is flat at every prime of $F$ above
+$\ell$; and $\tr\rhobar(i)=2$ for every $i$ in an inertia group $I_P$ with
+$P\in S$.
+\end{definition}
+
+By the same methods as Proposition~\ref{prop:hr-condition}, ``$S$-minimal'' is a
+deformation condition, represented by a ring $R^{S\text{-}\minl}_{\rhobar}$.
+
+\begin{example}
+For $F=\Q$, $S=\{2\}$ and $\ell\geq5$, a hardly ramified representation is
+exactly a $\{2\}$-minimal one: the condition $\tr\rhobar(i)=2$ on $I_2$ is
+equivalent to (HR4), the hypothesis $\ell\geq5$ being needed to exclude
+tamely ramified lower-triangular deformations at $2$. So $R^{\hr}_{\rhobar}$ is
+a special case of a universal $S$-minimal deformation ring.
+\end{example}
+
+We can now state the ``Final Boss'', the one deep theorem of the twentieth
+century that the whole endgame rests on. It is an ``$R=T$'' theorem: the
+deformation ring equals a Hecke algebra. We do not prove it here (that is the
+content of a sequel); we assume it and call it \textup{ALT}.
+
+\begin{theorem}[Automorphy lifting theorem; Wiles, Kisin, \dots]\label{thm:alt}
+Let $\ell\geq5$, let $F$ be totally real and unramified at $\ell$, let $k$ be
+finite of characteristic $\ell$, and let $\rhobar\colon\GF\to\GL_2(k)$ be
+absolutely irreducible, $S$-minimal. Assume in addition:
+\begin{itemize}
+\item $\rhobar|_{\Gal(\Fbar/F(\zeta_\ell))}$ is absolutely irreducible; and
+\item $\rhobar$ is automorphic, arising from an eigenform in
+$\calA_D(U_0(S);k)$ for a totally definite quaternion algebra $D/F$ split at all
+finite places.
+\end{itemize}
+Then
+\begin{enumerate}
+\item[\textup{(a)}] $R^{S\text{-}\minl}_{\rhobar}$ is a module-finite
+$\Zl$-algebra; and
+\item[\textup{(b)}] if $K$ is a finite extension of $\Ql$ and
+$R^{S\text{-}\minl}_{\rhobar}\to K$ is a homomorphism, the induced
+representation $\rho\colon\GF\to\GL_2(K)$ arises from a system of $K$-eigenvalues
+for $(F,D,S)$; that is, $\rho$ is automorphic.
+\end{enumerate}
+\end{theorem}
+
+\section{The boss: $B_9$ implies FLT}
+
+\begin{theorem}[Boss of Level 9]\label{thm:boss9}
+Statements $B_{8a}$, $B_{8b}$, $B_{8c}$ together with the automorphy lifting
+theorem imply Fermat's Last Theorem, modulo results known in the 1980s.
+\end{theorem}
+
+\begin{proof}
+The hypotheses include $B_{8a}\wedge B_{8b}\wedge B_{8c}=B_8$, which by the boss
+of the previous level implies FLT. Adjoining the automorphy lifting theorem only
+strengthens the hypotheses, so $B_9\Rightarrow{}$FLT.
+\end{proof}
+
+\begin{remark}
+The boss is trivial by design. The point of introducing the automorphy lifting
+theorem now is that it is powerful enough to eat the other three heads
+single-handedly. In Level 10 we shall see that it implies $B_{8a}$: the
+universal hardly ramified ring $R^{\hr}_{\rhobar}$, being a quotient of an
+$S$-minimal ring, becomes module-finite over $\Zl$, and, having Krull dimension
+at least one (Proposition~\ref{prop:krull}), therefore admits a homomorphism to
+the integers of a finite extension of $\Ql$ --- and out of that homomorphism
+falls the desired characteristic-zero lift. Levels 11 and 12 then dispatch
+$B_{8b}$ and $B_{8c}$.
+\end{remark}
+
+\end{document}
