@@ -7,7 +7,7 @@ module
 
 public import FLT.AutomorphicForm.GroupTheoryStuff
 public import FLT.Mathlib.Topology.Algebra.Group.Basic
-public import Mathlib.Data.Int.SuccPred
+public import Mathlib.Order.SuccPred.Int
 public import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 public import Mathlib.RingTheory.Norm.Transitivity
 public import Mathlib.RingTheory.RootsOfUnity.PrimitiveRoots
