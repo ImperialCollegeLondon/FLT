@@ -64,14 +64,14 @@ above the infinite place `v` of `K`. -/
 abbrev comapHom (h : w.comap (algebraMap K L) = v) :
     v.Completion →ₛₐ[algebraMap K L] w.Completion :=
   have : w.1.LiesOver v.1 := ⟨by simp [AbsoluteValue.under_def, ← h, InfinitePlace.comap]⟩
-  RingHom.toSemialgHom (NumberField.LiesOver.completionMap (v := v) (w := w)) fun r x ↦ by
+  RingHom.toSemialgHom (NumberField.LiesOver.completionMap v w) fun r x ↦ by
     rw [Algebra.smul_def, Algebra.smul_def, map_mul]
     congr 1
-    exact NumberField.LiesOver.completionMap_coe _
+    exact NumberField.LiesOver.completionMap_coe v w _
 
 theorem comapHom_cont (h : w.comap (algebraMap K L) = v) : Continuous (comapHom h) :=
   have : w.1.LiesOver v.1 := ⟨by simp [AbsoluteValue.under_def, ← h, InfinitePlace.comap]⟩
-  NumberField.LiesOver.continuous_completionMap
+  NumberField.LiesOver.continuous_completionMap v w
 
 variable (L v)
 
