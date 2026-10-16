@@ -144,11 +144,6 @@ instance {R A B : Type*} [CommSemiring R] [Semiring A] [Semiring B]
   convert isLocalHom_equiv f
   exact ⟨fun ⟨H⟩ ↦ ⟨H⟩, fun ⟨H⟩ ↦ ⟨H⟩⟩
 
-instance {R A B : Type*} [CommSemiring R] [Semiring A] [Semiring B]
-    [Algebra R A] [Algebra R B] [TopologicalSpace A] [TopologicalSpace B]
-    (f : A →A[R] B) [IsLocalHom f] : IsLocalHom f.toRingHom := by
-  rwa [ContinuousAlgHom.isLocalHom_toRingHom]
-
 instance {A B : Type*} [Semiring A] [Semiring B]
     (F : Type*) [EquivLike F A B] [RingEquivClass F A B] (f : F) :
     IsLocalHom (RingHomClass.toRingHom f) := by
