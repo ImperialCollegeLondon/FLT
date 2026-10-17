@@ -89,9 +89,55 @@ noncomputable abbrev j₂ : 𝓞^ →ₐ[ℤ] D^ :=
 lemma injective_zHat :
     Function.Injective j₂ := sorry -- flatness
 
+/-- Scaling the `𝓞^`-part by `M` cancels the factor `M` in the denominator `N * M`. -/
+private lemma j₁_smul_aux (N M : ℕ+) (w : 𝓞^) :
+    j₁ ((((N * M : ℕ+) : ℚ)⁻¹) ⊗ₜ 1 : D) * j₂ ((M : ℤ) • w)
+      = j₁ (((N : ℚ)⁻¹) ⊗ₜ 1 : D) * j₂ w := by
+  have h : ((M : ℤ) • ((((N * M : ℕ+) : ℚ)⁻¹) ⊗ₜ (1 : 𝓞)) : ℚ ⊗[ℤ] 𝓞)
+      = (((N : ℚ)⁻¹) ⊗ₜ (1 : 𝓞)) := by
+    rw [TensorProduct.smul_tmul', zsmul_eq_mul]
+    congr 1
+    push_cast
+    field_simp
+  rw [map_zsmul, mul_smul_comm, ← smul_mul_assoc,
+    (map_zsmul j₁ (M : ℤ) _).symm.trans (congrArg j₁ h)]
+
+/-- Elements admitting a canonical form are closed under addition: put the two over the
+common denominator `N₁ * N₂`. -/
+private lemma canonicalForm_add {z₁ z₂ : D^}
+    (h₁ : ∃ (N : ℕ+) (z' : 𝓞^), z₁ = j₁ ((N⁻¹ : ℚ) ⊗ₜ 1 : D) * j₂ z')
+    (h₂ : ∃ (N : ℕ+) (z' : 𝓞^), z₂ = j₁ ((N⁻¹ : ℚ) ⊗ₜ 1 : D) * j₂ z') :
+    ∃ (N : ℕ+) (z' : 𝓞^), z₁ + z₂ = j₁ ((N⁻¹ : ℚ) ⊗ₜ 1 : D) * j₂ z' := by
+  obtain ⟨N₁, w₁, rfl⟩ := h₁
+  obtain ⟨N₂, w₂, rfl⟩ := h₂
+  refine ⟨N₁ * N₂, (N₂ : ℤ) • w₁ + (N₁ : ℤ) • w₂, ?_⟩
+  rw [map_add, mul_add, j₁_smul_aux, mul_comm N₁ N₂, j₁_smul_aux]
+
 -- should I rearrange tensors? Not sure if D^ should be (ℚ ⊗ 𝓞) ⊗ ℤhat or ℚ ⊗ (𝓞 ⊗ Zhat)
 lemma canonicalForm (z : D^) : ∃ (N : ℕ+) (z' : 𝓞^), z = j₁ ((N⁻¹ : ℚ) ⊗ₜ 1 : D) * j₂ z' := by
-  sorry
+  induction z using TensorProduct.induction_on with
+  | zero =>
+    refine ⟨1, 0, ?_⟩
+    rw [map_zero, mul_zero]
+    rfl
+  | tmul d x =>
+    induction d using TensorProduct.induction_on with
+    | zero =>
+      refine ⟨1, 0, ?_⟩
+      rw [map_zero, mul_zero]
+      exact TensorProduct.zero_tmul D x
+    | tmul q o =>
+      refine ⟨⟨q.den, q.den_pos⟩, (q.num • o) ⊗ₜ x, ?_⟩
+      change _ = ((((q.den : ℚ))⁻¹ ⊗ₜ[ℤ] (1 : 𝓞)) ⊗ₜ[ℤ] (1 : ZHat)) *
+        (((1 : ℚ) ⊗ₜ[ℤ] (q.num • o)) ⊗ₜ[ℤ] x)
+      rw [Algebra.TensorProduct.tmul_mul_tmul, Algebra.TensorProduct.tmul_mul_tmul,
+        mul_one, one_mul, one_mul, TensorProduct.tmul_smul, TensorProduct.smul_tmul']
+      congr 1
+      rw [zsmul_eq_mul, ← div_eq_mul_inv, Rat.num_div_den]
+    | add d₁ d₂ hd₁ hd₂ =>
+      obtain ⟨N, w, hw⟩ := canonicalForm_add hd₁ hd₂
+      exact ⟨N, w, (TensorProduct.add_tmul d₁ d₂ x).trans hw⟩
+  | add z₁ z₂ h₁ h₂ => exact canonicalForm_add h₁ h₂
 
 lemma completed_units (z : D^ˣ) : ∃ (u : Dˣ) (v : 𝓞^ˣ), (z : D^) = j₁ u * j₂ v := sorry
 
