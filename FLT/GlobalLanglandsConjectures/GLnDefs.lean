@@ -267,13 +267,14 @@ noncomputable def preweight.fdRep (n : ℕ) (w : preweight n) :
     FDRep ℂ (orthogonalGroup (Fin n) ℝ) where
   V := FGModuleCat.of ℂ (Fin w.d → ℂ)
   ρ := {
-    toFun := fun A ↦ FGModuleCat.ofHom {
+    toFun := fun A ↦ .of <| FGModuleCat.ofHom {
       toFun := fun x ↦ (w.rho A).1 *ᵥ x
       map_add' := fun _ _ ↦ Matrix.mulVec_add ..
       map_smul' := fun _ _ ↦ by simpa using Matrix.mulVec_smul .. }
     map_one' := by aesop
     map_mul' := fun _ _ ↦ by
-      simp only [_root_.map_mul, Units.val_mul, ← mulVec_mulVec, End.mul_def]
+      ext1
+      simp only [_root_.map_mul, Units.val_mul, ← mulVec_mulVec, End.mul_asHom]
       rfl }
 
 /-- A weight for `GLₙ`: a preweight whose associated `O(n)`-representation is simple. -/
