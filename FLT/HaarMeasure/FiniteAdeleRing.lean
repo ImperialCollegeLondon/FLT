@@ -12,7 +12,7 @@ public import Mathlib.Algebra.AffineMonoid.Basic
 public import Mathlib.RingTheory.TotallySplit
 public import Mathlib.Topology.Connected.Separation
 public import Mathlib.Topology.MetricSpace.Ultra.TotallySeparated
-public import Mathlib.Topology.Separation.Lemmas
+public import Mathlib.Topology.Separation.CompletelyRegular
 public import FLT.NumberField.Completion.Finite
 public import FLT.NumberField.HeightOneSpectrum
 public import Mathlib.NumberTheory.NumberField.Completion.FinitePlace

@@ -386,7 +386,7 @@ lemma ringHaarChar_D𝔸 (a : Dinfx K D) (b : Dfx K D) :
     ringHaarChar (MulEquiv.prodUnits.symm (a, b)) := by
   apply MeasureTheory.addEquivAddHaarChar_eq_addEquivAddHaarChar_of_continuousAddEquiv
     (D𝔸ProdRight'' K D)
-  simp [MulEquivClass.map_mul]
+  simp
 
 /-- For any positive real `r`, there's some `ρ ∈ ℝˣ` such that the haar character of
 `(ρ, 1) ∈ D_f × D_∞` is `r`. -/
