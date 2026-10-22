@@ -17,7 +17,7 @@ import Mathlib.RingTheory.Filtration
 import Mathlib.RingTheory.Localization.AtPrime.Basic
 import Mathlib.Topology.Algebra.Module.Compact
 import Mathlib.Topology.Algebra.OpenSubgroup
-import Mathlib.Topology.Separation.Profinite
+import Mathlib.Topology.Separation.Regular
 
 /-!
 # Miscellaneous lemmas for the patching folder
@@ -104,7 +104,7 @@ theorem exists_subgroup_isOpen_and_subset {α : Type*} [TopologicalSpace α]
     [CommGroup α] [IsTopologicalGroup α] {U : Set α} (hU : U ∈ 𝓝 1) :
     ∃ G : Subgroup α, IsOpen (X := α) G ∧ (G : Set α) ⊆ U := by
   obtain ⟨V, hVU, hV, h1V⟩ := mem_nhds_iff.mp hU
-  obtain ⟨K, hK, hxK, hKU⟩ := compact_exists_isClopen_in_isOpen hV h1V
+  obtain ⟨K, hK, hxK, hKU⟩ := exists_isClopen_mem_of_isOpen hV h1V
   obtain ⟨⟨G, hG⟩, hG'⟩ := IsTopologicalGroup.exist_openSubgroup_sub_clopen_nhds_of_one hK hxK
   exact ⟨G, hG, (hG'.trans hKU).trans hVU⟩
 

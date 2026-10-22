@@ -218,7 +218,7 @@ lemma valued_adicCompletionSemialgHom (x) :
       (adicCompletionSemialgHom_continuous K L w)).comp
       (adicCompletion.continuous_ofCompletion K v)
   intro a
-  simp only [Function.comp_apply, adicCompletion.valued_ofCompletion,
+  simp only [Function.comp_apply, adicCompletion.valued_ofCompletion_apply,
     Valued.valuedCompletion_apply, w.2, adicCompletionSemialgHom_coe,
     WithVal.valued_toVal, ← valuation_comap A K L B w.1 _]
   rw [WithVal.valued_toVal]
