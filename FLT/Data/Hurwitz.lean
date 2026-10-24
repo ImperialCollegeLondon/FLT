@@ -480,7 +480,7 @@ private lemma aux2 (a b c d : ℝ) (ha : a ≤ 4⁻¹) (hb : b ≤ 4⁻¹) (hc :
   · calc
       _ ≤ (4 : ℝ)⁻¹ + 4⁻¹ + 4⁻¹ + 4⁻¹ := by gcongr
       _ = 1 := by norm_num
-  contrapose! H
+  contrapose H
   have invs : (1 : ℝ) - 4⁻¹ = 4⁻¹ + 4⁻¹ + 4⁻¹ := by norm_num
   refine ⟨?_, ?_, ?_, ?_⟩ <;> apply le_antisymm ‹_› <;>
   [ (have : a = 1 - (b + c + d) := by rw [← H]; ring);
@@ -530,7 +530,7 @@ lemma exists_near (a : ℍ) : ∃ q : 𝓞, dist a (toQuaternion q) < 1 := by
     ← Quaternion.normSq_eq_norm_mul_self, normSq_def']
   simp only [neg_add_eq_sub, re_sub, imI_sub, imJ_sub, imK_sub, sub_sq_comm]
   apply aux2 <;> try apply this
-  contrapose! H
+  contrapose H
   suffices ∀ r : ℝ, |r| = 2⁻¹ ↔ r ^ 2 = 4⁻¹ by
     simpa [this]
   intro r

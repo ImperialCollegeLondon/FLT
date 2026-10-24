@@ -219,7 +219,7 @@ lemma fermatLastTheoremFor_p_ge_5 (h : IsEmpty FreyPackage) :
   -- assume for a contradiction that we have a counterexample
   -- a^p+b^p=c^p
   intro p hp5 hpp
-  by_contra!
+  by_contra
   -- by the previous result, we can make a Frey package `f`
   obtain ⟨f⟩ := of_not_FermatLastTheoremFor_p_ge_5 hpp hp5 this
   -- This contradicts our assumption.

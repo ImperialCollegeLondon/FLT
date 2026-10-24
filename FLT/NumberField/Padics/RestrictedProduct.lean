@@ -38,7 +38,8 @@ local instance {p : Nat.Primes} : Fact p.1.Prime := ⟨p.2⟩
 
 theorem setOf_norm_one_lt_finite (x : ℚ) :
     {p : Nat.Primes | 1 < ‖(x : ℚ_[p])‖}.Finite := by
-  apply Set.Finite.subset _ fun p ↦ mt (Padic.norm_rat_le_one) ∘ not_le.2
+  apply Set.Finite.subset (s := {p : Nat.Primes | ¬¬(p : ℕ) ∣ x.den}) _
+    fun p hp ↦ mt Padic.norm_rat_le_one (not_le.2 hp)
   apply Set.Finite.of_finite_image _ Nat.Primes.coe_nat_injective.injOn
   apply Set.Finite.subset (s := x.den.primeFactors) (by simp)
   exact fun _ ⟨_, _, _⟩ ↦ by aesop

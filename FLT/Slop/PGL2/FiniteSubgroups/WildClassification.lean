@@ -145,7 +145,7 @@ theorem sylow_comm_exp_p (G : Subgroup (PGLOf (K p))) [Finite G]
     (fun ⟨y, hy⟩ ↦ by
       obtain ⟨x, hx, rfl⟩ := Subgroup.mem_map.mp hy
       exact ⟨⟨x, hx⟩, rfl⟩)
-  have hH_pgroup : IsPGroup p H := P.2.map G.subtype
+  have hH_pgroup : IsPGroup p H := P.isPGroup.map G.subtype
   by_cases hH_nontriv : Nontrivial H
   · have h_fixed := isPGroup_comm_exponent_fixedPoint p H hH_pgroup hH_nontriv
     have h_comm : ∀ g h : P.toSubgroup, g * h = h * g := by

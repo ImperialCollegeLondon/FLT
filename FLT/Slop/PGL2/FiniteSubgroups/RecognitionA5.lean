@@ -593,8 +593,8 @@ lemma order_30_unique_sylow_5 {G : Type*} [Group G] [Finite G]
 
   obtain ⟨P₅'', hP₅''⟩ : ∃ P₅'' : Sylow 5 G, (P₅''.toSubgroup).Normal :=
     ⟨{ P₅'.toSubgroup.map (N₃ ⊔ P₅).subtype with
-       isPGroup' := IsPGroup.map P₅'.isPGroup' (N₃ ⊔ P₅).subtype
-       is_maximal' := h_is_maximal }, hP₅'⟩
+       maximal_isPGroup.left := IsPGroup.map P₅'.isPGroup (N₃ ⊔ P₅).subtype
+       maximal_isPGroup.right _ hQ hQ' := (h_is_maximal hQ hQ').le }, hP₅'⟩
 
   exact h_contra (Fintype.card_eq_one_iff.mpr ⟨P₅'', fun P ↦ let ⟨g, hg⟩ := MulAction.exists_smul_eq G P₅'' P; hg.symm.trans Sylow.smul_eq_of_normal⟩)
 
@@ -645,8 +645,8 @@ lemma order_30_unique_sylow_3 {G : Type*} [Group G] [Finite G]
 
   obtain ⟨P₃'', hP₃''⟩ : ∃ P₃'' : Sylow 3 G, (P₃''.toSubgroup).Normal :=
     ⟨{ P₃'.toSubgroup.map (N₅ ⊔ P₃).subtype with
-       isPGroup' := IsPGroup.map P₃'.isPGroup' (N₅ ⊔ P₃).subtype
-       is_maximal' := h_is_maximal }, hP₃'⟩
+       maximal_isPGroup.left := IsPGroup.map P₃'.isPGroup (N₅ ⊔ P₃).subtype
+       maximal_isPGroup.right _ hQ hQ' := (h_is_maximal hQ hQ').le }, hP₃'⟩
 
   exact Fintype.card_eq_one_iff.mpr ⟨P₃'', fun P ↦ let ⟨g, hg⟩ := MulAction.exists_smul_eq G P₃'' P; hg.symm.trans Sylow.smul_eq_of_normal⟩
 
@@ -816,7 +816,7 @@ lemma normal_divides_4_eq_bot {G : Type*} [Group G] [Finite G]
   have hP_card : ∀ P : Sylow 3 G, Nat.card (P : Subgroup G) = 3 := fun P ↦
     (Sylow.card_eq_multiplicity P).trans (by rw [hn, factorization_60_3, pow_one])
   have hP_le : ∀ P : Sylow 3 G, (P : Subgroup G) ≤ M := fun P ↦ by
-    obtain ⟨Q', hQ'⟩ := IsPGroup.exists_le_sylow (IsPGroup.map P.isPGroup' (QuotientGroup.mk' N))
+    obtain ⟨Q', hQ'⟩ := IsPGroup.exists_le_sylow (IsPGroup.map P.isPGroup (QuotientGroup.mk' N))
     exact Subgroup.map_le_iff_le_comap.mp (hQ Q' ▸ hQ')
   exact absurd ((card_ge_of_contains_all_sylow M hP_card hP_le 10 hn3).trans hM_card : 21 ≤ 12) (by norm_num)
 

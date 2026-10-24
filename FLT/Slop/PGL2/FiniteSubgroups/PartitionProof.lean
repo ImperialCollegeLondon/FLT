@@ -58,7 +58,7 @@ def Phi (G : Subgroup (PGLOf (K p))) : Set (ProjectiveLine p) :=
 
 
 lemma Phi_finite (G : Subgroup (PGLOf (K p))) [Finite G] : (Phi p G).Finite := by
-  refine' Set.Finite.biUnion (Set.toFinite _) fun g hg ↦ _
+  refine' Set.Finite.biUnion (s := {g | g ≠ 1}) (Set.toFinite _) fun g hg ↦ _
   have h_order : IsOfFinOrder (g : PGLOf (K p)) := by
     obtain ⟨n, hn_pos, hn_eq⟩ := isOfFinOrder_iff_pow_eq_one.mp (isOfFinOrder_of_finite g)
     exact isOfFinOrder_iff_pow_eq_one.mpr ⟨n, hn_pos, Subtype.ext_iff.mp hn_eq⟩
@@ -173,10 +173,10 @@ theorem sylow_distinct_fixedPoints (G : Subgroup (PGLOf (K p))) [Finite G]
   have hQ_le_S : (Q : Subgroup G) ≤ S := fun x hx ↦ ⟨1, P.one_mem, x, hx, (one_mul x).symm⟩
 
   have hPQ_eq : (P : Subgroup G) ⊔ Q = P := by
-    refine P.is_maximal' ?_ le_sup_left
+    refine P.maximal_isPGroup.eq_of_ge ?_ le_sup_left
     rintro ⟨g, hg⟩
     obtain ⟨a, ha, b, hb, rfl⟩ := sup_le hP_le_S hQ_le_S hg
-    obtain ⟨k, hk⟩ := P.2 ⟨a, ha⟩; obtain ⟨l, hl⟩ := Q.2 ⟨b, hb⟩
+    obtain ⟨k, hk⟩ := P.isPGroup ⟨a, ha⟩; obtain ⟨l, hl⟩ := Q.isPGroup ⟨b, hb⟩
     refine ⟨k + l, Subtype.ext ?_⟩
     push_cast
     rw [Commute.mul_pow (h_comm a ha b hb)]

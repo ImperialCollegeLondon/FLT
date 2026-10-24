@@ -959,7 +959,7 @@ lemma incl₂_isClosedEmbedding : Topology.IsClosedEmbedding (incl₂ K D) := by
   refine Topology.IsInducing.isClosedMap ({ eq_induced := rfl }) ?_
   simp only [Subtype.range_coe_subtype, SetLike.setOfPred_mem_eq]
   exact IsClosed.preimage (continuous_id')
-    (IsClosed.preimage (map_continuous ringHaarChar) (by simp))
+    (IsClosed.preimage (map_continuous ringHaarChar) isClosed_singleton)
 
 lemma ImAux_isCompact : IsCompact ((fun p ↦ (p.1, MulOpposite.op p.2)) '' Aux.C K D) :=
   IsCompact.image (Aux.C_compact K D) <| by fun_prop
