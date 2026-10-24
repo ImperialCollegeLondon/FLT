@@ -634,7 +634,7 @@ theorem Rat.AdeleRing.cocompact :
 
 open InfinitePlace.Completion Set RestrictedProduct in
 /-- The fundamental domain `ℤ^ x [0,1)` for `𝔸_ℚ ⧸ ℚ`. -/
-def Rat.AdeleRing.fundamentalDomain : Set (AdeleRing (𝓞 ℚ) ℚ) :=
+noncomputable def Rat.AdeleRing.fundamentalDomain : Set (AdeleRing (𝓞 ℚ) ℚ) :=
   (univ.pi fun v => (extensionEmbeddingOfIsReal (infinitePlace_isReal v)).toFun ⁻¹' (Ico 0 1)).prod
     (range <| FiniteAdeleRing.structureMap _ _)
 
@@ -755,7 +755,7 @@ theorem Rat.AdeleRing.isAddFundamentalDomain :
       exact Homeomorph.measurable
         (InfinitePlace.Completion.isometryEquivRealOfIsReal _).toHomeomorph
     · refine IsOpen.nullMeasurableSet ?_
-      convert! isOpen_forall_mem ?_
+      convert! isOpen_forall_mem ?_ using 1
       · ext x
         -- a tactic should do this dumb calculation
         refine ⟨?_, ?_⟩

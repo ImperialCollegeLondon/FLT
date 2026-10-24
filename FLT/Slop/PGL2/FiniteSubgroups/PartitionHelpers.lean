@@ -76,7 +76,7 @@ theorem sylow_unique_fixedPoint (G : Subgroup (PGLOf (K p))) [Finite G]
   let e : (P : Subgroup G) ≃ P' := (Subgroup.equivMapOfInjective _ _ Subtype.coe_injective).toEquiv
   have : Finite P' := Finite.of_equiv _ e
 
-  refine (isPGroup_comm_exponent_fixedPoint p P' (P.2.map (Subgroup.subtype G)) ?_).2.2
+  refine (isPGroup_comm_exponent_fixedPoint p P' (P.isPGroup.map (Subgroup.subtype G)) ?_).2.2
   by_contra h
   have : Unique P' := ⟨⟨1⟩, fun x ↦ by_contra fun hx ↦ h (Nontrivial.mk ⟨x, 1, hx⟩)⟩
   have h1: Nat.card P' = 1 := Nat.card_unique
@@ -102,7 +102,7 @@ theorem sylow_element_order_p (G : Subgroup (PGLOf (K p))) [Finite G]
     orderOf (g : PGLOf (K p)) = p := by
   let P' : Subgroup (PGLOf (K p)) := (P : Subgroup G).map (Subgroup.subtype G)
   have : Finite P' := Finite.of_equiv P (Subgroup.equivMapOfInjective _ _ Subtype.coe_injective).toEquiv
-  exact isPGroup_orderOf_eq_prime p P' (P.2.map (Subgroup.subtype G))
+  exact isPGroup_orderOf_eq_prime p P' (P.isPGroup.map (Subgroup.subtype G))
     ⟨(g : PGLOf (K p)), Subgroup.mem_map_of_mem (Subgroup.subtype G) hg⟩
     (fun h ↦ hg_ne <| Subtype.ext <| congr_arg (fun x : P' ↦ x.1) h)
 
@@ -180,8 +180,8 @@ theorem sylow_pairwise_trivial_intersection (G : Subgroup (PGLOf (K p))) [Finite
       (fun y hy ↦ ⟨y, hy, 1, Q.one_mem, (mul_one y).symm⟩)
       (fun y hy ↦ ⟨1, P.one_mem, y, hy, (one_mul y).symm⟩)
     obtain ⟨a, ha, b, hb, hx_eq⟩ := h_sup_le x.2
-    obtain ⟨nA, hnA⟩ := P.2 ⟨a, ha⟩
-    obtain ⟨nB, hnB⟩ := Q.2 ⟨b, hb⟩
+    obtain ⟨nA, hnA⟩ := P.isPGroup ⟨a, ha⟩
+    obtain ⟨nB, hnB⟩ := Q.isPGroup ⟨b, hb⟩
     use nA + nB
     have hA : a ^ (p ^ nA) = 1 := congr_arg Subtype.val hnA
     have hB : b ^ (p ^ nB) = 1 := congr_arg Subtype.val hnB
@@ -191,8 +191,8 @@ theorem sylow_pairwise_trivial_intersection (G : Subgroup (PGLOf (K p))) [Finite
           pow_add, pow_mul, hA, one_pow, one_mul,
           mul_comm (p ^ nA), pow_mul, hB, one_pow]
 
-  exact hPQ <| Sylow.ext <| Q.is_maximal' P.2 <|
-    (P.is_maximal' h_p_group le_sup_left) ▸ le_sup_right
+  exact hPQ <| Sylow.ext <| Q.maximal_isPGroup.eq_of_ge P.isPGroup <|
+    (P.maximal_isPGroup.eq_of_ge h_p_group le_sup_left) ▸ le_sup_right
 
 
 theorem count_order_p_elements (G : Subgroup (PGLOf (K p))) [Finite G]
@@ -378,8 +378,8 @@ theorem order_one_or_p_in_sylow (G : Subgroup (PGLOf (K p))) [Finite G]
   have h_cyclic : IsPGroup p (Subgroup.zpowers g) := by
     rw [IsPGroup.iff_card, Nat.card_zpowers, ← Subgroup.orderOf_coe g]
     exact h_order.elim (fun h ↦ ⟨0, by rw [h, pow_zero]⟩) (fun h ↦ ⟨1, by rw [h, pow_one]⟩)
-  exact (P.is_maximal'
-    (IsPGroup.to_sup_of_normal_right' h_cyclic P.isPGroup' (Subgroup.zpowers_le.mpr hg_norm))
+  exact (P.maximal_isPGroup.eq_of_ge
+    (IsPGroup.to_sup_of_normal_right' h_cyclic P.isPGroup (Subgroup.zpowers_le.mpr hg_norm))
     le_sup_right) ▸ Subgroup.mem_sup_left (Subgroup.mem_zpowers g)
 
 
@@ -428,7 +428,7 @@ theorem stabilizer_conj_eq_P (G : Subgroup (PGLOf (K p))) [Finite G]
   have h_abelian : ∀ g : G, g ∈ (P : Subgroup G) → g * h.val * g⁻¹ = h.val := by
     intro g hg
     have h_comm_map := (isPGroup_comm_exponent_fixedPoint p (P.map G.subtype)
-      (P.2.map (Subgroup.subtype G))
+      (P.isPGroup.map (Subgroup.subtype G))
         ⟨⟨⟨G.subtype h.val, Subgroup.mem_map_of_mem G.subtype h.2⟩, 1, fun h_eq ↦ hh_ne (Subtype.ext (Subtype.ext (congr_arg (fun x : P.map G.subtype ↦ x.val) h_eq)))⟩⟩).1
     have h_comm : g * h.val = h.val * g := Subtype.ext (congr_arg (fun x : P.map G.subtype ↦ x.val) (h_comm_map ⟨G.subtype g, Subgroup.mem_map_of_mem G.subtype hg⟩ ⟨G.subtype h.val, Subgroup.mem_map_of_mem G.subtype h.2⟩))
     rw [h_comm, mul_inv_cancel_right]
@@ -586,9 +586,9 @@ theorem sylow_fixedPoint_injective (G : Subgroup (PGLOf (K p))) [Finite G]
         rw [mul_inv_rev, ← h_comm_G a⁻¹ (P.inv_mem ha) b⁻¹ (Q.inv_mem hb)]⟩
 
   have h_comm_subgroup : (P : Subgroup G) ⊔ (Q : Subgroup G) = (P : Subgroup G) := by
-    apply P.is_maximal'
-    · obtain ⟨m, hm⟩ := IsPGroup.iff_card.mp P.2
-      obtain ⟨n, hn⟩ := IsPGroup.iff_card.mp Q.2
+    apply P.maximal_isPGroup.eq_of_ge
+    · obtain ⟨m, hm⟩ := IsPGroup.iff_card.mp P.isPGroup
+      obtain ⟨n, hn⟩ := IsPGroup.iff_card.mp Q.isPGroup
       intro g
       obtain ⟨a, ha, b, hb, hg_eq⟩ := h_pq g g.2
       have h_ord_div {H : Subgroup G} (x : G) (hx : x ∈ H) : orderOf (x : PGLOf (K p)) ∣ Nat.card H :=
