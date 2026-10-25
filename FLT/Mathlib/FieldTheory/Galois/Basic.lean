@@ -31,9 +31,9 @@ variable [Algebra.IsQuadraticExtension K L]
 variable (M : Type*) [Field M] [Algebra K M] [Algebra L M] [IsScalarTower K L M]
 
 /-- For a normal subextension `K ⊆ L ⊆ M`, a `K`-automorphism `σ` of `M` fixes `L` pointwise
-if and only if its restriction to `L` (`AlgEquiv.restrictNormal`) is the identity. -/
-theorem forall_apply_algebraMap_iff_restrictNormal_eq_one (σ : M ≃ₐ[K] M) :
-    (∀ x : L, σ (algebraMap L M x) = algebraMap L M x) ↔ σ.restrictNormal L = 1 := by
+if and only if its restriction to `L` (`AlgEquiv.restrictNormalHom`) is the identity. -/
+theorem forall_apply_algebraMap_iff_restrictNormalHom_eq_one (σ : M ≃ₐ[K] M) :
+    (∀ x : L, σ (algebraMap L M x) = algebraMap L M x) ↔ σ.restrictNormalHom L = 1 := by
   simp only [AlgEquiv.ext_iff, AlgEquiv.one_apply, ← AlgEquiv.restrictNormal_commutes]
   exact forall_congr' fun x ↦ (FaithfulSMul.algebraMap_injective L M).eq_iff
 
@@ -47,9 +47,8 @@ variable [Algebra.IsSeparable K L]
 -- plus `Algebra.IsQuadraticExtension.finrank_eq_two`).
 
 /-- A separable quadratic extension has exactly two automorphisms. -/
-theorem Algebra.IsQuadraticExtension.card_algEquiv : Nat.card (L ≃ₐ[K] L) = 2 := by
-  rw [IsGalois.card_aut_eq_finrank]
-  exact finrank_eq_two K L
+theorem Algebra.IsQuadraticExtension.card_algEquiv : Nat.card (L ≃ₐ[K] L) = 2 :=
+  (IsGalois.card_aut_eq_finrank K L).trans (finrank_eq_two K L)
 
 /-- A separable quadratic extension has a nontrivial automorphism. -/
 theorem Algebra.IsQuadraticExtension.exists_algEquiv_ne_one : ∃ σ : L ≃ₐ[K] L, σ ≠ 1 :=
@@ -64,8 +63,7 @@ theorem Algebra.IsQuadraticExtension.algEquiv_eq_one_or_eq {σ : L ≃ₐ[K] L} 
   · exact Or.inr (((Nat.card_eq_two_iff' 1).mp (card_algEquiv K L)).unique h1 hσ)
 
 /-- The nontrivial automorphism of a separable quadratic extension is an involution. -/
-theorem Algebra.IsQuadraticExtension.algEquiv_mul_self {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1) :
-    σ * σ = 1 :=
+theorem Algebra.IsQuadraticExtension.algEquiv_mul_self {σ : L ≃ₐ[K] L} (hσ : σ ≠ 1) : σ * σ = 1 :=
   (algEquiv_eq_one_or_eq K L hσ (σ * σ)).resolve_right fun h ↦ absurd (mul_eq_left.mp h) hσ
 
 /-- An element fixed by a nontrivial automorphism — hence, `Gal(L/K)` having order two, by all of
@@ -116,28 +114,22 @@ unique isomorphism `Gal(L/K) ≃ {±1}`, and in particular is surjective
 noncomputable def quadraticCharacter : (M ≃ₐ[K] M) →* ℤˣ where
   toFun σ := if ∀ x : L, σ (algebraMap L M x) = algebraMap L M x then 1 else -1
   map_one' := by simp
-  map_mul' φ φ' := by
+  map_mul' σ τ := by
     -- "Fixes `L` pointwise" means "restricts to `1`" on `L`; restriction is multiplicative
     -- (`restrictNormalHom`), so the claim reduces to the sign map of the order-2 `Gal(L/K)`.
-    obtain ⟨σ, hσ⟩ := exists_algEquiv_ne_one K L
-    have hor := algEquiv_eq_one_or_eq K L hσ
-    have hmul : (φ * φ').restrictNormal L = φ.restrictNormal L * φ'.restrictNormal L :=
-      map_mul (AlgEquiv.restrictNormalHom L) φ φ'
-    have hsq : σ * σ = 1 := algEquiv_mul_self K L hσ
-    simp only [forall_apply_algebraMap_iff_restrictNormal_eq_one]
-    rw [hmul]
-    rcases hor (φ.restrictNormal L) with h1 | h1 <;>
-      rcases hor (φ'.restrictNormal L) with h2 | h2 <;>
-      rw [h1, h2] <;> simp [hsq, hσ]
+    obtain ⟨σ₀, hσ₀⟩ := exists_algEquiv_ne_one K L
+    have h := fun x : Gal(M/K) ↦ algEquiv_eq_one_or_eq K L hσ₀ (AlgEquiv.restrictNormalHom L x)
+    rcases h σ with ha | ha <;>
+    rcases h τ with hb | hb <;>
+    simp only [forall_apply_algebraMap_iff_restrictNormalHom_eq_one, map_mul, ha, hb] <;>
+    simp [algEquiv_mul_self K L hσ₀, hσ₀]
 
 theorem quadraticCharacter_eq_one_iff (σ : M ≃ₐ[K] M) :
     quadraticCharacter K L M σ = 1 ↔ ∀ x : L, σ (algebraMap L M x) = algebraMap L M x := by
-  classical
-  unfold quadraticCharacter
-  simp only [MonoidHom.coe_mk, OneHom.coe_mk]
+  simp only [quadraticCharacter, MonoidHom.coe_mk, OneHom.coe_mk]
   split_ifs with h
   · exact iff_of_true rfl h
-  · exact iff_of_false (fun hc ↦ by simpa using congrArg Units.val hc) h
+  · exact iff_of_false (by decide) h
 
 /-- If `M/K` is normal (for example `M = L`, or `M` a separable closure of `K`) then the
 nontrivial element of `Gal(L/K)` extends to an automorphism of `M`, so the quadratic character
@@ -150,10 +142,9 @@ theorem quadraticCharacter_surjective [Normal K M] :
   · -- The nontrivial element of `Gal(L/K)` lifts to some `τ ∈ Aut(M/K)` because `M/K` is normal;
     -- `τ` does not fix `L` pointwise, so `χ(τ) ≠ 1`, hence `χ(τ) = -1`.
     obtain ⟨σ₀, hσ₀⟩ := exists_algEquiv_ne_one K L
-    obtain ⟨τ, hτ⟩ := AlgEquiv.restrictNormalHom_surjective (F := K) (K₁ := L) (E := M) σ₀
+    obtain ⟨τ, hτ⟩ := AlgEquiv.restrictNormalHom_surjective (E := M) σ₀
     refine ⟨τ, (Int.units_eq_one_or _).resolve_left fun heq ↦ hσ₀ ?_⟩
-    rw [← hτ]
-    exact (forall_apply_algebraMap_iff_restrictNormal_eq_one K L M τ).mp
+    exact hτ.symm ▸ (forall_apply_algebraMap_iff_restrictNormalHom_eq_one K L M τ).mp
       ((quadraticCharacter_eq_one_iff K L M τ).mp heq)
 
 end
