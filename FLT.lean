@@ -82,6 +82,8 @@ public import FLT.KnownIn1980s.EllipticCurves.TateCurveConstruction
 public import FLT.KnownIn1980s.EllipticCurves.TateParameter
 public import FLT.KnownIn1980s.EllipticCurves.Torsion
 public import FLT.KnownIn1980s.EllipticCurves.WeilPairing
+public import FLT.KnownIn1980s.MoretBailly.RationalPoints
+public import FLT.KnownIn1980s.MoretBailly.Statement
 public import FLT.KnownIn1980s.PGL2.Defs
 public import FLT.KnownIn1980s.PGL2.Proofs
 public import FLT.KnownIn1980s.RepresentationTheory.OddAbsIrred
