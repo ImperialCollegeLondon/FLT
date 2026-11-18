@@ -142,7 +142,7 @@ variable [(i : ι) → Monoid (G i)] [∀ i, SubmonoidClass (S i) (G i)] in
 lemma mulSupport_mul_subset {u v : Πʳ i, [G i, A i]} {J : Set ι} (hu : mulSupport u ⊆ J)
     (hv : mulSupport v ⊆ J) : mulSupport (u * v) ⊆ J := by
   intro i hi
-  contrapose! hi
+  contrapose hi
   simp [not_mem_mulSupport, (not_mem_mulSupport i).1 (fun a ↦ hi (hu a)),
     (not_mem_mulSupport i).1 (fun a ↦ hi (hv a))]
 

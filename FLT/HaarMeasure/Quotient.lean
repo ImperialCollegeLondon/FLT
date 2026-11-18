@@ -319,7 +319,7 @@ instance [LocallyCompactSpace G] [T2Space G] [IsFiniteMeasureOnCompacts μ]
         (fun _ ↦ (μN.ofQuotientIntegrand_lt_top ‹_› _ hf hf' _).ne)
         (μN.continuous_ofQuotientIntegrand ‹_› _ hf hf')
     intro x hx
-    contrapose! hx
+    contrapose hx
     obtain ⟨x, rfl⟩ := QuotientGroup.mk_surjective x
     simp only [Function.mem_support, Measure.ofQuotientIntegrand_mk, ne_eq, Decidable.not_not]
     refine lintegral_eq_zero_of_ae_eq_zero (.of_forall fun y ↦ ?_)

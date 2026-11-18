@@ -69,7 +69,7 @@ lemma not_isField_integralClosure
     {K L : Type*} [Field K] [Field L] [Algebra K L] (R : ValuationSubring K) (hR : R ≠ ⊤) :
     ¬ IsField (IntegralClosure R L) := by
   have : FaithfulSMul K L := inferInstance
-  contrapose! hR
+  contrapose hR
   let := hR.toField
   let F := IsFractionRing.liftAlgHom (K := K) (g := Algebra.ofId R (IntegralClosure R L))
     (FaithfulSMul.algebraMap_injective _ _)

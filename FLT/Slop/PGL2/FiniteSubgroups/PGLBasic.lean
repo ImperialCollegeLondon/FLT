@@ -988,7 +988,7 @@ theorem orderOf_eq_prime_of_discrim_zero (g : GL (Fin 2) (K p)) (hg : ¬ ∃ c :
       exact Algebra.commute_algebraMap_left eig N
   have h_ne_one : (QuotientGroup.mk g : PGLOf (K p)) ≠ 1 := by
     rw [Ne, QuotientGroup.eq_one_iff, Subgroup.mem_center_iff]
-    contrapose! hg; refine ⟨g.val 0 0, Matrix.ext fun i j ↦ ?_⟩
+    contrapose hg; refine ⟨g.val 0 0, Matrix.ext fun i j ↦ ?_⟩
     let E1 := Matrix.GeneralLinearGroup.mkOfDetNeZero (!![1, 1; 0,
         1] : Matrix (Fin 2) (Fin 2) (K p)) (by norm_num)
     let E2 := Matrix.GeneralLinearGroup.mkOfDetNeZero (!![1, 0; 1,

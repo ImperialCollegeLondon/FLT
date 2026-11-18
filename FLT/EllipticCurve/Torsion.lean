@@ -65,7 +65,7 @@ theorem WeierstrassCurve.n_torsion_dimension [IsSepClosed k] {n : ℕ} (hn : (n 
     apply group_theory_lemma (Nat.pos_of_ne_zero fun h ↦ by simp [h] at hn)
     intro d hd
     apply E.n_torsion_card
-    contrapose! hn
+    contrapose hn
     rcases hd with ⟨c, rfl⟩
     simp [hn]
   exact ⟨φ.trans (RingEquiv.piFinTwo _).toAddEquiv⟩

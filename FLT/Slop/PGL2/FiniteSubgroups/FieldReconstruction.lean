@@ -1258,7 +1258,7 @@ theorem normDilationParam_of_P
   have h_map_finite : Finite ((P : Subgroup G).map (Subgroup.subtype G)) :=
     Set.Finite.to_subtype <| Set.Finite.subset (Set.toFinite <| Set.range fun x : G ↦ x.val) (Set.image_subset_range G.subtype _)
   exact (p_subgroup_fixing_infinity_translations p ((P : Subgroup G).map (Subgroup.subtype G))
-    (P.2.map G.subtype)
+    (P.isPGroup.map G.subtype)
     (Subgroup.equivMapOfInjective (P : Subgroup G) G.subtype (Subgroup.subtype_injective G)).toEquiv.symm.nontrivial
     hP_fix).1 (g : PGLOf (K p)) (Subgroup.mem_map_of_mem _ hg)
 
@@ -1368,7 +1368,7 @@ theorem normDilationParam_image_card
       · rw [Finset.sum_insert hy, ih, ← Set.ncard_union_eq]
         · congr 1
           ext g
-          rw [Set.mem_ofPred_eq, Finset.mem_insert, Set.mem_union, Set.mem_ofPred_eq, Set.mem_ofPred_eq]
+          rw [Set.mem_union, Set.mem_ofPred_eq, Set.mem_ofPred_eq, Set.mem_ofPred_eq, Finset.mem_insert]
         · exact Set.disjoint_left.mpr fun x hx1 hx2 ↦ hy (hx1.symm ▸ hx2)
     calc
       Set.ncard S * Nat.card (P : Subgroup G)
@@ -1475,7 +1475,7 @@ theorem translationSet_card_eq_P
     have h_nontrivial : Nontrivial H := by
       contrapose! h_card
       exact h_card_eq.symm.trans (Nat.card_eq_one_iff_unique.mpr ⟨h_card, ⟨1, H.one_mem⟩⟩)
-    exact (p_subgroup_fixing_infinity_translations p H (P.2.map (Subgroup.subtype G)) h_nontrivial hP_fix).2.trans h_card_eq
+    exact (p_subgroup_fixing_infinity_translations p H (P.isPGroup.map (Subgroup.subtype G)) h_nontrivial hP_fix).2.trans h_card_eq
 
 theorem orbitInfty_ncard
     (G : Subgroup (PGLOf (K p))) [Finite G]
@@ -1658,9 +1658,9 @@ def conjEquiv (G : Subgroup (PGLOf (K p))) (k₀ : PGLOf (K p)) :
 def sylowMap (G : Subgroup (PGLOf (K p))) [Finite G] (P : Sylow p G) (k₀ : PGLOf (K p)) :
     Sylow p (G.map (MulEquiv.toMonoidHom (MulAut.conj k₀))) :=
   let e := conjEquiv p G k₀
-  ⟨(P : Subgroup G).map e.toMonoidHom, P.isPGroup'.map e.toMonoidHom, fun {Q} hQ hle ↦ by
+  ⟨(P : Subgroup G).map e.toMonoidHom, P.isPGroup.map e.toMonoidHom, fun Q hQ hle ↦ by
     have h_comap : Subgroup.comap e.toMonoidHom Q = P.1 :=
-      P.is_maximal' (hQ.comap_of_injective e.toMonoidHom e.injective)
+      P.maximal_isPGroup.eq_of_ge (hQ.comap_of_injective e.toMonoidHom e.injective)
         (fun _ hx ↦ Subgroup.mem_comap.mpr (hle (Subgroup.mem_map_of_mem _ hx)))
     rw [← Subgroup.map_comap_eq_self_of_surjective (f := e.toMonoidHom) e.surjective Q, h_comap]⟩
 
@@ -1676,7 +1676,7 @@ theorem exists_conj_sylow_fixing_infty
   have : Finite ↥((P : Subgroup G).map (Subgroup.subtype G)) :=
     Finite.of_injective (Subgroup.inclusion hP_le) (Subgroup.inclusion_injective hP_le)
   obtain ⟨α, hα⟩ := isPGroup_exists_common_fixedPoint p ((P : Subgroup G).map (Subgroup.subtype G))
-    ‹_› (P.isPGroup'.map _)
+    ‹_› (P.isPGroup.map _)
   obtain ⟨k₀, hk₀⟩ := exists_smul_eq_infinity p α
   refine ⟨k₀, sylowMap p G P k₀, fun g hg ↦ ?_⟩
   obtain ⟨⟨g', hg'_mem⟩, hg'_in_sylow, rfl⟩ := Subgroup.mem_map.mp hg

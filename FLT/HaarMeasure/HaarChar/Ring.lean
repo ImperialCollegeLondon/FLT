@@ -74,7 +74,7 @@ lemma ringHaarChar_continuous :
   intro p x hps hx
   unfold g
   apply image_eq_zero_of_notMem_tsupport
-  contrapose! hx
+  contrapose hx
   exact ⟨(↑p⁻¹ : R) , hps, p * x, hx, by simp⟩
 
 /-- `ringHaarChar : Rˣ →ₜ* ℝ≥0` is the function sending a unit of
@@ -192,7 +192,7 @@ lemma ringHaarChar_restrictedProduct (u : (Πʳ i, [A i, C i])ˣ) :
   set u := MulEquiv.restrictedProductUnits u
   apply addEquivAddHaarChar_restrictedProductCongrRight (C := (C · |>.toAddSubgroup))
     (ContinuousAddEquiv.mulLeft <| u ·)
-  refine Filter.Eventually.and u.coe_prop u⁻¹.coe_prop |>.mono fun i ⟨hu, hv⟩ ↦ ⟨?_, ?_, ?_⟩
+  refine Filter.Eventually.and u.2 u⁻¹.2 |>.mono fun i ⟨hu, hv⟩ ↦ ⟨?_, ?_, ?_⟩
   · exact fun _ ↦ (C i).mul_mem ((C i).mem_units_iff _ |>.mp hu).1
   · exact Set.injOn_of_injective (ContinuousAddEquiv.injective _)
   · exact fun c hc ↦ ⟨(u i)⁻¹ * c, (C i).mul_mem ((C i).mem_units_iff _ |>.mp hv).1 hc, by simp⟩

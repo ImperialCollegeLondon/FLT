@@ -259,7 +259,7 @@ theorem Homeomorph.restrictedProductMatrix_aux {ι n : Type*} [Finite n] {A : ι
     [(i : ι) → TopologicalSpace (A i)] {C : (i : ι) → Set (A i)}
     (i : ι) (hCopen : ∀ (i : ι), IsOpen (C i)) :
     IsOpen {f : n → A i | ∀ (a : n), f a ∈ C i} := by
-  convert isOpen_set_pi (s := fun _ : n ↦ C i) (Set.toFinite .univ) (fun _ _ ↦ hCopen i)
+  convert isOpen_set_pi (s := fun _ : n ↦ C i) (Set.toFinite .univ) (fun _ _ ↦ hCopen i) using 1
   ext f
   simp
 

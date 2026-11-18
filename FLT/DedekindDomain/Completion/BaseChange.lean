@@ -500,8 +500,7 @@ lemma pi_adicCompletionIntegers_eq_closure_range_algebraMap :
     (Set.univ.pi (fun (w : Extension B v) ↦ (w.1.adicCompletionIntegers L).carrier)) =
       closure (Set.range (algebraMap B _)) := by
   let val := fun (w : Extension B v) ↦ w.1
-  have hinj : Function.Injective val :=
-    (Set.injective_codRestrict Subtype.property).mp fun _ _ a ↦ a
+  have hinj : Function.Injective val := Subtype.val_injective
   rw [← closureAlgebraMapIntegers_eq_prodIntegers L _ hinj]
   rfl
 

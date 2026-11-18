@@ -553,7 +553,7 @@ lemma card_sylow3_of_non_normal_order3 (G : Type*) [Group G] [Fintype G]
 
     obtain ⟨P, hP⟩ := (IsPGroup.of_card
       (show Nat.card H = 3 ^ 1 by rw [hH_card]; ring)).exists_le_sylow
-    obtain ⟨k, hk⟩ := IsPGroup.iff_card.mp P.isPGroup'
+    obtain ⟨k, hk⟩ := IsPGroup.iff_card.mp P.isPGroup
 
     have hk1 : k = 1 := by
       have h1 : 3 ^ k ∣ 12 := by rw [← hk, ← hN]; exact P.1.card_subgroup_dvd_card
@@ -611,7 +611,7 @@ lemma card_sylow3_of_hasCyclicPartition_S4 (G : Type*) [Group G] [Fintype G]
   obtain ⟨Q, hQ_le⟩ := IsPGroup.exists_le_sylow hH₁_isPGroup
 
   have hQ_card : Nat.card Q.toSubgroup = 3 := by
-    obtain ⟨k, hk⟩ := Q.isPGroup'.exists_card_eq
+    obtain ⟨k, hk⟩ := Q.isPGroup.exists_card_eq
 
     have hdvd_24 : 3 ^ k ∣ 24 := by
       rw [← hk, ← hN]
@@ -974,7 +974,7 @@ lemma card_sylow3_of_hasCyclicPartition_A5 (G : Type*) [Group G] [Fintype G]
 lemma sylow_le_normal_of_coprime_index (G : Type*) [Group G] [Fintype G]
     (p : ℕ) [Fact (Nat.Prime p)] (N : Subgroup G) [N.Normal]
     (hcop : Nat.Coprime N.index p) (P : Sylow p G) : (P : Subgroup G) ≤ N := by
-  obtain ⟨n, hn⟩ := IsPGroup.iff_card.mp (IsPGroup.map P.2 (QuotientGroup.mk' N))
+  obtain ⟨n, hn⟩ := IsPGroup.iff_card.mp (IsPGroup.map P.isPGroup (QuotientGroup.mk' N))
   rcases n with _ | n
 
   · intro x hx

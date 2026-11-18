@@ -141,7 +141,7 @@ theorem ne_pow_symm {v w : AbsoluteValue F ℝ} (h : ¬∃ (t : ℝ) (_ : 0 < t)
     ¬∃ (t : ℝ) (_ : 0 < t), ∀ x, w x = (v x) ^ t := by
   simp only [exists_prop, not_exists, not_and, not_forall] at h ⊢
   refine fun t ht => let ⟨x, hx⟩ := h t⁻¹ (_root_.inv_pos.2 ht); ⟨x, ?_⟩
-  contrapose! hx
+  contrapose hx
   exact Real.eq_rpow_inv (v.nonneg _) (w.nonneg _) (by linarith) |>.2 hx.symm
 
 /--
