@@ -88,7 +88,7 @@ theorem diamond_fix :
   -- proof used to end here
   norm_num
   symm
-  sorry
+  simp [Ring.lie_def, mul_comm]
 
 
 end
@@ -186,7 +186,8 @@ def actionTensorCAlg :
   · change HEq ({..} : LieAlgebra ..) (@LieAlgebra.mk _ _ _ (_) _ _)
     congr!
     -- broke after upgrade to module system
-    sorry
+    dsimp [LieAlgebra.ExtendScalars.instLieRing, LieRing.ofAssociativeRing]; congr
+    apply diamond_fix
 
 /-- Variant of `actionTensorCAlg` whose codomain is the `ℂ`-linear endomorphisms
 of the complexified function space. -/
