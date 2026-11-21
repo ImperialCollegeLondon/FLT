@@ -222,11 +222,6 @@ instance : DivInvMonoid (InverseLimit G f) where
 
 end GroupWithZero
 
-instance [∀ i, CommMonoidWithZero (G i)] [∀ i j h, MonoidWithZeroHomClass (T h) (G j) (G i)] :
-    CommMonoidWithZero (InverseLimit G f) where
-  __ : MonoidWithZero _ := inferInstance
-  mul_comm := mul_comm
-
 section AddMonoidWithOne
 
 variable [∀ i, AddMonoidWithOne (G i)] [∀ i j h, AddMonoidHomClass (T h) (G j) (G i)]

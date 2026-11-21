@@ -1071,9 +1071,6 @@ instance [IsNoetherianRing R] :
 instance [IsNoetherianRing R] :
     IsNoetherianRing (HeckeAlgebra D 𝒮) := .of_finite R _
 
-instance [IsNoetherianRing R] :
-    IsNoetherianRing (HeckeAlgebra D 𝒮) := .of_finite R _
-
 instance [FaithfulSMul R M] :
     FaithfulSMul (HeckeAlgebra D 𝒮) ((U₁ 𝒮).toStruct.form D M) := by
   refine ⟨fun {T T'} H ↦ ?_⟩

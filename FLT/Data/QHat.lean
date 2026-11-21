@@ -91,8 +91,6 @@ lemma ext (x y : ZHat) (h : ∀ n : ℕ+, x n = y n) : x = y :=
 @[simp] lemma natCast_val (m : ℕ) (n : ℕ+) : (m : ZHat) n = (m : ZMod n) := rfl
 @[simp] lemma intCast_val (m : ℤ) (n : ℕ+) : (m : ZHat) n = (m : ZMod n) := rfl
 
-instance commRing : CommRing ZHat := inferInstance
-
 set_option backward.isDefEq.respectTransparency.types false in
 lemma zeroNeOne : (0 : ZHat) ≠ 1 := by
   intro h
