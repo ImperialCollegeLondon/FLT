@@ -69,8 +69,9 @@ suspicious object. Serre could already prove in 1987
 an irreducible Galois representation; in 1990 Ribet
 proved that the $p$-torsion could not be irreducible,
 assuming modularity of the Frey curve. In 1993 Wiles
-showed that the Frey curve was modular, completing the
-proof.
+announced a proof that the Frey curve was modular;
+completed with Taylor, it appeared in 1995, finishing
+the proof of Fermat's Last Theorem.
 -/
 structure FreyPackage where
   /-- The integer `a` in the Frey package. -/
