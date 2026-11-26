@@ -21,10 +21,10 @@ We give an overview of the results we need, citing the literature for proofs. Ev
 
 This theorem actually tells us the structure of the $n$-torsion, because of the following
 purely group-theoretic result:
-\begin{lemma}\label{group_theory_lemma}\lean{group_theory_lemma}
+\begin{lemma}\label{group_theory_lemma}\lean{group_theory_lemma}\leanok
   Say $n$ is a positive integer, $r$ is a natural, and $A$ is an abelian group. Assume that for all $d\mid n$, the $d$-torsion $A[d]$ of $A$ has size $d^r$. Then $A[n]\cong (\Z/n\Z)^r$.
 \end{lemma}
-\begin{proof}
+\begin{proof}\leanok
   The result is obvious if $n=1$, so we may assume $n>1$. One proof would be to write $A$ as $\prod_{i=1}^t(\Z/a_i\Z)$
   with $a_i\mid a_{i+1}$ (this is possible by the structure theorem for finite abelian groups), and then to apply our hypothesis firstly with $d=a_1$ to deduce $t=r$ and then with $d=a_t$ to deduce $a_1=a_t$.
 \end{proof}
