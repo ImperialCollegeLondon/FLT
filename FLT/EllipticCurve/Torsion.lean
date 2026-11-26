@@ -130,13 +130,18 @@ private def torsionByPiEquiv {ι : Type*} {M : ι → Type*} [∀ i, AddCommGrou
   right_inv _ := rfl
   map_add' _ _ := rfl
 
-theorem group_theory_lemma_of_prime_le {A : Type*} [AddCommGroup A] {n : ℕ} (hn : 0 < n) (r : ℕ)
-    (hn_card : Nat.card (Submodule.torsionBy ℤ A n) = n ^ r)
-    (hp_card : ∀ p : ℕ, p.Prime → p ∣ n → Nat.card (Submodule.torsionBy ℤ A p) ≤ p ^ r) :
-    Nonempty ((Submodule.torsionBy ℤ A n) ≃+ (Fin r → (ZMod n))) := by
+theorem torsionBy_equiv_pi_zmod_of_prime_le {A : Type*} [AddCommGroup A] {n : ℕ} (hn : 0 < n)
+    (r : ℕ → ℕ)
+    (hn_card : Nat.card (Submodule.torsionBy ℤ A n) =
+      ∏ p ∈ n.primeFactors, p ^ (r p * n.factorization p))
+    (hp_card : ∀ p : ℕ, p.Prime → p ∣ n → Nat.card (Submodule.torsionBy ℤ A p) ≤ p ^ r p) :
+    Nonempty ((Submodule.torsionBy ℤ A n) ≃+
+      ((p : n.primeFactors) → Fin (r p.1) → ZMod (p.1 ^ n.factorization p.1))) := by
   classical
   have hfin : Finite (Submodule.torsionBy ℤ A n) :=
-    Nat.finite_of_card_ne_zero (by rw [hn_card]; positivity)
+    Nat.finite_of_card_ne_zero <| by
+      rw [hn_card]
+      exact (Finset.prod_pos fun p hp ↦ pow_pos (Nat.prime_of_mem_primeFactors hp).pos _).ne'
   obtain ⟨ι₀, _, q₀, hq₀, e₀, ⟨φ₀⟩⟩ :=
     AddCommGroup.equiv_directSum_zmod_of_finite (Submodule.torsionBy ℤ A n)
   let ι := {i : ι₀ // e₀ i ≠ 0}
@@ -179,7 +184,7 @@ theorem group_theory_lemma_of_prime_le {A : Type*} [AddCommGroup A] {n : ℕ} (h
   have hle : ∀ i : ι, e i ≤ n.factorization (q i) := fun i ↦
     ((hq i).pow_dvd_iff_le_factorization hn.ne').mp (hdvd i)
   let S : n.primeFactors → Finset ι := fun p ↦ Finset.univ.filter (fun i : ι ↦ q i = p.1)
-  have hS_le : ∀ p : n.primeFactors, (S p).card ≤ r := by
+  have hS_le : ∀ p : n.primeFactors, (S p).card ≤ r p.1 := by
     intro p
     have hp : p.1.Prime := Nat.prime_of_mem_primeFactors p.2
     have hdp : p.1 ∣ n := Nat.dvd_of_mem_primeFactors p.2
@@ -202,19 +207,28 @@ theorem group_theory_lemma_of_prime_le {A : Type*} [AddCommGroup A] {n : ℕ} (h
         exact ((Nat.coprime_primes (hq i) hp).mpr (Finset.mem_filter.mp hi).2).pow_left (e i)
       rw [h1, h2, mul_one]
     exact (Nat.pow_le_pow_iff_right hp.one_lt).mp (hcard_p ▸ hp_card p.1 hp hdp)
-  have hprod_card : ∏ i : ι, q i ^ e i = n ^ r := by
+  have hprod_card : ∏ i : ι, q i ^ e i = ∏ p ∈ n.primeFactors, p ^ (r p * n.factorization p) := by
     have : ∀ i : ι, NeZero (q i ^ e i) := fun i ↦ ⟨(pow_pos (hq i).pos _).ne'⟩
     simpa [Nat.card_pi, Nat.card_zmod] using (Nat.card_congr φ.toEquiv).symm.trans hn_card
-  have hsum_eq : ∀ p : n.primeFactors, ∑ i ∈ S p, e i = r * n.factorization p.1 := by
+  have hsum_eq : ∀ p : n.primeFactors, ∑ i ∈ S p, e i = r p.1 * n.factorization p.1 := by
     intro p
     have hfact := congrArg (fun m : ℕ ↦ m.factorization p.1) hprod_card
-    rw [Nat.factorization_prod (fun i _ ↦ (pow_pos (hq i).pos _).ne'), Nat.factorization_pow,
-      Finsupp.finsetSum_apply, Finsupp.smul_apply, smul_eq_mul] at hfact
+    rw [Nat.factorization_prod (fun i _ ↦ (pow_pos (hq i).pos _).ne'),
+      Nat.factorization_prod (fun p' hp' ↦
+        pow_ne_zero _ (Nat.prime_of_mem_primeFactors hp').ne_zero),
+      Finsupp.finsetSum_apply, Finsupp.finsetSum_apply] at hfact
     have hlhs : ∑ i : ι, (q i ^ e i).factorization p.1 = ∑ i ∈ S p, e i := by
       simp_rw [(hq _).factorization_pow, Finsupp.single_apply]
       rw [← Finset.sum_filter]
-    exact hlhs ▸ hfact
-  have hS_card : ∀ p : n.primeFactors, (S p).card = r := by
+    have hrhs : ∑ p' ∈ n.primeFactors, (p' ^ (r p' * n.factorization p')).factorization p.1 =
+        r p.1 * n.factorization p.1 := by
+      have hcongr : ∑ p' ∈ n.primeFactors, (p' ^ (r p' * n.factorization p')).factorization p.1 =
+          ∑ p' ∈ n.primeFactors, if p' = p.1 then r p' * n.factorization p' else 0 := by
+        refine Finset.sum_congr rfl fun p' hp' ↦ ?_
+        rw [(Nat.prime_of_mem_primeFactors hp').factorization_pow, Finsupp.single_apply]
+      rw [hcongr, Finset.sum_ite_eq', ite_eq_left p.2]
+    exact hlhs.symm.trans (hfact.trans hrhs)
+  have hS_card : ∀ p : n.primeFactors, (S p).card = r p.1 := by
     intro p
     have hk_pos : 0 < n.factorization p.1 :=
       Nat.Prime.factorization_pos_of_dvd (Nat.prime_of_mem_primeFactors p.2) hn.ne'
@@ -223,7 +237,7 @@ theorem group_theory_lemma_of_prime_le {A : Type*} [AddCommGroup A] {n : ℕ} (h
       rw [← smul_eq_mul, ← Finset.sum_const]
       refine Finset.sum_le_sum fun i hi ↦ ?_
       simpa [← (Finset.mem_filter.mp hi).2] using hle i
-    have hmul_le : r * n.factorization p.1 ≤ (S p).card * n.factorization p.1 :=
+    have hmul_le : r p.1 * n.factorization p.1 ≤ (S p).card * n.factorization p.1 :=
       (hsum_eq p).symm.trans_le hle_sum
     exact le_antisymm (hS_le p) (Nat.le_of_mul_le_mul_right hmul_le hk_pos)
   have heq : ∀ i : ι, e i = n.factorization (q i) := by
@@ -235,12 +249,12 @@ theorem group_theory_lemma_of_prime_le {A : Type*} [AddCommGroup A] {n : ℕ} (h
       simpa [← (Finset.mem_filter.mp hi).2] using hle i
     refine (Finset.sum_eq_sum_iff_of_le hle_S).mp ?_
     rw [hsum_eq p, Finset.sum_const, smul_eq_mul, hS_card p]
-  have hfiber : ∀ p : n.primeFactors, Nonempty ({i : ι // q i = p.1} ≃ Fin r) := by
+  have hfiber : ∀ p : n.primeFactors, Nonempty ({i : ι // q i = p.1} ≃ Fin (r p.1)) := by
     intro p
     refine Fintype.card_eq.mp ?_
     rw [Fintype.card_subtype, Fintype.card_fin]
     exact hS_card p
-  let σ : (p : n.primeFactors) → {i : ι // q i = p.1} ≃ Fin r := fun p ↦ (hfiber p).some
+  let σ : (p : n.primeFactors) → {i : ι // q i = p.1} ≃ Fin (r p.1) := fun p ↦ (hfiber p).some
   let castEquiv : ∀ {a b : ℕ}, a = b → ZMod a ≃+ ZMod b :=
     fun h ↦ (ZMod.ringEquivCongr h).toAddEquiv
   have hcongr : ∀ {a b c : ℕ} (h1 : a = b) (h2 : b = c) (x : ZMod a),
@@ -248,11 +262,11 @@ theorem group_theory_lemma_of_prime_le {A : Type*} [AddCommGroup A] {n : ℕ} (h
     rintro a _ _ rfl rfl x
     simp [castEquiv]
   let reindex : ((i : ι) → ZMod (q i ^ e i)) ≃+
-      (Fin r → (p : n.primeFactors) → ZMod (p.1 ^ n.factorization p.1)) :=
-    { toFun f j p :=
+      ((p : n.primeFactors) → Fin (r p.1) → ZMod (p.1 ^ n.factorization p.1)) :=
+    { toFun f p j :=
         castEquiv (by rw [heq, ((σ p).symm j).2]) (f ((σ p).symm j).1)
       invFun g i :=
-        castEquiv (by rw [heq i]) (g (σ ⟨q i, hmem i⟩ ⟨i, rfl⟩) ⟨q i, hmem i⟩)
+        castEquiv (by rw [heq i]) (g ⟨q i, hmem i⟩ (σ ⟨q i, hmem i⟩ ⟨i, rfl⟩))
       left_inv f := by
         funext i
         dsimp only
@@ -263,27 +277,52 @@ theorem group_theory_lemma_of_prime_le {A : Type*} [AddCommGroup A] {n : ℕ} (h
           simp [castEquiv]
         exact happly (congrArg Subtype.val ((σ ⟨q i, hmem i⟩).symm_apply_apply ⟨i, rfl⟩)) _
       right_inv g := by
-        funext j p
+        funext p j
         dsimp only
         rw [hcongr]
-        have hright : ∀ {p₁ p₂ : n.primeFactors} (hp : p₁ = p₂) {j₁ j₂ : Fin r} (hj : j₁ = j₂)
+        have hright : ∀ {p₁ p₂ : n.primeFactors} (hp : p₁ = p₂) {j₁ : Fin (r p₁.1)}
+            {j₂ : Fin (r p₂.1)} (hj : HEq j₁ j₂)
             (h1 : p₁.1 ^ n.factorization p₁.1 = p₂.1 ^ n.factorization p₂.1),
-            castEquiv h1 (g j₁ p₁) = g j₂ p₂ := by
-          rintro p₁ _ rfl j₁ _ rfl _
+            castEquiv h1 (g p₁ j₁) = g p₂ j₂ := by
+          rintro p₁ _ rfl j₁ _ ⟨⟩ _
           simp [castEquiv]
         have hp : (⟨q ((σ p).symm j).1, hmem ((σ p).symm j).1⟩ : n.primeFactors) = p :=
           Subtype.ext ((σ p).symm j).2
-        have hj : σ ⟨q ((σ p).symm j).1, hmem ((σ p).symm j).1⟩ ⟨((σ p).symm j).1, rfl⟩ = j := by
+        have hj :
+            HEq (σ ⟨q ((σ p).symm j).1, hmem ((σ p).symm j).1⟩ ⟨((σ p).symm j).1, rfl⟩) j := by
           have hsub : ∀ {p₁ p₂ : n.primeFactors} (h12 : p₁ = p₂) (x : {i : ι // q i = p₁.1})
-              (y : {i : ι // q i = p₂.1}), x.1 = y.1 → σ p₁ x = σ p₂ y := by
+              (y : {i : ι // q i = p₂.1}), x.1 = y.1 → HEq (σ p₁ x) (σ p₂ y) := by
             rintro p₁ _ rfl ⟨x, hx⟩ ⟨y, hy⟩ rfl
             rfl
-          exact (hsub hp _ ((σ p).symm j) rfl).trans ((σ p).apply_symm_apply j)
+          exact (hsub hp _ ((σ p).symm j) rfl).trans (heq_of_eq ((σ p).apply_symm_apply j))
         exact hright hp hj _
       map_add' f₁ f₂ := by
-        funext j p
+        funext p j
         exact map_add _ _ _ }
-  exact ⟨(φ.trans reindex).trans
+  exact ⟨φ.trans reindex⟩
+
+theorem group_theory_lemma_of_prime_le {A : Type*} [AddCommGroup A] {n : ℕ} (hn : 0 < n) (r : ℕ)
+    (hn_card : Nat.card (Submodule.torsionBy ℤ A n) = n ^ r)
+    (hp_card : ∀ p : ℕ, p.Prime → p ∣ n → Nat.card (Submodule.torsionBy ℤ A p) ≤ p ^ r) :
+    Nonempty ((Submodule.torsionBy ℤ A n) ≃+ (Fin r → (ZMod n))) := by
+  have hprod : ∏ p ∈ n.primeFactors, p ^ (r * n.factorization p) = n ^ r := by
+    calc ∏ p ∈ n.primeFactors, p ^ (r * n.factorization p)
+        = (∏ p ∈ n.primeFactors, p ^ n.factorization p) ^ r := by
+          rw [← Finset.prod_pow]
+          exact Finset.prod_congr rfl fun p _ ↦ by rw [mul_comm, pow_mul]
+      _ = (n.factorization.prod (· ^ ·)) ^ r := by
+          rw [Finsupp.prod, Nat.support_factorization]
+      _ = n ^ r := by rw [Nat.prod_factorization_pow_eq_self hn.ne']
+  obtain ⟨ψ⟩ := torsionBy_equiv_pi_zmod_of_prime_le hn (fun _ ↦ r) (hn_card.trans hprod.symm)
+    hp_card
+  let swap : ((p : n.primeFactors) → Fin r → ZMod (p.1 ^ n.factorization p.1)) ≃+
+      (Fin r → (p : n.primeFactors) → ZMod (p.1 ^ n.factorization p.1)) :=
+    { toFun f j p := f p j
+      invFun g p j := g j p
+      left_inv _ := rfl
+      right_inv _ := rfl
+      map_add' _ _ := rfl }
+  exact ⟨(ψ.trans swap).trans
     (AddEquiv.piCongrRight fun _ ↦ (ZMod.equivPi n hn.ne').symm.toAddEquiv)⟩
 
 -- This theorem was well-known in the early part of the 20th century.
